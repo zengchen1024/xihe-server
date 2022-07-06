@@ -14,7 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
-	"github.com/opensourceways/xihe-server/infra/mongodb"
+	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 )
 
 func StartWebServer(port int, timeout time.Duration, cfg *config.Config) {
