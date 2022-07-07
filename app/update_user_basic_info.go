@@ -1,6 +1,8 @@
 package app
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -11,7 +13,15 @@ type UpdateUserBasicInfoCmd struct {
 	Bio      domain.Bio
 }
 
-func (cmd UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
+func (cmd *UpdateUserBasicInfoCmd) validate() error {
+	if cmd.NickName == nil || cmd.AvatarId == nil || cmd.Bio == nil {
+		return errors.New("invalid cmd of updating user's basic info")
+	}
+
+	return nil
+}
+
+func (cmd *UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
 	set := func() {
 		if !changed {
 			changed = true
@@ -49,6 +59,10 @@ type userService struct {
 }
 
 func (s userService) UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error {
+	if err := cmd.validate(); err != nil {
+		return err
+	}
+
 	user, err := s.repo.Get(userId)
 	if err != nil {
 		return err

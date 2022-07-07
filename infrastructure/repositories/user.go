@@ -20,12 +20,28 @@ func (impl user) Get(index string) (r domain.User, err error) {
 	}
 
 	r.Id = do.Id
-	r.Bio, _ = domain.NewBio(do.Bio)
-	r.Email, _ = domain.NewEmail(do.Email)
-	r.Account, _ = domain.NewAccount(do.Account)
-	r.Nickname, _ = domain.NewNickname(do.Nickname)
-	r.AvatarId, _ = domain.NewAvatarId(do.AvatarId)
-	r.PhoneNumber, _ = domain.NewPhoneNumber(do.PhoneNumber)
+
+	if r.Bio, err = domain.NewBio(do.Bio); err != nil {
+		return
+	}
+
+	if r.Email, _ = domain.NewEmail(do.Email); err != nil {
+		return
+	}
+
+	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
+		return
+	}
+
+	if r.Nickname, _ = domain.NewNickname(do.Nickname); err != nil {
+		return
+	}
+
+	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
+		return
+	}
+
+	r.PhoneNumber, err = domain.NewPhoneNumber(do.PhoneNumber)
 
 	return
 }

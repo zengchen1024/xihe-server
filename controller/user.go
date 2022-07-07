@@ -42,8 +42,6 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewUserService(uc.repoUser)
-
 	cmd, err := uc.genUpdateUserBasicInfoCmd(&m)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(
@@ -52,6 +50,8 @@ func (uc *UserController) Update(ctx *gin.Context) {
 
 		return
 	}
+
+	s := app.NewUserService(uc.repoUser)
 
 	if err := s.UpdateBasicInfo("", cmd); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(

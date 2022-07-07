@@ -20,7 +20,6 @@ func (r dpAccount) Account() string {
 // Nickname
 type Nickname interface {
 	Nickname() string
-	Equals(Nickname) bool
 }
 
 func NewNickname(v string) (Nickname, error) {
@@ -35,14 +34,9 @@ func (r dpNickname) Nickname() string {
 	return string(r)
 }
 
-func (r dpNickname) Equals(n Nickname) bool {
-	return n != nil && r.Nickname() == n.Nickname()
-}
-
 // Bio
 type Bio interface {
 	Bio() string
-	Equals(Bio) bool
 }
 
 func NewBio(v string) (Bio, error) {
@@ -55,10 +49,6 @@ type dpBio string
 
 func (r dpBio) Bio() string {
 	return string(r)
-}
-
-func (r dpBio) Equals(b Bio) bool {
-	return b != nil && r.Bio() == b.Bio()
 }
 
 // Email

@@ -1,16 +1,11 @@
 package domain
 
-type UserBasicInfo struct {
-	Nickname Nickname
-	AvatarId AvatarId
-	Bio      Bio
-}
-
 type User struct {
 	Id          string
+	Bio         Bio
 	Email       Email
 	Account     Account
+	Nickname    Nickname
+	AvatarId    AvatarId
 	PhoneNumber PhoneNumber
-
-	UserBasicInfo
 }

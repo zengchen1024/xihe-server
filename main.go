@@ -46,8 +46,7 @@ func main() {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
-	// TODO
-	authing.Init("", "")
+	authing.Init(cfg.Authing.UserPoolId, cfg.Authing.Secret)
 
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
 }
