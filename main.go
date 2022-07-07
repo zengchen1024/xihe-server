@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/config"
+	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/server"
 )
 
@@ -44,6 +45,9 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
+
+	// TODO
+	authing.Init("", "")
 
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
 }
