@@ -7,7 +7,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-type CreateProjectCmd struct {
+type ProjectCreateCmd struct {
 	Owner     string
 	Name      domain.ProjName
 	Desc      domain.ProjDesc
@@ -18,7 +18,7 @@ type CreateProjectCmd struct {
 	Inference domain.InferenceSDK
 }
 
-func (cmd *CreateProjectCmd) validate() error {
+func (cmd *ProjectCreateCmd) Validate() error {
 	b := cmd.Owner != "" &&
 		cmd.Name != nil &&
 		cmd.Type != nil &&
@@ -34,7 +34,7 @@ func (cmd *CreateProjectCmd) validate() error {
 	return nil
 }
 
-func (cmd *CreateProjectCmd) toProject() domain.Project {
+func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	return domain.Project{
 		Owner:     cmd.Owner,
 		Name:      cmd.Name,
@@ -58,29 +58,32 @@ type ProjectDTO struct {
 	Inference string `json:"inference"`
 }
 
-type CreateProjectService interface {
-	Create(cmd CreateProjectCmd) (ProjectDTO, error)
+type ProjectService interface {
+	Create(cmd *ProjectCreateCmd) (ProjectDTO, error)
+	Update(p *domain.Project, cmd *ProjectUpdateCmd) (ProjectDTO, error)
 }
 
-func NewCreateProjectService(repo repository.Project) CreateProjectService {
-	return createProjectService{repo}
+func NewProjectService(repo repository.Project) ProjectService {
+	return projectService{repo}
 }
 
-type createProjectService struct {
+type projectService struct {
 	repo repository.Project
 }
 
-func (s createProjectService) Create(cmd CreateProjectCmd) (dto ProjectDTO, err error) {
-	if err = cmd.validate(); err != nil {
-		return
-	}
+func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
+	p := cmd.toProject()
 
-	v, err := s.repo.Save(cmd.toProject())
+	v, err := s.repo.Save(&p)
 	if err != nil {
 		return
 	}
 
-	dto.Id = v.Id
+	s.toProjectDTO(&v, &dto)
 
 	return
+}
+
+func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
+	dto.Id = p.Id
 }

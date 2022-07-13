@@ -1,15 +1,90 @@
+definitions:
+  controller.projectCreateModel:
+    properties:
+      cover_id:
+        type: string
+      desc:
+        type: string
+      inference:
+        type: string
+      name:
+        type: string
+      protocol:
+        type: string
+      training:
+        type: string
+      type:
+        type: string
+    type: object
+  controller.projectUpdateModel:
+    properties:
+      cover_id:
+        type: string
+      desc:
+        type: string
+      name:
+        type: string
+      tags:
+        description: json [] will be converted to []string
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /v1/helloworld:
-    get:
+  /v1/project:
+    post:
       consumes:
       - application/json
-      description: helloworld
+      description: create project
+      parameters:
+      - description: body of creating project
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.projectCreateModel'
       produces:
       - application/json
       responses: {}
-      summary: helloworld
+      summary: Create
       tags:
       - Project
+  /v1/project/{id}:
+    put:
+      consumes:
+      - application/json
+      description: update project
+      parameters:
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating project
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.projectUpdateModel'
+      produces:
+      - application/json
+      responses: {}
+      summary: Update
+      tags:
+      - Project
+  /v1/user:
+    put:
+      consumes:
+      - application/json
+      description: update user basic info
+      produces:
+      - application/json
+      responses: {}
+      summary: Update
+      tags:
+      - User
 swagger: "2.0"
