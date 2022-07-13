@@ -11,7 +11,7 @@ type Project struct {
 	Protocol  ProtocolName
 	Training  TrainingSDK
 	Inference InferenceSDK
+	Tags      []string
 
-	LikeAccount int
-	Downloads   map[string]int
+	Version int
 }
