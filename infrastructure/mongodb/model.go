@@ -1,10 +1,10 @@
 package mongodb
 
 const (
-	fieldOwner = "owner"
 	fieldId    = "id"
 	fieldName  = "name"
 	fieldItems = "items"
+	fieldOwner = "owner"
 )
 
 type dProject struct {

@@ -62,6 +62,7 @@ type ProjectDTO struct {
 
 type ProjectService interface {
 	Create(cmd *ProjectCreateCmd) (ProjectDTO, error)
+	Get(owner, projectId string) (dto ProjectDTO, err error)
 	Update(p *domain.Project, cmd *ProjectUpdateCmd) (ProjectDTO, error)
 }
 

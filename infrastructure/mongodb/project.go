@@ -21,6 +21,12 @@ func projectItemFilter(name string) bson.M {
 	}
 }
 
+func projectItemFilterById(identity string) bson.M {
+	return bson.M{
+		fieldId: identity,
+	}
+}
+
 func NewProjectMapper(name string) repositories.ProjectMapper {
 	return project{name}
 }
@@ -99,13 +105,13 @@ func (col project) Update(string, repositories.ProjectDO) error {
 }
 
 func (col project) Get(owner, identity string) (do repositories.ProjectDO, err error) {
-	var v []projectItem
+	var v []dProject
 
 	f := func(ctx context.Context) error {
 		return cli.getArrayElem(
 			ctx, col.collectionName, fieldItems,
-			projectDocFilter(owner), projectItemFilter(identity),
-			nil, &v,
+			projectDocFilter(owner), projectItemFilterById(identity),
+			nil, &v, // TODO project to projectItems
 		)
 	}
 
@@ -113,13 +119,13 @@ func (col project) Get(owner, identity string) (do repositories.ProjectDO, err e
 		return
 	}
 
-	if len(v) == 0 {
+	if len(v) == 0 || len(v[0].Items) == 0 {
 		err = repositories.NewErrorDataNotExists(errDocNotExists)
 
 		return
 	}
 
-	col.toPorjectDO(owner, &v[0], &do)
+	col.toPorjectDO(owner, &v[0].Items[0], &do)
 
 	return
 }

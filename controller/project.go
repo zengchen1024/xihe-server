@@ -15,8 +15,8 @@ func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project)
 	}
 
 	rg.POST("/v1/project", pc.Create)
-	rg.PUT("/v1/project/{id}", pc.Update)
-	rg.GET("/v1/project/{id}", pc.Get)
+	rg.PUT("/v1/project/:id", pc.Update)
+	rg.GET("/v1/project/:id", pc.Get)
 }
 
 type ProjectController struct {
@@ -117,7 +117,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 // @Produce json
 // @Router /v1/project/{id} [get]
 func (pc *ProjectController) Get(ctx *gin.Context) {
-	proj, err := pc.repo.Get("", ctx.Param("id"))
+	proj, err := pc.s.Get("", ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
