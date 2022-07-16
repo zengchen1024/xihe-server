@@ -35,6 +35,8 @@ func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 		r.Id = v
 	}
 
+	err = convertError(err)
+
 	return
 }
 

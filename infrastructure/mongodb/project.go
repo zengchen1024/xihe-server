@@ -51,9 +51,11 @@ func (col project) New(owner string) error {
 	return nil
 }
 
-func (col project) Insert(do repositories.ProjectDO) (string, error) {
+func (col project) Insert(do repositories.ProjectDO) (identity string, err error) {
+	identity = newId()
+
 	docObj := projectItem{
-		Id:       newId(),
+		Id:       identity,
 		Name:     do.Name,
 		Desc:     do.Desc,
 		Type:     do.Type,
@@ -66,7 +68,7 @@ func (col project) Insert(do repositories.ProjectDO) (string, error) {
 
 	doc, err := genDoc(docObj)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	docFilter := projectDocFilter(do.Owner)
@@ -83,7 +85,13 @@ func (col project) Insert(do repositories.ProjectDO) (string, error) {
 		)
 	}
 
-	return docObj.Id, withContext(f)
+	err = withContext(f)
+
+	if errors.Is(err, errDocNotExists) {
+		err = repositories.NewErrorDuplicateCreating(err)
+	}
+
+	return
 }
 
 func (col project) Update(string, repositories.ProjectDO) error {
