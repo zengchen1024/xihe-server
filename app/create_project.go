@@ -49,7 +49,7 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 
 type ProjectDTO struct {
 	Id       string   `json:"id"`
-	Owner    string   `json:owner`
+	Owner    string   `json:"owner"`
 	Name     string   `json:"name"`
 	Desc     string   `json:"desc"`
 	Type     string   `json:"type"`
@@ -89,5 +89,27 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 }
 
 func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
-	dto.Id = p.Id
+	*dto = ProjectDTO{
+		Id:       p.Id,
+		Owner:    p.Owner,
+		Name:     p.Name.ProjName(),
+		Desc:     p.Desc.ProjDesc(),
+		Type:     p.Type.ProjType(),
+		CoverId:  p.CoverId.CoverId(),
+		Protocol: p.Protocol.ProtocolName(),
+		Training: p.Training.TrainingPlatform(),
+		RepoType: p.RepoType.RepoType(),
+		Tags:     p.Tags,
+	}
+}
+
+func (s projectService) Get(owner, projectId string) (dto ProjectDTO, err error) {
+	v, err := s.repo.Get(owner, projectId)
+	if err != nil {
+		return
+	}
+
+	s.toProjectDTO(&v, &dto)
+
+	return
 }

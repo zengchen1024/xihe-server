@@ -98,6 +98,43 @@ func (col project) Update(string, repositories.ProjectDO) error {
 	return nil
 }
 
-func (col project) Get(string) (p repositories.ProjectDO, err error) {
+func (col project) Get(owner, identity string) (do repositories.ProjectDO, err error) {
+	var v []projectItem
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			projectDocFilter(owner), projectItemFilter(identity),
+			nil, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toPorjectDO(owner, &v[0], &do)
+
 	return
+}
+
+func (col project) toPorjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
+	*do = repositories.ProjectDO{
+		Id:       item.Id,
+		Owner:    owner,
+		Name:     item.Name,
+		Desc:     item.Desc,
+		Type:     item.Type,
+		CoverId:  item.CoverId,
+		Protocol: item.Protocol,
+		Training: item.Training,
+		RepoType: item.RepoType,
+		Tags:     item.Tags,
+	}
 }

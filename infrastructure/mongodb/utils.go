@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -99,4 +101,91 @@ func (cli *client) pushArrayElem(
 	}
 
 	return nil
+}
+
+func (cli *client) getArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray bson.M,
+	project bson.M, result interface{},
+) error {
+	ma := map[string]bson.M{}
+	if len(filterOfArray) > 0 {
+		ma[array] = filterOfArray
+	}
+
+	return cli.getArraysElem(ctx, collection, filterOfDoc, ma, project, result)
+}
+
+func (cli *client) getArraysElem(
+	ctx context.Context, collection string,
+	filterOfDoc bson.M, filterOfArrays map[string]bson.M,
+	project bson.M, result interface{},
+) error {
+	m := map[string]func() bson.M{}
+	for k, v := range filterOfArrays {
+		m[k] = func() bson.M {
+			return conditionTofilterArray(v)
+		}
+	}
+
+	return cli.getArraysElemsByCustomizedCond(
+		ctx, collection, filterOfDoc, m,
+		project, result,
+	)
+}
+
+func (cli *client) getArraysElemsByCustomizedCond(
+	ctx context.Context, collection string,
+	filterOfDoc bson.M, filterOfArrays map[string]func() bson.M,
+	project bson.M, result interface{},
+) error {
+	pipeline := bson.A{bson.M{"$match": filterOfDoc}}
+
+	if len(filterOfArrays) > 0 {
+		project1 := bson.M{}
+
+		for array, cond := range filterOfArrays {
+			project1[array] = bson.M{"$filter": bson.M{
+				"input": fmt.Sprintf("$%s", array),
+				"cond":  cond(),
+			}}
+		}
+
+		for k, v := range project {
+			s := k
+			if i := strings.Index(k, "."); i >= 0 {
+				s = k[:i]
+			}
+			if _, ok := filterOfArrays[s]; !ok {
+				project1[k] = v
+			}
+		}
+
+		pipeline = append(pipeline, bson.M{"$project": project1})
+	}
+
+	if len(project) > 0 {
+		pipeline = append(pipeline, bson.M{"$project": project})
+	}
+
+	col := cli.collection(collection)
+	cursor, err := col.Aggregate(ctx, pipeline)
+	if err != nil {
+		return err
+	}
+
+	return cursor.All(ctx, result)
+}
+
+func conditionTofilterArray(filterOfArray bson.M) bson.M {
+	cond := make(bson.A, 0, len(filterOfArray))
+	for k, v := range filterOfArray {
+		cond = append(cond, bson.M{"$eq": bson.A{"$$this." + k, v}})
+	}
+
+	if len(filterOfArray) == 1 {
+		return cond[0].(bson.M)
+	}
+
+	return bson.M{"$and": cond}
 }

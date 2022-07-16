@@ -5,11 +5,11 @@ definitions:
         type: string
       desc:
         type: string
-      inference:
-        type: string
       name:
         type: string
       protocol:
+        type: string
+      repo_type:
         type: string
       training:
         type: string
@@ -54,6 +54,22 @@ paths:
       tags:
       - Project
   /v1/project/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get project
+      parameters:
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Get
+      tags:
+      - Project
     put:
       consumes:
       - application/json
