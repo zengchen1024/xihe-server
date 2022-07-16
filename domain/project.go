@@ -4,14 +4,15 @@ type Project struct {
 	Id    string
 	Owner string
 
-	Name      ProjName
-	Desc      ProjDesc
-	Type      RepoType
-	CoverId   CoverId
-	Protocol  ProtocolName
-	Training  TrainingSDK
-	Inference InferenceSDK
-	Tags      []string
+	Name     ProjName
+	Desc     ProjDesc
+	Type     ProjType
+	CoverId  CoverId
+	RepoType RepoType
+	Protocol ProtocolName
+	Training TrainingPlatform
+
+	Tags []string
 
 	Version int
 }

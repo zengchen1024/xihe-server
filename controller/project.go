@@ -42,7 +42,8 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := p.toCmd()
+	// TODO owner
+	cmd, err := p.toCmd("")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(
 			errorBadRequestParam, err,

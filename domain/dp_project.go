@@ -60,7 +60,7 @@ func (r projDesc) ProjDesc() string {
 	return string(r)
 }
 
-// InferenceSDK
+// TrainingPlatform
 type CoverId interface {
 	CoverId() string
 }
@@ -94,36 +94,36 @@ func (r protocolName) ProtocolName() string {
 	return string(r)
 }
 
-// TrainingSDK
-type TrainingSDK interface {
-	TrainingSDK() string
+// ProjType
+type ProjType interface {
+	ProjType() string
 }
 
-func NewTrainingSDK(v string) (TrainingSDK, error) {
+func NewProjType(v string) (ProjType, error) {
 	// TODO: limited value
 
-	return trainingSDK(v), nil
+	return projType(v), nil
 }
 
-type trainingSDK string
+type projType string
 
-func (r trainingSDK) TrainingSDK() string {
+func (r projType) ProjType() string {
 	return string(r)
 }
 
-// InferenceSDK
-type InferenceSDK interface {
-	InferenceSDK() string
+// TrainingPlatform
+type TrainingPlatform interface {
+	TrainingPlatform() string
 }
 
-func NewInferenceSDK(v string) (InferenceSDK, error) {
+func NewTrainingPlatform(v string) (TrainingPlatform, error) {
 	// TODO: limited value
 
-	return inferenceSDK(v), nil
+	return trainingPlatform(v), nil
 }
 
-type inferenceSDK string
+type trainingPlatform string
 
-func (r inferenceSDK) InferenceSDK() string {
+func (r trainingPlatform) TrainingPlatform() string {
 	return string(r)
 }
