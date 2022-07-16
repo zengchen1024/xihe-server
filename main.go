@@ -10,6 +10,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
 )
 
@@ -47,6 +48,13 @@ func main() {
 	}
 
 	authing.Init(cfg.Authing.UserPoolId, cfg.Authing.Secret)
+
+	m := &cfg.Mongodb
+	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
+		logrus.Fatalf("initialize mongodb failed,  err:%s", err.Error())
+	}
+
+	defer mongodb.Close()
 
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
 }

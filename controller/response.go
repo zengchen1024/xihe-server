@@ -1,9 +1,12 @@
 package controller
 
+import "github.com/opensourceways/xihe-server/domain/repository"
+
 const (
-	errorBadRequestBody  = "bad_request_body"
-	errorBadRequestParam = "bad_request_param"
-	errorSystemError     = "system_error"
+	errorBadRequestBody    = "bad_request_body"
+	errorBadRequestParam   = "bad_request_param"
+	errorSystemError       = "system_error"
+	errorDuplicateCreating = "duplicate_creating"
 )
 
 // responseData is the response data to client
@@ -13,11 +16,17 @@ type responseData struct {
 	Data interface{} `json:"data"`
 }
 
-func newResponse(code, msg string, data interface{}) responseData {
+func newResponseError(err error) responseData {
+	code := errorSystemError
+
+	switch err.(type) {
+	case repository.ErrorDuplicateCreating:
+		code = errorDuplicateCreating
+	}
+
 	return responseData{
 		Code: code,
-		Msg:  msg,
-		Data: data,
+		Msg:  err.Error(),
 	}
 }
 
@@ -27,14 +36,14 @@ func newResponseData(data interface{}) responseData {
 	}
 }
 
-func newResponseError(code string, err error) responseData {
+func newResponseCodeError(code string, err error) responseData {
 	return responseData{
 		Code: code,
 		Msg:  err.Error(),
 	}
 }
 
-func newResponseMsg(code, msg string) responseData {
+func newResponseCodeMsg(code, msg string) responseData {
 	return responseData{
 		Code: code,
 		Msg:  msg,

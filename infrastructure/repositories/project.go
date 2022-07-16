@@ -18,21 +18,25 @@ func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 		return
 	}
 
-	do := ProjectBasicDO{
-		Owner:     p.Owner,
-		Name:      p.Name.ProjName(),
-		Desc:      p.Desc.ProjDesc(),
-		Type:      p.Type.RepoType(),
-		CoverId:   p.CoverId.CoverId(),
-		Protocol:  p.Protocol.ProtocolName(),
-		Training:  p.Training.TrainingSDK(),
-		Inference: p.Inference.InferenceSDK(),
+	do := ProjectDO{
+		Owner:    p.Owner,
+		Name:     p.Name.ProjName(),
+		Desc:     p.Desc.ProjDesc(),
+		Type:     p.Type.ProjType(),
+		CoverId:  p.CoverId.CoverId(),
+		RepoType: p.RepoType.RepoType(),
+		Protocol: p.Protocol.ProtocolName(),
+		Training: p.Training.TrainingPlatform(),
 	}
 
-	v, err := impl.mapper.Create(do)
+	v, err := impl.mapper.Insert(do)
 	if err == nil {
+		r = *p
 		r.Id = v
 	}
+
+	err = convertError(err)
+
 	return
 }
 
@@ -40,31 +44,22 @@ func (impl project) Get(pid string) (r domain.Project, err error) {
 	return
 }
 
-type ProjectBasicDO struct {
-	Owner     string
-	Name      string
-	Desc      string
-	Type      string
-	CoverId   string
-	Protocol  string
-	Training  string
-	Inference string
-	Tags      []string
-}
-
 type ProjectDO struct {
-	ProjectBasicDO
-
-	Tags []string
-
-	LikeAccount int
-
-	AccumulatedDownloads int
-	RecentDownloads      map[string]int
+	Id       string
+	Owner    string
+	Name     string
+	Desc     string
+	Type     string
+	CoverId  string
+	RepoType string
+	Protocol string
+	Training string
+	Tags     []string
+	Version  int
 }
 
 type ProjectMapper interface {
-	Create(ProjectBasicDO) (string, error)
-	Update(string, ProjectBasicDO) (string, error)
+	Insert(ProjectDO) (string, error)
+	Update(string, ProjectDO) error
 	Get(string) (ProjectDO, error)
 }

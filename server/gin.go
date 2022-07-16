@@ -15,6 +15,7 @@ import (
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
@@ -45,7 +46,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	{
 		controller.AddRouterForProjectController(
 			v1,
-			repositories.NewProjectRepository(nil),
+			repositories.NewProjectRepository(
+				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
+			),
 		)
 
 		controller.AddRouterForUserController(

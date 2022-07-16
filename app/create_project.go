@@ -8,14 +8,14 @@ import (
 )
 
 type ProjectCreateCmd struct {
-	Owner     string
-	Name      domain.ProjName
-	Desc      domain.ProjDesc
-	Type      domain.RepoType
-	CoverId   domain.CoverId
-	Protocol  domain.ProtocolName
-	Training  domain.TrainingSDK
-	Inference domain.InferenceSDK
+	Owner    string
+	Name     domain.ProjName
+	Desc     domain.ProjDesc
+	Type     domain.ProjType
+	CoverId  domain.CoverId
+	RepoType domain.RepoType
+	Protocol domain.ProtocolName
+	Training domain.TrainingPlatform
 }
 
 func (cmd *ProjectCreateCmd) Validate() error {
@@ -23,9 +23,9 @@ func (cmd *ProjectCreateCmd) Validate() error {
 		cmd.Name != nil &&
 		cmd.Type != nil &&
 		cmd.CoverId != nil &&
+		cmd.RepoType != nil &&
 		cmd.Protocol != nil &&
-		cmd.Training != nil &&
-		cmd.Inference != nil
+		cmd.Training != nil
 
 	if !b {
 		return errors.New("invalid cmd of creating project")
@@ -36,26 +36,28 @@ func (cmd *ProjectCreateCmd) Validate() error {
 
 func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	return domain.Project{
-		Owner:     cmd.Owner,
-		Name:      cmd.Name,
-		Desc:      cmd.Desc,
-		Type:      cmd.Type,
-		CoverId:   cmd.CoverId,
-		Protocol:  cmd.Protocol,
-		Training:  cmd.Training,
-		Inference: cmd.Inference,
+		Owner:    cmd.Owner,
+		Name:     cmd.Name,
+		Desc:     cmd.Desc,
+		Type:     cmd.Type,
+		CoverId:  cmd.CoverId,
+		RepoType: cmd.RepoType,
+		Protocol: cmd.Protocol,
+		Training: cmd.Training,
 	}
 }
 
 type ProjectDTO struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	Desc      string `json:"desc"`
-	Type      string `json:"type"`
-	CoverId   string `json:"cover_id"`
-	Protocol  string `json:"protocol"`
-	Training  string `json:"training"`
-	Inference string `json:"inference"`
+	Id       string   `json:"id"`
+	Owner    string   `json:owner`
+	Name     string   `json:"name"`
+	Desc     string   `json:"desc"`
+	Type     string   `json:"type"`
+	CoverId  string   `json:"cover_id"`
+	Protocol string   `json:"protocol"`
+	Training string   `json:"training"`
+	RepoType string   `json:"repo_type"`
+	Tags     []string `json:"tags"`
 }
 
 type ProjectService interface {
@@ -80,6 +82,8 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	}
 
 	s.toProjectDTO(&v, &dto)
+
+	// TODO send event
 
 	return
 }

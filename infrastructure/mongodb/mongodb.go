@@ -58,7 +58,10 @@ func (cli *client) collection(name string) *mongo.Collection {
 }
 
 func withContext(f func(context.Context) error) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second, // TODO use config
+	)
 	defer cancel()
 
 	return f(ctx)

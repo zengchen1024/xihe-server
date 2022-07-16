@@ -5,10 +5,10 @@ import (
 )
 
 type ProjectUpdateCmd struct {
-	Name    domain.ProjName
-	Desc    domain.ProjDesc
-	Type    domain.RepoType
-	CoverId domain.CoverId
+	Name     domain.ProjName
+	Desc     domain.ProjDesc
+	RepoType domain.RepoType
+	CoverId  domain.CoverId
 }
 
 func (cmd *ProjectUpdateCmd) toProject(p *domain.Project) {
@@ -20,8 +20,8 @@ func (cmd *ProjectUpdateCmd) toProject(p *domain.Project) {
 		p.Desc = cmd.Desc
 	}
 
-	if cmd.Type != nil {
-		p.Type = cmd.Type
+	if cmd.RepoType != nil {
+		p.RepoType = cmd.RepoType
 	}
 
 	if cmd.CoverId != nil {

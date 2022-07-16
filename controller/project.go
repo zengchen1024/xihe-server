@@ -34,7 +34,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 	p := projectCreateModel{}
 
 	if err := ctx.ShouldBindJSON(&p); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseMsg(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
 			"can't fetch request body",
 		))
@@ -42,9 +42,10 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := p.toCmd()
+	// TODO owner
+	cmd, err := p.toCmd("")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
@@ -53,9 +54,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 
 	d, err := pc.s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
-			errorSystemError, err,
-		))
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}
@@ -75,7 +74,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 	p := projectUpdateModel{}
 
 	if err := ctx.ShouldBindJSON(&p); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseMsg(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
 			"can't fetch request body",
 		))
@@ -85,7 +84,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 
 	cmd, err := p.toCmd()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
@@ -94,7 +93,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 
 	proj, err := pc.repo.Get(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
@@ -103,9 +102,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 
 	d, err := pc.s.Update(&proj, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
-			errorSystemError, err,
-		))
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}

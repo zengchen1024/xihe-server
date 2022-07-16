@@ -34,7 +34,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 	m := userBasicInfoModel{}
 
 	if err := ctx.ShouldBindJSON(&m); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseMsg(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
 			"can't fetch request body",
 		))
@@ -44,7 +44,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 
 	cmd, err := uc.genUpdateUserBasicInfoCmd(&m)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
@@ -54,9 +54,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 	s := app.NewUserService(uc.repoUser)
 
 	if err := s.UpdateBasicInfo("", cmd); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(
-			errorSystemError, err,
-		))
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}
