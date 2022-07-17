@@ -57,7 +57,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 
 	d, err := pc.s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
@@ -103,7 +103,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 
 	d, err := pc.s.Update(&proj, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
@@ -121,7 +121,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 func (pc *ProjectController) Get(ctx *gin.Context) {
 	proj, err := pc.s.Get("", ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
@@ -151,7 +151,7 @@ func (pc *ProjectController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	projs, err := pc.s.List("zengchen1024", &cmd)
+	projs, err := pc.s.List("", &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

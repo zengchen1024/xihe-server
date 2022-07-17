@@ -61,10 +61,10 @@ type ProjectDTO struct {
 }
 
 type ProjectService interface {
-	Create(cmd *ProjectCreateCmd) (ProjectDTO, error)
-	Get(owner, projectId string) (dto ProjectDTO, err error)
-	Update(p *domain.Project, cmd *ProjectUpdateCmd) (ProjectDTO, error)
+	Get(string, string) (ProjectDTO, error)
+	Create(*ProjectCreateCmd) (ProjectDTO, error)
 	List(string, *ProjectListCmd) ([]ProjectDTO, error)
+	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 }
 
 func NewProjectService(repo repository.Project) ProjectService {
