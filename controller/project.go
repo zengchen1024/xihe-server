@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -17,6 +18,7 @@ func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project)
 	rg.POST("/v1/project", pc.Create)
 	rg.PUT("/v1/project/:id", pc.Update)
 	rg.GET("/v1/project/:id", pc.Get)
+	rg.GET("/v1/project", pc.List)
 }
 
 type ProjectController struct {
@@ -55,7 +57,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 
 	d, err := pc.s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
@@ -101,7 +103,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 
 	d, err := pc.s.Update(&proj, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
@@ -119,10 +121,42 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 func (pc *ProjectController) Get(ctx *gin.Context) {
 	proj, err := pc.s.Get("", ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(proj))
+}
+
+// @Summary List
+// @Description list project
+// @Tags  Project
+// @Accept json
+// @Produce json
+// @Router /v1/project [get]
+func (pc *ProjectController) List(ctx *gin.Context) {
+	cmd := app.ProjectListCmd{}
+
+	if v := ctx.Request.URL.Query().Get("name"); v != "" {
+		name, err := domain.NewProjName(v)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+
+		cmd.Name = name
+	}
+
+	projs, err := pc.s.List("", &cmd)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(projs))
 }

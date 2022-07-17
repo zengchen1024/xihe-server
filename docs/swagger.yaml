@@ -36,6 +36,16 @@ info:
   contact: {}
 paths:
   /v1/project:
+    get:
+      consumes:
+      - application/json
+      description: list project
+      produces:
+      - application/json
+      responses: {}
+      summary: List
+      tags:
+      - Project
     post:
       consumes:
       - application/json

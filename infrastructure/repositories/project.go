@@ -53,6 +53,35 @@ func (impl project) Get(owner, identity string) (r domain.Project, err error) {
 	return
 }
 
+func (impl project) List(owner string, option repository.ProjectListOption) (
+	r []domain.Project, err error,
+) {
+	do := ProjectListDO{}
+	if option.Name != nil {
+		do.Name = option.Name.ProjName()
+	}
+
+	v, err := impl.mapper.List(owner, do)
+	if err != nil {
+		err = convertError(err)
+
+		return
+	}
+
+	r = make([]domain.Project, len(v))
+	for i := range v {
+		if err = v[i].toProject(&r[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+type ProjectListDO struct {
+	Name string
+}
+
 type ProjectDO struct {
 	Id       string
 	Owner    string
@@ -110,4 +139,5 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Update(string, ProjectDO) error
 	Get(string, string) (ProjectDO, error)
+	List(string, ProjectListDO) ([]ProjectDO, error)
 }
