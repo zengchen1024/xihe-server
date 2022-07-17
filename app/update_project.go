@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ProjectUpdateCmd struct {
@@ -44,6 +45,30 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto Pr
 	return
 }
 
-func (s projectService) List(owner string) (dtos []ProjectDTO, err error) {
+type ProjectListCmd struct {
+	Name domain.ProjName
+}
+
+func (cmd *ProjectListCmd) toProjectListOption() (
+	option repository.ProjectListOption,
+) {
+	option.Name = cmd.Name
+
+	return
+}
+
+func (s projectService) List(owner string, cmd *ProjectListCmd) (
+	dtos []ProjectDTO, err error,
+) {
+	v, err := s.repo.List(owner, cmd.toProjectListOption())
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	dtos = make([]ProjectDTO, len(v))
+	for i := range v {
+		s.toProjectDTO(&v[i], &dtos[i])
+	}
+
 	return
 }
