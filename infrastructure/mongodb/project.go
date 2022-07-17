@@ -21,7 +21,7 @@ func projectItemFilter(name string) bson.M {
 	}
 }
 
-func projectItemFilterById(identity string) bson.M {
+func arrayFilterById(identity string) bson.M {
 	return bson.M{
 		fieldId: identity,
 	}
@@ -110,8 +110,8 @@ func (col project) Get(owner, identity string) (do repositories.ProjectDO, err e
 	f := func(ctx context.Context) error {
 		return cli.getArrayElem(
 			ctx, col.collectionName, fieldItems,
-			projectDocFilter(owner), projectItemFilterById(identity),
-			nil, &v, // TODO project to projectItems
+			projectDocFilter(owner), arrayFilterById(identity),
+			bson.M{fieldItems: 1}, &v,
 		)
 	}
 

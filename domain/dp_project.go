@@ -14,7 +14,7 @@ type RepoType interface {
 
 func NewRepoType(v string) (RepoType, error) {
 	if v != RepoTypePublic && v != RepoTypePrivate {
-		return nil, errors.New("unknown repo type: " + v)
+		return nil, errors.New("unknown repo type")
 	}
 
 	return repoType(v), nil
