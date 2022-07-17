@@ -17,6 +17,20 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/v1/project": {
+            "get": {
+                "description": "list project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "List",
+                "responses": {}
+            },
             "post": {
                 "description": "create project",
                 "consumes": [
