@@ -6,5 +6,5 @@ import (
 
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
-	Get(string) (domain.Project, error)
+	Get(string, string) (domain.Project, error)
 }

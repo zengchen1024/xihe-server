@@ -43,3 +43,7 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto Pr
 
 	return
 }
+
+func (s projectService) List(owner string) (dtos []ProjectDTO, err error) {
+	return
+}

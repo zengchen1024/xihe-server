@@ -3,10 +3,11 @@ package controller
 import "github.com/opensourceways/xihe-server/domain/repository"
 
 const (
+	errorSystemError       = "system_error"
 	errorBadRequestBody    = "bad_request_body"
 	errorBadRequestParam   = "bad_request_param"
-	errorSystemError       = "system_error"
 	errorDuplicateCreating = "duplicate_creating"
+	errorResourceNotExists = "resource_not_exists"
 )
 
 // responseData is the response data to client
@@ -22,6 +23,8 @@ func newResponseError(err error) responseData {
 	switch err.(type) {
 	case repository.ErrorDuplicateCreating:
 		code = errorDuplicateCreating
+	case repository.ErrorResourceNotExists:
+		code = errorResourceNotExists
 	}
 
 	return responseData{

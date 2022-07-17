@@ -44,6 +44,29 @@ const docTemplate = `{
             }
         },
         "/v1/project/{id}": {
+            "get": {
+                "description": "get project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
             "put": {
                 "description": "update project",
                 "consumes": [
@@ -104,13 +127,13 @@ const docTemplate = `{
                 "desc": {
                     "type": "string"
                 },
-                "inference": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
                 "protocol": {
+                    "type": "string"
+                },
+                "repo_type": {
                     "type": "string"
                 },
                 "training": {
