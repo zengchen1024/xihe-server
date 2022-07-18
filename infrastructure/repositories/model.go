@@ -8,6 +8,7 @@ import (
 type ModelMapper interface {
 	Insert(ModelDO) (string, error)
 	Get(string, string) (ModelDO, error)
+	List(string, ModelListDO) ([]ModelDO, error)
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {
@@ -53,6 +54,35 @@ func (impl model) Get(owner, identity string) (r domain.Model, err error) {
 	return
 }
 
+func (impl model) List(owner string, option repository.ModelListOption) (
+	r []domain.Model, err error,
+) {
+	do := ModelListDO{}
+
+	if option.Name != nil {
+		do.Name = option.Name.ProjName()
+	}
+
+	v, err := impl.mapper.List(owner, do)
+	if err != nil {
+		err = convertError(err)
+
+		return
+	}
+
+	r = make([]domain.Model, len(v))
+	for i := range v {
+		if err = v[i].toModel(&r[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+type ModelListDO struct {
+	Name string
+}
 type ModelDO struct {
 	Id       string
 	Owner    string

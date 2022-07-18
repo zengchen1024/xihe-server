@@ -51,6 +51,7 @@ type ModelDTO struct {
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
 	Get(string, string) (ModelDTO, error)
+	List(string, *ModelListCmd) ([]ModelDTO, error)
 }
 
 func NewModelService(repo repository.Model) ModelService {
@@ -95,6 +96,34 @@ func (s modelService) Get(owner, modelId string) (dto ModelDTO, err error) {
 	}
 
 	s.toModelDTO(&v, &dto)
+
+	return
+}
+
+type ModelListCmd struct {
+	Name domain.ProjName
+}
+
+func (cmd *ModelListCmd) toModelListOption() (
+	option repository.ModelListOption,
+) {
+	option.Name = cmd.Name
+
+	return
+}
+
+func (s modelService) List(owner string, cmd *ModelListCmd) (
+	dtos []ModelDTO, err error,
+) {
+	v, err := s.repo.List(owner, cmd.toModelListOption())
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	dtos = make([]ModelDTO, len(v))
+	for i := range v {
+		s.toModelDTO(&v[i], &dtos[i])
+	}
 
 	return
 }

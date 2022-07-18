@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -114,6 +115,51 @@ func (col model) Get(owner, identity string) (do repositories.ModelDO, err error
 	}
 
 	col.toModelDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
+func (col model) List(owner string, do repositories.ModelListDO) (
+	r []repositories.ModelDO, err error,
+) {
+	var v []dModel
+
+	f := func(ctx context.Context) error {
+		return cli.getArraysElemsByCustomizedCond(
+			ctx, col.collectionName, modelDocFilter(owner),
+			map[string]func() bson.M{
+				fieldItems: func() bson.M {
+					if do.Name == "" {
+						return bson.M{
+							"$toBool": 1,
+						}
+					}
+
+					return bson.M{
+						"$regexMatch": bson.M{
+							"input": fmt.Sprintf("$$this.%s", fieldName),
+							"regex": do.Name,
+						},
+					}
+				},
+			},
+			bson.M{fieldItems: 1}, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		return
+	}
+
+	items := v[0].Items
+	r = make([]repositories.ModelDO, len(items))
+	for i := range items {
+		col.toModelDO(owner, &items[i], &r[i])
+	}
 
 	return
 }
