@@ -30,12 +30,12 @@ func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 	}
 
 	v, err := impl.mapper.Insert(do)
-	if err == nil {
+	if err != nil {
+		err = convertError(err)
+	} else {
 		r = *p
 		r.Id = v
 	}
-
-	err = convertError(err)
 
 	return
 }
