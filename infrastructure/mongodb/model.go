@@ -91,3 +91,41 @@ func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
 
 	return
 }
+
+func (col model) Get(owner, identity string) (do repositories.ModelDO, err error) {
+	var v []dModel
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			modelDocFilter(owner), arrayFilterById(identity),
+			bson.M{fieldItems: 1}, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toModelDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
+func (col model) toModelDO(owner string, item *modelItem, do *repositories.ModelDO) {
+	*do = repositories.ModelDO{
+		Id:       item.Id,
+		Owner:    owner,
+		Name:     item.Name,
+		Desc:     item.Desc,
+		Protocol: item.Protocol,
+		RepoType: item.RepoType,
+		Tags:     item.Tags,
+	}
+}

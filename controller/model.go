@@ -15,6 +15,7 @@ func AddRouterForModelController(rg *gin.RouterGroup, repo repository.Model) {
 	}
 
 	rg.POST("/v1/model", pc.Create)
+	rg.GET("/v1/model/:owner/:id", pc.Get)
 }
 
 type ModelController struct {
@@ -62,4 +63,22 @@ func (pc *ModelController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(d))
+}
+
+// @Summary Get
+// @Description get model
+// @Tags  Model
+// @Param	id	path	string	true	"id of model"
+// @Accept json
+// @Success 200 {object} app.ModelDTO
+// @Router /v1/model/{owner}/{id} [get]
+func (pc *ModelController) Get(ctx *gin.Context) {
+	m, err := pc.s.Get(ctx.Param("owner"), ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(m))
 }

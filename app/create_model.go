@@ -50,6 +50,7 @@ type ModelDTO struct {
 
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
+	Get(string, string) (ModelDTO, error)
 }
 
 func NewModelService(repo repository.Model) ModelService {
@@ -85,4 +86,15 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 		RepoType: m.RepoType.RepoType(),
 		Tags:     m.Tags,
 	}
+}
+
+func (s modelService) Get(owner, modelId string) (dto ModelDTO, err error) {
+	v, err := s.repo.Get(owner, modelId)
+	if err != nil {
+		return
+	}
+
+	s.toModelDTO(&v, &dto)
+
+	return
 }

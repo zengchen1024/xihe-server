@@ -6,4 +6,5 @@ import (
 
 type Model interface {
 	Save(*domain.Model) (domain.Model, error)
+	Get(string, string) (domain.Model, error)
 }
