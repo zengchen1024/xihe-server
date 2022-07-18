@@ -58,6 +58,13 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			),
 		)
 
+		controller.AddRouterForDatasetController(
+			v1,
+			repositories.NewDatasetRepository(
+				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
+			),
+		)
+
 		controller.AddRouterForUserController(
 			v1,
 			repositories.NewUserRepository(authing.NewUserMapper()),
