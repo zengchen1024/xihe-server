@@ -41,6 +41,7 @@ type MongodbConfig struct {
 	DBName            string `json:"mongodb_db" required:"true"`
 	ProjectCollection string `json:"project_collection" required:"true"`
 	ModelCollection   string `json:"model_collection" required:"true"`
+	DatasetCollection string `json:"dataset_collection" required:"true"`
 }
 
 type AuthingService struct {

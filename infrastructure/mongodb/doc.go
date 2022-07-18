@@ -37,3 +37,17 @@ type modelItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	Tags     []string `bson:"tags"      json:"tags"`
 }
+
+type dDataset struct {
+	Owner string        `bson:"owner" json:"owner"`
+	Items []datasetItem `bson:"items" json:"-"`
+}
+
+type datasetItem struct {
+	Id       string   `bson:"id"        json:"id"`
+	Name     string   `bson:"name"      json:"name"`
+	Desc     string   `bson:"desc"      json:"desc"`
+	Protocol string   `bson:"protocol"  json:"protocol"`
+	RepoType string   `bson:"repo_type" json:"repo_type"`
+	Tags     []string `bson:"tags"      json:"tags"`
+}
