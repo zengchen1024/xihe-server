@@ -25,8 +25,8 @@ type projectItem struct {
 }
 
 type dModel struct {
-	Owner string        `bson:"owner" json:"owner"`
-	Items []projectItem `bson:"items" json:"-"`
+	Owner string      `bson:"owner" json:"owner"`
+	Items []modelItem `bson:"items" json:"-"`
 }
 
 type modelItem struct {

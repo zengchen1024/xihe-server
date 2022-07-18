@@ -127,7 +127,7 @@ func (col project) Get(owner, identity string) (do repositories.ProjectDO, err e
 		return
 	}
 
-	col.toPorjectDO(owner, &v[0].Items[0], &do)
+	col.toProjectDO(owner, &v[0].Items[0], &do)
 
 	return
 }
@@ -171,13 +171,13 @@ func (col project) List(owner string, do repositories.ProjectListDO) (
 	items := v[0].Items
 	r = make([]repositories.ProjectDO, len(items))
 	for i := range items {
-		col.toPorjectDO(owner, &items[i], &r[i])
+		col.toProjectDO(owner, &items[i], &r[i])
 	}
 
 	return
 }
 
-func (col project) toPorjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
+func (col project) toProjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
 	*do = repositories.ProjectDO{
 		Id:       item.Id,
 		Owner:    owner,
