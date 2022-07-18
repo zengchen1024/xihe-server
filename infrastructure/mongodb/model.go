@@ -1,25 +1,93 @@
 package mongodb
 
-const (
-	fieldId    = "id"
-	fieldName  = "name"
-	fieldItems = "items"
-	fieldOwner = "owner"
+import (
+	"context"
+	"errors"
+
+	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-type dProject struct {
-	Owner string        `bson:"owner" json:"owner"`
-	Items []projectItem `bson:"items" json:"-"`
+func modelDocFilter(owner string) bson.M {
+	return bson.M{
+		fieldOwner: owner,
+	}
 }
 
-type projectItem struct {
-	Id       string   `bson:"id"        json:"id"`
-	Name     string   `bson:"name"      json:"name"`
-	Desc     string   `bson:"desc"      json:"desc"`
-	Type     string   `bson:"type"      json:"type"`
-	CoverId  string   `bson:"cover_id"  json:"cover_id"`
-	Protocol string   `bson:"protocol"  json:"protocol"`
-	Training string   `bson:"training"  json:"training"`
-	RepoType string   `bson:"repo_type" json:"repo_type"`
-	Tags     []string `bson:"tags"      json:"tags"`
+func modelItemFilter(name string) bson.M {
+	return bson.M{
+		fieldName: name,
+	}
+}
+
+func NewModelMapper(name string) repositories.ModelMapper {
+	return model{name}
+}
+
+type model struct {
+	collectionName string
+}
+
+func (col model) New(owner string) error {
+	docFilter := modelDocFilter(owner)
+
+	doc := bson.M{
+		fieldOwner: owner,
+		fieldItems: bson.A{},
+	}
+
+	f := func(ctx context.Context) error {
+		_, err := cli.newDocIfNotExist(
+			ctx, col.collectionName, docFilter, doc,
+		)
+
+		return err
+	}
+
+	if err := withContext(f); err != nil && !errors.Is(err, errDocExists) {
+		return err
+	}
+
+	return nil
+}
+
+func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
+	identity = newId()
+
+	docObj := modelItem{
+		Id:       identity,
+		Name:     do.Name,
+		Desc:     do.Desc,
+		Protocol: do.Protocol,
+		RepoType: do.RepoType,
+		Tags:     do.Tags,
+	}
+
+	doc, err := genDoc(docObj)
+	if err != nil {
+		return
+	}
+
+	docFilter := modelDocFilter(do.Owner)
+
+	appendElemMatchToFilter(
+		fieldItems, false,
+		modelItemFilter(do.Name), docFilter,
+	)
+
+	f := func(ctx context.Context) error {
+		return cli.pushArrayElem(
+			ctx, col.collectionName,
+			fieldItems, docFilter, doc,
+		)
+	}
+
+	err = withContext(f)
+
+	if errors.Is(err, errDocNotExists) {
+		err = repositories.NewErrorDuplicateCreating(err)
+	}
+
+	return
 }

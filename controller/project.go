@@ -29,12 +29,12 @@ type ProjectController struct {
 // @Summary Create
 // @Description create project
 // @Tags  Project
-// @Param	body	body 	projectCreateModel	true	"body of creating project"
+// @Param	body	body 	projectCreateRequest	true	"body of creating project"
 // @Accept json
 // @Produce json
 // @Router /v1/project [post]
 func (pc *ProjectController) Create(ctx *gin.Context) {
-	p := projectCreateModel{}
+	p := projectCreateRequest{}
 
 	if err := ctx.ShouldBindJSON(&p); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
@@ -69,12 +69,12 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 // @Description update project
 // @Tags  Project
 // @Param	id	path	string	true	"id of project"
-// @Param	body	body 	projectUpdateModel	true	"body of updating project"
+// @Param	body	body 	projectUpdateRequest	true	"body of updating project"
 // @Accept json
 // @Produce json
 // @Router /v1/project/{id} [put]
 func (pc *ProjectController) Update(ctx *gin.Context) {
-	p := projectUpdateModel{}
+	p := projectUpdateRequest{}
 
 	if err := ctx.ShouldBindJSON(&p); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(

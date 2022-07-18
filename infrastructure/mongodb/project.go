@@ -38,6 +38,7 @@ type project struct {
 
 func (col project) New(owner string) error {
 	docFilter := projectDocFilter(owner)
+
 	doc := bson.M{
 		fieldOwner: owner,
 		fieldItems: bson.A{},

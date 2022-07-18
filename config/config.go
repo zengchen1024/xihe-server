@@ -1,6 +1,8 @@
 package config
 
 import (
+	"github.com/huaweicloud/golangsdk"
+
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -29,13 +31,16 @@ func (cfg *Config) setDefault() {
 }
 
 func (cfg *Config) validate() error {
-	return nil
+	_, err := golangsdk.BuildRequestBody(cfg, "")
+
+	return err
 }
 
 type MongodbConfig struct {
 	MongodbConn       string `json:"mongodb_conn" required:"true"`
 	DBName            string `json:"mongodb_db" required:"true"`
 	ProjectCollection string `json:"project_collection" required:"true"`
+	ModelCollection   string `json:"model_collection" required:"true"`
 }
 
 type AuthingService struct {

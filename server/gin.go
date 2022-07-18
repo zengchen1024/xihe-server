@@ -51,6 +51,13 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			),
 		)
 
+		controller.AddRouterForModelController(
+			v1,
+			repositories.NewModelRepository(
+				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
+			),
+		)
+
 		controller.AddRouterForUserController(
 			v1,
 			repositories.NewUserRepository(authing.NewUserMapper()),

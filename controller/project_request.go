@@ -5,7 +5,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
-type projectCreateModel struct {
+type projectCreateRequest struct {
 	Name     string `json:"name" required:"true"`
 	Desc     string `json:"desc"`
 	Type     string `json:"type" required:"true"`
@@ -15,7 +15,7 @@ type projectCreateModel struct {
 	RepoType string `json:"repo_type" required:"true"`
 }
 
-func (p *projectCreateModel) toCmd(owner string) (cmd app.ProjectCreateCmd, err error) {
+func (p *projectCreateRequest) toCmd(owner string) (cmd app.ProjectCreateCmd, err error) {
 	cmd.Owner = owner
 
 	cmd.Name, err = domain.NewProjName(p.Name)
@@ -58,7 +58,7 @@ func (p *projectCreateModel) toCmd(owner string) (cmd app.ProjectCreateCmd, err 
 	return
 }
 
-type projectUpdateModel struct {
+type projectUpdateRequest struct {
 	Name     *string `json:"name"`
 	Desc     *string `json:"desc"`
 	RepoType *string `json:"type"`
@@ -67,7 +67,7 @@ type projectUpdateModel struct {
 	Tags []string `json:"tags"`
 }
 
-func (p *projectUpdateModel) toCmd() (cmd app.ProjectUpdateCmd, err error) {
+func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 	if p.Name != nil {
 		cmd.Name, err = domain.NewProjName(*p.Name)
 		if err != nil {
