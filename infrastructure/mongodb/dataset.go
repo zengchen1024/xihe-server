@@ -91,3 +91,41 @@ func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error
 
 	return
 }
+
+func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err error) {
+	var v []dDataset
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			datasetDocFilter(owner), arrayFilterById(identity),
+			bson.M{fieldItems: 1}, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toDatasetDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
+func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories.DatasetDO) {
+	*do = repositories.DatasetDO{
+		Id:       item.Id,
+		Owner:    owner,
+		Name:     item.Name,
+		Desc:     item.Desc,
+		Protocol: item.Protocol,
+		RepoType: item.RepoType,
+		Tags:     item.Tags,
+	}
+}

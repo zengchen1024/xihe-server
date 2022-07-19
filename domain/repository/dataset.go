@@ -6,4 +6,5 @@ import (
 
 type Dataset interface {
 	Save(*domain.Dataset) (domain.Dataset, error)
+	Get(domain.Account, string) (domain.Dataset, error)
 }

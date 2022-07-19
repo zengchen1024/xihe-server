@@ -8,7 +8,7 @@ import (
 )
 
 type DatasetCreateCmd struct {
-	Owner    string
+	Owner    domain.Account
 	Name     domain.ProjName
 	Desc     domain.ProjDesc
 	RepoType domain.RepoType
@@ -16,7 +16,7 @@ type DatasetCreateCmd struct {
 }
 
 func (cmd *DatasetCreateCmd) Validate() error {
-	b := cmd.Owner != "" &&
+	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
@@ -50,6 +50,7 @@ type DatasetDTO struct {
 
 type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
+	Get(domain.Account, string) (DatasetDTO, error)
 }
 
 func NewDatasetService(repo repository.Dataset) DatasetService {
@@ -78,11 +79,22 @@ func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error
 func (s datasetService) toDatasetDTO(m *domain.Dataset, dto *DatasetDTO) {
 	*dto = DatasetDTO{
 		Id:       m.Id,
-		Owner:    m.Owner,
+		Owner:    m.Owner.Account(),
 		Name:     m.Name.ProjName(),
 		Desc:     m.Desc.ProjDesc(),
 		Protocol: m.Protocol.ProtocolName(),
 		RepoType: m.RepoType.RepoType(),
 		Tags:     m.Tags,
 	}
+}
+
+func (s datasetService) Get(owner domain.Account, datasetId string) (dto DatasetDTO, err error) {
+	v, err := s.repo.Get(owner, datasetId)
+	if err != nil {
+		return
+	}
+
+	s.toDatasetDTO(&v, &dto)
+
+	return
 }
