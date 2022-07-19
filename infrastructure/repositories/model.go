@@ -83,6 +83,7 @@ func (impl model) List(owner string, option repository.ModelListOption) (
 type ModelListDO struct {
 	Name string
 }
+
 type ModelDO struct {
 	Id       string
 	Owner    string

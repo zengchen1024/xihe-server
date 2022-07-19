@@ -7,6 +7,7 @@ import (
 
 type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
+	Get(string, string) (DatasetDO, error)
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {
@@ -23,7 +24,7 @@ func (impl dataset) Save(m *domain.Dataset) (r domain.Dataset, err error) {
 	}
 
 	do := DatasetDO{
-		Owner:    m.Owner,
+		Owner:    m.Owner.Account(),
 		Name:     m.Name.ProjName(),
 		Desc:     m.Desc.ProjDesc(),
 		RepoType: m.RepoType.RepoType(),
@@ -41,6 +42,17 @@ func (impl dataset) Save(m *domain.Dataset) (r domain.Dataset, err error) {
 	return
 }
 
+func (impl dataset) Get(owner domain.Account, identity string) (r domain.Dataset, err error) {
+	v, err := impl.mapper.Get(owner.Account(), identity)
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toDataset(&r)
+	}
+
+	return
+}
+
 type DatasetDO struct {
 	Id       string
 	Owner    string
@@ -50,4 +62,34 @@ type DatasetDO struct {
 	Protocol string
 	Tags     []string
 	Version  int
+}
+
+func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
+	r.Id = do.Id
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+		return
+	}
+
+	if r.Desc, err = domain.NewProjDesc(do.Desc); err != nil {
+		return
+	}
+
+	if r.RepoType, err = domain.NewRepoType(do.RepoType); err != nil {
+		return
+	}
+
+	if r.Protocol, err = domain.NewProtocolName(do.Protocol); err != nil {
+		return
+	}
+
+	r.Tags = do.Tags
+
+	r.Version = do.Version
+
+	return
 }

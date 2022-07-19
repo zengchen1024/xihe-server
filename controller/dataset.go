@@ -5,16 +5,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForDatasetController(rg *gin.RouterGroup, repo repository.Dataset) {
-	pc := DatasetController{
+	c := DatasetController{
 		repo: repo,
 		s:    app.NewDatasetService(repo),
 	}
 
-	rg.POST("/v1/dataset", pc.Create)
+	rg.POST("/v1/dataset", c.Create)
+	rg.GET("/v1/dataset/:owner/:id", c.Get)
 }
 
 type DatasetController struct {
@@ -33,7 +35,7 @@ type DatasetController struct {
 // @Failure 500 system_error        system error
 // @Failure 500 duplicate_creating  create dataset repeatedly
 // @Router /v1/dataset [post]
-func (pc *DatasetController) Create(ctx *gin.Context) {
+func (ctl *DatasetController) Create(ctx *gin.Context) {
 	req := datasetCreateRequest{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -54,7 +56,7 @@ func (pc *DatasetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	d, err := pc.s.Create(&cmd)
+	d, err := ctl.s.Create(&cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -62,4 +64,31 @@ func (pc *DatasetController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(d))
+}
+
+// @Summary Get
+// @Description get dataset
+// @Tags  Dataset
+// @Param	id	path	string	true	"id of dataset"
+// @Accept json
+// @Success 200 {object} app.DatasetDTO
+// @Router /v1/dataset/{owner}/{id} [get]
+func (ctl *DatasetController) Get(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	m, err := ctl.s.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(m))
 }

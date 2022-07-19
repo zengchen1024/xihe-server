@@ -14,7 +14,10 @@ type datasetCreateRequest struct {
 }
 
 func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
-	cmd.Owner = req.Owner
+	cmd.Owner, err = domain.NewAccount(req.Owner)
+	if err != nil {
+		return
+	}
 
 	cmd.Name, err = domain.NewProjName(req.Name)
 	if err != nil {
