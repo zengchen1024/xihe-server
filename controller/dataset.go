@@ -17,6 +17,7 @@ func AddRouterForDatasetController(rg *gin.RouterGroup, repo repository.Dataset)
 
 	rg.POST("/v1/dataset", c.Create)
 	rg.GET("/v1/dataset/:owner/:id", c.Get)
+	rg.GET("/v1/dataset/:owner", c.List)
 }
 
 type DatasetController struct {
@@ -91,4 +92,45 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(m))
+}
+
+// @Summary List
+// @Description list dataset
+// @Tags  Dataset
+// @Accept json
+// @Produce json
+// @Router /v1/dataset/{owner} [get]
+func (pc *DatasetController) List(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	cmd := app.DatasetListCmd{}
+
+	if v := ctx.Request.URL.Query().Get("name"); v != "" {
+		name, err := domain.NewProjName(v)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+
+		cmd.Name = name
+	}
+
+	data, err := pc.s.List(owner, &cmd)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(data))
 }

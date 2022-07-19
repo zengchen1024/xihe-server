@@ -51,6 +51,7 @@ type DatasetDTO struct {
 type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
 	Get(domain.Account, string) (DatasetDTO, error)
+	List(domain.Account, *DatasetListCmd) ([]DatasetDTO, error)
 }
 
 func NewDatasetService(repo repository.Dataset) DatasetService {
@@ -95,6 +96,34 @@ func (s datasetService) Get(owner domain.Account, datasetId string) (dto Dataset
 	}
 
 	s.toDatasetDTO(&v, &dto)
+
+	return
+}
+
+type DatasetListCmd struct {
+	Name domain.ProjName
+}
+
+func (cmd *DatasetListCmd) toDatasetListOption() (
+	option repository.DatasetListOption,
+) {
+	option.Name = cmd.Name
+
+	return
+}
+
+func (s datasetService) List(owner domain.Account, cmd *DatasetListCmd) (
+	dtos []DatasetDTO, err error,
+) {
+	v, err := s.repo.List(owner, cmd.toDatasetListOption())
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	dtos = make([]DatasetDTO, len(v))
+	for i := range v {
+		s.toDatasetDTO(&v[i], &dtos[i])
+	}
 
 	return
 }

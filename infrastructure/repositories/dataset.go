@@ -8,6 +8,7 @@ import (
 type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Get(string, string) (DatasetDO, error)
+	List(string, DatasetListDO) ([]DatasetDO, error)
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {
@@ -51,6 +52,36 @@ func (impl dataset) Get(owner domain.Account, identity string) (r domain.Dataset
 	}
 
 	return
+}
+
+func (impl dataset) List(owner domain.Account, option repository.DatasetListOption) (
+	r []domain.Dataset, err error,
+) {
+	do := DatasetListDO{}
+
+	if option.Name != nil {
+		do.Name = option.Name.ProjName()
+	}
+
+	v, err := impl.mapper.List(owner.Account(), do)
+	if err != nil {
+		err = convertError(err)
+
+		return
+	}
+
+	r = make([]domain.Dataset, len(v))
+	for i := range v {
+		if err = v[i].toDataset(&r[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+type DatasetListDO struct {
+	Name string
 }
 
 type DatasetDO struct {
