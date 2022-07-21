@@ -5,23 +5,68 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
-	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForUserController(
 	rg *gin.RouterGroup,
-	repoUser repository.User,
+	repo repository.User,
 ) {
 	pc := UserController{
-		repoUser: repoUser,
+		repo: repo,
+		s:    app.NewUserService(repo),
 	}
 
-	rg.POST("/v1/user", pc.Update)
+	rg.POST("/v1/user", pc.Create)
+	rg.PUT("/v1/user", pc.Update)
 }
 
 type UserController struct {
-	repoUser repository.User
+	repo repository.User
+	s    app.UserService
+}
+
+// @Summary Create
+// @Description create user
+// @Tags  User
+// @Param	body	body 	userCreateRequest	true	"body of creating user"
+// @Accept json
+// @Success 201 {object} app.UserDTO
+// @Failure 400 bad_request_body    can't parse request body
+// @Failure 400 bad_request_param   some parameter of body is invalid
+// @Failure 500 system_error        system error
+// @Failure 500 duplicate_creating  create user repeatedly
+// @Router /v1/user [post]
+func (ctl *UserController) Create(ctx *gin.Context) {
+	req := userCreateRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	// TODO
+	cmd, err := req.toCmd("")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	d, err := ctl.s.Create(&cmd)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(d))
 }
 
 // @Summary Update
@@ -31,7 +76,7 @@ type UserController struct {
 // @Produce json
 // @Router /v1/user [put]
 func (uc *UserController) Update(ctx *gin.Context) {
-	m := userBasicInfoModel{}
+	m := userBasicInfoUpdateRequest{}
 
 	if err := ctx.ShouldBindJSON(&m); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
@@ -42,7 +87,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := uc.genUpdateUserBasicInfoCmd(&m)
+	cmd, err := m.toCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -51,32 +96,11 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewUserService(uc.repoUser)
-
-	if err := s.UpdateBasicInfo("", cmd); err != nil {
+	if err := uc.s.UpdateBasicInfo("", cmd); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(m))
-}
-
-func (uc *UserController) genUpdateUserBasicInfoCmd(m *userBasicInfoModel) (
-	cmd app.UpdateUserBasicInfoCmd,
-	err error,
-) {
-	cmd.Bio, err = domain.NewBio(m.Bio)
-	if err != nil {
-		return
-	}
-
-	cmd.NickName, err = domain.NewNickname(m.Nickname)
-	if err != nil {
-		return
-	}
-
-	cmd.AvatarId, err = domain.NewAvatarId(m.AvatarId)
-
-	return
 }

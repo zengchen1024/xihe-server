@@ -17,6 +17,23 @@ func (r dpAccount) Account() string {
 	return string(r)
 }
 
+// Password
+type Password interface {
+	Password() string
+}
+
+func NewPassword(v string) (Password, error) {
+	// TODO: format account
+
+	return dpPassword(v), nil
+}
+
+type dpPassword string
+
+func (r dpPassword) Password() string {
+	return string(r)
+}
+
 // Nickname
 type Nickname interface {
 	Nickname() string

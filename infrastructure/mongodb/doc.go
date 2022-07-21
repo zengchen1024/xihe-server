@@ -51,3 +51,13 @@ type datasetItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	Tags     []string `bson:"tags"      json:"tags"`
 }
+
+type dUser struct {
+	Bio         string `bson:"bio"           json:"bio"`
+	Email       string `bson:"email"         json:"email"`
+	Account     string `bson:"account"       json:"account"`
+	Password    string `bson:"password"      json:"password"`
+	Nickname    string `bson:"nickname"      json:"nickname"`
+	AvatarId    string `bson:"avatar_id"     json:"avatar_id"`
+	PhoneNumber string `bson:"phone_number"  json:"phone_number"`
+}

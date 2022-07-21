@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type UpdateUserBasicInfoCmd struct {
@@ -46,18 +45,6 @@ func (cmd *UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
 	return
 }
 
-type UserService interface {
-	UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error
-}
-
-func NewUserService(repo repository.User) UserService {
-	return userService{repo}
-}
-
-type userService struct {
-	repo repository.User
-}
-
 func (s userService) UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error {
 	if err := cmd.validate(); err != nil {
 		return err
@@ -72,5 +59,7 @@ func (s userService) UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) 
 		return nil
 	}
 
-	return s.repo.Save(user)
+	_, err = s.repo.Save(&user)
+
+	return err
 }

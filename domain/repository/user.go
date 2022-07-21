@@ -6,5 +6,5 @@ import (
 
 type User interface {
 	Get(string) (domain.User, error)
-	Save(domain.User) error
+	Save(*domain.User) (domain.User, error)
 }

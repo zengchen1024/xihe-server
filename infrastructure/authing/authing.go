@@ -13,10 +13,6 @@ func Init(poolId, secret string) {
 	cli = management.NewClient(poolId, secret)
 }
 
-func NewUserMapper() repositories.UserMapper {
-	return userMapper{}
-}
-
 type userMapper struct {
 }
 

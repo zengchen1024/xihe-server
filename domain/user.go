@@ -5,6 +5,7 @@ type User struct {
 	Bio         Bio
 	Email       Email
 	Account     Account
+	Password    Password
 	Nickname    Nickname
 	AvatarId    AvatarId
 	PhoneNumber PhoneNumber

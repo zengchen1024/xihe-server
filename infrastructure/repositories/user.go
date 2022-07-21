@@ -5,6 +5,12 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+type UserMapper interface {
+	Insert(UserDO) (string, error)
+	Get(string) (UserDO, error)
+}
+
+// TODO: mapper can be mysql
 func NewUserRepository(mapper UserMapper) repository.User {
 	return user{mapper}
 }
@@ -46,31 +52,39 @@ func (impl user) Get(index string) (r domain.User, err error) {
 	return
 }
 
-func (impl user) Save(u domain.User) error {
+func (impl user) Save(u *domain.User) (r domain.User, err error) {
+	if u.Id != "" {
+		return
+	}
+
 	do := UserDO{
-		Id:          u.Id,
 		Bio:         u.Bio.Bio(),
 		Email:       u.Email.Email(),
 		Account:     u.Account.Account(),
+		Password:    u.Password.Password(),
 		Nickname:    u.Nickname.Nickname(),
 		AvatarId:    u.AvatarId.AvatarId(),
 		PhoneNumber: u.PhoneNumber.PhoneNumber(),
 	}
 
-	return impl.mapper.Update(do)
+	v, err := impl.mapper.Insert(do)
+	if err != nil {
+		err = convertError(err)
+	} else {
+		r = *u
+		r.Id = v
+	}
+
+	return
 }
 
 type UserDO struct {
-	Id          string
-	Bio         string
-	Email       string
-	Account     string
-	Nickname    string
-	AvatarId    string
-	PhoneNumber string
-}
-
-type UserMapper interface {
-	Get(string) (UserDO, error)
-	Update(UserDO) error
+	Id          string `json:"id"`
+	Bio         string `json:"bio"`
+	Email       string `json:"email"`
+	Account     string `json:"account"`
+	Password    string `json:"password"`
+	Nickname    string `json:"nickname"`
+	AvatarId    string `json:"avatar_id"`
+	PhoneNumber string `json:"phone_number"`
 }
