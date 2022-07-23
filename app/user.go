@@ -4,24 +4,23 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type UserCreateCmd struct {
-	Bio         domain.Bio
-	Email       domain.Email
-	Account     domain.Account
-	Password    domain.Password
-	Nickname    domain.Nickname
-	AvatarId    domain.AvatarId
-	PhoneNumber domain.PhoneNumber
+	Email    domain.Email
+	Account  domain.Account
+	Password domain.Password
+
+	Bio      domain.Bio
+	AvatarId domain.AvatarId
 }
 
 func (cmd *UserCreateCmd) Validate() error {
 	b := cmd.Email != nil &&
 		cmd.Account != nil &&
-		cmd.Password != nil &&
-		cmd.AvatarId != nil
+		cmd.Password != nil
 
 	if !b {
 		return errors.New("invalid cmd of creating user")
@@ -32,25 +31,27 @@ func (cmd *UserCreateCmd) Validate() error {
 
 func (cmd *UserCreateCmd) toUser() domain.User {
 	return domain.User{
-		Bio:         cmd.Bio,
-		Email:       cmd.Email,
-		Account:     cmd.Account,
-		Password:    cmd.Password,
-		Nickname:    cmd.Nickname,
-		AvatarId:    cmd.AvatarId,
-		PhoneNumber: cmd.PhoneNumber,
+		Email:   cmd.Email,
+		Account: cmd.Account,
+
+		Bio:      cmd.Bio,
+		AvatarId: cmd.AvatarId,
 	}
 }
 
 type UserDTO struct {
-	Id          string `json:"id"`
-	Bio         string `json:"bio"`
-	Email       string `json:"email"`
-	Account     string `json:"account"`
-	Password    string `json:"-"`
-	Nickname    string `json:"nickname"`
-	AvatarId    string `json:"avatar_id"`
-	PhoneNumber string `json:"phone_number"`
+	Id      string `json:"id"`
+	Email   string `json:"email"`
+	Account string `json:"account"`
+
+	Bio      string `json:"bio"`
+	AvatarId string `json:"avatar_id"`
+
+	Platform struct {
+		UserId      string
+		Token       string
+		NamespaceId string
+	} `json:"-"`
 }
 
 type UserService interface {
@@ -58,41 +59,77 @@ type UserService interface {
 	UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error
 }
 
-func NewUserService(repo repository.User) UserService {
-	return userService{repo}
+// ps: platform user service
+func NewUserService(repo repository.User, ps platform.User) UserService {
+	return userService{
+		repo: repo,
+		ps:   ps,
+	}
 }
 
 type userService struct {
+	ps   platform.User
 	repo repository.User
 }
 
 func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
-	m := cmd.toUser()
+	// TODO keep transaction
 
-	// TODO encrypt password
-	v, err := s.repo.Save(&m)
+	v := cmd.toUser()
+
+	// new user
+	u, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
 
-	s.toUserDTO(&v, &dto)
+	// new code platform user
+	pu, err := s.ps.New(platform.UserOption{
+		Email:    u.Email,
+		Name:     u.Account,
+		Password: cmd.Password,
+	})
+	if err != nil {
+		return
+	}
 
-	// TODO send event
+	u.PlatformUser = pu
+
+	// apply token
+	token, err := s.ps.NewToken(pu)
+	if err != nil {
+		return
+	}
+
+	u.PlatformToken = token
+
+	// update user
+	u, err = s.repo.Save(&u)
+	if err != nil {
+		return
+	}
+
+	s.toUserDTO(&u, &dto)
 
 	return
 }
 
 func (s userService) toUserDTO(u *domain.User, dto *UserDTO) {
-	// TODO cecrypt password
-
 	*dto = UserDTO{
-		Id:          u.Id,
-		Bio:         u.Bio.Bio(),
-		Email:       u.Email.Email(),
-		Account:     u.Account.Account(),
-		Password:    u.Password.Password(),
-		Nickname:    u.Nickname.Nickname(),
-		AvatarId:    u.AvatarId.AvatarId(),
-		PhoneNumber: u.PhoneNumber.PhoneNumber(),
+		Id:      u.Id,
+		Email:   u.Email.Email(),
+		Account: u.Account.Account(),
 	}
+
+	if u.Bio != nil {
+		dto.Bio = u.Bio.Bio()
+	}
+
+	if u.AvatarId != nil {
+		dto.AvatarId = u.AvatarId.AvatarId()
+	}
+
+	dto.Platform.Token = u.PlatformToken
+	dto.Platform.UserId = u.PlatformUser.Id
+	dto.Platform.NamespaceId = u.PlatformUser.NamespaceId
 }

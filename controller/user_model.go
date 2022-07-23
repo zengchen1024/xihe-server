@@ -6,7 +6,6 @@ import (
 )
 
 type userBasicInfoUpdateRequest struct {
-	Nickname string `json:"nickname"`
 	AvatarId string `json:"avatar_id"`
 	Bio      string `json:"bio"`
 }
@@ -16,11 +15,6 @@ func (req *userBasicInfoUpdateRequest) toCmd() (
 	err error,
 ) {
 	cmd.Bio, err = domain.NewBio(req.Bio)
-	if err != nil {
-		return
-	}
-
-	cmd.NickName, err = domain.NewNickname(req.Nickname)
 	if err != nil {
 		return
 	}

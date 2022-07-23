@@ -1,12 +1,20 @@
 package domain
 
 type User struct {
+	Id      string
+	Email   Email
+	Account Account
+
+	Bio      Bio
+	AvatarId AvatarId
+
+	PlatformUser  PlatformUser
+	PlatformToken string
+
+	Version int
+}
+
+type PlatformUser struct {
 	Id          string
-	Bio         Bio
-	Email       Email
-	Account     Account
-	Password    Password
-	Nickname    Nickname
-	AvatarId    AvatarId
-	PhoneNumber PhoneNumber
+	NamespaceId string
 }

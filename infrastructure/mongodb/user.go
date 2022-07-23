@@ -9,9 +9,16 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func userDocFilter(owner string) bson.M {
+func userDocFilter(account, email string) bson.M {
 	return bson.M{
-		fieldOwner: owner,
+		"$or": bson.A{
+			bson.M{
+				fieldName: account,
+			},
+			bson.M{
+				fieldEmail: email,
+			},
+		},
 	}
 }
 
@@ -25,13 +32,13 @@ type user struct {
 
 func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 	docObj := dUser{
-		Bio:         do.Bio,
-		Email:       do.Email,
-		Account:     do.Account,
-		Password:    do.Password,
-		Nickname:    do.Nickname,
-		AvatarId:    do.AvatarId,
-		PhoneNumber: do.PhoneNumber,
+		Name:                    do.Account,
+		Email:                   do.Email,
+		Bio:                     do.Bio,
+		AvatarId:                do.AvatarId,
+		PlatformToken:           do.Platform.Token,
+		PlatformUserId:          do.Platform.UserId,
+		PlatformUserNamespaceId: do.Platform.NamespaceId,
 	}
 
 	doc, err := genDoc(docObj)
@@ -41,7 +48,8 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(
-			ctx, col.collectionName, userDocFilter(do.Account), doc,
+			ctx, col.collectionName,
+			userDocFilter(do.Account, do.Email), doc,
 		)
 
 		identity = v

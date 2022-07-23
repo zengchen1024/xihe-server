@@ -5,16 +5,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForUserController(
 	rg *gin.RouterGroup,
 	repo repository.User,
+	ps platform.User,
 ) {
 	pc := UserController{
 		repo: repo,
-		s:    app.NewUserService(repo),
+		s:    app.NewUserService(repo, ps),
 	}
 
 	rg.POST("/v1/user", pc.Create)

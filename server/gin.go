@@ -14,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
+	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
@@ -67,7 +68,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		controller.AddRouterForUserController(
 			v1,
 			repositories.NewUserRepository(
-				mongodb.NewUserMapper(cfg.Mongodb.UserCollection)),
+				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+			),
+			gitlab.NewUserSerivce(),
 		)
 	}
 

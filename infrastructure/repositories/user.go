@@ -39,15 +39,13 @@ func (impl user) Get(index string) (r domain.User, err error) {
 		return
 	}
 
-	if r.Nickname, _ = domain.NewNickname(do.Nickname); err != nil {
-		return
-	}
-
 	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
 
-	r.PhoneNumber, err = domain.NewPhoneNumber(do.PhoneNumber)
+	r.PlatformToken = do.Platform.Token
+	r.PlatformUser.Id = do.Platform.UserId
+	r.PlatformUser.NamespaceId = do.Platform.NamespaceId
 
 	return
 }
@@ -57,17 +55,7 @@ func (impl user) Save(u *domain.User) (r domain.User, err error) {
 		return
 	}
 
-	do := UserDO{
-		Bio:         u.Bio.Bio(),
-		Email:       u.Email.Email(),
-		Account:     u.Account.Account(),
-		Password:    u.Password.Password(),
-		Nickname:    u.Nickname.Nickname(),
-		AvatarId:    u.AvatarId.AvatarId(),
-		PhoneNumber: u.PhoneNumber.PhoneNumber(),
-	}
-
-	v, err := impl.mapper.Insert(do)
+	v, err := impl.mapper.Insert(impl.toUserDO(u))
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -78,13 +66,39 @@ func (impl user) Save(u *domain.User) (r domain.User, err error) {
 	return
 }
 
+func (impl user) toUserDO(u *domain.User) UserDO {
+	do := UserDO{
+		Id:      u.Id,
+		Email:   u.Email.Email(),
+		Account: u.Account.Account(),
+	}
+
+	if u.Bio != nil {
+		do.Bio = u.Bio.Bio()
+	}
+
+	if u.AvatarId != nil {
+		do.AvatarId = u.AvatarId.AvatarId()
+	}
+
+	do.Platform.Token = u.PlatformToken
+	do.Platform.UserId = u.PlatformUser.Id
+	do.Platform.NamespaceId = u.PlatformUser.NamespaceId
+
+	return do
+}
+
 type UserDO struct {
-	Id          string `json:"id"`
-	Bio         string `json:"bio"`
-	Email       string `json:"email"`
-	Account     string `json:"account"`
-	Password    string `json:"password"`
-	Nickname    string `json:"nickname"`
-	AvatarId    string `json:"avatar_id"`
-	PhoneNumber string `json:"phone_number"`
+	Id      string
+	Email   string
+	Account string
+
+	Bio      string
+	AvatarId string
+
+	Platform struct {
+		UserId      string
+		Token       string
+		NamespaceId string
+	}
 }

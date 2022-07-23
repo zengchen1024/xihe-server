@@ -11,6 +11,7 @@ require (
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
 	github.com/swaggo/gin-swagger v1.5.0
 	github.com/swaggo/swag v1.8.3
+	github.com/xanzy/go-gitlab v0.69.0
 	go.mongodb.org/mongo-driver v1.9.1
 	sigs.k8s.io/yaml v1.3.0
 )

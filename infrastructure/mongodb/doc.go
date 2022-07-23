@@ -5,6 +5,7 @@ const (
 	fieldName  = "name"
 	fieldItems = "items"
 	fieldOwner = "owner"
+	fieldEmail = "email"
 )
 
 type dProject struct {
@@ -53,11 +54,11 @@ type datasetItem struct {
 }
 
 type dUser struct {
-	Bio         string `bson:"bio"           json:"bio"`
-	Email       string `bson:"email"         json:"email"`
-	Account     string `bson:"account"       json:"account"`
-	Password    string `bson:"password"      json:"password"`
-	Nickname    string `bson:"nickname"      json:"nickname"`
-	AvatarId    string `bson:"avatar_id"     json:"avatar_id"`
-	PhoneNumber string `bson:"phone_number"  json:"phone_number"`
+	Name                    string `bson:"name"       json:"name"`
+	Email                   string `bson:"email"      json:"email"`
+	Bio                     string `bson:"bio"        json:"bio"`
+	AvatarId                string `bson:"avatar_id"  json:"avatar_id"`
+	PlatformToken           string `bson:"token"      json:"token"`
+	PlatformUserId          string `bson:"uid"        json:"uid"`
+	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
 }
