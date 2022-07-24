@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/config"
-	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
 )
@@ -47,11 +47,14 @@ func main() {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
-	authing.Init(cfg.Authing.UserPoolId, cfg.Authing.Secret)
+	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
+
+		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
+	}
 
 	m := &cfg.Mongodb
 	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
-		logrus.Fatalf("initialize mongodb failed,  err:%s", err.Error())
+		logrus.Fatalf("initialize mongodb failed, err:%s", err.Error())
 	}
 
 	defer mongodb.Close()

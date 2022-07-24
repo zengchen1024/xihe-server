@@ -1,10 +1,12 @@
 package mongodb
 
 const (
-	fieldId    = "id"
-	fieldName  = "name"
-	fieldItems = "items"
-	fieldOwner = "owner"
+	fieldId      = "id"
+	fieldName    = "name"
+	fieldItems   = "items"
+	fieldOwner   = "owner"
+	fieldEmail   = "email"
+	fieldVersion = "version"
 )
 
 type dProject struct {
@@ -50,4 +52,15 @@ type datasetItem struct {
 	Protocol string   `bson:"protocol"  json:"protocol"`
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	Tags     []string `bson:"tags"      json:"tags"`
+}
+
+type dUser struct {
+	Name                    string `bson:"name"       json:"name"`
+	Email                   string `bson:"email"      json:"email"`
+	Bio                     string `bson:"bio"        json:"bio"`
+	AvatarId                string `bson:"avatar_id"  json:"avatar_id"`
+	PlatformToken           string `bson:"token"      json:"token"`
+	PlatformUserId          string `bson:"uid"        json:"uid"`
+	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
+	Version                 int    `bson:"version"    json:"version"`
 }

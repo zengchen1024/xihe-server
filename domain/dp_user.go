@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"errors"
+	"strings"
+)
+
 // Account
 type Account interface {
 	Account() string
@@ -7,6 +12,9 @@ type Account interface {
 
 func NewAccount(v string) (Account, error) {
 	// TODO: format account
+	if strings.ToLower(v) == "root" {
+		return nil, errors.New("invalid user name")
+	}
 
 	return dpAccount(v), nil
 }
@@ -14,6 +22,23 @@ func NewAccount(v string) (Account, error) {
 type dpAccount string
 
 func (r dpAccount) Account() string {
+	return string(r)
+}
+
+// Password
+type Password interface {
+	Password() string
+}
+
+func NewPassword(v string) (Password, error) {
+	// TODO: format account
+
+	return dpPassword(v), nil
+}
+
+type dpPassword string
+
+func (r dpPassword) Password() string {
 	return string(r)
 }
 

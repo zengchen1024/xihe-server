@@ -24,7 +24,8 @@ func LoadConfig(path string) (*Config, error) {
 
 type Config struct {
 	Authing AuthingService `json:"authing_service" required:"true"`
-	Mongodb MongodbConfig  `json:"mongodb" required:"true"`
+	Mongodb Mongodb        `json:"mongodb" required:"true"`
+	Gitlab  Gitlab         `json:"gitlab" required:"true"`
 }
 
 func (cfg *Config) setDefault() {
@@ -36,15 +37,21 @@ func (cfg *Config) validate() error {
 	return err
 }
 
-type MongodbConfig struct {
+type Mongodb struct {
 	MongodbConn       string `json:"mongodb_conn" required:"true"`
 	DBName            string `json:"mongodb_db" required:"true"`
 	ProjectCollection string `json:"project_collection" required:"true"`
 	ModelCollection   string `json:"model_collection" required:"true"`
 	DatasetCollection string `json:"dataset_collection" required:"true"`
+	UserCollection    string `json:"user_collection" required:"true"`
 }
 
 type AuthingService struct {
 	UserPoolId string `json:"user_pool_id" required:"true"`
 	Secret     string `json:"secret" required:"true"`
+}
+
+type Gitlab struct {
+	Endpoint  string `json:"endpoint" required:"true"`
+	RootToken string `json:"root_token" required:"true"`
 }

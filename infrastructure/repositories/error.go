@@ -18,6 +18,14 @@ func NewErrorDataNotExists(err error) ErrorDataNotExists {
 	return ErrorDataNotExists{err}
 }
 
+type ErrorConcurrentUpdating struct {
+	error
+}
+
+func NewErrorConcurrentUpdating(err error) ErrorConcurrentUpdating {
+	return ErrorConcurrentUpdating{err}
+}
+
 func convertError(err error) (out error) {
 	switch err.(type) {
 	case ErrorDuplicateCreating:
@@ -25,6 +33,9 @@ func convertError(err error) (out error) {
 
 	case ErrorDataNotExists:
 		out = repository.NewErrorResourceNotExists(err)
+
+	case ErrorConcurrentUpdating:
+		out = repository.NewErrorConcurrentUpdating(err)
 
 	default:
 		out = err

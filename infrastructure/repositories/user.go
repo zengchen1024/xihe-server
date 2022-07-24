@@ -5,6 +5,13 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+type UserMapper interface {
+	Insert(UserDO) (string, error)
+	Update(UserDO) error
+	Get(string) (UserDO, error)
+}
+
+// TODO: mapper can be mysql
 func NewUserRepository(mapper UserMapper) repository.User {
 	return user{mapper}
 }
@@ -33,44 +40,77 @@ func (impl user) Get(index string) (r domain.User, err error) {
 		return
 	}
 
-	if r.Nickname, _ = domain.NewNickname(do.Nickname); err != nil {
-		return
-	}
-
 	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
 
-	r.PhoneNumber, err = domain.NewPhoneNumber(do.PhoneNumber)
+	r.PlatformToken = do.Platform.Token
+	r.PlatformUser.Id = do.Platform.UserId
+	r.PlatformUser.NamespaceId = do.Platform.NamespaceId
 
 	return
 }
 
-func (impl user) Save(u domain.User) error {
-	do := UserDO{
-		Id:          u.Id,
-		Bio:         u.Bio.Bio(),
-		Email:       u.Email.Email(),
-		Account:     u.Account.Account(),
-		Nickname:    u.Nickname.Nickname(),
-		AvatarId:    u.AvatarId.AvatarId(),
-		PhoneNumber: u.PhoneNumber.PhoneNumber(),
+func (impl user) Save(u *domain.User) (r domain.User, err error) {
+	if u.Id != "" {
+		if err = impl.mapper.Update(impl.toUserDO(u)); err != nil {
+			err = convertError(err)
+		} else {
+			r = *u
+			r.Version += 1
+		}
+
+		return
 	}
 
-	return impl.mapper.Update(do)
+	v, err := impl.mapper.Insert(impl.toUserDO(u))
+	if err != nil {
+		err = convertError(err)
+	} else {
+		r = *u
+		r.Id = v
+	}
+
+	return
+}
+
+func (impl user) toUserDO(u *domain.User) UserDO {
+	do := UserDO{
+		Id:      u.Id,
+		Email:   u.Email.Email(),
+		Account: u.Account.Account(),
+	}
+
+	if u.Bio != nil {
+		do.Bio = u.Bio.Bio()
+	}
+
+	if u.AvatarId != nil {
+		do.AvatarId = u.AvatarId.AvatarId()
+	}
+
+	do.Platform.Token = u.PlatformToken
+	do.Platform.UserId = u.PlatformUser.Id
+	do.Platform.NamespaceId = u.PlatformUser.NamespaceId
+
+	do.Version = u.Version
+
+	return do
 }
 
 type UserDO struct {
-	Id          string
-	Bio         string
-	Email       string
-	Account     string
-	Nickname    string
-	AvatarId    string
-	PhoneNumber string
-}
+	Id      string
+	Email   string
+	Account string
 
-type UserMapper interface {
-	Get(string) (UserDO, error)
-	Update(UserDO) error
+	Bio      string
+	AvatarId string
+
+	Platform struct {
+		UserId      string
+		Token       string
+		NamespaceId string
+	}
+
+	Version int
 }
