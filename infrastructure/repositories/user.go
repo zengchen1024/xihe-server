@@ -9,6 +9,7 @@ type UserMapper interface {
 	Insert(UserDO) (string, error)
 	Update(UserDO) error
 	Get(string) (UserDO, error)
+	GetByAccount(string) (UserDO, error)
 }
 
 // TODO: mapper can be mysql
@@ -20,33 +21,24 @@ type user struct {
 	mapper UserMapper
 }
 
-func (impl user) Get(index string) (r domain.User, err error) {
-	do, err := impl.mapper.Get(index)
+func (impl user) Get(uid string) (r domain.User, err error) {
+	do, err := impl.mapper.Get(uid)
 	if err != nil {
 		return
 	}
 
-	r.Id = do.Id
+	err = do.toUser(&r)
 
-	if r.Bio, err = domain.NewBio(do.Bio); err != nil {
+	return
+}
+
+func (impl user) GetByAccount(account domain.Account) (r domain.User, err error) {
+	do, err := impl.mapper.GetByAccount(account.Account())
+	if err != nil {
 		return
 	}
 
-	if r.Email, _ = domain.NewEmail(do.Email); err != nil {
-		return
-	}
-
-	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
-		return
-	}
-
-	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
-		return
-	}
-
-	r.PlatformToken = do.Platform.Token
-	r.PlatformUser.Id = do.Platform.UserId
-	r.PlatformUser.NamespaceId = do.Platform.NamespaceId
+	err = do.toUser(&r)
 
 	return
 }
@@ -113,4 +105,32 @@ type UserDO struct {
 	}
 
 	Version int
+}
+
+func (do *UserDO) toUser(r *domain.User) (err error) {
+	r.Id = do.Id
+
+	if r.Bio, err = domain.NewBio(do.Bio); err != nil {
+		return
+	}
+
+	if r.Email, _ = domain.NewEmail(do.Email); err != nil {
+		return
+	}
+
+	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
+		return
+	}
+
+	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
+		return
+	}
+
+	r.PlatformToken = do.Platform.Token
+	r.PlatformUser.Id = do.Platform.UserId
+	r.PlatformUser.NamespaceId = do.Platform.NamespaceId
+
+	r.Version = do.Version
+
+	return
 }

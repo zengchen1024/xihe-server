@@ -21,6 +21,7 @@ func AddRouterForUserController(
 
 	rg.POST("/v1/user", pc.Create)
 	rg.PUT("/v1/user", pc.Update)
+	rg.GET("/v1/user/:id", pc.Get)
 }
 
 type UserController struct {
@@ -105,4 +106,22 @@ func (uc *UserController) Update(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(m))
+}
+
+// @Summary Get
+// @Description get user
+// @Tags  User
+// @Param	id	path	string	true	"id of user"
+// @Accept json
+// @Success 200 {object} app.UserDTO
+// @Router /v1/user/{id} [get]
+func (ctl *UserController) Get(ctx *gin.Context) {
+	u, err := ctl.s.Get(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(u))
 }
