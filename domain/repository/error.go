@@ -15,3 +15,11 @@ type ErrorResourceNotExists struct {
 func NewErrorResourceNotExists(err error) ErrorResourceNotExists {
 	return ErrorResourceNotExists{err}
 }
+
+type ErrorConcurrentUpdating struct {
+	error
+}
+
+func NewErrorConcurrentUpdating(err error) ErrorConcurrentUpdating {
+	return ErrorConcurrentUpdating{err}
+}

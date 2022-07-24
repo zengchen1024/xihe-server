@@ -1,11 +1,12 @@
 package mongodb
 
 const (
-	fieldId    = "id"
-	fieldName  = "name"
-	fieldItems = "items"
-	fieldOwner = "owner"
-	fieldEmail = "email"
+	fieldId      = "id"
+	fieldName    = "name"
+	fieldItems   = "items"
+	fieldOwner   = "owner"
+	fieldEmail   = "email"
+	fieldVersion = "version"
 )
 
 type dProject struct {
@@ -61,4 +62,5 @@ type dUser struct {
 	PlatformToken           string `bson:"token"      json:"token"`
 	PlatformUserId          string `bson:"uid"        json:"uid"`
 	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
+	Version                 int    `bson:"version"    json:"version"`
 }

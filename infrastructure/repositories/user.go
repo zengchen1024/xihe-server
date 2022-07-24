@@ -7,6 +7,7 @@ import (
 
 type UserMapper interface {
 	Insert(UserDO) (string, error)
+	Update(UserDO) error
 	Get(string) (UserDO, error)
 }
 
@@ -52,6 +53,13 @@ func (impl user) Get(index string) (r domain.User, err error) {
 
 func (impl user) Save(u *domain.User) (r domain.User, err error) {
 	if u.Id != "" {
+		if err = impl.mapper.Update(impl.toUserDO(u)); err != nil {
+			err = convertError(err)
+		} else {
+			r = *u
+			r.Version += 1
+		}
+
 		return
 	}
 
@@ -85,6 +93,8 @@ func (impl user) toUserDO(u *domain.User) UserDO {
 	do.Platform.UserId = u.PlatformUser.Id
 	do.Platform.NamespaceId = u.PlatformUser.NamespaceId
 
+	do.Version = u.Version
+
 	return do
 }
 
@@ -101,4 +111,6 @@ type UserDO struct {
 		Token       string
 		NamespaceId string
 	}
+
+	Version int
 }

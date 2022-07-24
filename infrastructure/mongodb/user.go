@@ -49,7 +49,7 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(
 			ctx, col.collectionName,
-			userDocFilter(do.Account, do.Email), doc,
+			objectIdFilter(do.Id), doc,
 		)
 
 		identity = v
@@ -59,6 +59,36 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 
 	if err = withContext(f); err != nil && errors.Is(err, errDocExists) {
 		err = repositories.NewErrorDuplicateCreating(err)
+	}
+
+	return
+}
+
+func (col user) Update(do repositories.UserDO) (err error) {
+	docObj := dUser{
+		Name:                    do.Account,
+		Email:                   do.Email,
+		Bio:                     do.Bio,
+		AvatarId:                do.AvatarId,
+		PlatformToken:           do.Platform.Token,
+		PlatformUserId:          do.Platform.UserId,
+		PlatformUserNamespaceId: do.Platform.NamespaceId,
+	}
+
+	doc, err := genDoc(docObj)
+	if err != nil {
+		return
+	}
+
+	f := func(ctx context.Context) error {
+		return cli.updateDoc(
+			ctx, col.collectionName,
+			objectIdFilter(do.Id), doc, do.Version,
+		)
+	}
+
+	if err = withContext(f); err != nil && errors.Is(err, errDocNotExists) {
+		err = repositories.NewErrorConcurrentUpdating(err)
 	}
 
 	return

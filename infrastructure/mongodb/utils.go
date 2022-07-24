@@ -39,6 +39,14 @@ func newId() string {
 	return primitive.NewObjectID().Hex()
 }
 
+func objectIdFilter(s string) bson.M {
+	v, _ := primitive.ObjectIDFromHex(s)
+
+	return bson.M{
+		"_id": v,
+	}
+}
+
 func genDoc(doc interface{}) (m bson.M, err error) {
 	v, err := json.Marshal(doc)
 	if err != nil {
@@ -81,6 +89,30 @@ func (cli *client) newDocIfNotExist(
 	v, _ := toUID(r.UpsertedID)
 
 	return v, nil
+}
+
+func (cli *client) updateDoc(
+	ctx context.Context, collection string,
+	filterOfDoc, update bson.M, version int,
+) error {
+	filterOfDoc[fieldVersion] = version
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{
+			"$set": update,
+			"$inc": bson.M{fieldVersion: 1},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	return nil
 }
 
 func (cli *client) pushArrayElem(

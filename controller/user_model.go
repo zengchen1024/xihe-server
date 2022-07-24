@@ -25,11 +25,23 @@ func (req *userBasicInfoUpdateRequest) toCmd() (
 }
 
 type userCreateRequest struct {
+	Account  string `json:"account"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func (req *userCreateRequest) toCmd(accessToken string) (cmd app.UserCreateCmd, err error) {
-	// TODO get user's other info by access token
+	// TODO get user's account and email by access token
+
+	cmd.Account, err = domain.NewAccount(req.Account)
+	if err != nil {
+		return
+	}
+
+	cmd.Email, err = domain.NewEmail(req.Email)
+	if err != nil {
+		return
+	}
 
 	cmd.Password, err = domain.NewPassword(req.Password)
 	if err != nil {

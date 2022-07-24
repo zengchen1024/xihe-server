@@ -1,6 +1,9 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 // Account
 type Account interface {
@@ -9,7 +12,7 @@ type Account interface {
 
 func NewAccount(v string) (Account, error) {
 	// TODO: format account
-	if v == "root" {
+	if strings.ToLower(v) == "root" {
 		return nil, errors.New("invalid user name")
 	}
 
