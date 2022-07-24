@@ -1,5 +1,7 @@
 package mongodb
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 const (
 	fieldId      = "id"
 	fieldName    = "name"
@@ -55,6 +57,8 @@ type datasetItem struct {
 }
 
 type dUser struct {
+	Id primitive.ObjectID `bson:"_id"       json:"_"`
+
 	Name                    string `bson:"name"       json:"name"`
 	Email                   string `bson:"email"      json:"email"`
 	Bio                     string `bson:"bio"        json:"bio"`

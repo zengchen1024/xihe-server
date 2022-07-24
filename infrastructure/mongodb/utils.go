@@ -9,6 +9,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -39,12 +40,15 @@ func newId() string {
 	return primitive.NewObjectID().Hex()
 }
 
-func objectIdFilter(s string) bson.M {
-	v, _ := primitive.ObjectIDFromHex(s)
+func objectIdFilter(s string) (bson.M, error) {
+	v, err := primitive.ObjectIDFromHex(s)
+	if err != nil {
+		return nil, err
+	}
 
 	return bson.M{
 		"_id": v,
-	}
+	}, nil
 }
 
 func genDoc(doc interface{}) (m bson.M, err error) {
@@ -56,6 +60,10 @@ func genDoc(doc interface{}) (m bson.M, err error) {
 	err = json.Unmarshal(v, &m)
 
 	return
+}
+
+func isErrNoDocuments(err error) bool {
+	return err.Error() == mongo.ErrNoDocuments.Error()
 }
 
 func appendElemMatchToFilter(array string, exists bool, cond, filter bson.M) {
@@ -110,6 +118,31 @@ func (cli *client) updateDoc(
 
 	if r.MatchedCount == 0 {
 		return errDocNotExists
+	}
+
+	return nil
+}
+
+func (cli *client) getDoc(
+	ctx context.Context, collection string,
+	filterOfDoc, project bson.M, result interface{},
+) error {
+	var sr *mongo.SingleResult
+	col := cli.collection(collection)
+	if len(project) > 0 {
+		sr = col.FindOne(ctx, filterOfDoc, &options.FindOneOptions{
+			Projection: project,
+		})
+	} else {
+		sr = col.FindOne(ctx, filterOfDoc)
+	}
+
+	if err := sr.Decode(result); err != nil {
+		if isErrNoDocuments(err) {
+			return errDocNotExists
+		}
+
+		return err
 	}
 
 	return nil
