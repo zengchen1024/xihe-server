@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -45,6 +46,7 @@ type DatasetDTO struct {
 	Desc     string   `json:"desc"`
 	Protocol string   `json:"protocol"`
 	RepoType string   `json:"repo_type"`
+	RepoId   string   `json:"repo_id"`
 	Tags     []string `json:"tags"`
 }
 
@@ -54,38 +56,53 @@ type DatasetService interface {
 	List(domain.Account, *DatasetListCmd) ([]DatasetDTO, error)
 }
 
-func NewDatasetService(repo repository.Dataset) DatasetService {
-	return datasetService{repo}
+func NewDatasetService(repo repository.Dataset, pr platform.Repository) DatasetService {
+	return datasetService{repo: repo, pr: pr}
 }
 
 type datasetService struct {
 	repo repository.Dataset
+	pr   platform.Repository
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error) {
-	m := cmd.toDataset()
+	v := cmd.toDataset()
 
-	v, err := s.repo.Save(&m)
+	d, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
 
-	s.toDatasetDTO(&v, &dto)
+	pid, err := s.pr.New(platform.RepoOption{
+		Name: cmd.Name,
+		Desc: cmd.Desc,
+	})
+	if err != nil {
+		return
+	}
 
-	// TODO send event
+	d.RepoId = pid
+
+	d, err = s.repo.Save(&d)
+	if err != nil {
+		return
+	}
+
+	s.toDatasetDTO(&d, &dto)
 
 	return
 }
 
-func (s datasetService) toDatasetDTO(m *domain.Dataset, dto *DatasetDTO) {
+func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 	*dto = DatasetDTO{
-		Id:       m.Id,
-		Owner:    m.Owner.Account(),
-		Name:     m.Name.ProjName(),
-		Desc:     m.Desc.ProjDesc(),
-		Protocol: m.Protocol.ProtocolName(),
-		RepoType: m.RepoType.RepoType(),
-		Tags:     m.Tags,
+		Id:       d.Id,
+		Owner:    d.Owner.Account(),
+		Name:     d.Name.ProjName(),
+		Desc:     d.Desc.ProjDesc(),
+		Protocol: d.Protocol.ProtocolName(),
+		RepoType: d.RepoType.RepoType(),
+		RepoId:   d.RepoId,
+		Tags:     d.Tags,
 	}
 }
 

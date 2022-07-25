@@ -56,19 +56,12 @@ func (col model) New(owner string) error {
 func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
 	identity = newId()
 
-	docObj := modelItem{
-		Id:       identity,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Protocol: do.Protocol,
-		RepoType: do.RepoType,
-		Tags:     do.Tags,
-	}
-
-	doc, err := genDoc(docObj)
+	do.Id = identity
+	doc, err := col.toModelDoc(&do)
 	if err != nil {
 		return
 	}
+	doc[fieldVersion] = 0
 
 	docFilter := modelDocFilter(do.Owner)
 
@@ -91,6 +84,38 @@ func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
 	}
 
 	return
+}
+
+func (col model) Update(do repositories.ModelDO) error {
+	doc, err := col.toModelDoc(&do)
+	if err != nil {
+		return err
+	}
+
+	docFilter := modelDocFilter(do.Owner)
+
+	updated := false
+
+	f := func(ctx context.Context) error {
+		b, err := cli.updateArrayElem(
+			ctx, col.collectionName, fieldItems,
+			docFilter, arrayFilterById(do.Id), doc, do.Version,
+		)
+
+		updated = b
+
+		return err
+	}
+
+	if err := withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
+	}
+
+	return nil
 }
 
 func (col model) Get(owner, identity string) (do repositories.ModelDO, err error) {
@@ -164,6 +189,20 @@ func (col model) List(owner string, do repositories.ModelListDO) (
 	return
 }
 
+func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
+	docObj := modelItem{
+		Id:       do.Id,
+		Name:     do.Name,
+		Desc:     do.Desc,
+		Protocol: do.Protocol,
+		RepoType: do.RepoType,
+		RepoId:   do.RepoId,
+		Tags:     do.Tags,
+	}
+
+	return genDoc(docObj)
+}
+
 func (col model) toModelDO(owner string, item *modelItem, do *repositories.ModelDO) {
 	*do = repositories.ModelDO{
 		Id:       item.Id,
@@ -172,6 +211,8 @@ func (col model) toModelDO(owner string, item *modelItem, do *repositories.Model
 		Desc:     item.Desc,
 		Protocol: item.Protocol,
 		RepoType: item.RepoType,
+		RepoId:   item.RepoId,
 		Tags:     item.Tags,
+		Version:  item.Version,
 	}
 }

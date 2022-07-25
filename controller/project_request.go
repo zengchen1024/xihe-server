@@ -6,6 +6,7 @@ import (
 )
 
 type projectCreateRequest struct {
+	Owner    string `json:"owner" required:"true"`
 	Name     string `json:"name" required:"true"`
 	Desc     string `json:"desc"`
 	Type     string `json:"type" required:"true"`
@@ -15,41 +16,36 @@ type projectCreateRequest struct {
 	RepoType string `json:"repo_type" required:"true"`
 }
 
-func (p *projectCreateRequest) toCmd(owner string) (cmd app.ProjectCreateCmd, err error) {
-	cmd.Owner = owner
-
-	cmd.Name, err = domain.NewProjName(p.Name)
-	if err != nil {
+func (p *projectCreateRequest) toCmd() (cmd app.ProjectCreateCmd, err error) {
+	if cmd.Owner, err = domain.NewAccount(p.Owner); err != nil {
 		return
 	}
 
-	cmd.Type, err = domain.NewProjType(p.Type)
-	if err != nil {
+	if cmd.Name, err = domain.NewProjName(p.Name); err != nil {
 		return
 	}
 
-	cmd.Desc, err = domain.NewProjDesc(p.Desc)
-	if err != nil {
+	if cmd.Type, err = domain.NewProjType(p.Type); err != nil {
 		return
 	}
 
-	cmd.CoverId, err = domain.NewConverId(p.CoverId)
-	if err != nil {
+	if cmd.Desc, err = domain.NewProjDesc(p.Desc); err != nil {
 		return
 	}
 
-	cmd.Protocol, err = domain.NewProtocolName(p.Protocol)
-	if err != nil {
+	if cmd.CoverId, err = domain.NewConverId(p.CoverId); err != nil {
 		return
 	}
 
-	cmd.RepoType, err = domain.NewRepoType(p.RepoType)
-	if err != nil {
+	if cmd.Protocol, err = domain.NewProtocolName(p.Protocol); err != nil {
 		return
 	}
 
-	cmd.Training, err = domain.NewTrainingPlatform(p.Training)
-	if err != nil {
+	if cmd.RepoType, err = domain.NewRepoType(p.RepoType); err != nil {
+		return
+	}
+
+	if cmd.Training, err = domain.NewTrainingPlatform(p.Training); err != nil {
 		return
 	}
 

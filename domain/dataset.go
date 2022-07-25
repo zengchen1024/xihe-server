@@ -11,5 +11,7 @@ type Dataset struct {
 
 	Tags []string
 
+	RepoId string
+
 	Version int
 }

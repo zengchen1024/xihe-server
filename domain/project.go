@@ -1,9 +1,9 @@
 package domain
 
 type Project struct {
-	Id    string
-	Owner string
+	Id string
 
+	Owner    Account
 	Name     ProjName
 	Desc     ProjDesc
 	Type     ProjType

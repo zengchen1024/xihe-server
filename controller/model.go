@@ -12,7 +12,7 @@ import (
 func AddRouterForModelController(rg *gin.RouterGroup, repo repository.Model) {
 	pc := ModelController{
 		repo: repo,
-		s:    app.NewModelService(repo),
+		s:    app.NewModelService(repo, nil),
 	}
 
 	rg.POST("/v1/model", pc.Create)
@@ -36,7 +36,7 @@ type ModelController struct {
 // @Failure 500 system_error        system error
 // @Failure 500 duplicate_creating  create model repeatedly
 // @Router /v1/model [post]
-func (pc *ModelController) Create(ctx *gin.Context) {
+func (ctl *ModelController) Create(ctx *gin.Context) {
 	req := modelCreateRequest{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -57,7 +57,9 @@ func (pc *ModelController) Create(ctx *gin.Context) {
 		return
 	}
 
-	d, err := pc.s.Create(&cmd)
+	s := app.NewModelService(ctl.repo, newPlatformRepository(ctx))
+
+	d, err := s.Create(&cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -74,8 +76,8 @@ func (pc *ModelController) Create(ctx *gin.Context) {
 // @Accept json
 // @Success 200 {object} app.ModelDTO
 // @Router /v1/model/{owner}/{id} [get]
-func (pc *ModelController) Get(ctx *gin.Context) {
-	m, err := pc.s.Get(ctx.Param("owner"), ctx.Param("id"))
+func (ctl *ModelController) Get(ctx *gin.Context) {
+	m, err := ctl.s.Get(ctx.Param("owner"), ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -91,7 +93,7 @@ func (pc *ModelController) Get(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/model/{owner} [get]
-func (pc *ModelController) List(ctx *gin.Context) {
+func (ctl *ModelController) List(ctx *gin.Context) {
 	cmd := app.ModelListCmd{}
 
 	if v := ctx.Request.URL.Query().Get("name"); v != "" {
@@ -107,7 +109,7 @@ func (pc *ModelController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	data, err := pc.s.List(ctx.Param("owner"), &cmd)
+	data, err := ctl.s.List(ctx.Param("owner"), &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

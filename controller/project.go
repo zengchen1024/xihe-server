@@ -33,10 +33,10 @@ type ProjectController struct {
 // @Accept json
 // @Produce json
 // @Router /v1/project [post]
-func (pc *ProjectController) Create(ctx *gin.Context) {
-	p := projectCreateRequest{}
+func (ctl *ProjectController) Create(ctx *gin.Context) {
+	req := projectCreateRequest{}
 
-	if err := ctx.ShouldBindJSON(&p); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
 			"can't fetch request body",
@@ -45,8 +45,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO owner
-	cmd, err := p.toCmd("")
+	cmd, err := req.toCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -55,7 +54,7 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewProjectService(pc.repo, newPlatformRepository(ctx))
+	s := app.NewProjectService(ctl.repo, newPlatformRepository(ctx))
 
 	d, err := s.Create(&cmd)
 	if err != nil {
@@ -75,10 +74,10 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/project/{id} [put]
-func (pc *ProjectController) Update(ctx *gin.Context) {
-	p := projectUpdateRequest{}
+func (ctl *ProjectController) Update(ctx *gin.Context) {
+	req := projectUpdateRequest{}
 
-	if err := ctx.ShouldBindJSON(&p); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
 			"can't fetch request body",
@@ -87,7 +86,7 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := p.toCmd()
+	cmd, err := req.toCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -96,14 +95,14 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	proj, err := pc.repo.Get("", ctx.Param("id"))
+	proj, err := ctl.repo.Get("", ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}
 
-	d, err := pc.s.Update(&proj, &cmd)
+	d, err := ctl.s.Update(&proj, &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -120,8 +119,8 @@ func (pc *ProjectController) Update(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/project/{id} [get]
-func (pc *ProjectController) Get(ctx *gin.Context) {
-	proj, err := pc.s.Get("", ctx.Param("id"))
+func (ctl *ProjectController) Get(ctx *gin.Context) {
+	proj, err := ctl.s.Get("", ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -137,7 +136,7 @@ func (pc *ProjectController) Get(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/project [get]
-func (pc *ProjectController) List(ctx *gin.Context) {
+func (ctl *ProjectController) List(ctx *gin.Context) {
 	cmd := app.ProjectListCmd{}
 
 	if v := ctx.Request.URL.Query().Get("name"); v != "" {
@@ -153,7 +152,7 @@ func (pc *ProjectController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	projs, err := pc.s.List("", &cmd)
+	projs, err := ctl.s.List("", &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

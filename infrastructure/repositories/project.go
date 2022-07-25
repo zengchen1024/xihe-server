@@ -47,11 +47,9 @@ func (impl project) Get(owner, identity string) (r domain.Project, err error) {
 	v, err := impl.mapper.Get(owner, identity)
 	if err != nil {
 		err = convertError(err)
-
-		return
+	} else {
+		err = v.toProject(&r)
 	}
-
-	err = v.toProject(&r)
 
 	return
 }
@@ -84,7 +82,7 @@ func (impl project) List(owner string, option repository.ProjectListOption) (
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 	do := ProjectDO{
 		Id:       p.Id,
-		Owner:    p.Owner,
+		Owner:    p.Owner.Account(),
 		Name:     p.Name.ProjName(),
 		Type:     p.Type.ProjType(),
 		CoverId:  p.CoverId.CoverId(),
@@ -123,7 +121,10 @@ type ProjectDO struct {
 
 func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.Id = do.Id
-	r.Owner = do.Owner
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
 
 	if r.Name, err = domain.NewProjName(do.Name); err != nil {
 		return
