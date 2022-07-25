@@ -57,7 +57,9 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	d, err := ctl.s.Create(&cmd)
+	s := app.NewDatasetService(ctl.repo, newPlatformRepository(ctx))
+
+	d, err := s.Create(&cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -100,7 +102,7 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/dataset/{owner} [get]
-func (pc *DatasetController) List(ctx *gin.Context) {
+func (ctl *DatasetController) List(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -125,7 +127,7 @@ func (pc *DatasetController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	data, err := pc.s.List(owner, &cmd)
+	data, err := ctl.s.List(owner, &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

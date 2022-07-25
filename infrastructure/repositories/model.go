@@ -43,8 +43,8 @@ func (impl model) Save(m *domain.Model) (r domain.Model, err error) {
 	return
 }
 
-func (impl model) Get(owner, identity string) (r domain.Model, err error) {
-	v, err := impl.mapper.Get(owner, identity)
+func (impl model) Get(owner domain.Account, identity string) (r domain.Model, err error) {
+	v, err := impl.mapper.Get(owner.Account(), identity)
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -54,7 +54,7 @@ func (impl model) Get(owner, identity string) (r domain.Model, err error) {
 	return
 }
 
-func (impl model) List(owner string, option repository.ModelListOption) (
+func (impl model) List(owner domain.Account, option repository.ModelListOption) (
 	r []domain.Model, err error,
 ) {
 	do := ModelListDO{}
@@ -63,7 +63,7 @@ func (impl model) List(owner string, option repository.ModelListOption) (
 		do.Name = option.Name.ProjName()
 	}
 
-	v, err := impl.mapper.List(owner, do)
+	v, err := impl.mapper.List(owner.Account(), do)
 	if err != nil {
 		err = convertError(err)
 

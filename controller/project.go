@@ -16,9 +16,9 @@ func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project)
 	}
 
 	rg.POST("/v1/project", pc.Create)
-	rg.PUT("/v1/project/:id", pc.Update)
-	rg.GET("/v1/project/:id", pc.Get)
-	rg.GET("/v1/project", pc.List)
+	rg.PUT("/v1/project/:owner/:id", pc.Update)
+	rg.GET("/v1/project/:owner/:id", pc.Get)
+	rg.GET("/v1/project/:owner", pc.List)
 }
 
 type ProjectController struct {
@@ -73,7 +73,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 // @Param	body	body 	projectUpdateRequest	true	"body of updating project"
 // @Accept json
 // @Produce json
-// @Router /v1/project/{id} [put]
+// @Router /v1/project/{owner}/{id} [put]
 func (ctl *ProjectController) Update(ctx *gin.Context) {
 	req := projectUpdateRequest{}
 
@@ -95,7 +95,16 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	proj, err := ctl.repo.Get("", ctx.Param("id"))
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
@@ -118,9 +127,18 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 // @Param	id	path	string	true	"id of project"
 // @Accept json
 // @Produce json
-// @Router /v1/project/{id} [get]
+// @Router /v1/project/{owner}/{id} [get]
 func (ctl *ProjectController) Get(ctx *gin.Context) {
-	proj, err := ctl.s.Get("", ctx.Param("id"))
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	proj, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -135,8 +153,17 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Tags  Project
 // @Accept json
 // @Produce json
-// @Router /v1/project [get]
+// @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	cmd := app.ProjectListCmd{}
 
 	if v := ctx.Request.URL.Query().Get("name"); v != "" {
@@ -152,7 +179,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	projs, err := ctl.s.List("", &cmd)
+	projs, err := ctl.s.List(owner, &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

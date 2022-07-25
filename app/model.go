@@ -52,8 +52,8 @@ type ModelDTO struct {
 
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
-	Get(string, string) (ModelDTO, error)
-	List(string, *ModelListCmd) ([]ModelDTO, error)
+	Get(domain.Account, string) (ModelDTO, error)
+	List(domain.Account, *ModelListCmd) ([]ModelDTO, error)
 }
 
 func NewModelService(repo repository.Model, pr platform.Repository) ModelService {
@@ -93,7 +93,7 @@ func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
 	return
 }
 
-func (s modelService) Get(owner, modelId string) (dto ModelDTO, err error) {
+func (s modelService) Get(owner domain.Account, modelId string) (dto ModelDTO, err error) {
 	v, err := s.repo.Get(owner, modelId)
 	if err != nil {
 		return
@@ -116,7 +116,7 @@ func (cmd *ModelListCmd) toModelListOption() (
 	return
 }
 
-func (s modelService) List(owner string, cmd *ModelListCmd) (
+func (s modelService) List(owner domain.Account, cmd *ModelListCmd) (
 	dtos []ModelDTO, err error,
 ) {
 	v, err := s.repo.List(owner, cmd.toModelListOption())

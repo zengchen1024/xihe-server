@@ -56,19 +56,12 @@ func (col dataset) New(owner string) error {
 func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error) {
 	identity = newId()
 
-	docObj := datasetItem{
-		Id:       identity,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Protocol: do.Protocol,
-		RepoType: do.RepoType,
-		Tags:     do.Tags,
-	}
-
-	doc, err := genDoc(docObj)
+	do.Id = identity
+	doc, err := col.toDatasetDoc(&do)
 	if err != nil {
 		return
 	}
+	doc[fieldVersion] = 0
 
 	docFilter := datasetDocFilter(do.Owner)
 
@@ -91,6 +84,38 @@ func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error
 	}
 
 	return
+}
+
+func (col dataset) Update(do repositories.DatasetDO) error {
+	doc, err := col.toDatasetDoc(&do)
+	if err != nil {
+		return err
+	}
+
+	docFilter := datasetDocFilter(do.Owner)
+
+	updated := false
+
+	f := func(ctx context.Context) error {
+		b, err := cli.updateArrayElem(
+			ctx, col.collectionName, fieldItems,
+			docFilter, arrayFilterById(do.Id), doc, do.Version,
+		)
+
+		updated = b
+
+		return err
+	}
+
+	if err := withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
+	}
+
+	return nil
 }
 
 func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err error) {
@@ -164,6 +189,20 @@ func (col dataset) List(owner string, do repositories.DatasetListDO) (
 	return
 }
 
+func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
+	docObj := datasetItem{
+		Id:       do.Id,
+		Name:     do.Name,
+		Desc:     do.Desc,
+		Protocol: do.Protocol,
+		RepoType: do.RepoType,
+		RepoId:   do.RepoId,
+		Tags:     do.Tags,
+	}
+
+	return genDoc(docObj)
+}
+
 func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories.DatasetDO) {
 	*do = repositories.DatasetDO{
 		Id:       item.Id,
@@ -172,6 +211,8 @@ func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories
 		Desc:     item.Desc,
 		Protocol: item.Protocol,
 		RepoType: item.RepoType,
+		RepoId:   item.RepoId,
 		Tags:     item.Tags,
+		Version:  item.Version,
 	}
 }
