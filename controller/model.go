@@ -77,7 +77,16 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 // @Success 200 {object} app.ModelDTO
 // @Router /v1/model/{owner}/{id} [get]
 func (ctl *ModelController) Get(ctx *gin.Context) {
-	m, err := ctl.s.Get(ctx.Param("owner"), ctx.Param("id"))
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	m, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
@@ -94,6 +103,15 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 // @Produce json
 // @Router /v1/model/{owner} [get]
 func (ctl *ModelController) List(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	cmd := app.ModelListCmd{}
 
 	if v := ctx.Request.URL.Query().Get("name"); v != "" {
@@ -109,7 +127,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	data, err := ctl.s.List(ctx.Param("owner"), &cmd)
+	data, err := ctl.s.List(owner, &cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

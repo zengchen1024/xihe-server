@@ -10,6 +10,6 @@ type ModelListOption struct {
 
 type Model interface {
 	Save(*domain.Model) (domain.Model, error)
-	Get(string, string) (domain.Model, error)
-	List(string, ModelListOption) ([]domain.Model, error)
+	Get(domain.Account, string) (domain.Model, error)
+	List(domain.Account, ModelListOption) ([]domain.Model, error)
 }

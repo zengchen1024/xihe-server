@@ -93,19 +93,6 @@ func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error
 	return
 }
 
-func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
-	*dto = DatasetDTO{
-		Id:       d.Id,
-		Owner:    d.Owner.Account(),
-		Name:     d.Name.ProjName(),
-		Desc:     d.Desc.ProjDesc(),
-		Protocol: d.Protocol.ProtocolName(),
-		RepoType: d.RepoType.RepoType(),
-		RepoId:   d.RepoId,
-		Tags:     d.Tags,
-	}
-}
-
 func (s datasetService) Get(owner domain.Account, datasetId string) (dto DatasetDTO, err error) {
 	v, err := s.repo.Get(owner, datasetId)
 	if err != nil {
@@ -143,4 +130,20 @@ func (s datasetService) List(owner domain.Account, cmd *DatasetListCmd) (
 	}
 
 	return
+}
+
+func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
+	*dto = DatasetDTO{
+		Id:       d.Id,
+		Owner:    d.Owner.Account(),
+		Name:     d.Name.ProjName(),
+		Protocol: d.Protocol.ProtocolName(),
+		RepoType: d.RepoType.RepoType(),
+		RepoId:   d.RepoId,
+		Tags:     d.Tags,
+	}
+
+	if d.Desc != nil {
+		dto.Desc = d.Desc.ProjDesc()
+	}
 }

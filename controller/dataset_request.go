@@ -14,28 +14,23 @@ type datasetCreateRequest struct {
 }
 
 func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
-	cmd.Owner, err = domain.NewAccount(req.Owner)
-	if err != nil {
+	if cmd.Owner, err = domain.NewAccount(req.Owner); err != nil {
 		return
 	}
 
-	cmd.Name, err = domain.NewProjName(req.Name)
-	if err != nil {
+	if cmd.Name, err = domain.NewProjName(req.Name); err != nil {
 		return
 	}
 
-	cmd.Desc, err = domain.NewProjDesc(req.Desc)
-	if err != nil {
+	if cmd.Desc, err = domain.NewProjDesc(req.Desc); err != nil {
 		return
 	}
 
-	cmd.Protocol, err = domain.NewProtocolName(req.Protocol)
-	if err != nil {
+	if cmd.Protocol, err = domain.NewProtocolName(req.Protocol); err != nil {
 		return
 	}
 
-	cmd.RepoType, err = domain.NewRepoType(req.RepoType)
-	if err != nil {
+	if cmd.RepoType, err = domain.NewRepoType(req.RepoType); err != nil {
 		return
 	}
 

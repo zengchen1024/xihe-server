@@ -57,7 +57,9 @@ type datasetItem struct {
 	Desc     string   `bson:"desc"      json:"desc"`
 	Protocol string   `bson:"protocol"  json:"protocol"`
 	RepoType string   `bson:"repo_type" json:"repo_type"`
+	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
+	Version  int      `bson:"version"    json:"-"`
 }
 
 type dUser struct {
