@@ -5,6 +5,13 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+type ProjectMapper interface {
+	Insert(ProjectDO) (string, error)
+	Update(ProjectDO) error
+	Get(string, string) (ProjectDO, error)
+	List(string, ProjectListDO) ([]ProjectDO, error)
+}
+
 func NewProjectRepository(mapper ProjectMapper) repository.Project {
 	return project{mapper}
 }
@@ -15,21 +22,17 @@ type project struct {
 
 func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 	if p.Id != "" {
+		if err = impl.mapper.Update(impl.toProjectDO(p)); err != nil {
+			err = convertError(err)
+		} else {
+			r = *p
+			r.Version += 1
+		}
+
 		return
 	}
 
-	do := ProjectDO{
-		Owner:    p.Owner,
-		Name:     p.Name.ProjName(),
-		Desc:     p.Desc.ProjDesc(),
-		Type:     p.Type.ProjType(),
-		CoverId:  p.CoverId.CoverId(),
-		RepoType: p.RepoType.RepoType(),
-		Protocol: p.Protocol.ProtocolName(),
-		Training: p.Training.TrainingPlatform(),
-	}
-
-	v, err := impl.mapper.Insert(do)
+	v, err := impl.mapper.Insert(impl.toProjectDO(p))
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -78,6 +81,27 @@ func (impl project) List(owner string, option repository.ProjectListOption) (
 	return
 }
 
+func (impl project) toProjectDO(p *domain.Project) ProjectDO {
+	do := ProjectDO{
+		Id:       p.Id,
+		Owner:    p.Owner,
+		Name:     p.Name.ProjName(),
+		Type:     p.Type.ProjType(),
+		CoverId:  p.CoverId.CoverId(),
+		RepoType: p.RepoType.RepoType(),
+		Protocol: p.Protocol.ProtocolName(),
+		Training: p.Training.TrainingPlatform(),
+		Tags:     p.Tags,
+		RepoId:   p.RepoId,
+	}
+
+	if p.Desc != nil {
+		do.Desc = p.Desc.ProjDesc()
+	}
+
+	return do
+}
+
 type ProjectListDO struct {
 	Name string
 }
@@ -89,9 +113,10 @@ type ProjectDO struct {
 	Desc     string
 	Type     string
 	CoverId  string
-	RepoType string
 	Protocol string
 	Training string
+	RepoType string
+	RepoId   string
 	Tags     []string
 	Version  int
 }
@@ -128,16 +153,9 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 		return
 	}
 
+	r.RepoId = do.RepoId
 	r.Tags = do.Tags
-
 	r.Version = do.Version
 
 	return
-}
-
-type ProjectMapper interface {
-	Insert(ProjectDO) (string, error)
-	Update(string, ProjectDO) error
-	Get(string, string) (ProjectDO, error)
-	List(string, ProjectListDO) ([]ProjectDO, error)
 }

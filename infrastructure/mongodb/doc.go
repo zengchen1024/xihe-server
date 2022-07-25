@@ -25,7 +25,9 @@ type projectItem struct {
 	Protocol string   `bson:"protocol"  json:"protocol"`
 	Training string   `bson:"training"  json:"training"`
 	RepoType string   `bson:"repo_type" json:"repo_type"`
+	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
+	Version  int      `bson:"version"    json:"-"`
 }
 
 type dModel struct {
@@ -66,5 +68,8 @@ type dUser struct {
 	PlatformToken           string `bson:"token"      json:"token"`
 	PlatformUserId          string `bson:"uid"        json:"uid"`
 	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
-	Version                 int    `bson:"version"    json:"version"`
+
+	// Version will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version int `bson:"version"    json:"-"`
 }

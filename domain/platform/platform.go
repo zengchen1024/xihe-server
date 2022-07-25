@@ -14,3 +14,12 @@ type User interface {
 	New(UserOption) (domain.PlatformUser, error)
 	NewToken(domain.PlatformUser) (string, error)
 }
+
+type RepoOption struct {
+	Name domain.ProjName
+	Desc domain.ProjDesc
+}
+
+type Repository interface {
+	New(repo RepoOption) (string, error)
+}

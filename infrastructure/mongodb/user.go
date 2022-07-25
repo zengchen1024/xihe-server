@@ -31,20 +31,11 @@ type user struct {
 }
 
 func (col user) Insert(do repositories.UserDO) (identity string, err error) {
-	docObj := dUser{
-		Name:                    do.Account,
-		Email:                   do.Email,
-		Bio:                     do.Bio,
-		AvatarId:                do.AvatarId,
-		PlatformToken:           do.Platform.Token,
-		PlatformUserId:          do.Platform.UserId,
-		PlatformUserNamespaceId: do.Platform.NamespaceId,
-	}
-
-	doc, err := genDoc(docObj)
+	doc, err := col.toUserDoc(&do)
 	if err != nil {
 		return
 	}
+	doc[fieldVersion] = 0
 
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(
@@ -65,17 +56,7 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 }
 
 func (col user) Update(do repositories.UserDO) (err error) {
-	docObj := dUser{
-		Name:                    do.Account,
-		Email:                   do.Email,
-		Bio:                     do.Bio,
-		AvatarId:                do.AvatarId,
-		PlatformToken:           do.Platform.Token,
-		PlatformUserId:          do.Platform.UserId,
-		PlatformUserNamespaceId: do.Platform.NamespaceId,
-	}
-
-	doc, err := genDoc(docObj)
+	doc, err := col.toUserDoc(&do)
 	if err != nil {
 		return
 	}
@@ -134,6 +115,20 @@ func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
 	}
 
 	return
+}
+
+func (col user) toUserDoc(do *repositories.UserDO) (bson.M, error) {
+	docObj := dUser{
+		Name:                    do.Account,
+		Email:                   do.Email,
+		Bio:                     do.Bio,
+		AvatarId:                do.AvatarId,
+		PlatformToken:           do.Platform.Token,
+		PlatformUserId:          do.Platform.UserId,
+		PlatformUserNamespaceId: do.Platform.NamespaceId,
+	}
+
+	return genDoc(docObj)
 }
 
 func (col user) toUserDO(u *dUser, do *repositories.UserDO) {

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -57,6 +58,7 @@ type ProjectDTO struct {
 	Protocol string   `json:"protocol"`
 	Training string   `json:"training"`
 	RepoType string   `json:"repo_type"`
+	RepoId   string   `json:"repo_id"`
 	Tags     []string `json:"tags"`
 }
 
@@ -67,42 +69,41 @@ type ProjectService interface {
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 }
 
-func NewProjectService(repo repository.Project) ProjectService {
-	return projectService{repo}
+func NewProjectService(repo repository.Project, pr platform.Repository) ProjectService {
+	return projectService{repo: repo, pr: pr}
 }
 
 type projectService struct {
 	repo repository.Project
+	pr   platform.Repository
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
-	p := cmd.toProject()
+	v := cmd.toProject()
 
-	v, err := s.repo.Save(&p)
+	p, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
 
-	s.toProjectDTO(&v, &dto)
+	pid, err := s.pr.New(platform.RepoOption{
+		Name: cmd.Name,
+		Desc: cmd.Desc,
+	})
+	if err != nil {
+		return
+	}
 
-	// TODO send event
+	p.RepoId = pid
+
+	p, err = s.repo.Save(&p)
+	if err != nil {
+		return
+	}
+
+	s.toProjectDTO(&p, &dto)
 
 	return
-}
-
-func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
-	*dto = ProjectDTO{
-		Id:       p.Id,
-		Owner:    p.Owner,
-		Name:     p.Name.ProjName(),
-		Desc:     p.Desc.ProjDesc(),
-		Type:     p.Type.ProjType(),
-		CoverId:  p.CoverId.CoverId(),
-		Protocol: p.Protocol.ProtocolName(),
-		Training: p.Training.TrainingPlatform(),
-		RepoType: p.RepoType.RepoType(),
-		Tags:     p.Tags,
-	}
 }
 
 func (s projectService) Get(owner, projectId string) (dto ProjectDTO, err error) {
@@ -114,4 +115,51 @@ func (s projectService) Get(owner, projectId string) (dto ProjectDTO, err error)
 	s.toProjectDTO(&v, &dto)
 
 	return
+}
+
+type ProjectListCmd struct {
+	Name domain.ProjName
+}
+
+func (cmd *ProjectListCmd) toProjectListOption() (
+	option repository.ProjectListOption,
+) {
+	option.Name = cmd.Name
+
+	return
+}
+
+func (s projectService) List(owner string, cmd *ProjectListCmd) (
+	dtos []ProjectDTO, err error,
+) {
+	v, err := s.repo.List(owner, cmd.toProjectListOption())
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	dtos = make([]ProjectDTO, len(v))
+	for i := range v {
+		s.toProjectDTO(&v[i], &dtos[i])
+	}
+
+	return
+}
+
+func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
+	*dto = ProjectDTO{
+		Id:       p.Id,
+		Owner:    p.Owner,
+		Name:     p.Name.ProjName(),
+		Type:     p.Type.ProjType(),
+		CoverId:  p.CoverId.CoverId(),
+		Protocol: p.Protocol.ProtocolName(),
+		Training: p.Training.TrainingPlatform(),
+		RepoType: p.RepoType.RepoType(),
+		RepoId:   p.RepoId,
+		Tags:     p.Tags,
+	}
+
+	if p.Desc != nil {
+		dto.Desc = p.Desc.ProjDesc()
+	}
 }
