@@ -9,7 +9,10 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 )
 
-var admin *administrator
+var (
+	admin    *administrator
+	endpoint string
+)
 
 func NewUserSerivce() platform.User {
 	return admin

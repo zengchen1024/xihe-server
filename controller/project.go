@@ -12,7 +12,7 @@ import (
 func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project) {
 	pc := ProjectController{
 		repo: repo,
-		s:    app.NewProjectService(repo),
+		s:    app.NewProjectService(repo, nil),
 	}
 
 	rg.POST("/v1/project", pc.Create)
@@ -55,7 +55,9 @@ func (pc *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	d, err := pc.s.Create(&cmd)
+	s := app.NewProjectService(pc.repo, newPlatformRepository(ctx))
+
+	d, err := s.Create(&cmd)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

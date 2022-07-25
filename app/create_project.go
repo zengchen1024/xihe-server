@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -67,25 +68,39 @@ type ProjectService interface {
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 }
 
-func NewProjectService(repo repository.Project) ProjectService {
-	return projectService{repo}
+func NewProjectService(repo repository.Project, pr platform.Repository) ProjectService {
+	return projectService{repo: repo, pr: pr}
 }
 
 type projectService struct {
 	repo repository.Project
+	pr   platform.Repository
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
-	p := cmd.toProject()
+	v := cmd.toProject()
 
-	v, err := s.repo.Save(&p)
+	p, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
 
-	s.toProjectDTO(&v, &dto)
+	pid, err := s.pr.New(platform.RepoOption{
+		Name: cmd.Name,
+		Desc: cmd.Desc,
+	})
+	if err != nil {
+		return
+	}
 
-	// TODO send event
+	p.RepoId = pid
+
+	p, err = s.repo.Save(&p)
+	if err != nil {
+		return
+	}
+
+	s.toProjectDTO(&p, &dto)
 
 	return
 }

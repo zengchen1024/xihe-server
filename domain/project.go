@@ -14,5 +14,7 @@ type Project struct {
 
 	Tags []string
 
+	RepoId string
+
 	Version int
 }
