@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ModelCreateCmd struct {
-	Owner    string
+	Owner    domain.Account
 	Name     domain.ProjName
 	Desc     domain.ProjDesc
 	RepoType domain.RepoType
@@ -16,7 +17,7 @@ type ModelCreateCmd struct {
 }
 
 func (cmd *ModelCreateCmd) Validate() error {
-	b := cmd.Owner != "" &&
+	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
@@ -45,6 +46,7 @@ type ModelDTO struct {
 	Desc     string   `json:"desc"`
 	Protocol string   `json:"protocol"`
 	RepoType string   `json:"repo_type"`
+	RepoId   string   `json:"repo_id"`
 	Tags     []string `json:"tags"`
 }
 
@@ -54,39 +56,41 @@ type ModelService interface {
 	List(string, *ModelListCmd) ([]ModelDTO, error)
 }
 
-func NewModelService(repo repository.Model) ModelService {
-	return modelService{repo}
+func NewModelService(repo repository.Model, pr platform.Repository) ModelService {
+	return modelService{repo: repo, pr: pr}
 }
 
 type modelService struct {
 	repo repository.Model
+	pr   platform.Repository
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
-	m := cmd.toModel()
+	v := cmd.toModel()
 
-	v, err := s.repo.Save(&m)
+	m, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
 
-	s.toModelDTO(&v, &dto)
+	pid, err := s.pr.New(platform.RepoOption{
+		Name: cmd.Name,
+		Desc: cmd.Desc,
+	})
+	if err != nil {
+		return
+	}
 
-	// TODO send event
+	m.RepoId = pid
+
+	m, err = s.repo.Save(&m)
+	if err != nil {
+		return
+	}
+
+	s.toModelDTO(&m, &dto)
 
 	return
-}
-
-func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
-	*dto = ModelDTO{
-		Id:       m.Id,
-		Owner:    m.Owner,
-		Name:     m.Name.ProjName(),
-		Desc:     m.Desc.ProjDesc(),
-		Protocol: m.Protocol.ProtocolName(),
-		RepoType: m.RepoType.RepoType(),
-		Tags:     m.Tags,
-	}
 }
 
 func (s modelService) Get(owner, modelId string) (dto ModelDTO, err error) {
@@ -126,4 +130,20 @@ func (s modelService) List(owner string, cmd *ModelListCmd) (
 	}
 
 	return
+}
+
+func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
+	*dto = ModelDTO{
+		Id:       m.Id,
+		Owner:    m.Owner.Account(),
+		Name:     m.Name.ProjName(),
+		Protocol: m.Protocol.ProtocolName(),
+		RepoType: m.RepoType.RepoType(),
+		RepoId:   m.RepoId,
+		Tags:     m.Tags,
+	}
+
+	if m.Desc != nil {
+		dto.Desc = m.Desc.ProjDesc()
+	}
 }

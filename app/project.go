@@ -9,7 +9,7 @@ import (
 )
 
 type ProjectCreateCmd struct {
-	Owner    string
+	Owner    domain.Account
 	Name     domain.ProjName
 	Desc     domain.ProjDesc
 	Type     domain.ProjType
@@ -20,7 +20,7 @@ type ProjectCreateCmd struct {
 }
 
 func (cmd *ProjectCreateCmd) Validate() error {
-	b := cmd.Owner != "" &&
+	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
 		cmd.Type != nil &&
 		cmd.CoverId != nil &&
@@ -148,7 +148,7 @@ func (s projectService) List(owner string, cmd *ProjectListCmd) (
 func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 	*dto = ProjectDTO{
 		Id:       p.Id,
-		Owner:    p.Owner,
+		Owner:    p.Owner.Account(),
 		Name:     p.Name.ProjName(),
 		Type:     p.Type.ProjType(),
 		CoverId:  p.CoverId.CoverId(),

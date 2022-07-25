@@ -7,6 +7,7 @@ import (
 
 type ModelMapper interface {
 	Insert(ModelDO) (string, error)
+	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
 	List(string, ModelListDO) ([]ModelDO, error)
 }
@@ -21,18 +22,17 @@ type model struct {
 
 func (impl model) Save(m *domain.Model) (r domain.Model, err error) {
 	if m.Id != "" {
+		if err = impl.mapper.Update(impl.toModelDO(m)); err != nil {
+			err = convertError(err)
+		} else {
+			r = *m
+			r.Version += 1
+		}
+
 		return
 	}
 
-	do := ModelDO{
-		Owner:    m.Owner,
-		Name:     m.Name.ProjName(),
-		Desc:     m.Desc.ProjDesc(),
-		RepoType: m.RepoType.RepoType(),
-		Protocol: m.Protocol.ProtocolName(),
-	}
-
-	v, err := impl.mapper.Insert(do)
+	v, err := impl.mapper.Insert(impl.toModelDO(m))
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -80,6 +80,25 @@ func (impl model) List(owner string, option repository.ModelListOption) (
 	return
 }
 
+func (impl model) toModelDO(m *domain.Model) ModelDO {
+	do := ModelDO{
+		Id:       m.Id,
+		Owner:    m.Owner.Account(),
+		Name:     m.Name.ProjName(),
+		RepoType: m.RepoType.RepoType(),
+		Protocol: m.Protocol.ProtocolName(),
+		Tags:     m.Tags,
+		RepoId:   m.RepoId,
+	}
+
+	if m.Desc != nil {
+		do.Desc = m.Desc.ProjDesc()
+
+	}
+
+	return do
+}
+
 type ModelListDO struct {
 	Name string
 }
@@ -89,15 +108,19 @@ type ModelDO struct {
 	Owner    string
 	Name     string
 	Desc     string
-	RepoType string
 	Protocol string
+	RepoType string
+	RepoId   string
 	Tags     []string
 	Version  int
 }
 
 func (do *ModelDO) toModel(r *domain.Model) (err error) {
 	r.Id = do.Id
-	r.Owner = do.Owner
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
 
 	if r.Name, err = domain.NewProjName(do.Name); err != nil {
 		return
@@ -115,8 +138,8 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
+	r.RepoId = do.RepoId
 	r.Tags = do.Tags
-
 	r.Version = do.Version
 
 	return

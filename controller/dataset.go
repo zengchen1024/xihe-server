@@ -12,7 +12,7 @@ import (
 func AddRouterForDatasetController(rg *gin.RouterGroup, repo repository.Dataset) {
 	c := DatasetController{
 		repo: repo,
-		s:    app.NewDatasetService(repo),
+		s:    app.NewDatasetService(repo, nil),
 	}
 
 	rg.POST("/v1/dataset", c.Create)
