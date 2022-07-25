@@ -35,6 +35,7 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 	if err != nil {
 		return
 	}
+	doc[fieldVersion] = 0
 
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(

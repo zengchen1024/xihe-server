@@ -67,6 +67,7 @@ func (col project) Insert(do repositories.ProjectDO) (identity string, err error
 	if err != nil {
 		return
 	}
+	doc[fieldVersion] = 0
 
 	docFilter := projectDocFilter(do.Owner)
 
