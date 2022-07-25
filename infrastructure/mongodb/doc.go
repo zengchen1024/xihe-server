@@ -25,7 +25,9 @@ type projectItem struct {
 	Protocol string   `bson:"protocol"  json:"protocol"`
 	Training string   `bson:"training"  json:"training"`
 	RepoType string   `bson:"repo_type" json:"repo_type"`
+	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
+	Version  int      `bson:"version"    json:"version"`
 }
 
 type dModel struct {

@@ -168,6 +168,47 @@ func (cli *client) pushArrayElem(
 	return nil
 }
 
+func (cli *client) updateArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray, updateCmd bson.M, version int,
+) (bool, error) {
+	cmd := bson.M{}
+	for k, v := range updateCmd {
+		cmd[fmt.Sprintf("%s.$[i].%s", array, k)] = v
+	}
+
+	arrayFilter := bson.M{}
+	for k, v := range filterOfArray {
+		arrayFilter["i."+k] = v
+	}
+	arrayFilter["i."+fieldVersion] = version
+
+	col := cli.collection(collection)
+	r, err := col.UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{
+			"$set": cmd,
+			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldVersion): 1},
+		},
+		&options.UpdateOptions{
+			ArrayFilters: &options.ArrayFilters{
+				Filters: bson.A{
+					arrayFilter,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if r.MatchedCount == 0 {
+		return false, errDocNotExists
+	}
+
+	return r.ModifiedCount > 0, nil
+}
+
 func (cli *client) getArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray bson.M,

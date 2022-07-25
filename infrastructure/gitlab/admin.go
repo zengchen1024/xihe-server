@@ -18,13 +18,14 @@ func NewUserSerivce() platform.User {
 	return admin
 }
 
-func Init(endpoint, token string) error {
-	v, err := sdk.NewClient(token, sdk.WithBaseURL(endpoint))
+func Init(endpointURL, token string) error {
+	v, err := sdk.NewClient(token, sdk.WithBaseURL(endpointURL))
 	if err != nil {
 		return err
 	}
 
 	admin = &administrator{v}
+	endpoint = endpointURL
 
 	return nil
 }

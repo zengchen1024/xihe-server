@@ -62,19 +62,8 @@ func (col project) New(owner string) error {
 func (col project) Insert(do repositories.ProjectDO) (identity string, err error) {
 	identity = newId()
 
-	docObj := projectItem{
-		Id:       identity,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Type:     do.Type,
-		CoverId:  do.CoverId,
-		Protocol: do.Protocol,
-		Training: do.Training,
-		RepoType: do.RepoType,
-		Tags:     do.Tags,
-	}
-
-	doc, err := genDoc(docObj)
+	do.Id = identity
+	doc, err := col.toProjectDoc(&do)
 	if err != nil {
 		return
 	}
@@ -102,7 +91,35 @@ func (col project) Insert(do repositories.ProjectDO) (identity string, err error
 	return
 }
 
-func (col project) Update(string, repositories.ProjectDO) error {
+func (col project) Update(do repositories.ProjectDO) error {
+	doc, err := col.toProjectDoc(&do)
+	if err != nil {
+		return err
+	}
+
+	docFilter := projectDocFilter(do.Owner)
+
+	updated := false
+
+	f := func(ctx context.Context) error {
+		b, err := cli.updateArrayElem(
+			ctx, col.collectionName, fieldItems,
+			docFilter, arrayFilterById(do.Id), doc, do.Version,
+		)
+
+		updated = b
+
+		return err
+	}
+
+	if err := withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
+	}
+
 	return nil
 }
 
@@ -177,6 +194,23 @@ func (col project) List(owner string, do repositories.ProjectListDO) (
 	return
 }
 
+func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
+	docObj := projectItem{
+		Id:       do.Id,
+		Name:     do.Name,
+		Desc:     do.Desc,
+		Type:     do.Type,
+		CoverId:  do.CoverId,
+		Protocol: do.Protocol,
+		Training: do.Training,
+		RepoType: do.RepoType,
+		RepoId:   do.RepoId,
+		Tags:     do.Tags,
+	}
+
+	return genDoc(docObj)
+}
+
 func (col project) toProjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
 	*do = repositories.ProjectDO{
 		Id:       item.Id,
@@ -188,6 +222,8 @@ func (col project) toProjectDO(owner string, item *projectItem, do *repositories
 		Protocol: item.Protocol,
 		Training: item.Training,
 		RepoType: item.RepoType,
+		RepoId:   item.RepoId,
 		Tags:     item.Tags,
+		Version:  item.Version,
 	}
 }

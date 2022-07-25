@@ -13,8 +13,8 @@ type UserInfo struct {
 	Namespace string
 }
 
-func NewRepositoryService(info UserInfo) platform.Repository {
-	return &repository{user: info}
+func NewRepositoryService(v UserInfo) platform.Repository {
+	return &repository{user: v}
 }
 
 type repository struct {
