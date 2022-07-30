@@ -63,7 +63,7 @@ type datasetItem struct {
 }
 
 type dUser struct {
-	Id primitive.ObjectID `bson:"_id"       json:"_"`
+	Id primitive.ObjectID `bson:"_id"       json:"-"`
 
 	Name                    string `bson:"name"       json:"name"`
 	Email                   string `bson:"email"      json:"email"`

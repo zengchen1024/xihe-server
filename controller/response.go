@@ -3,8 +3,11 @@ package controller
 import "github.com/opensourceways/xihe-server/domain/repository"
 
 const (
+	errorNotAllowed         = "not_allowed"
+	errorInvalidToken       = "invalid_token"
 	errorSystemError        = "system_error"
 	errorBadRequestBody     = "bad_request_body"
+	errorBadRequestHeader   = "bad_request_header"
 	errorBadRequestParam    = "bad_request_param"
 	errorDuplicateCreating  = "duplicate_creating"
 	errorResourceNotExists  = "resource_not_exists"
