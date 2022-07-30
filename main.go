@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/config"
+	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
@@ -48,8 +49,16 @@ func main() {
 	}
 
 	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
-
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
+	}
+
+	apiConfig := controller.APIConfig{
+		EncryptionKey:  cfg.EncryptionKey,
+		APITokenKey:    cfg.API.APITokenKey,
+		APITokenExpiry: cfg.API.APITokenExpiry,
+	}
+	if err := controller.Init(apiConfig); err != nil {
+		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
 	}
 
 	m := &cfg.Mongodb

@@ -23,9 +23,11 @@ func LoadConfig(path string) (*Config, error) {
 }
 
 type Config struct {
-	Authing AuthingService `json:"authing_service" required:"true"`
-	Mongodb Mongodb        `json:"mongodb" required:"true"`
-	Gitlab  Gitlab         `json:"gitlab" required:"true"`
+	EncryptionKey string         `json:"encryption_key" required:"true"`
+	Authing       AuthingService `json:"authing_service" required:"true"`
+	Mongodb       Mongodb        `json:"mongodb" required:"true"`
+	Gitlab        Gitlab         `json:"gitlab" required:"true"`
+	API           API            `json:"api" required:"true"`
 }
 
 func (cfg *Config) setDefault() {
@@ -54,4 +56,9 @@ type AuthingService struct {
 type Gitlab struct {
 	Endpoint  string `json:"endpoint" required:"true"`
 	RootToken string `json:"root_token" required:"true"`
+}
+
+type API struct {
+	APITokenExpiry int64  `json:"api_token_expiry" required:"true"`
+	APITokenKey    string `json:"api_token_key" required:"true"`
 }

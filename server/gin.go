@@ -72,6 +72,13 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			),
 			gitlab.NewUserSerivce(),
 		)
+
+		controller.AddRouterForLoginController(
+			v1,
+			repositories.NewUserRepository(
+				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+			),
+		)
 	}
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

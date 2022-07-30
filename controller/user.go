@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -25,6 +26,8 @@ func AddRouterForUserController(
 }
 
 type UserController struct {
+	baseController
+
 	repo repository.User
 	s    app.UserService
 }
@@ -116,12 +119,29 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Success 200 {object} app.UserDTO
 // @Router /v1/user/{id} [get]
 func (ctl *UserController) Get(ctx *gin.Context) {
-	u, err := ctl.s.Get(ctx.Param("id"))
+	pl := &oldUserTokenPayload{}
+	newToken, ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl)
+	if !ok {
+		return
+	}
+
+	uid := ctx.Param("id")
+	if pl.UserId != uid {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't fetch other user's info",
+		))
+
+		return
+	}
+
+	u, err := ctl.s.Get(uid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
 	}
 
+	ctx.Header(headerPrivateToken, newToken)
 	ctx.JSON(http.StatusOK, newResponseData(u))
 }
