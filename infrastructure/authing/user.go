@@ -1,25 +1,27 @@
 package authing
 
-import "fmt"
+import (
+	"github.com/Authing/authing-go-sdk/lib/authentication"
+
+	"github.com/opensourceways/xihe-server/domain/authing"
+)
+
+var cli *authentication.Client
+
+func Init(appId, secret string) {
+	cli = authentication.NewClient(appId, secret)
+}
+
+func NewAuthingUser() authing.User {
+	return user{}
+}
 
 type user struct{}
 
-func (impl user) GetUser(access_token string) (userinfo *AuthingLoginUser, err error) {
-	resp, err := http.Get(authing_redicturl + "/oidc/me?access_token=" + access_token)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+func (impl user) GetByAccessToken(accessToken string) (userinfo authing.UserInfo, err error) {
+	return
+}
 
-	respDataBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	userinfo = new(AuthingLoginUser)
-	err = json.Unmarshal(respDataBytes, userinfo)
-	if err != nil {
-		return nil, err
-	}
-	return userinfo, nil
-
+func (impl user) GetByCode(code string) (login authing.Login, err error) {
+	return
 }

@@ -3,6 +3,7 @@ module github.com/opensourceways/xihe-server
 go 1.16
 
 require (
+	github.com/Authing/authing-go-sdk v0.2.8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
 	github.com/huaweicloud/golangsdk v0.0.0-20210831081626-d823fe11ceba

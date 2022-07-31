@@ -63,7 +63,6 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 	}
 
 	req := userCreateRequest{}
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,

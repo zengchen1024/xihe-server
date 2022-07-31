@@ -21,9 +21,10 @@ type newUserTokenPayload struct {
 	AccessToken string `json:"access_token"`
 }
 
-func AddRouterForLoginController(rg *gin.RouterGroup, repo repository.User) {
+func AddRouterForLoginController(rg *gin.RouterGroup, repo repository.User, auth authing.User) {
 	pc := LoginController{
 		repo: repo,
+		auth: auth,
 	}
 
 	rg.GET("/v1/login", pc.Login)
