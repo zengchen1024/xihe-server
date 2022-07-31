@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain/authing"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -14,8 +15,10 @@ func AddRouterForUserController(
 	rg *gin.RouterGroup,
 	repo repository.User,
 	ps platform.User,
+	auth authing.User,
 ) {
 	pc := UserController{
+		auth: auth,
 		repo: repo,
 		s:    app.NewUserService(repo, ps),
 	}
@@ -29,6 +32,7 @@ type UserController struct {
 	baseController
 
 	repo repository.User
+	auth authing.User
 	s    app.UserService
 }
 
@@ -44,8 +48,21 @@ type UserController struct {
 // @Failure 500 duplicate_creating  create user repeatedly
 // @Router /v1/user [post]
 func (ctl *UserController) Create(ctx *gin.Context) {
-	req := userCreateRequest{}
+	pl := &newUserTokenPayload{}
+	if ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl); !ok {
+		return
+	}
 
+	info, err := ctl.auth.GetByAccessToken(pl.AccessToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+			errorSystemError, err,
+		))
+
+		return
+	}
+
+	req := userCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -55,8 +72,16 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO
-	cmd, err := req.toCmd("")
+	if req.Account != info.Name.Account() {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"account is not matched",
+		))
+
+		return
+	}
+
+	cmd, err := req.toCmd(info)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -72,6 +97,24 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
+	token, err := ctl.newApiToken(ctx, roleIndividuals, oldUserTokenPayload{
+		UserId:                  d.Id,
+		AccessToken:             pl.AccessToken,
+		PlatformToken:           d.Platform.Token,
+		PlatformUserId:          d.Platform.UserId,
+		PlatformUserNamespaceId: d.Platform.NamespaceId,
+	})
+	if err != nil {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			newResponseCodeError(errorSystemError, err),
+		)
+
+		return
+	}
+
+	ctl.setRespToken(ctx, "") // Remove the old one
+	ctl.setRespToken(ctx, token)
 	ctx.JSON(http.StatusOK, newResponseData(d))
 }
 
@@ -120,8 +163,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Router /v1/user/{id} [get]
 func (ctl *UserController) Get(ctx *gin.Context) {
 	pl := &oldUserTokenPayload{}
-	newToken, ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl)
-	if !ok {
+	if ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl); !ok {
 		return
 	}
 
@@ -142,6 +184,5 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Header(headerPrivateToken, newToken)
 	ctx.JSON(http.StatusOK, newResponseData(u))
 }

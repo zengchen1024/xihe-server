@@ -78,7 +78,7 @@ func (ctl baseController) newApiToken(ctx *gin.Context, role string, pl interfac
 }
 
 func (ctl baseController) checkApiToken(ctx *gin.Context, permission []string, pl interface{}) (
-	newToken string, ok bool,
+	ok bool,
 ) {
 	addr, err := ctl.getRemoteAddr(ctx)
 	if err != nil {
@@ -131,13 +131,18 @@ func (ctl baseController) checkApiToken(ctx *gin.Context, permission []string, p
 		return
 	}
 
-	if v, err := ac.refreshToken(apiConfig.APITokenExpiry, apiConfig.APITokenKey); err == nil {
-		newToken = v
-	}
-	newToken = token
 	ok = true
 
+	if v, err := ac.refreshToken(apiConfig.APITokenExpiry, apiConfig.APITokenKey); err == nil {
+		token = v
+	}
+	ctx.Header(headerPrivateToken, token)
+
 	return
+}
+
+func (clt baseController) setRespToken(ctx *gin.Context, token string) {
+	ctx.Header(headerPrivateToken, token)
 }
 
 func (clt baseController) getRemoteAddr(ctx *gin.Context) (string, error) {

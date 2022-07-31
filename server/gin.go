@@ -14,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
+	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
@@ -71,6 +72,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
 			gitlab.NewUserSerivce(),
+			authing.NewAuthingUser(),
 		)
 
 		controller.AddRouterForLoginController(
@@ -78,6 +80,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
+			authing.NewAuthingUser(),
 		)
 	}
 
