@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/authing"
 )
 
 type userBasicInfoUpdateRequest struct {
@@ -26,22 +27,14 @@ func (req *userBasicInfoUpdateRequest) toCmd() (
 
 type userCreateRequest struct {
 	Account  string `json:"account"`
-	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (req *userCreateRequest) toCmd(accessToken string) (cmd app.UserCreateCmd, err error) {
-	// TODO get user's account and email by access token
-
-	cmd.Account, err = domain.NewAccount(req.Account)
-	if err != nil {
-		return
-	}
-
-	cmd.Email, err = domain.NewEmail(req.Email)
-	if err != nil {
-		return
-	}
+func (req *userCreateRequest) toCmd(info authing.UserInfo) (cmd app.UserCreateCmd, err error) {
+	cmd.Account = info.Name
+	cmd.Email = info.Email
+	cmd.Bio = info.Bio
+	cmd.AvatarId = info.AvatarId
 
 	cmd.Password, err = domain.NewPassword(req.Password)
 	if err != nil {
