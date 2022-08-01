@@ -48,8 +48,8 @@ type UserController struct {
 // @Failure 500 duplicate_creating  create user repeatedly
 // @Router /v1/user [post]
 func (ctl *UserController) Create(ctx *gin.Context) {
-	pl := &newUserTokenPayload{}
-	if _, ok := ctl.checkApiToken(ctx, pl, false); !ok {
+	pl, ok := ctl.checkNewUserApiToken(ctx)
+	if !ok {
 		return
 	}
 
@@ -113,7 +113,6 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	ctl.setRespToken(ctx, "") // Remove the old one
 	ctl.setRespToken(ctx, token)
 	ctx.JSON(http.StatusOK, newResponseData(d))
 }
@@ -162,26 +161,15 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Success 200 {object} app.UserDTO
 // @Router /v1/user/{id} [get]
 func (ctl *UserController) Get(ctx *gin.Context) {
-	pl := &oldUserTokenPayload{}
-	visitor, ok := ctl.checkApiToken(ctx, pl, true)
-	if !ok {
-		return
-	}
-
-	uid := ctx.Param("id")
-	if pl.UserId != uid {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"can't fetch other user's info",
-		))
-
-		return
-	}
-
-	u, err := ctl.s.Get(uid)
+	u, err := ctl.s.Get(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
+		return
+	}
+
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, u.Account)
+	if !ok {
 		return
 	}
 

@@ -45,11 +45,6 @@ type ProjectController struct {
 // @Produce json
 // @Router /v1/project [post]
 func (ctl *ProjectController) Create(ctx *gin.Context) {
-	pl := &oldUserTokenPayload{}
-	if _, ok := ctl.checkApiToken(ctx, pl, false); !ok {
-		return
-	}
-
 	req := projectCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
@@ -69,7 +64,12 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if pl.Account != cmd.Owner.Account() {
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner.Account())
+	if !ok {
+		return
+	}
+
+	if visitor {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed,
 			"can't create project for other user",
@@ -164,6 +164,11 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
+	}
+
 	proj, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
@@ -171,7 +176,14 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(proj))
+	if visitor && proj.RepoType != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(proj))
+	}
 }
 
 // @Summary List
@@ -181,12 +193,6 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Produce json
 // @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
-	pl := &oldUserTokenPayload{}
-	visitor, ok := ctl.checkApiToken(ctx, pl, true)
-	if !ok {
-		return
-	}
-
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -196,8 +202,9 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	if !visitor && pl.Account != owner.Account() {
-		visitor = true
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
 	}
 
 	cmd, err := ctl.getListParameter(ctx)
