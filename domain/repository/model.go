@@ -5,7 +5,8 @@ import (
 )
 
 type ModelListOption struct {
-	Name domain.ProjName
+	Name     domain.ProjName
+	RepoType domain.RepoType
 }
 
 type Model interface {

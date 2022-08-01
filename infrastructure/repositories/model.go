@@ -62,6 +62,9 @@ func (impl model) List(owner domain.Account, option repository.ModelListOption) 
 	if option.Name != nil {
 		do.Name = option.Name.ProjName()
 	}
+	if option.RepoType != nil {
+		do.RepoType = option.RepoType.RepoType()
+	}
 
 	v, err := impl.mapper.List(owner.Account(), do)
 	if err != nil {
@@ -100,7 +103,8 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 }
 
 type ModelListDO struct {
-	Name string
+	Name     string
+	RepoType string
 }
 
 type ModelDO struct {
