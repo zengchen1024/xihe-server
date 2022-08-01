@@ -62,6 +62,9 @@ func (impl dataset) List(owner domain.Account, option repository.DatasetListOpti
 	if option.Name != nil {
 		do.Name = option.Name.ProjName()
 	}
+	if option.RepoType != nil {
+		do.RepoType = option.RepoType.RepoType()
+	}
 
 	v, err := impl.mapper.List(owner.Account(), do)
 	if err != nil {
@@ -100,7 +103,8 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 }
 
 type DatasetListDO struct {
-	Name string
+	Name     string
+	RepoType string
 }
 
 type DatasetDO struct {

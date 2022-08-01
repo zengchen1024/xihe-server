@@ -49,7 +49,6 @@ type DatasetController struct {
 // @Router /v1/dataset [post]
 func (ctl *DatasetController) Create(ctx *gin.Context) {
 	req := datasetCreateRequest{}
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -68,7 +67,23 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewDatasetService(ctl.repo, ctl.newPlatformRepository("", ""))
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner.Account())
+	if !ok {
+		return
+	}
+
+	if visitor {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't create dataset for other user",
+		))
+
+		return
+	}
+
+	s := app.NewDatasetService(ctl.repo, ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	))
 
 	d, err := s.Create(&cmd)
 	if err != nil {
@@ -97,6 +112,11 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		return
 	}
 
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
+	}
+
 	m, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
@@ -104,7 +124,14 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(m))
+	if visitor && m.RepoType != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private dataset",
+		))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(m))
+	}
 }
 
 // @Summary List
@@ -123,19 +150,30 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.DatasetListCmd{}
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
+	}
 
-	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		name, err := domain.NewProjName(v)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
+	cmd, err := ctl.getListParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
 
-			return
+		return
+	}
+
+	if visitor {
+		if cmd.RepoType == nil {
+			cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
+		} else {
+			if cmd.RepoType.RepoType() != domain.RepoTypePublic {
+				ctx.JSON(http.StatusOK, newResponseData(nil))
+
+				return
+			}
 		}
-
-		cmd.Name = name
 	}
 
 	data, err := ctl.s.List(owner, &cmd)
@@ -146,4 +184,20 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(data))
+}
+
+func (ctl *DatasetController) getListParameter(ctx *gin.Context) (cmd app.DatasetListCmd, err error) {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
+		if cmd.Name, err = domain.NewProjName(v); err != nil {
+			return
+		}
+	}
+
+	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
+		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
+			return
+		}
+	}
+
+	return
 }

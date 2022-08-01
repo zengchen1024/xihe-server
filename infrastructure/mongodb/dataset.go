@@ -3,7 +3,6 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -154,18 +153,21 @@ func (col dataset) List(owner string, do repositories.DatasetListDO) (
 			ctx, col.collectionName, datasetDocFilter(owner),
 			map[string]func() bson.M{
 				fieldItems: func() bson.M {
-					if do.Name == "" {
-						return bson.M{
-							"$toBool": 1,
-						}
+					conds := bson.A{}
+
+					if do.RepoType != "" {
+						conds = append(conds, eqCondForArrayElem(
+							fieldRepoType, do.RepoType,
+						))
 					}
 
-					return bson.M{
-						"$regexMatch": bson.M{
-							"input": fmt.Sprintf("$$this.%s", fieldName),
-							"regex": do.Name,
-						},
+					if do.Name != "" {
+						conds = append(conds, matchCondForArrayElem(
+							fieldName, do.Name,
+						))
 					}
+
+					return condForArrayElem(conds)
 				},
 			},
 			bson.M{fieldItems: 1}, &v,

@@ -105,7 +105,8 @@ func (s datasetService) Get(owner domain.Account, datasetId string) (dto Dataset
 }
 
 type DatasetListCmd struct {
-	Name domain.ProjName
+	Name     domain.ProjName
+	RepoType domain.RepoType
 }
 
 func (cmd *DatasetListCmd) toDatasetListOption() (
