@@ -3,12 +3,13 @@ package mongodb
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
-	fieldId      = "id"
-	fieldName    = "name"
-	fieldItems   = "items"
-	fieldOwner   = "owner"
-	fieldEmail   = "email"
-	fieldVersion = "version"
+	fieldId       = "id"
+	fieldName     = "name"
+	fieldItems    = "items"
+	fieldOwner    = "owner"
+	fieldEmail    = "email"
+	fieldVersion  = "version"
+	fieldRepoType = "repo_type"
 )
 
 type dProject struct {

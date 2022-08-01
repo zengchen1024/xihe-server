@@ -6,13 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project) {
+func AddRouterForProjectController(
+	rg *gin.RouterGroup,
+	repo repository.Project,
+	newPlatformRepository func(token, namespace string) platform.Repository,
+) {
 	pc := ProjectController{
 		repo: repo,
 		s:    app.NewProjectService(repo, nil),
+
+		newPlatformRepository: newPlatformRepository,
 	}
 
 	rg.POST("/v1/project", pc.Create)
@@ -22,8 +29,12 @@ func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project)
 }
 
 type ProjectController struct {
+	baseController
+
 	repo repository.Project
 	s    app.ProjectService
+
+	newPlatformRepository func(string, string) platform.Repository
 }
 
 // @Summary Create
@@ -35,7 +46,6 @@ type ProjectController struct {
 // @Router /v1/project [post]
 func (ctl *ProjectController) Create(ctx *gin.Context) {
 	req := projectCreateRequest{}
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -54,7 +64,23 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewProjectService(ctl.repo, newPlatformRepository(ctx))
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner.Account())
+	if !ok {
+		return
+	}
+
+	if visitor {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't create project for other user",
+		))
+
+		return
+	}
+
+	s := app.NewProjectService(ctl.repo, ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	))
 
 	d, err := s.Create(&cmd)
 	if err != nil {
@@ -138,6 +164,11 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
+	}
+
 	proj, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
@@ -145,7 +176,14 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(proj))
+	if visitor && proj.RepoType != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(proj))
+	}
 }
 
 // @Summary List
@@ -164,19 +202,30 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.ProjectListCmd{}
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	if !ok {
+		return
+	}
 
-	if v := ctx.Request.URL.Query().Get("name"); v != "" {
-		name, err := domain.NewProjName(v)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
+	cmd, err := ctl.getListParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
 
-			return
+		return
+	}
+
+	if visitor {
+		if cmd.RepoType == nil {
+			cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
+		} else {
+			if cmd.RepoType.RepoType() != domain.RepoTypePublic {
+				ctx.JSON(http.StatusOK, newResponseData(nil))
+
+				return
+			}
 		}
-
-		cmd.Name = name
 	}
 
 	projs, err := ctl.s.List(owner, &cmd)
@@ -187,4 +236,20 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(projs))
+}
+
+func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.ProjectListCmd, err error) {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
+		if cmd.Name, err = domain.NewProjName(v); err != nil {
+			return
+		}
+	}
+
+	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
+		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
+			return
+		}
+	}
+
+	return
 }

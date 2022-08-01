@@ -118,13 +118,15 @@ func (s projectService) Get(owner domain.Account, projectId string) (dto Project
 }
 
 type ProjectListCmd struct {
-	Name domain.ProjName
+	Name     domain.ProjName
+	RepoType domain.RepoType
 }
 
 func (cmd *ProjectListCmd) toProjectListOption() (
 	option repository.ProjectListOption,
 ) {
 	option.Name = cmd.Name
+	option.RepoType = cmd.RepoType
 
 	return
 }

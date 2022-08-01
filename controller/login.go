@@ -11,7 +11,7 @@ import (
 
 type oldUserTokenPayload struct {
 	AccessToken             string `json:"access_token"`
-	UserId                  string `json:"user"`
+	Account                 string `json:"account"`
 	PlatformToken           string `json:"token"`
 	PlatformUserId          string `json:"uid"`
 	PlatformUserNamespaceId string `json:"nid"`
@@ -41,7 +41,7 @@ type LoginController struct {
 // @Description callback of authentication by authing
 // @router / [get]
 func (ctl *LoginController) Login(ctx *gin.Context) {
-	login, err := ctl.auth.GetByCode(ctx.Request.URL.Query().Get("code"))
+	login, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
 			errorSystemError, err,
@@ -78,7 +78,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		}
 
 		payload = oldUserTokenPayload{
-			UserId:                  user.Id,
+			Account:                 user.Account.Account(),
 			AccessToken:             login.AccessToken,
 			PlatformToken:           user.PlatformToken,
 			PlatformUserId:          user.PlatformUser.Id,
@@ -86,7 +86,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		}
 	}
 
-	token, err := ctl.newApiToken(ctx, roleIndividuals, payload)
+	token, err := ctl.newApiToken(ctx, payload)
 	if err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,
