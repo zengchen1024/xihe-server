@@ -105,13 +105,15 @@ func (s modelService) Get(owner domain.Account, modelId string) (dto ModelDTO, e
 }
 
 type ModelListCmd struct {
-	Name domain.ProjName
+	Name     domain.ProjName
+	RepoType domain.RepoType
 }
 
 func (cmd *ModelListCmd) toModelListOption() (
 	option repository.ModelListOption,
 ) {
 	option.Name = cmd.Name
+	option.RepoType = cmd.RepoType
 
 	return
 }

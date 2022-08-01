@@ -114,7 +114,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 	}
 
 	ctl.setRespToken(ctx, token)
-	ctx.JSON(http.StatusOK, newResponseData(d))
+	ctx.JSON(http.StatusCreated, newResponseData(d))
 }
 
 // @Summary Update

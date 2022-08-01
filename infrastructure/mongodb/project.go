@@ -162,11 +162,15 @@ func (col project) List(owner string, do repositories.ProjectListDO) (
 					conds := bson.A{}
 
 					if do.RepoType != "" {
-						conds = append(conds, eqCondForArrayElem(fieldRepoType, do.RepoType))
+						conds = append(conds, eqCondForArrayElem(
+							fieldRepoType, do.RepoType,
+						))
 					}
 
 					if do.Name != "" {
-						conds = append(conds, matchCondForArrayElem(fieldName, do.Name))
+						conds = append(conds, matchCondForArrayElem(
+							fieldName, do.Name,
+						))
 					}
 
 					return condForArrayElem(conds)

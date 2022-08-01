@@ -89,7 +89,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(d))
+	ctx.JSON(http.StatusCreated, newResponseData(d))
 }
 
 // @Summary Update
