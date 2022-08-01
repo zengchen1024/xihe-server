@@ -11,7 +11,6 @@ import (
 
 type oldUserTokenPayload struct {
 	AccessToken             string `json:"access_token"`
-	UserId                  string `json:"id"`
 	Account                 string `json:"account"`
 	PlatformToken           string `json:"token"`
 	PlatformUserId          string `json:"uid"`
@@ -79,7 +78,6 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		}
 
 		payload = oldUserTokenPayload{
-			UserId:                  user.Id,
 			Account:                 user.Account.Account(),
 			AccessToken:             login.AccessToken,
 			PlatformToken:           user.PlatformToken,

@@ -161,15 +161,14 @@ func (ctl baseController) checkUserApiToken(
 		return
 	}
 
-	if v := ctl.checkApiToken(ctx, token, &pl, true); !v {
+	ok = ctl.checkApiToken(ctx, token, &pl, true)
+	if !ok {
 		return
 	}
 
 	if pl.Account != account {
 		visitor = true
 	}
-
-	ok = true
 
 	return
 }

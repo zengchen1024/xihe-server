@@ -98,7 +98,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 	}
 
 	token, err := ctl.newApiToken(ctx, oldUserTokenPayload{
-		UserId:                  d.Id,
+		Account:                 d.Account,
 		AccessToken:             pl.AccessToken,
 		PlatformToken:           d.Platform.Token,
 		PlatformUserId:          d.Platform.UserId,
