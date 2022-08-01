@@ -14,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -43,6 +44,13 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	docs.SwaggerInfo.Title = "xihe"
 	docs.SwaggerInfo.Description = "set token name: 'Authorization' at header "
 
+	newPlatformRepository := func(token, namespace string) platform.Repository {
+		return gitlab.NewRepositoryService(gitlab.UserInfo{
+			Token:     token,
+			Namespace: namespace,
+		})
+	}
+
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
@@ -50,6 +58,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			repositories.NewProjectRepository(
 				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
 			),
+			newPlatformRepository,
 		)
 
 		controller.AddRouterForModelController(
@@ -57,6 +66,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			repositories.NewModelRepository(
 				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
 			),
+			newPlatformRepository,
 		)
 
 		controller.AddRouterForDatasetController(
@@ -64,6 +74,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			repositories.NewDatasetRepository(
 				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
 			),
+			newPlatformRepository,
 		)
 
 		controller.AddRouterForUserController(

@@ -283,15 +283,43 @@ func (cli *client) getArraysElemsByCustomizedCond(
 	return cursor.All(ctx, result)
 }
 
+func condFieldOfArrayElem(key string) string {
+	return "$$this." + key
+}
+
+func eqCondForArrayElem(key string, value interface{}) bson.M {
+	return bson.M{"$eq": bson.A{condFieldOfArrayElem(key), value}}
+}
+
+func matchCondForArrayElem(key string, value interface{}) bson.M {
+	return bson.M{
+		"$regexMatch": bson.M{
+			"input": condFieldOfArrayElem(key),
+			"regex": value,
+		},
+	}
+}
+
+func condForArrayElem(conds bson.A) bson.M {
+	n := len(conds)
+	if n > 1 {
+		return bson.M{"$and": conds}
+	}
+
+	if n == 1 {
+		return conds[0].(bson.M)
+	}
+
+	return bson.M{
+		"$toBool": 1,
+	}
+}
+
 func conditionTofilterArray(filterOfArray bson.M) bson.M {
 	cond := make(bson.A, 0, len(filterOfArray))
 	for k, v := range filterOfArray {
-		cond = append(cond, bson.M{"$eq": bson.A{"$$this." + k, v}})
+		cond = append(cond, eqCondForArrayElem(k, v))
 	}
 
-	if len(filterOfArray) == 1 {
-		return cond[0].(bson.M)
-	}
-
-	return bson.M{"$and": cond}
+	return condForArrayElem(cond)
 }

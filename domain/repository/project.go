@@ -5,7 +5,8 @@ import (
 )
 
 type ProjectListOption struct {
-	Name domain.ProjName
+	Name     domain.ProjName
+	RepoType domain.RepoType
 }
 
 type Project interface {

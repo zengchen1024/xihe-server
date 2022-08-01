@@ -6,13 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func AddRouterForDatasetController(rg *gin.RouterGroup, repo repository.Dataset) {
+func AddRouterForDatasetController(
+	rg *gin.RouterGroup,
+	repo repository.Dataset,
+	newPlatformRepository func(token, namespace string) platform.Repository,
+) {
 	c := DatasetController{
 		repo: repo,
 		s:    app.NewDatasetService(repo, nil),
+
+		newPlatformRepository: newPlatformRepository,
 	}
 
 	rg.POST("/v1/dataset", c.Create)
@@ -23,6 +30,8 @@ func AddRouterForDatasetController(rg *gin.RouterGroup, repo repository.Dataset)
 type DatasetController struct {
 	repo repository.Dataset
 	s    app.DatasetService
+
+	newPlatformRepository func(string, string) platform.Repository
 }
 
 // @Summary Create
@@ -57,7 +66,7 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewDatasetService(ctl.repo, newPlatformRepository(ctx))
+	s := app.NewDatasetService(ctl.repo, ctl.newPlatformRepository("", ""))
 
 	d, err := s.Create(&cmd)
 	if err != nil {

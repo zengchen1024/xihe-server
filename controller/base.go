@@ -8,8 +8,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/opensourceways/xihe-server/domain/platform"
-	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -37,14 +35,6 @@ func Init(cfg APIConfig) error {
 	return nil
 }
 
-func newPlatformRepository(ctx *gin.Context) platform.Repository {
-	// TODO parse platform token and namespace from api token
-	return gitlab.NewRepositoryService(gitlab.UserInfo{
-		Token:     "",
-		Namespace: "",
-	})
-}
-
 type APIConfig struct {
 	EncryptionKey  string
 	APITokenKey    string
@@ -54,7 +44,7 @@ type APIConfig struct {
 type baseController struct {
 }
 
-func (ctl baseController) newApiToken(ctx *gin.Context, role string, pl interface{}) (
+func (ctl baseController) newApiToken(ctx *gin.Context, pl interface{}) (
 	string, error,
 ) {
 	addr, err := ctl.getRemoteAddr(ctx)
@@ -64,7 +54,7 @@ func (ctl baseController) newApiToken(ctx *gin.Context, role string, pl interfac
 
 	ac := &accessController{
 		Expiry:     utils.Expiry(apiConfig.APITokenExpiry),
-		Role:       role,
+		Role:       roleIndividuals,
 		Payload:    pl,
 		RemoteAddr: addr,
 	}
@@ -77,24 +67,32 @@ func (ctl baseController) newApiToken(ctx *gin.Context, role string, pl interfac
 	return ctl.encryptData(token)
 }
 
-func (ctl baseController) checkApiToken(ctx *gin.Context, permission []string, pl interface{}) (
-	ok bool,
+func (ctl baseController) checkApiToken(
+	ctx *gin.Context,
+	pl interface{}, allowVistor bool,
+) (
+	visitor bool, ok bool,
 ) {
+	token := ctx.GetHeader(headerPrivateToken)
+	if token == "" {
+		if allowVistor {
+			visitor = true
+			ok = true
+		} else {
+			ctx.JSON(
+				http.StatusBadRequest,
+				newResponseCodeMsg(errorBadRequestHeader, "no token"),
+			)
+		}
+
+		return
+	}
+
 	addr, err := ctl.getRemoteAddr(ctx)
 	if err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,
 			newResponseCodeError(errorSystemError, err),
-		)
-
-		return
-	}
-
-	token := ctx.GetHeader(headerPrivateToken)
-	if token == "" {
-		ctx.JSON(
-			http.StatusBadRequest,
-			newResponseCodeMsg(errorBadRequestHeader, "no token"),
 		)
 
 		return
@@ -123,7 +121,7 @@ func (ctl baseController) checkApiToken(ctx *gin.Context, permission []string, p
 		return
 	}
 
-	if err = ac.verify(permission, addr); err != nil {
+	if err = ac.verify([]string{roleIndividuals}, addr); err != nil {
 		ctx.JSON(
 			http.StatusUnauthorized,
 			newResponseCodeError(errorInvalidToken, err),
@@ -172,4 +170,8 @@ func (clt baseController) decryptData(s string) ([]byte, error) {
 	}
 
 	return encryptHelper.Decrypt(dst)
+}
+
+func (ctl baseController) getQueryParameter(ctx *gin.Context, key string) string {
+	return ctx.Request.URL.Query().Get(key)
 }

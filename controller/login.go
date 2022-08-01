@@ -11,7 +11,8 @@ import (
 
 type oldUserTokenPayload struct {
 	AccessToken             string `json:"access_token"`
-	UserId                  string `json:"user"`
+	UserId                  string `json:"id"`
+	Account                 string `json:"account"`
 	PlatformToken           string `json:"token"`
 	PlatformUserId          string `json:"uid"`
 	PlatformUserNamespaceId string `json:"nid"`
@@ -79,6 +80,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 
 		payload = oldUserTokenPayload{
 			UserId:                  user.Id,
+			Account:                 user.Account.Account(),
 			AccessToken:             login.AccessToken,
 			PlatformToken:           user.PlatformToken,
 			PlatformUserId:          user.PlatformUser.Id,
@@ -86,7 +88,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		}
 	}
 
-	token, err := ctl.newApiToken(ctx, roleIndividuals, payload)
+	token, err := ctl.newApiToken(ctx, payload)
 	if err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,

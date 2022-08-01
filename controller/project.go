@@ -6,13 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project) {
+func AddRouterForProjectController(
+	rg *gin.RouterGroup,
+	repo repository.Project,
+	newPlatformRepository func(token, namespace string) platform.Repository,
+) {
 	pc := ProjectController{
 		repo: repo,
 		s:    app.NewProjectService(repo, nil),
+
+		newPlatformRepository: newPlatformRepository,
 	}
 
 	rg.POST("/v1/project", pc.Create)
@@ -22,8 +29,12 @@ func AddRouterForProjectController(rg *gin.RouterGroup, repo repository.Project)
 }
 
 type ProjectController struct {
+	baseController
+
 	repo repository.Project
 	s    app.ProjectService
+
+	newPlatformRepository func(string, string) platform.Repository
 }
 
 // @Summary Create
@@ -34,8 +45,12 @@ type ProjectController struct {
 // @Produce json
 // @Router /v1/project [post]
 func (ctl *ProjectController) Create(ctx *gin.Context) {
-	req := projectCreateRequest{}
+	pl := &oldUserTokenPayload{}
+	if _, ok := ctl.checkApiToken(ctx, pl, false); !ok {
+		return
+	}
 
+	req := projectCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -54,7 +69,18 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewProjectService(ctl.repo, newPlatformRepository(ctx))
+	if pl.Account != cmd.Owner.Account() {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't create project for other user",
+		))
+
+		return
+	}
+
+	s := app.NewProjectService(ctl.repo, ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	))
 
 	d, err := s.Create(&cmd)
 	if err != nil {
@@ -155,6 +181,12 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Produce json
 // @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
+	pl := &oldUserTokenPayload{}
+	visitor, ok := ctl.checkApiToken(ctx, pl, true)
+	if !ok {
+		return
+	}
+
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -164,9 +196,39 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.ProjectListCmd{}
+	if !visitor && pl.Account != owner.Account() {
+		visitor = true
+	}
 
-	if v := ctx.Request.URL.Query().Get("name"); v != "" {
+	cmd, ok := ctl.getListParameter(ctx)
+	if !ok {
+		return
+	}
+
+	if visitor {
+		if cmd.RepoType == nil {
+			cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
+		} else {
+			if cmd.RepoType.RepoType() != domain.RepoTypePublic {
+				ctx.JSON(http.StatusOK, newResponseData(nil))
+
+				return
+			}
+		}
+	}
+
+	projs, err := ctl.s.List(owner, &cmd)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(projs))
+}
+
+func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.ProjectListCmd, ok bool) {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
 		name, err := domain.NewProjName(v)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -179,12 +241,20 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		cmd.Name = name
 	}
 
-	projs, err := ctl.s.List(owner, &cmd)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
+		t, err := domain.NewRepoType(v)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
 
-		return
+			return
+		}
+
+		cmd.RepoType = t
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(projs))
+	ok = true
+
+	return
 }

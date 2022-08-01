@@ -6,13 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func AddRouterForModelController(rg *gin.RouterGroup, repo repository.Model) {
+func AddRouterForModelController(
+	rg *gin.RouterGroup,
+	repo repository.Model,
+	newPlatformRepository func(token, namespace string) platform.Repository,
+) {
 	pc := ModelController{
 		repo: repo,
 		s:    app.NewModelService(repo, nil),
+
+		newPlatformRepository: newPlatformRepository,
 	}
 
 	rg.POST("/v1/model", pc.Create)
@@ -23,6 +30,8 @@ func AddRouterForModelController(rg *gin.RouterGroup, repo repository.Model) {
 type ModelController struct {
 	repo repository.Model
 	s    app.ModelService
+
+	newPlatformRepository func(string, string) platform.Repository
 }
 
 // @Summary Create
@@ -57,7 +66,7 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewModelService(ctl.repo, newPlatformRepository(ctx))
+	s := app.NewModelService(ctl.repo, ctl.newPlatformRepository("", ""))
 
 	d, err := s.Create(&cmd)
 	if err != nil {

@@ -49,7 +49,7 @@ type UserController struct {
 // @Router /v1/user [post]
 func (ctl *UserController) Create(ctx *gin.Context) {
 	pl := &newUserTokenPayload{}
-	if ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl); !ok {
+	if _, ok := ctl.checkApiToken(ctx, pl, false); !ok {
 		return
 	}
 
@@ -97,7 +97,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	token, err := ctl.newApiToken(ctx, roleIndividuals, oldUserTokenPayload{
+	token, err := ctl.newApiToken(ctx, oldUserTokenPayload{
 		UserId:                  d.Id,
 		AccessToken:             pl.AccessToken,
 		PlatformToken:           d.Platform.Token,
@@ -163,7 +163,8 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Router /v1/user/{id} [get]
 func (ctl *UserController) Get(ctx *gin.Context) {
 	pl := &oldUserTokenPayload{}
-	if ok := ctl.checkApiToken(ctx, []string{roleIndividuals}, pl); !ok {
+	visitor, ok := ctl.checkApiToken(ctx, pl, true)
+	if !ok {
 		return
 	}
 
@@ -182,6 +183,10 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
+	}
+
+	if visitor {
+		u.Email = ""
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(u))
