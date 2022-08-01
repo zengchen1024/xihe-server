@@ -42,7 +42,7 @@ type LoginController struct {
 // @Description callback of authentication by authing
 // @router / [get]
 func (ctl *LoginController) Login(ctx *gin.Context) {
-	login, err := ctl.auth.GetByCode(ctx.Request.URL.Query().Get("code"))
+	login, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
 			errorSystemError, err,

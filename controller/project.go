@@ -200,8 +200,12 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		visitor = true
 	}
 
-	cmd, ok := ctl.getListParameter(ctx)
-	if !ok {
+	cmd, err := ctl.getListParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
 		return
 	}
 
@@ -227,34 +231,18 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(projs))
 }
 
-func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.ProjectListCmd, ok bool) {
+func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.ProjectListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		name, err := domain.NewProjName(v)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
-
+		if cmd.Name, err = domain.NewProjName(v); err != nil {
 			return
 		}
-
-		cmd.Name = name
 	}
 
 	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
-		t, err := domain.NewRepoType(v)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
-
+		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
 			return
 		}
-
-		cmd.RepoType = t
 	}
-
-	ok = true
 
 	return
 }

@@ -28,6 +28,8 @@ func AddRouterForDatasetController(
 }
 
 type DatasetController struct {
+	baseController
+
 	repo repository.Dataset
 	s    app.DatasetService
 
@@ -123,7 +125,7 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 
 	cmd := app.DatasetListCmd{}
 
-	if v := ctx.Request.URL.Query().Get("name"); v != "" {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
 		name, err := domain.NewProjName(v)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, newResponseCodeError(

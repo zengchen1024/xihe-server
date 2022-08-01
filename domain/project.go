@@ -3,7 +3,6 @@ package domain
 type Project struct {
 	Id string
 
-	OwnerId  string
 	Owner    Account
 	Name     ProjName
 	Desc     ProjDesc

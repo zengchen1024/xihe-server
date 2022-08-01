@@ -28,6 +28,8 @@ func AddRouterForModelController(
 }
 
 type ModelController struct {
+	baseController
+
 	repo repository.Model
 	s    app.ModelService
 
@@ -123,7 +125,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 
 	cmd := app.ModelListCmd{}
 
-	if v := ctx.Request.URL.Query().Get("name"); v != "" {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
 		name, err := domain.NewProjName(v)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
