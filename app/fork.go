@@ -53,7 +53,7 @@ func (s projectService) Fork(cmd *ProjectForkCmd) (dto ProjectDTO, err error) {
 		return
 	}
 
-	pid, err := s.pr.Fork(cmd.From.Id, platform.RepoOption{
+	pid, err := s.pr.Fork(cmd.From.RepoId, platform.RepoOption{
 		Name: name,
 		Desc: cmd.From.Desc,
 	})

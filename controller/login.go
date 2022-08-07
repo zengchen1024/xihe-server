@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -15,6 +16,12 @@ type oldUserTokenPayload struct {
 	PlatformToken           string `json:"token"`
 	PlatformUserId          string `json:"uid"`
 	PlatformUserNamespaceId string `json:"nid"`
+}
+
+func (pl *oldUserTokenPayload) DomainAccount() domain.Account {
+	a, _ := domain.NewAccount(pl.Account)
+
+	return a
 }
 
 type newUserTokenPayload struct {

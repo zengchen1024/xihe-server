@@ -304,11 +304,9 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
-	account, _ := domain.NewAccount(pl.Account)
-
 	data, err := ctl.s.Fork(&app.ProjectForkCmd{
 		From:  proj,
-		Owner: account,
+		Owner: pl.DomainAccount(),
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
