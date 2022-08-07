@@ -50,3 +50,32 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 
 	return strconv.Itoa(v.ID), nil
 }
+
+func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, error) {
+	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
+	if err != nil {
+		return "", err
+	}
+
+	repoId, err := strconv.Atoi(srcRepoId)
+	if err != nil {
+		return "", err
+	}
+
+	name := repo.Name.ProjName()
+	des := repo.Desc.ProjDesc()
+	b := true
+
+	v, _, err := cli.Projects.ForkProject(repoId, &sdk.ForkProjectOptions{
+		Name:                          &name,
+		Path:                          &name,
+		Description:                   &des,
+		MergeRequestDefaultTargetSelf: &b,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return strconv.Itoa(v.ID), nil
+}
