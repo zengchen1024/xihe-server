@@ -67,6 +67,7 @@ type ProjectService interface {
 	Get(domain.Account, string) (ProjectDTO, error)
 	List(domain.Account, *ProjectListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
+	Fork(*ProjectForkCmd) (ProjectDTO, error)
 }
 
 func NewProjectService(repo repository.Project, pr platform.Repository) ProjectService {
@@ -100,6 +101,8 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	if err != nil {
 		return
 	}
+
+	// TODO: webhook
 
 	s.toProjectDTO(&p, &dto)
 

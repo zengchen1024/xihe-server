@@ -26,6 +26,8 @@ func AddRouterForProjectController(
 	rg.PUT("/v1/project/:owner/:id", pc.Update)
 	rg.GET("/v1/project/:owner/:id", pc.Get)
 	rg.GET("/v1/project/:owner", pc.List)
+
+	rg.POST("/v1/project/:owner/:id", pc.Fork)
 }
 
 type ProjectController struct {
@@ -252,4 +254,64 @@ func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.Projec
 	}
 
 	return
+}
+
+// @Summary Fork
+// @Description fork project
+// @Tags  Project
+// @Param	id	path	string	true	"id of project"
+// @Accept json
+// @Produce json
+// @Router /v1/project/{owner}/{id} [post]
+func (ctl *ProjectController) Fork(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, owner.Account())
+	if !ok {
+		return
+	}
+
+	if !visitor {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed, "no need to fork project of yourself",
+		))
+
+		return
+	}
+
+	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	// TODO maybe the private project can be forked by special user.
+
+	if proj.RepoType.RepoType() != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+
+		return
+	}
+
+	data, err := ctl.s.Fork(&app.ProjectForkCmd{
+		From:  proj,
+		Owner: pl.DomainAccount(),
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+	ctx.JSON(http.StatusCreated, newResponseData(data))
 }

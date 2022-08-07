@@ -22,4 +22,5 @@ type RepoOption struct {
 
 type Repository interface {
 	New(repo RepoOption) (string, error)
+	Fork(srcRepoId string, repo RepoOption) (string, error)
 }
