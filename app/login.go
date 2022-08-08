@@ -36,7 +36,6 @@ type LoginService interface {
 	Get(domain.Account) (LoginDTO, error)
 }
 
-// ps: platform login service
 func NewLoginService(repo repository.Login) LoginService {
 	return loginService{
 		repo: repo,

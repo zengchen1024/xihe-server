@@ -3,6 +3,7 @@ package authing
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/Authing/authing-go-sdk/lib/authentication"
 
@@ -28,21 +29,13 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		return
 	}
 
+	// TODO: delete
+	fmt.Printf("%v\n", respStr)
+
 	var loginInfo struct {
-		Birthdate  string `json:"birthdate,omitempty"`
-		Gender     string `json:"gender,omitempty"`
-		Name       string `json:"name,omitempty"`
-		Nickname   string `json:"nickname,omitempty"`
-		UserName   string `json:"username,omitempty"`
-		Picture    string `json:"picture,omitempty"`
-		UpdatedAT  string `json:"updated_at,omitempty"`
-		Website    string `json:"website,omitempty"`
-		ExternalID string `json:"external_id,omitempty"`
-		Sub        string `json:"sub,omitempty"`
-		Email      string `json:"email,omitempty"`
-		// EmailVerified       bool   `json:"email_verified,omitempty"`
-		// PhoneNumber         string `json:"phone_number,omitempty"`
-		// PhoneNumberVerified bool   `json:"phone_number_verified,omitempty"`
+		Name    string `json:"name,omitempty"`
+		Picture string `json:"picture,omitempty"`
+		Email   string `json:"email,omitempty"`
 	}
 
 	err = json.Unmarshal([]byte(respStr), &loginInfo)
@@ -50,7 +43,7 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		return
 	}
 
-	if userInfo.Name, err = domain.NewAccount(loginInfo.UserName); err != nil {
+	if userInfo.Name, err = domain.NewAccount(loginInfo.Name); err != nil {
 		return
 	}
 
@@ -59,9 +52,6 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 	}
 
 	//TODO
-	if userInfo.Bio, err = domain.NewBio(loginInfo.Email); err != nil {
-		return
-	}
 
 	return
 }
@@ -72,35 +62,31 @@ func (impl user) GetByCode(code string) (login authing.Login, err error) {
 		return
 	}
 
-	var accessToken struct {
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
-		TokenType    string `json:"token_type"`
-		ExpiresIn    int64  `json:"expires_in"`
-		IdToken      string `json:"id_token"`
-		Scope        string `json:"scope"`
-		CreatedAt    int64  `json:"created_at"`
-		AuthCode     string `json:"code"`
+	var v struct {
+		AccessToken string `json:"access_token"`
+		IdToken     string `json:"id_token"`
 	}
 
-	err = json.Unmarshal([]byte(respStr), &accessToken)
+	err = json.Unmarshal([]byte(respStr), &v)
 	if err != nil {
 		return
 	}
 
-	if accessToken.AccessToken == "" {
+	at := v.AccessToken
+	if at == "" {
 		err = errors.New("no access token")
 
 		return
 	}
 
-	info, err := impl.GetByAccessToken(accessToken.AccessToken)
+	info, err := impl.GetByAccessToken(at)
 	if err != nil {
 		return
 	}
 
+	login.IDToken = v.IdToken
 	login.UserInfo = info
-	login.AccessToken = accessToken.AccessToken
+	login.AccessToken = at
 
 	return
 }

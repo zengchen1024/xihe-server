@@ -22,6 +22,8 @@ type login struct {
 func (impl login) Get(account domain.Account) (r domain.Login, err error) {
 	do, err := impl.mapper.Get(account.Account())
 	if err != nil {
+		err = convertError(err)
+
 		return
 	}
 

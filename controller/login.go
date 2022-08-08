@@ -66,9 +66,18 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
+	token, err := ctl.encryptData(info.IDToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+			errorSystemError, err,
+		))
+
+		return
+	}
+
 	err = ctl.s.Create(&app.LoginCreateCmd{
 		Account: info.Name,
-		Info:    info.IDToken,
+		Info:    token,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
@@ -112,7 +121,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		}
 	}
 
-	token, err := ctl.newApiToken(ctx, payload)
+	token, err = ctl.newApiToken(ctx, payload)
 	if err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,
@@ -160,5 +169,15 @@ func (ctl *LoginController) Logout(ctx *gin.Context) {
 		return
 	}
 
+	v, err := ctl.decryptData(info.Info)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+			errorSystemError, err,
+		))
+
+		return
+	}
+
+	info.Info = string(v)
 	ctx.JSON(http.StatusOK, newResponseData(info))
 }

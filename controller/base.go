@@ -173,11 +173,11 @@ func (ctl baseController) checkUserApiToken(
 	return
 }
 
-func (clt baseController) setRespToken(ctx *gin.Context, token string) {
+func (ctl baseController) setRespToken(ctx *gin.Context, token string) {
 	ctx.Header(headerPrivateToken, token)
 }
 
-func (clt baseController) getRemoteAddr(ctx *gin.Context) (string, error) {
+func (ctl baseController) getRemoteAddr(ctx *gin.Context) (string, error) {
 	ips := ctx.Request.Header.Get("x-forwarded-for")
 
 	for _, item := range strings.Split(ips, ", ") {
@@ -189,7 +189,7 @@ func (clt baseController) getRemoteAddr(ctx *gin.Context) (string, error) {
 	return "", errors.New("can not fetch client ip")
 }
 
-func (clt baseController) encryptData(d string) (string, error) {
+func (ctl baseController) encryptData(d string) (string, error) {
 	t, err := encryptHelper.Encrypt([]byte(d))
 	if err != nil {
 		return "", err
@@ -197,7 +197,7 @@ func (clt baseController) encryptData(d string) (string, error) {
 	return hex.EncodeToString(t), nil
 }
 
-func (clt baseController) decryptData(s string) ([]byte, error) {
+func (ctl baseController) decryptData(s string) ([]byte, error) {
 	dst, err := hex.DecodeString(s)
 	if err != nil {
 		return nil, err

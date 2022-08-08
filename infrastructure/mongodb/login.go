@@ -11,7 +11,7 @@ import (
 
 func loginDocFilter(account string) bson.M {
 	return bson.M{
-		fieldName: account,
+		fieldAccount: account,
 	}
 }
 

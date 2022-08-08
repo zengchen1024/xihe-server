@@ -10,6 +10,7 @@ const (
 	fieldEmail    = "email"
 	fieldVersion  = "version"
 	fieldRepoType = "repo_type"
+	fieldAccount  = "account"
 )
 
 type dProject struct {
