@@ -50,8 +50,8 @@ type Mongodb struct {
 }
 
 type AuthingService struct {
-	UserPoolId string `json:"user_pool_id" required:"true"`
-	Secret     string `json:"secret" required:"true"`
+	APPId  string `json:"app_id" required:"true"`
+	Secret string `json:"secret" required:"true"`
 }
 
 type Gitlab struct {
