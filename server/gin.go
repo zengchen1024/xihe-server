@@ -92,6 +92,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
 			authing.NewAuthingUser(),
+			repositories.NewLoginRepository(
+				mongodb.NewLoginMapper(cfg.Mongodb.LoginCollection),
+			),
 		)
 	}
 

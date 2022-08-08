@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -28,13 +29,20 @@ type newUserTokenPayload struct {
 	AccessToken string `json:"access_token"`
 }
 
-func AddRouterForLoginController(rg *gin.RouterGroup, repo repository.User, auth authing.User) {
+func AddRouterForLoginController(
+	rg *gin.RouterGroup,
+	repo repository.User,
+	auth authing.User,
+	login repository.Login,
+) {
 	pc := LoginController{
 		repo: repo,
 		auth: auth,
+		s:    app.NewLoginService(login),
 	}
 
 	rg.GET("/v1/login", pc.Login)
+	rg.GET("/v1/login/:account", pc.Logout)
 }
 
 type LoginController struct {
@@ -42,13 +50,14 @@ type LoginController struct {
 
 	repo repository.User
 	auth authing.User
+	s    app.LoginService
 }
 
 // @Title Login
 // @Description callback of authentication by authing
 // @router / [get]
 func (ctl *LoginController) Login(ctx *gin.Context) {
-	login, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
+	info, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
 			errorSystemError, err,
@@ -57,10 +66,20 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
+	err = ctl.s.Create(&app.LoginCreateCmd{
+		Account: info.Name,
+		Info:    info.IDToken,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
 	var body interface{}
 	var payload interface{}
 
-	if user, err := ctl.repo.GetByAccount(login.Name); err != nil {
+	if user, err := ctl.repo.GetByAccount(info.Name); err != nil {
 		if d := newResponseError(err); d.Code != errorResourceNotExists {
 			ctx.JSON(http.StatusInternalServerError, d)
 
@@ -71,11 +90,11 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 			Id      string `json:"id"`
 			Account string `json:"account"`
 		}{
-			Account: login.Name.Account(),
+			Account: info.Name.Account(),
 		}
 
 		payload = newUserTokenPayload{
-			AccessToken: login.AccessToken,
+			AccessToken: info.AccessToken,
 		}
 	} else {
 		body = struct {
@@ -86,7 +105,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 
 		payload = oldUserTokenPayload{
 			Account:                 user.Account.Account(),
-			AccessToken:             login.AccessToken,
+			AccessToken:             info.AccessToken,
 			PlatformToken:           user.PlatformToken,
 			PlatformUserId:          user.PlatformUser.Id,
 			PlatformUserNamespaceId: user.PlatformUser.NamespaceId,
@@ -105,4 +124,41 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 
 	ctl.setRespToken(ctx, token)
 	ctx.JSON(http.StatusOK, newResponseData(body))
+}
+
+// @Title Logout
+// @Description get info of login
+// @router /{account} [get]
+func (ctl *LoginController) Logout(ctx *gin.Context) {
+	account, err := domain.NewAccount(ctx.Param("account"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	_, visitor, ok := ctl.checkUserApiToken(ctx, false, account.Account())
+	if !ok {
+		return
+	}
+
+	if visitor {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't get login info of other user",
+		))
+
+		return
+	}
+
+	info, err := ctl.s.Get(account)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(info))
 }

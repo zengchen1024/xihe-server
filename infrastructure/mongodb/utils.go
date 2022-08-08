@@ -99,6 +99,28 @@ func (cli *client) newDocIfNotExist(
 	return v, nil
 }
 
+func (cli *client) replaceDoc(
+	ctx context.Context, collection string,
+	filterOfDoc, docInfo bson.M,
+) (string, error) {
+	upsert := true
+
+	r, err := cli.collection(collection).ReplaceOne(
+		ctx, filterOfDoc, docInfo,
+		&options.ReplaceOptions{Upsert: &upsert},
+	)
+	if err != nil {
+		return "", dbError{err}
+	}
+
+	if r.UpsertedID == nil {
+		return "", nil
+	}
+
+	v, _ := toUID(r.UpsertedID)
+	return v, nil
+}
+
 func (cli *client) updateDoc(
 	ctx context.Context, collection string,
 	filterOfDoc, update bson.M, version int,

@@ -78,3 +78,8 @@ type dUser struct {
 	// So, don't marshal it to avoid setting it occasionally.
 	Version int `bson:"version"    json:"-"`
 }
+
+type dLogin struct {
+	Account string `bson:"account"   json:"account"`
+	Info    string `bson:"info"      json:"info"`
+}
