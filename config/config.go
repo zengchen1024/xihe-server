@@ -46,6 +46,7 @@ type Mongodb struct {
 	ModelCollection   string `json:"model_collection" required:"true"`
 	DatasetCollection string `json:"dataset_collection" required:"true"`
 	UserCollection    string `json:"user_collection" required:"true"`
+	LoginCollection   string `json:"login_collection" required:"true"`
 }
 
 type AuthingService struct {

@@ -10,6 +10,7 @@ const (
 	fieldEmail    = "email"
 	fieldVersion  = "version"
 	fieldRepoType = "repo_type"
+	fieldAccount  = "account"
 )
 
 type dProject struct {
@@ -77,4 +78,9 @@ type dUser struct {
 	// Version will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version int `bson:"version"    json:"-"`
+}
+
+type dLogin struct {
+	Account string `bson:"account"   json:"account"`
+	Info    string `bson:"info"      json:"info"`
 }

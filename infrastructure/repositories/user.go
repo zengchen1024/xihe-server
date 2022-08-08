@@ -24,6 +24,8 @@ type user struct {
 func (impl user) Get(uid string) (r domain.User, err error) {
 	do, err := impl.mapper.Get(uid)
 	if err != nil {
+		err = convertError(err)
+
 		return
 	}
 
@@ -35,6 +37,8 @@ func (impl user) Get(uid string) (r domain.User, err error) {
 func (impl user) GetByAccount(account domain.Account) (r domain.User, err error) {
 	do, err := impl.mapper.GetByAccount(account.Account())
 	if err != nil {
+		err = convertError(err)
+
 		return
 	}
 
