@@ -1,0 +1,22 @@
+authing_service:
+  app_id: "${AUTHING_APP_ID}"
+  secret: "${AUTHING_SECRET}"
+
+mongodb:
+  mongodb_conn: "${MONGODB_CONNECTION}"
+  mongodb_db: "${MONGODB_NAME}"
+  project_collection: project
+  model_collection: model
+  dataset_collection: dataset 
+  user_collection: user
+  login_collection: login
+
+gitlab:
+  endpoint: "${GITLAB_ENDPOINT}"
+  root_token: "${GITLAB_TOKEN}"
+
+api:
+  api_token_expiry: "${API_TOKEN_EXPIRY}"
+  api_token_key: "${API_TOKEN_KEY}"
+
+encryption_key: "${ENCRYPTION_KEY}"
