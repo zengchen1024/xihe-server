@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -56,7 +55,7 @@ func (col login) Get(account string) (do repositories.LoginDO, err error) {
 		return
 	}
 
-	if errors.Is(err, errDocNotExists) {
+	if isDocNotExists(err) {
 		err = repositories.NewErrorDataNotExists(err)
 	}
 

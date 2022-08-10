@@ -35,7 +35,7 @@ type project struct {
 	collectionName string
 }
 
-func (col project) New(owner string) error {
+func (col project) newDoc(owner string) error {
 	docFilter := projectDocFilter(owner)
 
 	doc := bson.M{
@@ -51,7 +51,7 @@ func (col project) New(owner string) error {
 		return err
 	}
 
-	if err := withContext(f); err != nil && !errors.Is(err, errDocExists) {
+	if err := withContext(f); err != nil && isDBError(err) {
 		return err
 	}
 
@@ -59,6 +59,25 @@ func (col project) New(owner string) error {
 }
 
 func (col project) Insert(do repositories.ProjectDO) (identity string, err error) {
+	identity, err = col.insert(do)
+	if err == nil || isDBError(err) {
+		return
+	}
+
+	// doc is not exist or duplicate insert
+
+	if err = col.newDoc(do.Owner); err == nil {
+		identity, err = col.insert(do)
+
+		if err != nil && isDocNotExists(err) {
+			err = repositories.NewErrorDuplicateCreating(err)
+		}
+	}
+
+	return
+}
+
+func (col project) insert(do repositories.ProjectDO) (identity string, err error) {
 	identity = newId()
 
 	do.Id = identity
@@ -83,10 +102,6 @@ func (col project) Insert(do repositories.ProjectDO) (identity string, err error
 	}
 
 	err = withContext(f)
-
-	if errors.Is(err, errDocNotExists) {
-		err = repositories.NewErrorDuplicateCreating(err)
-	}
 
 	return
 }

@@ -29,7 +29,7 @@ type dataset struct {
 	collectionName string
 }
 
-func (col dataset) New(owner string) error {
+func (col dataset) newDoc(owner string) error {
 	docFilter := datasetDocFilter(owner)
 
 	doc := bson.M{
@@ -45,7 +45,7 @@ func (col dataset) New(owner string) error {
 		return err
 	}
 
-	if err := withContext(f); err != nil && !errors.Is(err, errDocExists) {
+	if err := withContext(f); err != nil && isDBError(err) {
 		return err
 	}
 
@@ -53,6 +53,25 @@ func (col dataset) New(owner string) error {
 }
 
 func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error) {
+	identity, err = col.insert(do)
+	if err == nil || isDBError(err) {
+		return
+	}
+
+	// doc is not exist or duplicate insert
+
+	if err = col.newDoc(do.Owner); err == nil {
+		identity, err = col.insert(do)
+
+		if err != nil && isDocNotExists(err) {
+			err = repositories.NewErrorDuplicateCreating(err)
+		}
+	}
+
+	return
+}
+
+func (col dataset) insert(do repositories.DatasetDO) (identity string, err error) {
 	identity = newId()
 
 	do.Id = identity
@@ -77,10 +96,6 @@ func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error
 	}
 
 	err = withContext(f)
-
-	if errors.Is(err, errDocNotExists) {
-		err = repositories.NewErrorDuplicateCreating(err)
-	}
 
 	return
 }

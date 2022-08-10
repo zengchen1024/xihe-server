@@ -28,6 +28,14 @@ func isDBError(err error) bool {
 	return b
 }
 
+func isDocNotExists(err error) bool {
+	return errors.Is(err, errDocNotExists)
+}
+
+func isDocExists(err error) bool {
+	return errors.Is(err, errDocExists)
+}
+
 func toUID(docId interface{}) (string, error) {
 	if v, ok := docId.(primitive.ObjectID); ok {
 		return v.Hex(), nil
