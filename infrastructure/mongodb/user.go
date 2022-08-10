@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -48,7 +47,7 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 		return err
 	}
 
-	if err = withContext(f); err != nil && errors.Is(err, errDocExists) {
+	if err = withContext(f); err != nil && isDocExists(err) {
 		err = repositories.NewErrorDuplicateCreating(err)
 	}
 
@@ -73,7 +72,7 @@ func (col user) Update(do repositories.UserDO) (err error) {
 		)
 	}
 
-	if err = withContext(f); err != nil && errors.Is(err, errDocNotExists) {
+	if err = withContext(f); err != nil && isDocNotExists(err) {
 		err = repositories.NewErrorConcurrentUpdating(err)
 	}
 
@@ -110,7 +109,7 @@ func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
 		return
 	}
 
-	if errors.Is(err, errDocNotExists) {
+	if isDocNotExists(err) {
 		err = repositories.NewErrorDataNotExists(err)
 	}
 
