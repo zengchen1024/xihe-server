@@ -91,10 +91,12 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
+			gitlab.NewUserSerivce(),
 			authing.NewAuthingUser(),
 			repositories.NewLoginRepository(
 				mongodb.NewLoginMapper(cfg.Mongodb.LoginCollection),
 			),
+			cfg.DefaultPassword,
 		)
 	}
 

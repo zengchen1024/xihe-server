@@ -1,11 +1,99 @@
 definitions:
-  controller.projectCreateModel:
+  app.DatasetDTO:
+    properties:
+      desc:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_id:
+        type: string
+      repo_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  app.LoginDTO:
+    properties:
+      info:
+        type: string
+    type: object
+  app.ModelDTO:
+    properties:
+      desc:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_id:
+        type: string
+      repo_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  app.UserDTO:
+    properties:
+      account:
+        type: string
+      avatar_id:
+        type: string
+      bio:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+    type: object
+  controller.datasetCreateRequest:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_type:
+        type: string
+    type: object
+  controller.modelCreateRequest:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_type:
+        type: string
+    type: object
+  controller.projectCreateRequest:
     properties:
       cover_id:
         type: string
       desc:
         type: string
       name:
+        type: string
+      owner:
         type: string
       protocol:
         type: string
@@ -16,7 +104,7 @@ definitions:
       type:
         type: string
     type: object
-  controller.projectUpdateModel:
+  controller.projectUpdateRequest:
     properties:
       cover_id:
         type: string
@@ -32,20 +120,189 @@ definitions:
       type:
         type: string
     type: object
+  controller.userCreateRequest:
+    properties:
+      account:
+        type: string
+      password:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /v1/project:
+  /:
     get:
       consumes:
       - application/json
-      description: list project
+      description: callback of authentication by authing
+      parameters:
+      - description: authing code
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.UserDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+        "501":
+          description: Not Implemented
+          schema:
+            type: duplicate_creating
+      tags:
+      - Login
+  /{account}:
+    get:
+      consumes:
+      - application/json
+      description: get info of login
+      parameters:
+      - description: account
+        in: path
+        name: account
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LoginDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "401":
+          description: Unauthorized
+          schema:
+            type: not_allowed
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Login
+  /v1/dataset:
+    post:
+      consumes:
+      - application/json
+      description: create dataset
+      parameters:
+      - description: body of creating dataset
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.datasetCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.DatasetDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: duplicate_creating
+      summary: Create
+      tags:
+      - Dataset
+  /v1/dataset/{owner}:
+    get:
+      consumes:
+      - application/json
+      description: list dataset
       produces:
       - application/json
       responses: {}
       summary: List
       tags:
-      - Project
+      - Dataset
+  /v1/dataset/{owner}/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get dataset
+      parameters:
+      - description: id of dataset
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.DatasetDTO'
+      summary: Get
+      tags:
+      - Dataset
+  /v1/model:
+    post:
+      consumes:
+      - application/json
+      description: create model
+      parameters:
+      - description: body of creating model
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.modelCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.ModelDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: duplicate_creating
+      summary: Create
+      tags:
+      - Model
+  /v1/model/{owner}:
+    get:
+      consumes:
+      - application/json
+      description: list model
+      produces:
+      - application/json
+      responses: {}
+      summary: List
+      tags:
+      - Model
+  /v1/model/{owner}/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get model
+      parameters:
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ModelDTO'
+      summary: Get
+      tags:
+      - Model
+  /v1/project:
     post:
       consumes:
       - application/json
@@ -56,14 +313,25 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.projectCreateModel'
+          $ref: '#/definitions/controller.projectCreateRequest'
       produces:
       - application/json
       responses: {}
       summary: Create
       tags:
       - Project
-  /v1/project/{id}:
+  /v1/project/{owner}:
+    get:
+      consumes:
+      - application/json
+      description: list project
+      produces:
+      - application/json
+      responses: {}
+      summary: List
+      tags:
+      - Project
+  /v1/project/{owner}/{id}:
     get:
       consumes:
       - application/json
@@ -78,6 +346,22 @@ paths:
       - application/json
       responses: {}
       summary: Get
+      tags:
+      - Project
+    post:
+      consumes:
+      - application/json
+      description: fork project
+      parameters:
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Fork
       tags:
       - Project
     put:
@@ -95,7 +379,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.projectUpdateModel'
+          $ref: '#/definitions/controller.projectUpdateRequest'
       produces:
       - application/json
       responses: {}
@@ -103,6 +387,33 @@ paths:
       tags:
       - Project
   /v1/user:
+    post:
+      consumes:
+      - application/json
+      description: create user
+      parameters:
+      - description: body of creating user
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.userCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.UserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: duplicate_creating
+      summary: Create
+      tags:
+      - User
     put:
       consumes:
       - application/json
@@ -111,6 +422,25 @@ paths:
       - application/json
       responses: {}
       summary: Update
+      tags:
+      - User
+  /v1/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user
+      parameters:
+      - description: id of user
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.UserDTO'
+      summary: Get
       tags:
       - User
 swagger: "2.0"

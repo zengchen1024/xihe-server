@@ -23,7 +23,7 @@ func AddRouterForUserController(
 		s:    app.NewUserService(repo, ps),
 	}
 
-	rg.POST("/v1/user", pc.Create)
+	// rg.POST("/v1/user", pc.Create)
 	rg.PUT("/v1/user", pc.Update)
 	rg.GET("/v1/user/:id", pc.Get)
 }
@@ -99,7 +99,6 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 
 	token, err := ctl.newApiToken(ctx, oldUserTokenPayload{
 		Account:                 d.Account,
-		AccessToken:             pl.AccessToken,
 		PlatformToken:           d.Platform.Token,
 		PlatformUserId:          d.Platform.UserId,
 		PlatformUserNamespaceId: d.Platform.NamespaceId,

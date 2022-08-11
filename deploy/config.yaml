@@ -1,3 +1,4 @@
+default_password: "${DEFAULT_PASSWORD}"
 authing_service:
   app_id: "${AUTHING_APP_ID}"
   secret: "${AUTHING_SECRET}"
