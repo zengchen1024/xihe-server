@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/huaweicloud/golangsdk"
 
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -23,18 +24,24 @@ func LoadConfig(path string) (*Config, error) {
 }
 
 type Config struct {
-	EncryptionKey string         `json:"encryption_key" required:"true"`
-	Authing       AuthingService `json:"authing_service" required:"true"`
-	Mongodb       Mongodb        `json:"mongodb" required:"true"`
-	Gitlab        Gitlab         `json:"gitlab" required:"true"`
-	API           API            `json:"api" required:"true"`
+	DefaultPassword string `json:"default_password" required:"true"`
+	EncryptionKey   string `json:"encryption_key" required:"true"`
+
+	Authing AuthingService `json:"authing_service" required:"true"`
+	Mongodb Mongodb        `json:"mongodb" required:"true"`
+	Gitlab  Gitlab         `json:"gitlab" required:"true"`
+	API     API            `json:"api" required:"true"`
 }
 
 func (cfg *Config) setDefault() {
 }
 
 func (cfg *Config) validate() error {
-	_, err := golangsdk.BuildRequestBody(cfg, "")
+	if _, err := golangsdk.BuildRequestBody(cfg, ""); err != nil {
+		return err
+	}
+
+	_, err := domain.NewPassword(cfg.DefaultPassword)
 
 	return err
 }

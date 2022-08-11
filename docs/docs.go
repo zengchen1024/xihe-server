@@ -16,9 +16,92 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/project": {
+        "/": {
             "get": {
-                "description": "list project",
+                "description": "callback of authentication by authing",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authing code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.UserDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    },
+                    "501": {
+                        "description": "Not Implemented",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dataset": {
+            "post": {
+                "description": "create dataset",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dataset"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "body of creating dataset",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.datasetCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.DatasetDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dataset/{owner}": {
+            "get": {
+                "description": "list dataset",
                 "consumes": [
                     "application/json"
                 ],
@@ -26,11 +109,130 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Project"
+                    "Dataset"
                 ],
                 "summary": "List",
                 "responses": {}
-            },
+            }
+        },
+        "/v1/dataset/{owner}/{id}": {
+            "get": {
+                "description": "get dataset",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dataset"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of dataset",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.DatasetDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model": {
+            "post": {
+                "description": "create model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "body of creating model",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.modelCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.ModelDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/{owner}": {
+            "get": {
+                "description": "list model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "List",
+                "responses": {}
+            }
+        },
+        "/v1/model/{owner}/{id}": {
+            "get": {
+                "description": "get model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of model",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ModelDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/project": {
             "post": {
                 "description": "create project",
                 "consumes": [
@@ -50,14 +252,30 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.projectCreateModel"
+                            "$ref": "#/definitions/controller.projectCreateRequest"
                         }
                     }
                 ],
                 "responses": {}
             }
         },
-        "/v1/project/{id}": {
+        "/v1/project/{owner}": {
+            "get": {
+                "description": "list project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "List",
+                "responses": {}
+            }
+        },
+        "/v1/project/{owner}/{id}": {
             "get": {
                 "description": "get project",
                 "consumes": [
@@ -107,8 +325,31 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.projectUpdateModel"
+                            "$ref": "#/definitions/controller.projectUpdateRequest"
                         }
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "fork project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Fork",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -128,11 +369,259 @@ const docTemplate = `{
                 ],
                 "summary": "Update",
                 "responses": {}
+            },
+            "post": {
+                "description": "create user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "body of creating user",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.userCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.UserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/{id}": {
+            "get": {
+                "description": "get user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.UserDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/{account}": {
+            "get": {
+                "description": "get info of login",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "account",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LoginDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
-        "controller.projectCreateModel": {
+        "app.DatasetDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_id": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "app.LoginDTO": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.ModelDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_id": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "app.UserDTO": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "avatar_id": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.datasetCreateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.modelCreateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.projectCreateRequest": {
             "type": "object",
             "properties": {
                 "cover_id": {
@@ -142,6 +631,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "owner": {
                     "type": "string"
                 },
                 "protocol": {
@@ -158,7 +650,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.projectUpdateModel": {
+        "controller.projectUpdateRequest": {
             "type": "object",
             "properties": {
                 "cover_id": {
@@ -178,6 +670,17 @@ const docTemplate = `{
                     }
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.userCreateRequest": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }
