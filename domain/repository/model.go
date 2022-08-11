@@ -5,7 +5,7 @@ import (
 )
 
 type ModelListOption struct {
-	Name     domain.ProjName
+	Name     domain.ModelName
 	RepoType domain.RepoType
 }
 

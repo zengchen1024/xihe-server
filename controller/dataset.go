@@ -188,7 +188,7 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 
 func (ctl *DatasetController) getListParameter(ctx *gin.Context) (cmd app.DatasetListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		if cmd.Name, err = domain.NewProjName(v); err != nil {
+		if cmd.Name, err = domain.NewDatasetName(v); err != nil {
 			return
 		}
 	}

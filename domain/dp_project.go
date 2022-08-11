@@ -19,8 +19,8 @@ const (
 )
 
 var (
-	reProjName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
-	config     = Config{}
+	reResourceName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	config         = Config{}
 )
 
 func Init(cfg Config) {
@@ -61,46 +61,102 @@ func (r repoType) RepoType() string {
 	return string(r)
 }
 
-// ProjName
+// Name
+type ResourceName interface {
+	ResourceName() string
+}
+
+// ResourceName
 type ProjName interface {
 	ProjName() string
+
+	ResourceName
 }
 
 func NewProjName(v string) (ProjName, error) {
-	return newResourceName(v, ResourceProject)
-}
-
-func NewModelName(v string) (ProjName, error) {
-	return newResourceName(v, ResourceModel)
-}
-
-func NewDatasetName(v string) (ProjName, error) {
-	return newResourceName(v, ResourceDataset)
-}
-
-func newResourceName(v, prefix string) (ProjName, error) {
-	max := config.Resource.MaxNameLength
-	min := config.Resource.MinNameLength
-
-	if n := len(v); n > max || n < min {
-		return nil, fmt.Errorf("name's length should be between %d to %d", min, max)
-	}
-
-	if strings.HasPrefix(strings.ToLower(v), prefix) {
-		return nil, fmt.Errorf("the name should not start with %s as prefix", prefix)
-	}
-
-	if !reProjName.MatchString(v) {
-		return nil, errors.New("invalid name")
+	if err := checkResourceName(v, ResourceProject); err != nil {
+		return nil, err
 	}
 
 	return projName(v), nil
+
 }
 
 type projName string
 
 func (r projName) ProjName() string {
 	return string(r)
+}
+
+func (r projName) ResourceName() string {
+	return string(r)
+}
+
+type ModelName interface {
+	ModelName() string
+
+	ResourceName
+}
+
+func NewModelName(v string) (ModelName, error) {
+	if err := checkResourceName(v, ResourceModel); err != nil {
+		return nil, err
+	}
+
+	return modelName(v), nil
+}
+
+type modelName string
+
+func (r modelName) ModelName() string {
+	return string(r)
+}
+
+func (r modelName) ResourceName() string {
+	return string(r)
+}
+
+type DatasetName interface {
+	DatasetName() string
+
+	ResourceName
+}
+
+func NewDatasetName(v string) (DatasetName, error) {
+	if err := checkResourceName(v, ResourceDataset); err != nil {
+		return nil, err
+	}
+
+	return datasetName(v), nil
+}
+
+type datasetName string
+
+func (r datasetName) DatasetName() string {
+	return string(r)
+}
+
+func (r datasetName) ResourceName() string {
+	return string(r)
+}
+
+func checkResourceName(v, prefix string) error {
+	max := config.Resource.MaxNameLength
+	min := config.Resource.MinNameLength
+
+	if n := len(v); n > max || n < min {
+		return fmt.Errorf("name's length should be between %d to %d", min, max)
+	}
+
+	if strings.HasPrefix(strings.ToLower(v), prefix) {
+		return fmt.Errorf("the name should not start with %s as prefix", prefix)
+	}
+
+	if !reResourceName.MatchString(v) {
+		return errors.New("invalid name")
+	}
+
+	return nil
 }
 
 // ProjDesc

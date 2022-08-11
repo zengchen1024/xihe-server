@@ -10,7 +10,7 @@ import (
 
 type DatasetCreateCmd struct {
 	Owner    domain.Account
-	Name     domain.ProjName
+	Name     domain.DatasetName
 	Desc     domain.ProjDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
@@ -105,7 +105,7 @@ func (s datasetService) Get(owner domain.Account, datasetId string) (dto Dataset
 }
 
 type DatasetListCmd struct {
-	Name     domain.ProjName
+	Name     domain.DatasetName
 	RepoType domain.RepoType
 }
 
@@ -137,7 +137,7 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 	*dto = DatasetDTO{
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
-		Name:     d.Name.ProjName(),
+		Name:     d.Name.DatasetName(),
 		Protocol: d.Protocol.ProtocolName(),
 		RepoType: d.RepoType.RepoType(),
 		RepoId:   d.RepoId,

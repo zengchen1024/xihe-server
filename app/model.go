@@ -10,7 +10,7 @@ import (
 
 type ModelCreateCmd struct {
 	Owner    domain.Account
-	Name     domain.ProjName
+	Name     domain.ModelName
 	Desc     domain.ProjDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
@@ -105,7 +105,7 @@ func (s modelService) Get(owner domain.Account, modelId string) (dto ModelDTO, e
 }
 
 type ModelListCmd struct {
-	Name     domain.ProjName
+	Name     domain.ModelName
 	RepoType domain.RepoType
 }
 
@@ -138,7 +138,7 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 	*dto = ModelDTO{
 		Id:       m.Id,
 		Owner:    m.Owner.Account(),
-		Name:     m.Name.ProjName(),
+		Name:     m.Name.ModelName(),
 		Protocol: m.Protocol.ProtocolName(),
 		RepoType: m.RepoType.RepoType(),
 		RepoId:   m.RepoId,

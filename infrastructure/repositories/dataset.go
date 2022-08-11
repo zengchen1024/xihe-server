@@ -60,7 +60,7 @@ func (impl dataset) List(owner domain.Account, option repository.DatasetListOpti
 	do := DatasetListDO{}
 
 	if option.Name != nil {
-		do.Name = option.Name.ProjName()
+		do.Name = option.Name.DatasetName()
 	}
 	if option.RepoType != nil {
 		do.RepoType = option.RepoType.RepoType()
@@ -87,7 +87,7 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 	do := DatasetDO{
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
-		Name:     d.Name.ProjName(),
+		Name:     d.Name.DatasetName(),
 		RepoType: d.RepoType.RepoType(),
 		Protocol: d.Protocol.ProtocolName(),
 		Tags:     d.Tags,
@@ -126,7 +126,7 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+	if r.Name, err = domain.NewDatasetName(do.Name); err != nil {
 		return
 	}
 
