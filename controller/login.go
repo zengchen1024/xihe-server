@@ -8,11 +8,11 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type oldUserTokenPayload struct {
-	AccessToken             string `json:"access_token"`
 	Account                 string `json:"account"`
 	PlatformToken           string `json:"token"`
 	PlatformUserId          string `json:"uid"`
@@ -32,13 +32,14 @@ type newUserTokenPayload struct {
 func AddRouterForLoginController(
 	rg *gin.RouterGroup,
 	repo repository.User,
+	ps platform.User,
 	auth authing.User,
 	login repository.Login,
 ) {
 	pc := LoginController{
-		repo: repo,
 		auth: auth,
-		s:    app.NewLoginService(login),
+		us:   app.NewUserService(repo, ps),
+		ls:   app.NewLoginService(login),
 	}
 
 	rg.GET("/v1/login", pc.Login)
@@ -48,9 +49,9 @@ func AddRouterForLoginController(
 type LoginController struct {
 	baseController
 
-	repo repository.User
 	auth authing.User
-	s    app.LoginService
+	us   app.UserService
+	ls   app.LoginService
 }
 
 // @Title Login
@@ -66,62 +67,31 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := ctl.encryptData(info.IDToken)
+	user, err := ctl.us.GetByAccount(info.Name)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
-			errorSystemError, err,
-		))
-
-		return
-	}
-
-	err = ctl.s.Create(&app.LoginCreateCmd{
-		Account: info.Name,
-		Info:    token,
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
-
-		return
-	}
-
-	var body interface{}
-	var payload interface{}
-
-	if user, err := ctl.repo.GetByAccount(info.Name); err != nil {
 		if d := newResponseError(err); d.Code != errorResourceNotExists {
 			ctx.JSON(http.StatusInternalServerError, d)
 
 			return
 		}
 
-		body = struct {
-			Id      string `json:"id"`
-			Account string `json:"account"`
-		}{
-			Account: info.Name.Account(),
-		}
-
-		payload = newUserTokenPayload{
-			AccessToken: info.AccessToken,
-		}
-	} else {
-		body = struct {
-			Id string `json:"id"`
-		}{
-			Id: user.Id,
-		}
-
-		payload = oldUserTokenPayload{
-			Account:                 user.Account.Account(),
-			AccessToken:             info.AccessToken,
-			PlatformToken:           user.PlatformToken,
-			PlatformUserId:          user.PlatformUser.Id,
-			PlatformUserNamespaceId: user.PlatformUser.NamespaceId,
+		if user, err = ctl.newUser(ctx, info); err != nil {
+			return
 		}
 	}
 
-	token, err = ctl.newApiToken(ctx, payload)
+	if !ctl.newLogin(ctx, info) {
+		return
+	}
+
+	payload := oldUserTokenPayload{
+		Account:                 user.Account,
+		PlatformToken:           user.Platform.Token,
+		PlatformUserId:          user.Platform.UserId,
+		PlatformUserNamespaceId: user.Platform.NamespaceId,
+	}
+
+	token, err := ctl.newApiToken(ctx, payload)
 	if err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,
@@ -132,7 +102,48 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 	}
 
 	ctl.setRespToken(ctx, token)
-	ctx.JSON(http.StatusOK, newResponseData(body))
+	ctx.JSON(http.StatusOK, newResponseData(user))
+}
+
+func (ctl *LoginController) newLogin(ctx *gin.Context, info authing.Login) (ok bool) {
+	token, err := ctl.encryptData(info.IDToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+			errorSystemError, err,
+		))
+
+		return
+	}
+
+	err = ctl.ls.Create(&app.LoginCreateCmd{
+		Account: info.Name,
+		Info:    token,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+
+		return
+	}
+
+	ok = true
+
+	return
+}
+
+func (ctl *LoginController) newUser(ctx *gin.Context, info authing.Login) (user app.UserDTO, err error) {
+	cmd := app.UserCreateCmd{
+		Email:   info.Email,
+		Account: info.Name,
+		//Password: "xihexihe",
+		Bio:      info.Bio,
+		AvatarId: info.AvatarId,
+	}
+
+	if user, err = ctl.us.Create(&cmd); err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+	}
+
+	return
 }
 
 // @Title Logout
@@ -162,7 +173,7 @@ func (ctl *LoginController) Logout(ctx *gin.Context) {
 		return
 	}
 
-	info, err := ctl.s.Get(account)
+	info, err := ctl.ls.Get(account)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 

@@ -57,6 +57,7 @@ type UserDTO struct {
 type UserService interface {
 	Create(*UserCreateCmd) (UserDTO, error)
 	Get(string) (UserDTO, error)
+	GetByAccount(domain.Account) (UserDTO, error)
 	UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error
 }
 
@@ -117,6 +118,17 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 
 func (s userService) Get(userId string) (dto UserDTO, err error) {
 	v, err := s.repo.Get(userId)
+	if err != nil {
+		return
+	}
+
+	s.toUserDTO(&v, &dto)
+
+	return
+}
+
+func (s userService) GetByAccount(account domain.Account) (dto UserDTO, err error) {
+	v, err := s.repo.GetByAccount(account)
 	if err != nil {
 		return
 	}
