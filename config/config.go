@@ -27,13 +27,15 @@ type Config struct {
 	DefaultPassword string `json:"default_password" required:"true"`
 	EncryptionKey   string `json:"encryption_key" required:"true"`
 
-	Authing AuthingService `json:"authing_service" required:"true"`
-	Mongodb Mongodb        `json:"mongodb" required:"true"`
-	Gitlab  Gitlab         `json:"gitlab" required:"true"`
-	API     API            `json:"api" required:"true"`
+	Authing  AuthingService `json:"authing_service" required:"true"`
+	Resource Resource       `json:"resource" required:"true"`
+	Mongodb  Mongodb        `json:"mongodb" required:"true"`
+	Gitlab   Gitlab         `json:"gitlab" required:"true"`
+	API      API            `json:"api" required:"true"`
 }
 
 func (cfg *Config) setDefault() {
+	cfg.Resource.setdefault()
 }
 
 func (cfg *Config) validate() error {
@@ -69,4 +71,29 @@ type Gitlab struct {
 type API struct {
 	APITokenExpiry int64  `json:"api_token_expiry" required:"true"`
 	APITokenKey    string `json:"api_token_key" required:"true"`
+}
+
+type Resource struct {
+	MaxNameLength int `json:"max_name_length"`
+	MinNameLength int `json:"min_name_length"`
+	MaxDescLength int `json:"max_desc_length"`
+
+	Covers           []string `json:"covers" required:"true"`
+	Protocols        []string `json:"protocols" required:"true"`
+	ProjectType      []string `json:"project_type" required:"true"`
+	TrainingPlatform []string `json:"training_platform" required:"true"`
+}
+
+func (r *Resource) setdefault() {
+	if r.MaxNameLength == 0 {
+		r.MaxNameLength = 50
+	}
+
+	if r.MinNameLength == 0 {
+		r.MinNameLength = 5
+	}
+
+	if r.MaxDescLength == 0 {
+		r.MaxDescLength = 100
+	}
 }

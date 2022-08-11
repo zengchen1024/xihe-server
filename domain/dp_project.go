@@ -5,16 +5,42 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "priviate"
+
+	ResourceProject = "project"
+	ResourceDataset = "dataset"
+	ResourceModel   = "model"
 )
 
 var (
 	reProjName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	config     = Config{}
 )
+
+func Init(cfg Config) {
+	config = cfg
+}
+
+type Config struct {
+	Resource ResourceConfig
+}
+
+type ResourceConfig struct {
+	MaxNameLength int
+	MinNameLength int
+	MaxDescLength int
+
+	Covers           sets.String
+	Protocols        sets.String
+	ProjectType      sets.String
+	TrainingPlatform sets.String
+}
 
 // RepoType
 type RepoType interface {
@@ -41,20 +67,23 @@ type ProjName interface {
 }
 
 func NewProjName(v string) (ProjName, error) {
-	return newResourceName(v, "project")
+	return newResourceName(v, ResourceProject)
 }
 
 func NewModelName(v string) (ProjName, error) {
-	return newResourceName(v, "model")
+	return newResourceName(v, ResourceModel)
 }
 
 func NewDatasetName(v string) (ProjName, error) {
-	return newResourceName(v, "dataset")
+	return newResourceName(v, ResourceDataset)
 }
 
 func newResourceName(v, prefix string) (ProjName, error) {
-	if n := len(v); n > 50 || n < 5 {
-		return nil, errors.New("name's length should be between 5 to 30 ")
+	max := config.Resource.MaxNameLength
+	min := config.Resource.MinNameLength
+
+	if n := len(v); n > max || n < min {
+		return nil, fmt.Errorf("name's length should be between %d to %d", min, max)
 	}
 
 	if strings.HasPrefix(strings.ToLower(v), prefix) {
@@ -80,8 +109,9 @@ type ProjDesc interface {
 }
 
 func NewProjDesc(v string) (ProjDesc, error) {
-	if len(v) > 100 || v == "" {
-		return nil, errors.New("the length of desc should be between 1 to 100")
+	max := config.Resource.MaxDescLength
+	if len(v) > max || v == "" {
+		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
 	}
 
 	return projDesc(v), nil
@@ -99,7 +129,7 @@ type CoverId interface {
 }
 
 func NewConverId(v string) (CoverId, error) {
-	if v == "" {
+	if !config.Resource.Covers.Has(v) {
 		return nil, errors.New("invalid cover id")
 	}
 
@@ -118,7 +148,9 @@ type ProtocolName interface {
 }
 
 func NewProtocolName(v string) (ProtocolName, error) {
-	// TODO: limited value
+	if !config.Resource.Protocols.Has(v) {
+		return nil, errors.New("unsupported protocol")
+	}
 
 	return protocolName(v), nil
 }
@@ -135,7 +167,7 @@ type ProjType interface {
 }
 
 func NewProjType(v string) (ProjType, error) {
-	if v != "Gradio" && v != "Static" {
+	if !config.Resource.ProjectType.Has(v) {
 		return nil, errors.New("unsupported project type")
 	}
 
@@ -154,7 +186,7 @@ type TrainingPlatform interface {
 }
 
 func NewTrainingPlatform(v string) (TrainingPlatform, error) {
-	if v != "ModelArts" {
+	if !config.Resource.TrainingPlatform.Has(v) {
 		return nil, errors.New("unsupport training platform")
 	}
 

@@ -7,9 +7,11 @@ import (
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
@@ -68,5 +70,22 @@ func main() {
 
 	defer mongodb.Close()
 
+	initDomainConfig(cfg.Resource)
+
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
+}
+
+func initDomainConfig(cfg config.Resource) {
+	v := domain.ResourceConfig{
+		MaxNameLength: cfg.MaxNameLength,
+		MinNameLength: cfg.MinNameLength,
+		MaxDescLength: cfg.MaxDescLength,
+
+		Covers:           sets.NewString(cfg.Covers...),
+		Protocols:        sets.NewString(cfg.Protocols...),
+		ProjectType:      sets.NewString(cfg.ProjectType...),
+		TrainingPlatform: sets.NewString(cfg.TrainingPlatform...),
+	}
+
+	domain.Init(domain.Config{Resource: v})
 }
