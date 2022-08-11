@@ -9,6 +9,6 @@ FROM alpine:latest
 WORKDIR /opt/app/
 
 COPY  --from=BUILDER /go/src/github.com/opensourceways/xihe-server/xihe-server /opt/app
-COPY ./deploy/config.yaml /opt/app/conf
+COPY ./deploy/config.yaml /opt/app/config.yaml
 
 ENTRYPOINT ["/opt/app/xihe-server"]
