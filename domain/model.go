@@ -4,7 +4,7 @@ type Model struct {
 	Id string
 
 	Owner    Account
-	Name     ProjName
+	Name     ModelName
 	Desc     ProjDesc
 	RepoType RepoType
 	Protocol ProtocolName

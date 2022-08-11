@@ -5,7 +5,7 @@ import (
 )
 
 type DatasetListOption struct {
-	Name     domain.ProjName
+	Name     domain.DatasetName
 	RepoType domain.RepoType
 }
 

@@ -60,7 +60,7 @@ func (impl model) List(owner domain.Account, option repository.ModelListOption) 
 	do := ModelListDO{}
 
 	if option.Name != nil {
-		do.Name = option.Name.ProjName()
+		do.Name = option.Name.ModelName()
 	}
 	if option.RepoType != nil {
 		do.RepoType = option.RepoType.RepoType()
@@ -87,7 +87,7 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 	do := ModelDO{
 		Id:       m.Id,
 		Owner:    m.Owner.Account(),
-		Name:     m.Name.ProjName(),
+		Name:     m.Name.ModelName(),
 		RepoType: m.RepoType.RepoType(),
 		Protocol: m.Protocol.ProtocolName(),
 		Tags:     m.Tags,
@@ -126,7 +126,7 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+	if r.Name, err = domain.NewModelName(do.Name); err != nil {
 		return
 	}
 

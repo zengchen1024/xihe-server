@@ -4,7 +4,7 @@ type Dataset struct {
 	Id string
 
 	Owner    Account
-	Name     ProjName
+	Name     DatasetName
 	Desc     ProjDesc
 	RepoType RepoType
 	Protocol ProtocolName

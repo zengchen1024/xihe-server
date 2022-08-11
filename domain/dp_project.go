@@ -1,11 +1,46 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"regexp"
+	"strings"
+
+	"k8s.io/apimachinery/pkg/util/sets"
+)
 
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "priviate"
+
+	ResourceProject = "project"
+	ResourceDataset = "dataset"
+	ResourceModel   = "model"
 )
+
+var (
+	reResourceName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	config         = Config{}
+)
+
+func Init(cfg Config) {
+	config = cfg
+}
+
+type Config struct {
+	Resource ResourceConfig
+}
+
+type ResourceConfig struct {
+	MaxNameLength int
+	MinNameLength int
+	MaxDescLength int
+
+	Covers           sets.String
+	Protocols        sets.String
+	ProjectType      sets.String
+	TrainingPlatform sets.String
+}
 
 // RepoType
 type RepoType interface {
@@ -26,15 +61,25 @@ func (r repoType) RepoType() string {
 	return string(r)
 }
 
-// ProjName
+// Name
+type ResourceName interface {
+	ResourceName() string
+}
+
+// ResourceName
 type ProjName interface {
 	ProjName() string
+
+	ResourceName
 }
 
 func NewProjName(v string) (ProjName, error) {
-	// TODO: limited length for name
+	if err := checkResourceName(v, ResourceProject); err != nil {
+		return nil, err
+	}
 
 	return projName(v), nil
+
 }
 
 type projName string
@@ -43,13 +88,87 @@ func (r projName) ProjName() string {
 	return string(r)
 }
 
+func (r projName) ResourceName() string {
+	return string(r)
+}
+
+type ModelName interface {
+	ModelName() string
+
+	ResourceName
+}
+
+func NewModelName(v string) (ModelName, error) {
+	if err := checkResourceName(v, ResourceModel); err != nil {
+		return nil, err
+	}
+
+	return modelName(v), nil
+}
+
+type modelName string
+
+func (r modelName) ModelName() string {
+	return string(r)
+}
+
+func (r modelName) ResourceName() string {
+	return string(r)
+}
+
+type DatasetName interface {
+	DatasetName() string
+
+	ResourceName
+}
+
+func NewDatasetName(v string) (DatasetName, error) {
+	if err := checkResourceName(v, ResourceDataset); err != nil {
+		return nil, err
+	}
+
+	return datasetName(v), nil
+}
+
+type datasetName string
+
+func (r datasetName) DatasetName() string {
+	return string(r)
+}
+
+func (r datasetName) ResourceName() string {
+	return string(r)
+}
+
+func checkResourceName(v, prefix string) error {
+	max := config.Resource.MaxNameLength
+	min := config.Resource.MinNameLength
+
+	if n := len(v); n > max || n < min {
+		return fmt.Errorf("name's length should be between %d to %d", min, max)
+	}
+
+	if strings.HasPrefix(strings.ToLower(v), prefix) {
+		return fmt.Errorf("the name should not start with %s as prefix", prefix)
+	}
+
+	if !reResourceName.MatchString(v) {
+		return errors.New("invalid name")
+	}
+
+	return nil
+}
+
 // ProjDesc
 type ProjDesc interface {
 	ProjDesc() string
 }
 
 func NewProjDesc(v string) (ProjDesc, error) {
-	// TODO: limited length for name
+	max := config.Resource.MaxDescLength
+	if len(v) > max || v == "" {
+		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
+	}
 
 	return projDesc(v), nil
 }
@@ -66,7 +185,9 @@ type CoverId interface {
 }
 
 func NewConverId(v string) (CoverId, error) {
-	// TODO: limited value
+	if !config.Resource.Covers.Has(v) {
+		return nil, errors.New("invalid cover id")
+	}
 
 	return coverId(v), nil
 }
@@ -83,7 +204,9 @@ type ProtocolName interface {
 }
 
 func NewProtocolName(v string) (ProtocolName, error) {
-	// TODO: limited value
+	if !config.Resource.Protocols.Has(v) {
+		return nil, errors.New("unsupported protocol")
+	}
 
 	return protocolName(v), nil
 }
@@ -100,7 +223,9 @@ type ProjType interface {
 }
 
 func NewProjType(v string) (ProjType, error) {
-	// TODO: limited value
+	if !config.Resource.ProjectType.Has(v) {
+		return nil, errors.New("unsupported project type")
+	}
 
 	return projType(v), nil
 }
@@ -117,7 +242,9 @@ type TrainingPlatform interface {
 }
 
 func NewTrainingPlatform(v string) (TrainingPlatform, error) {
-	// TODO: limited value
+	if !config.Resource.TrainingPlatform.Has(v) {
+		return nil, errors.New("unsupport training platform")
+	}
 
 	return trainingPlatform(v), nil
 }

@@ -32,7 +32,7 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 		return "", err
 	}
 
-	name := repo.Name.ProjName()
+	name := repo.Name.ResourceName()
 	des := repo.Desc.ProjDesc()
 	b := true
 
@@ -62,7 +62,7 @@ func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, e
 		return "", err
 	}
 
-	name := repo.Name.ProjName()
+	name := repo.Name.ResourceName()
 	des := repo.Desc.ProjDesc()
 	b := true
 

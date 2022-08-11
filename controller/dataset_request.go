@@ -18,7 +18,7 @@ func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.NewProjName(req.Name); err != nil {
+	if cmd.Name, err = domain.NewDatasetName(req.Name); err != nil {
 		return
 	}
 

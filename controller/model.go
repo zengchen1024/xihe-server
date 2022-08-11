@@ -188,7 +188,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 
 func (ctl *ModelController) getListParameter(ctx *gin.Context) (cmd app.ModelListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		if cmd.Name, err = domain.NewProjName(v); err != nil {
+		if cmd.Name, err = domain.NewModelName(v); err != nil {
 			return
 		}
 	}
