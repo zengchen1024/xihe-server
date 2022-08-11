@@ -2,7 +2,7 @@ FROM golang:latest as BUILDER
 
 # build binary
 COPY . /go/src/github.com/opensourceways/xihe-server
-RUN cd /go/src/github.com/opensourceways/xihe-server && go build -v -o ./xihe-server main.go
+RUN cd /go/src/github.com/opensourceways/xihe-server && GO111MODULE=on CGO_ENABLED=0 go build
 
 # copy binary config and utils
 FROM alpine:latest
