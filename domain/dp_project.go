@@ -1,10 +1,19 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "priviate"
+)
+
+var (
+	reProjName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 )
 
 // RepoType
@@ -32,7 +41,29 @@ type ProjName interface {
 }
 
 func NewProjName(v string) (ProjName, error) {
-	// TODO: limited length for name
+	return newResourceName(v, "project")
+}
+
+func NewModelName(v string) (ProjName, error) {
+	return newResourceName(v, "model")
+}
+
+func NewDatasetName(v string) (ProjName, error) {
+	return newResourceName(v, "dataset")
+}
+
+func newResourceName(v, prefix string) (ProjName, error) {
+	if n := len(v); n > 50 || n < 5 {
+		return nil, errors.New("name's length should be between 5 to 30 ")
+	}
+
+	if strings.HasPrefix(strings.ToLower(v), prefix) {
+		return nil, fmt.Errorf("the name should not start with %s as prefix", prefix)
+	}
+
+	if !reProjName.MatchString(v) {
+		return nil, errors.New("invalid name")
+	}
 
 	return projName(v), nil
 }
@@ -49,7 +80,9 @@ type ProjDesc interface {
 }
 
 func NewProjDesc(v string) (ProjDesc, error) {
-	// TODO: limited length for name
+	if len(v) > 100 || v == "" {
+		return nil, errors.New("the length of desc should be between 1 to 100")
+	}
 
 	return projDesc(v), nil
 }
@@ -66,7 +99,9 @@ type CoverId interface {
 }
 
 func NewConverId(v string) (CoverId, error) {
-	// TODO: limited value
+	if v == "" {
+		return nil, errors.New("invalid cover id")
+	}
 
 	return coverId(v), nil
 }
@@ -100,7 +135,9 @@ type ProjType interface {
 }
 
 func NewProjType(v string) (ProjType, error) {
-	// TODO: limited value
+	if v != "Gradio" && v != "Static" {
+		return nil, errors.New("unsupported project type")
+	}
 
 	return projType(v), nil
 }
@@ -117,7 +154,9 @@ type TrainingPlatform interface {
 }
 
 func NewTrainingPlatform(v string) (TrainingPlatform, error) {
-	// TODO: limited value
+	if v != "ModelArts" {
+		return nil, errors.New("unsupport training platform")
+	}
 
 	return trainingPlatform(v), nil
 }
