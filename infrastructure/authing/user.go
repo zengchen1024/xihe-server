@@ -45,7 +45,7 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 	resp, err := cli.SendHttpRequest(url, http.MethodGet, nil, nil)
 
 	// TODO: delete
-	fmt.Printf("%s\n", resp)
+	fmt.Printf("url=%s, resp=%s, token=%s\n", url, resp, accessToken)
 
 	var loginInfo struct {
 		Name    string `json:"name,omitempty"`
