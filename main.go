@@ -55,7 +55,7 @@ func main() {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
 	}
 
-	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
+	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret, cfg.Authing.Endpoint)
 
 	apiConfig := controller.APIConfig{
 		EncryptionKey:  cfg.EncryptionKey,
