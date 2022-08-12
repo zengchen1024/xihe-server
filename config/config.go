@@ -32,10 +32,12 @@ type Config struct {
 	Mongodb  Mongodb        `json:"mongodb" required:"true"`
 	Gitlab   Gitlab         `json:"gitlab" required:"true"`
 	API      API            `json:"api" required:"true"`
+	User     User           `json:"user"`
 }
 
 func (cfg *Config) setDefault() {
 	cfg.Resource.setdefault()
+	cfg.User.setDefault()
 }
 
 func (cfg *Config) validate() error {
@@ -95,5 +97,20 @@ func (r *Resource) setdefault() {
 
 	if r.MaxDescLength == 0 {
 		r.MaxDescLength = 100
+	}
+}
+
+type User struct {
+	MaxNicknameLength int `json:"max_nickname_length"`
+	MaxBioLength      int `json:"max_bio_length"`
+}
+
+func (u *User) setDefault() {
+	if u.MaxNicknameLength == 0 {
+		u.MaxNicknameLength = 20
+	}
+
+	if u.MaxBioLength == 0 {
+		u.MaxBioLength = 200
 	}
 }

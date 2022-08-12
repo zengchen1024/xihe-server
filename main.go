@@ -73,22 +73,30 @@ func main() {
 
 	defer mongodb.Close()
 
-	initDomainConfig(cfg.Resource)
+	initDomainConfig(cfg)
 
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
 }
 
-func initDomainConfig(cfg config.Resource) {
-	v := domain.ResourceConfig{
-		MaxNameLength: cfg.MaxNameLength,
-		MinNameLength: cfg.MinNameLength,
-		MaxDescLength: cfg.MaxDescLength,
+func initDomainConfig(cfg *config.Config) {
+	r := &cfg.Resource
+	u := &cfg.User
 
-		Covers:           sets.NewString(cfg.Covers...),
-		Protocols:        sets.NewString(cfg.Protocols...),
-		ProjectType:      sets.NewString(cfg.ProjectType...),
-		TrainingPlatform: sets.NewString(cfg.TrainingPlatform...),
-	}
+	domain.Init(domain.Config{
+		Resource: domain.ResourceConfig{
+			MaxNameLength: r.MaxNameLength,
+			MinNameLength: r.MinNameLength,
+			MaxDescLength: r.MaxDescLength,
 
-	domain.Init(domain.Config{Resource: v})
+			Covers:           sets.NewString(r.Covers...),
+			Protocols:        sets.NewString(r.Protocols...),
+			ProjectType:      sets.NewString(r.ProjectType...),
+			TrainingPlatform: sets.NewString(r.TrainingPlatform...),
+		},
+
+		User: domain.UserConfig{
+			MaxNicknameLength: u.MaxNicknameLength,
+			MaxBioLength:      u.MaxBioLength,
+		},
+	})
 }

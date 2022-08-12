@@ -31,6 +31,7 @@ func Init(cfg Config) {
 
 type Config struct {
 	Resource ResourceConfig
+	User     UserConfig
 }
 
 type ResourceConfig struct {
@@ -42,6 +43,11 @@ type ResourceConfig struct {
 	Protocols        sets.String
 	ProjectType      sets.String
 	TrainingPlatform sets.String
+}
+
+type UserConfig struct {
+	MaxNicknameLength int
+	MaxBioLength      int
 }
 
 // RepoType

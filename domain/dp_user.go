@@ -76,7 +76,7 @@ type Nickname interface {
 }
 
 func NewNickname(v string) (Nickname, error) {
-	if len(v) > 50 {
+	if len(v) > config.User.MaxNicknameLength {
 		return nil, errors.New("invalid nickname")
 	}
 
@@ -95,7 +95,7 @@ type Bio interface {
 }
 
 func NewBio(v string) (Bio, error) {
-	if len(v) > 100 {
+	if len(v) > config.User.MaxBioLength {
 		return nil, errors.New("invalid bio")
 	}
 
@@ -138,7 +138,7 @@ func NewAvatarId(v string) (AvatarId, error) {
 	}
 
 	if _, err := url.Parse(v); err != nil {
-		return nil, err
+		return nil, errors.New("invalid avatar")
 	}
 
 	return dpAvatarId(v), nil
