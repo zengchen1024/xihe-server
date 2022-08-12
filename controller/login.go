@@ -172,7 +172,7 @@ func (ctl *LoginController) Logout(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, false, account.Account())
+	_, visitor, ok := ctl.checkUserApiToken(ctx, false, account)
 	if !ok {
 		return
 	}

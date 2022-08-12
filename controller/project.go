@@ -66,7 +66,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner.Account())
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner)
 	if !ok {
 		return
 	}
@@ -166,7 +166,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
 	if !ok {
 		return
 	}
@@ -204,7 +204,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
 	if !ok {
 		return
 	}
@@ -273,7 +273,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, owner.Account())
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, owner)
 	if !ok {
 		return
 	}

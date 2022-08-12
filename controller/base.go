@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -142,7 +143,7 @@ func (ctl baseController) checkNewUserApiToken(ctx *gin.Context) (
 }
 
 func (ctl baseController) checkUserApiToken(
-	ctx *gin.Context, allowVistor bool, account string,
+	ctx *gin.Context, allowVistor bool, account domain.Account,
 ) (
 	pl oldUserTokenPayload, visitor bool, ok bool,
 ) {
@@ -161,12 +162,11 @@ func (ctl baseController) checkUserApiToken(
 		return
 	}
 
-	ok = ctl.checkApiToken(ctx, token, &pl, true)
-	if !ok {
+	if ok = ctl.checkApiToken(ctx, token, &pl, true); !ok {
 		return
 	}
 
-	if pl.Account != account {
+	if account != nil && pl.Account != account.Account() {
 		visitor = true
 	}
 
