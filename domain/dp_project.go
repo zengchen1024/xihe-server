@@ -19,8 +19,10 @@ const (
 )
 
 var (
-	reResourceName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 	config         = Config{}
+	reResourceName = reName
+	reEmail        = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
 )
 
 func Init(cfg Config) {
@@ -29,6 +31,7 @@ func Init(cfg Config) {
 
 type Config struct {
 	Resource ResourceConfig
+	User     UserConfig
 }
 
 type ResourceConfig struct {
@@ -40,6 +43,11 @@ type ResourceConfig struct {
 	Protocols        sets.String
 	ProjectType      sets.String
 	TrainingPlatform sets.String
+}
+
+type UserConfig struct {
+	MaxNicknameLength int
+	MaxBioLength      int
 }
 
 // RepoType
