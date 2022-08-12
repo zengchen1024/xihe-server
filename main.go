@@ -12,6 +12,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
@@ -53,6 +54,8 @@ func main() {
 	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
 	}
+
+	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
 	apiConfig := controller.APIConfig{
 		EncryptionKey:  cfg.EncryptionKey,
