@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -25,7 +26,7 @@ func AddRouterForUserController(
 
 	// rg.POST("/v1/user", pc.Create)
 	rg.PUT("/v1/user", pc.Update)
-	rg.GET("/v1/user/:id", pc.Get)
+	rg.GET("/v1/user", pc.Get)
 }
 
 type UserController struct {
@@ -155,20 +156,46 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Summary Get
 // @Description get user
 // @Tags  User
-// @Param	id	path	string	true	"id of user"
+// @Param	account	query	string	false	"account"
 // @Accept json
 // @Success 200 {object} app.UserDTO
-// @Router /v1/user/{id} [get]
+// @Failure 400 bad_request_param   account is invalid
+// @Failure 401 resource_not_exists user does not exist
+// @Failure 500 system_error        system error
+// @Router /v1/user [get]
 func (ctl *UserController) Get(ctx *gin.Context) {
-	u, err := ctl.s.Get(ctx.Param("id"))
+	var target domain.Account
+
+	if account := ctl.getQueryParameter(ctx, "account"); account != "" {
+		v, err := domain.NewAccount(account)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+
+		target = v
+	}
+
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true, target)
+	if !ok {
+		return
+	}
+	if visitor {
+		if target == nil {
+			ctx.JSON(http.StatusOK, newResponseData(nil))
+			return
+		}
+	} else {
+		target = pl.DomainAccount()
+	}
+
+	u, err := ctl.s.GetByAccount(target)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
-		return
-	}
-
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, u.Account)
-	if !ok {
 		return
 	}
 

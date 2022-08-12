@@ -344,6 +344,50 @@
             }
         },
         "/v1/user": {
+            "get": {
+                "description": "get user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "account",
+                        "name": "account",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.UserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "resource_not_exists"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "update user basic info",
                 "consumes": [
@@ -395,35 +439,6 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "duplicate_creating"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/user/{id}": {
-            "get": {
-                "description": "get user",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id of user",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.UserDTO"
                         }
                     }
                 }

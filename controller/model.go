@@ -67,7 +67,7 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner.Account())
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner)
 	if !ok {
 		return
 	}
@@ -112,7 +112,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
 	if !ok {
 		return
 	}
@@ -150,7 +150,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner.Account())
+	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
 	if !ok {
 		return
 	}
