@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/Authing/authing-go-sdk/lib/authentication"
 
@@ -11,10 +13,18 @@ import (
 	"github.com/opensourceways/xihe-server/domain/authing"
 )
 
-var cli *authentication.Client
+var (
+	cli      *authentication.Client
+	endpoint string
+)
 
-func Init(appId, secret string) {
+func Init(appId, secret, authEndpoint string) {
 	cli = authentication.NewClient(appId, secret)
+
+	if strings.HasSuffix(authEndpoint, "/") {
+		authEndpoint = strings.TrimSuffix(authEndpoint, "/")
+	}
+	endpoint = authEndpoint
 }
 
 func NewAuthingUser() authing.User {
@@ -24,13 +34,18 @@ func NewAuthingUser() authing.User {
 type user struct{}
 
 func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo, err error) {
-	respStr, err := cli.GetUserInfoByAccessToken(accessToken)
-	if err != nil {
-		return
-	}
+	/*
+		respStr, err := cli.GetUserInfoByAccessToken(accessToken)
+		if err != nil {
+			return
+		}
+	*/
+
+	url := endpoint + "/oidc/me?access_token=" + accessToken
+	resp, err := cli.SendHttpRequest(url, http.MethodGet, nil, nil)
 
 	// TODO: delete
-	fmt.Printf("%v\n", respStr)
+	fmt.Printf("%s\n", resp)
 
 	var loginInfo struct {
 		Name    string `json:"name,omitempty"`
@@ -38,7 +53,7 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		Email   string `json:"email,omitempty"`
 	}
 
-	err = json.Unmarshal([]byte(respStr), &loginInfo)
+	err = json.Unmarshal(resp, &loginInfo)
 	if err != nil {
 		return
 	}
@@ -48,6 +63,10 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 	}
 
 	if userInfo.Email, err = domain.NewEmail(loginInfo.Email); err != nil {
+		return
+	}
+
+	if userInfo.AvatarId, err = domain.NewAvatarId(loginInfo.Picture); err != nil {
 		return
 	}
 
