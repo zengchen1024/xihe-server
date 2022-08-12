@@ -35,23 +35,16 @@ func (cmd *FollowingCreateCmd) toFollowing() domain.Following {
 	}
 }
 
-type FollowingDeleteCmd struct {
-	Owner     domain.Account
-	Following domain.Account
-}
-
-func (cmd *FollowingDeleteCmd) Validate() error {
-	if cmd.Owner == nil || cmd.Following == nil {
-		return errors.New("invalid cmd of deleting following")
-	}
-
-	return nil
-}
-
 type FollowingDTO struct {
 	Account  string `json:"account"`
 	AvatarId string `json:"avatar_id"`
 	Bio      string `json:"bio"`
+}
+
+type FollowingService interface {
+	Create(cmd *FollowingCreateCmd) (dto FollowingDTO, err error)
+	Delete(owner domain.Account, following domain.Account) error
+	List(owner domain.Account) (dtos []FollowingDTO, err error)
 }
 
 type followingService struct {
@@ -74,8 +67,8 @@ func (s followingService) Create(cmd *FollowingCreateCmd) (dto FollowingDTO, err
 	return
 }
 
-func (s followingService) Delete(cmd *FollowingDeleteCmd) error {
-	return s.repo.Remove(cmd.Owner, cmd.Following)
+func (s followingService) Delete(owner domain.Account, following domain.Account) error {
+	return s.repo.Remove(owner, following)
 }
 
 func (s followingService) List(owner domain.Account) (
