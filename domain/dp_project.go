@@ -19,8 +19,10 @@ const (
 )
 
 var (
-	reResourceName = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 	config         = Config{}
+	reResourceName = reName
+	reEmail        = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
 )
 
 func Init(cfg Config) {

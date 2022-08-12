@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"net/url"
 	"strings"
 )
 
@@ -11,8 +12,7 @@ type Account interface {
 }
 
 func NewAccount(v string) (Account, error) {
-	// TODO: format account
-	if strings.ToLower(v) == "root" {
+	if v == "" || strings.ToLower(v) == "root" || !reName.MatchString(v) {
 		return nil, errors.New("invalid user name")
 	}
 
@@ -30,10 +30,38 @@ type Password interface {
 	Password() string
 }
 
-func NewPassword(v string) (Password, error) {
-	// TODO: format account
+func NewPassword(s string) (Password, error) {
+	if n := len(s); n < 8 || n > 20 {
+		return nil, errors.New("invalid password")
+	}
 
-	return dpPassword(v), nil
+	part := make([]bool, 4)
+
+	for _, c := range s {
+		if c >= 'a' && c <= 'z' {
+			part[0] = true
+		} else if c >= 'A' && c <= 'Z' {
+			part[1] = true
+		} else if c >= '0' && c <= '9' {
+			part[2] = true
+		} else {
+			part[3] = true
+		}
+	}
+
+	i := 0
+	for _, b := range part {
+		if b {
+			i++
+		}
+	}
+	if i < 3 {
+		return nil, errors.New(
+			"the password must includes three of lowercase, uppercase, digital and special character",
+		)
+	}
+
+	return dpPassword(s), nil
 }
 
 type dpPassword string
@@ -48,7 +76,9 @@ type Nickname interface {
 }
 
 func NewNickname(v string) (Nickname, error) {
-	// TODO: format nickname
+	if len(v) > 50 {
+		return nil, errors.New("invalid nickname")
+	}
 
 	return dpNickname(v), nil
 }
@@ -65,7 +95,9 @@ type Bio interface {
 }
 
 func NewBio(v string) (Bio, error) {
-	// TODO: limited length for bio
+	if len(v) > 100 {
+		return nil, errors.New("invalid bio")
+	}
 
 	return dpBio(v), nil
 }
@@ -82,7 +114,9 @@ type Email interface {
 }
 
 func NewEmail(v string) (Email, error) {
-	// TODO: check format
+	if v == "" || !reEmail.MatchString(v) {
+		return nil, errors.New("invalid email")
+	}
 
 	return dpEmail(v), nil
 }
@@ -93,30 +127,19 @@ func (r dpEmail) Email() string {
 	return string(r)
 }
 
-// Phone Number
-type PhoneNumber interface {
-	PhoneNumber() string
-}
-
-func NewPhoneNumber(v string) (PhoneNumber, error) {
-	// TODO: check format
-
-	return dpPhoneNumber(v), nil
-}
-
-type dpPhoneNumber string
-
-func (r dpPhoneNumber) PhoneNumber() string {
-	return string(r)
-}
-
 // AvatarId
 type AvatarId interface {
 	AvatarId() string
 }
 
 func NewAvatarId(v string) (AvatarId, error) {
-	// TODO: check the range of v
+	if v == "" {
+		return nil, errors.New("invalid avatar")
+	}
+
+	if _, err := url.Parse(v); err != nil {
+		return nil, err
+	}
 
 	return dpAvatarId(v), nil
 }
