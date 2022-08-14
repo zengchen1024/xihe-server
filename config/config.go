@@ -61,9 +61,8 @@ type Mongodb struct {
 }
 
 type AuthingService struct {
-	APPId    string `json:"app_id" required:"true"`
-	Secret   string `json:"secret" required:"true"`
-	Endpoint string `json:"endpoint" required:"true"`
+	APPId  string `json:"app_id" required:"true"`
+	Secret string `json:"secret" required:"true"`
 }
 
 type Gitlab struct {

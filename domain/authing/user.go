@@ -14,11 +14,10 @@ type UserInfo struct {
 type Login struct {
 	UserInfo
 
-	IDToken     string
-	AccessToken string
+	IDToken string
 }
 
 type User interface {
-	GetByAccessToken(accessToken string) (UserInfo, error)
 	GetByCode(code string) (Login, error)
+	GetByAccessToken(accessToken string) (UserInfo, error)
 }
