@@ -27,6 +27,8 @@ func AddRouterForUserController(
 	// rg.POST("/v1/user", pc.Create)
 	rg.PUT("/v1/user", pc.Update)
 	rg.GET("/v1/user", pc.Get)
+
+	rg.POST("/v1/user/following", pc.AddFollowing)
 }
 
 type UserController struct {
@@ -144,7 +146,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := uc.s.UpdateBasicInfo("", cmd); err != nil {
+	if err := uc.s.UpdateBasicInfo(nil, cmd); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
@@ -179,7 +181,7 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		target = v
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, true, target)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
@@ -188,19 +190,25 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, newResponseData(nil))
 			return
 		}
-	} else {
-		target = pl.DomainAccount()
+
+		// get by empty follower
+
+		return
 	}
+
+	if target != nil && pl.Account != target.Account() {
+		// get by follower, and pl.Account is follower
+
+		return
+	}
+
+	// get mine info
 
 	u, err := ctl.s.GetByAccount(target)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 
 		return
-	}
-
-	if visitor {
-		u.Email = ""
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(u))

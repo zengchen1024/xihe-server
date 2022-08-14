@@ -67,12 +67,12 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	if visitor {
+	if pl.isNotMe(cmd.Owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed,
 			"can't create project for other user",
@@ -167,7 +167,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
@@ -179,7 +179,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	if visitor && proj.RepoType != domain.RepoTypePublic {
+	if (visitor || pl.isNotMe(owner)) && proj.RepoType != domain.RepoTypePublic {
 		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 			errorResourceNotExists,
 			"can't access private project",
@@ -205,7 +205,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
@@ -219,7 +219,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	if visitor {
+	if visitor || pl.isNotMe(owner) {
 		if cmd.RepoType == nil {
 			cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
 		} else {
@@ -274,12 +274,12 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, owner)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	if !visitor {
+	if !pl.isNotMe(owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed, "no need to fork project of yourself",
 		))

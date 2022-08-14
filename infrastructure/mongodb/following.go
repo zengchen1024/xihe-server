@@ -14,7 +14,7 @@ func userDocFilterByAccount(account string) bson.M {
 	}
 }
 
-func (col user) AddFollowing(owner, account string) (do repositories.UserDO, err error) {
+func (col user) AddFollowing(owner, account string) error {
 	f := func(ctx context.Context) error {
 		return cli.addToSimpleArray(
 			ctx, col.collectionName, fieldFollowing,
@@ -22,18 +22,18 @@ func (col user) AddFollowing(owner, account string) (do repositories.UserDO, err
 		)
 	}
 
-	if err = withContext(f); err != nil {
+	if err := withContext(f); err != nil {
 		if isDocExists(err) {
-			err = repositories.NewErrorConcurrentUpdating(err)
+			err = repositories.NewErrorDuplicateCreating(err)
 		}
 
-		return
+		return err
 	}
 
-	return col.GetByAccount(owner)
+	return nil
 }
 
-func (col user) RemoveFollowing(owner, account string) (do repositories.UserDO, err error) {
+func (col user) RemoveFollowing(owner, account string) error {
 	f := func(ctx context.Context) error {
 		return cli.removeFromSimpleArray(
 			ctx, col.collectionName, fieldFollowing,
@@ -41,9 +41,11 @@ func (col user) RemoveFollowing(owner, account string) (do repositories.UserDO, 
 		)
 	}
 
-	if err = withContext(f); err != nil {
-		return
-	}
+	return withContext(f)
+}
 
-	return col.GetByAccount(owner)
+func (col user) ListFollowing(owner string) ([]repositories.UserInfoDO, error) {
+	// see cla
+
+	return nil, nil
 }

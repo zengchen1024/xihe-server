@@ -1,109 +1,64 @@
 package app
 
 import (
-	"errors"
-
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-type FollowingCreateCmd struct {
-	Owner    domain.Account
-	Account  domain.Account
-	AvatarId domain.AvatarId
-	Bio      domain.Bio
-}
-
-func (cmd *FollowingCreateCmd) Validate() error {
-	b := cmd.Owner != nil &&
-		cmd.Account != nil &&
-		cmd.AvatarId != nil
-
-	if !b {
-		return errors.New("invalid cmd of creating following")
-	}
-
-	return nil
-}
-
-func (cmd *FollowingCreateCmd) toFollowing() domain.Following {
-	return domain.Following{
-		Owner:    cmd.Owner,
-		Account:  cmd.Account,
-		AvatarId: cmd.AvatarId,
-		Bio:      cmd.Bio,
-	}
-}
-
-type FollowingDTO struct {
+type FollowDTO struct {
 	Account  string `json:"account"`
 	AvatarId string `json:"avatar_id"`
 	Bio      string `json:"bio"`
 }
 
-type FollowingService interface {
-	Create(cmd *FollowingCreateCmd) (dto FollowingDTO, err error)
-	Delete(owner domain.Account, following domain.Account) error
-	List(owner domain.Account) (dtos []FollowingDTO, err error)
-}
-
-type followingService struct {
-	repo repository.Following
-
-	user repository.User
-}
-
-func (s userService) AddFollowing(cmd *FollowingCreateCmd) (dto UserDTO, err error) {
-	f := cmd.toFollowing()
-
-	u, err := s.repo.AddFollowing(&f)
+func (s userService) AddFollowing(owner, following domain.Account) error {
+	err := s.repo.AddFollowing(&domain.Following{
+		Owner:   owner,
+		Account: following,
+	})
 	if err != nil {
-		return
+		return err
 	}
-
-	s.toUserDTO(&u, &dto)
 
 	// TODO: activity
 
 	// TODO: event
 
-	return
+	return nil
 }
 
-func (s userService) RemoveFollowing(owner, following domain.Account) (dto UserDTO, err error) {
-	u, err := s.repo.RemoveFollowing(&domain.Following{
+func (s userService) RemoveFollowing(owner, following domain.Account) error {
+	err := s.repo.RemoveFollowing(&domain.Following{
 		Owner:   owner,
 		Account: following,
 	})
 	if err != nil {
-		return
+		return err
 	}
-
-	s.toUserDTO(&u, &dto)
 
 	// TODO: event
 
-	return
+	return nil
 }
 
-func (s followingService) List(owner domain.Account) (
-	dtos []FollowingDTO, err error,
+func (s userService) ListFollowing(owner domain.Account) (
+	dtos []FollowDTO, err error,
 ) {
-	v, err := s.repo.Find(owner)
+	v, err := s.repo.FindFollowing(owner, repository.FollowFindOption{})
 	if err != nil || len(v) == 0 {
 		return
 	}
 
-	dtos = make([]FollowingDTO, len(v))
+	dtos = make([]FollowDTO, len(v))
 	for i := range v {
-		s.toFollowingDTO(&v[i], &dtos[i])
+		s.toFollowDTO(&v[i], &dtos[i])
 	}
 
 	return
 }
 
-func (s followingService) toFollowingDTO(f *domain.Following, dto *FollowingDTO) {
-	*dto = FollowingDTO{
+func (s userService) toFollowDTO(f *domain.FollowUserInfo, dto *FollowDTO) {
+	*dto = FollowDTO{
 		Account:  f.Account.Account(),
 		AvatarId: f.AvatarId.AvatarId(),
 	}

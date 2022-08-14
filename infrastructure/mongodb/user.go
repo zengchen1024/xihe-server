@@ -80,44 +80,15 @@ func (col user) Update(do repositories.UserDO) (err error) {
 	return
 }
 
-func (col user) Get(uid string) (do repositories.UserDO, err error) {
-	v, err := objectIdFilter(uid)
-	if err != nil {
-		return
-	}
-
-	return col.get(v)
-}
-
 func (col user) GetByAccount(account string) (do repositories.UserDO, err error) {
-	return col.get(userDocFilterByAccount(account))
-}
-
-func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
-	var v dUser
-
-	f := func(ctx context.Context) error {
-		return cli.getDoc(
-			ctx, col.collectionName, filter, nil, &v,
-		)
-	}
-
-	err = withContext(f)
-
-	if err == nil {
-		col.toUserDO(&v, &do)
-
-		return
-	}
-
-	if isDocNotExists(err) {
-		err = repositories.NewErrorDataNotExists(err)
-	}
+	do, _, err = col.GetByFollower(account, "")
 
 	return
 }
 
-func (col user) get1(account, follower string) (do repositories.UserDO, isFollower bool, err error) {
+func (col user) GetByFollower(account, follower string) (
+	do repositories.UserDO, isFollower bool, err error,
+) {
 	var v []struct {
 		dUser
 
@@ -127,17 +98,23 @@ func (col user) get1(account, follower string) (do repositories.UserDO, isFollow
 	}
 
 	f := func(ctx context.Context) error {
-		pipeline := bson.A{bson.M{"$match": userDocFilterByAccount(account)}}
-
-		pipeline = append(pipeline, bson.M{"$project": bson.M{
+		project := bson.M{
 			fieldFollowing:    0,
 			fieldFollower:     0,
 			"follower_count":  bson.M{"$sum": "$" + fieldFollower},
 			"following_count": bson.M{"$sum": "$" + fieldFollowing},
-			"is_follower": bson.M{
+		}
+
+		if follower != "" {
+			project["is_follower"] = bson.M{
 				"$in": bson.A{follower, "$" + fieldFollower},
-			},
-		}})
+			}
+		}
+
+		pipeline := bson.A{
+			bson.M{"$match": userDocFilterByAccount(account)},
+			bson.M{"$project": project},
+		}
 
 		cursor, err := cli.collection(col.collectionName).Aggregate(ctx, pipeline)
 		if err != nil {

@@ -25,6 +25,10 @@ func (pl *oldUserTokenPayload) DomainAccount() domain.Account {
 	return a
 }
 
+func (pl *oldUserTokenPayload) isNotMe(a domain.Account) bool {
+	return pl.Account != a.Account()
+}
+
 type newUserTokenPayload struct {
 	AccessToken string `json:"access_token"`
 }
@@ -172,12 +176,12 @@ func (ctl *LoginController) Logout(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, false, account)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	if visitor {
+	if pl.isNotMe(account) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed,
 			"can't get login info of other user",

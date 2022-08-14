@@ -8,9 +8,12 @@ import (
 type UserMapper interface {
 	Insert(UserDO) (string, error)
 	Update(UserDO) error
-	Get(string) (UserDO, error)
 	GetByAccount(string) (UserDO, error)
-	ListUsers([]string) ([]UserInfoDO, error)
+	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
+
+	AddFollowing(owner, account string) error
+	RemoveFollowing(owner, account string) error
+	ListFollowing(string) ([]UserInfoDO, error)
 }
 
 // TODO: mapper can be mysql
@@ -20,19 +23,6 @@ func NewUserRepository(mapper UserMapper) repository.User {
 
 type user struct {
 	mapper UserMapper
-}
-
-func (impl user) Get(uid string) (r domain.User, err error) {
-	do, err := impl.mapper.Get(uid)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	err = do.toUser(&r)
-
-	return
 }
 
 func (impl user) GetByAccount(account domain.Account) (r domain.User, err error) {
@@ -95,12 +85,6 @@ func (impl user) toUserDO(u *domain.User) UserDO {
 	return do
 }
 
-type UserInfoDO struct {
-	Account  string
-	AvatarId string
-	Bio      string
-}
-
 type UserDO struct {
 	Id      string
 	Email   string
@@ -139,6 +123,9 @@ func (do *UserDO) toUser(r *domain.User) (err error) {
 	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
+
+	r.FollowerCount = do.FollowerCount
+	r.FollowingCount = do.FollowingCount
 
 	r.PlatformToken = do.Platform.Token
 	r.PlatformUser.Id = do.Platform.UserId

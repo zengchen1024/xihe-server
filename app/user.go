@@ -56,9 +56,12 @@ type UserDTO struct {
 
 type UserService interface {
 	Create(*UserCreateCmd) (UserDTO, error)
-	Get(string) (UserDTO, error)
 	GetByAccount(domain.Account) (UserDTO, error)
-	UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error
+	UpdateBasicInfo(domain.Account, UpdateUserBasicInfoCmd) error
+
+	AddFollowing(owner, following domain.Account) error
+	RemoveFollowing(owner, following domain.Account) error
+	ListFollowing(owner domain.Account) (dtos []FollowDTO, err error)
 }
 
 // ps: platform user service
@@ -112,17 +115,6 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 	}
 
 	s.toUserDTO(&u, &dto)
-
-	return
-}
-
-func (s userService) Get(userId string) (dto UserDTO, err error) {
-	v, err := s.repo.Get(userId)
-	if err != nil {
-		return
-	}
-
-	s.toUserDTO(&v, &dto)
 
 	return
 }
