@@ -4,13 +4,15 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
 	fieldId        = "id"
+	fieldBio       = "bio"
 	fieldName      = "name"
 	fieldItems     = "items"
 	fieldOwner     = "owner"
 	fieldEmail     = "email"
+	fieldAccount   = "account"
 	fieldVersion   = "version"
 	fieldRepoType  = "repo_type"
-	fieldAccount   = "account"
+	fieldAvatarId  = "avatar_id"
 	fieldFollower  = "follower"
 	fieldFollowing = "following"
 )

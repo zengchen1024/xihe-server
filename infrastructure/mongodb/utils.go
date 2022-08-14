@@ -178,6 +178,29 @@ func (cli *client) getDoc(
 	return nil
 }
 
+func (cli *client) getDocs(
+	ctx context.Context, collection string,
+	filterOfDoc, project bson.M, result interface{},
+) error {
+	col := cli.collection(collection)
+
+	var cursor *mongo.Cursor
+	var err error
+	if len(project) > 0 {
+		cursor, err = col.Find(ctx, filterOfDoc, &options.FindOptions{
+			Projection: project,
+		})
+	} else {
+		cursor, err = col.Find(ctx, filterOfDoc)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return cursor.All(ctx, result)
+}
+
 func (cli *client) addToSimpleArray(
 	ctx context.Context, collection, array string,
 	filterOfDoc, value interface{},
