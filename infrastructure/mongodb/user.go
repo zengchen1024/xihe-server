@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -89,7 +90,7 @@ func (col user) Get(uid string) (do repositories.UserDO, err error) {
 }
 
 func (col user) GetByAccount(account string) (do repositories.UserDO, err error) {
-	return col.get(bson.M{fieldName: account})
+	return col.get(userDocFilterByAccount(account))
 }
 
 func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
@@ -111,6 +112,59 @@ func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
 
 	if isDocNotExists(err) {
 		err = repositories.NewErrorDataNotExists(err)
+	}
+
+	return
+}
+
+func (col user) get1(account, follower string) (do repositories.UserDO, isFollower bool, err error) {
+	var v []struct {
+		dUser
+
+		IsFollower     bool `bson:"is_follower"`
+		FollowerCount  int  `bson:"follower_count"`
+		FollowingCount int  `bson:"following_count"`
+	}
+
+	f := func(ctx context.Context) error {
+		pipeline := bson.A{bson.M{"$match": userDocFilterByAccount(account)}}
+
+		pipeline = append(pipeline, bson.M{"$project": bson.M{
+			fieldFollowing:    0,
+			fieldFollower:     0,
+			"follower_count":  bson.M{"$sum": "$" + fieldFollower},
+			"following_count": bson.M{"$sum": "$" + fieldFollowing},
+			"is_follower": bson.M{
+				"$in": bson.A{follower, "$" + fieldFollower},
+			},
+		}})
+
+		cursor, err := cli.collection(col.collectionName).Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = repositories.NewErrorDataNotExists(errors.New("no user"))
+
+		return
+	}
+
+	item := &v[0]
+	col.toUserDO(&item.dUser, &do)
+
+	do.FollowerCount = item.FollowerCount
+	do.FollowingCount = item.FollowingCount
+
+	if follower != "" {
+		isFollower = item.IsFollower
 	}
 
 	return

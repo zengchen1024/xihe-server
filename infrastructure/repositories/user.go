@@ -10,6 +10,7 @@ type UserMapper interface {
 	Update(UserDO) error
 	Get(string) (UserDO, error)
 	GetByAccount(string) (UserDO, error)
+	ListUsers([]string) ([]UserInfoDO, error)
 }
 
 // TODO: mapper can be mysql
@@ -94,6 +95,12 @@ func (impl user) toUserDO(u *domain.User) UserDO {
 	return do
 }
 
+type UserInfoDO struct {
+	Account  string
+	AvatarId string
+	Bio      string
+}
+
 type UserDO struct {
 	Id      string
 	Email   string
@@ -107,6 +114,9 @@ type UserDO struct {
 		Token       string
 		NamespaceId string
 	}
+
+	FollowerCount  int
+	FollowingCount int
 
 	Version int
 }

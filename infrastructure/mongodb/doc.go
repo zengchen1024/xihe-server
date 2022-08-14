@@ -3,14 +3,16 @@ package mongodb
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
-	fieldId       = "id"
-	fieldName     = "name"
-	fieldItems    = "items"
-	fieldOwner    = "owner"
-	fieldEmail    = "email"
-	fieldVersion  = "version"
-	fieldRepoType = "repo_type"
-	fieldAccount  = "account"
+	fieldId        = "id"
+	fieldName      = "name"
+	fieldItems     = "items"
+	fieldOwner     = "owner"
+	fieldEmail     = "email"
+	fieldVersion   = "version"
+	fieldRepoType  = "repo_type"
+	fieldAccount   = "account"
+	fieldFollower  = "follower"
+	fieldFollowing = "following"
 )
 
 type dProject struct {
@@ -74,6 +76,9 @@ type dUser struct {
 	PlatformToken           string `bson:"token"      json:"token"`
 	PlatformUserId          string `bson:"uid"        json:"uid"`
 	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
+
+	Follower  []string `bson:"follower"   json:"follower"`
+	Following []string `bson:"following"  json:"following"`
 
 	// Version will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.

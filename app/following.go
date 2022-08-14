@@ -49,16 +49,19 @@ type FollowingService interface {
 
 type followingService struct {
 	repo repository.Following
+
+	user repository.User
 }
 
-func (s followingService) Create(cmd *FollowingCreateCmd) (dto FollowingDTO, err error) {
+func (s userService) AddFollowing(cmd *FollowingCreateCmd) (dto UserDTO, err error) {
 	f := cmd.toFollowing()
 
-	if err = s.repo.Save(&f); err != nil {
+	u, err := s.repo.AddFollowing(&f)
+	if err != nil {
 		return
 	}
 
-	s.toFollowingDTO(&f, &dto)
+	s.toUserDTO(&u, &dto)
 
 	// TODO: activity
 
@@ -67,8 +70,20 @@ func (s followingService) Create(cmd *FollowingCreateCmd) (dto FollowingDTO, err
 	return
 }
 
-func (s followingService) Delete(owner domain.Account, following domain.Account) error {
-	return s.repo.Remove(owner, following)
+func (s userService) RemoveFollowing(owner, following domain.Account) (dto UserDTO, err error) {
+	u, err := s.repo.RemoveFollowing(&domain.Following{
+		Owner:   owner,
+		Account: following,
+	})
+	if err != nil {
+		return
+	}
+
+	s.toUserDTO(&u, &dto)
+
+	// TODO: event
+
+	return
 }
 
 func (s followingService) List(owner domain.Account) (

@@ -2,14 +2,17 @@ package repository
 
 import "github.com/opensourceways/xihe-server/domain"
 
+type FollowFindOption struct {
+}
+
 type Following interface {
 	Save(*domain.Following) error
-	Remove(owner domain.Account, folloing domain.Account) error
-	Find(domain.Account) ([]domain.Following, error)
+	Remove(*domain.Following) error
+	Find(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 }
 
 type Follower interface {
 	Save(*domain.Follower) error
-	Remove(owner domain.Account, follower domain.Account) error
-	Find(me domain.Account) ([]domain.Follower, error)
+	Remove(*domain.Follower) error
+	Find(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 }

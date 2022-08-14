@@ -178,6 +178,49 @@ func (cli *client) getDoc(
 	return nil
 }
 
+func (cli *client) addToSimpleArray(
+	ctx context.Context, collection, array string,
+	filterOfDoc, value interface{},
+) error {
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{"$addToSet": bson.M{array: value}},
+	)
+	if err != nil {
+		return dbError{err}
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	if r.ModifiedCount == 0 {
+		return errDocExists
+	}
+
+	return nil
+}
+
+func (cli *client) removeFromSimpleArray(
+	ctx context.Context,
+	collection, array string,
+	filterOfDoc, value interface{},
+) error {
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{"$pull": bson.M{array: value}},
+	)
+	if err != nil {
+		return dbError{err}
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	return nil
+}
+
 func (cli *client) pushArrayElem(
 	ctx context.Context,
 	collection, array string,
