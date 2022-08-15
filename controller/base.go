@@ -116,8 +116,11 @@ func (ctl baseController) checkApiToken(ctx *gin.Context, token string, pl inter
 	}
 
 	if v, err := ac.refreshToken(apiConfig.APITokenExpiry, apiConfig.APITokenKey); err == nil {
-		token = v
+		if v, err = ctl.encryptData(v); err == nil {
+			token = v
+		}
 	}
+
 	ctx.Header(headerPrivateToken, token)
 
 	return

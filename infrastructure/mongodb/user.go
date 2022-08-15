@@ -36,6 +36,8 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldFollower] = bson.A{}
+	doc[fieldFollowing] = bson.A{}
 
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(
@@ -89,31 +91,27 @@ func (col user) GetByAccount(account string) (do repositories.UserDO, err error)
 func (col user) GetByFollower(account, follower string) (
 	do repositories.UserDO, isFollower bool, err error,
 ) {
-	var v []struct {
-		dUser
-
-		IsFollower     bool `bson:"is_follower"`
-		FollowerCount  int  `bson:"follower_count"`
-		FollowingCount int  `bson:"following_count"`
-	}
+	var v []dUser
 
 	f := func(ctx context.Context) error {
-		project := bson.M{
-			fieldFollowing:    0,
-			fieldFollower:     0,
-			"follower_count":  bson.M{"$sum": "$" + fieldFollower},
-			"following_count": bson.M{"$sum": "$" + fieldFollowing},
+		fields := bson.M{
+			fieldFollowerCount:  bson.M{"$size": "$" + fieldFollower},
+			fieldFollowingCount: bson.M{"$size": "$" + fieldFollowing},
 		}
 
 		if follower != "" {
-			project["is_follower"] = bson.M{
+			fields[fieldIsFollower] = bson.M{
 				"$in": bson.A{follower, "$" + fieldFollower},
 			}
 		}
 
 		pipeline := bson.A{
 			bson.M{"$match": userDocFilterByAccount(account)},
-			bson.M{"$project": project},
+			bson.M{"$addFields": fields},
+			bson.M{"$project": bson.M{
+				fieldFollowing: 0,
+				fieldFollower:  0,
+			}},
 		}
 
 		cursor, err := cli.collection(col.collectionName).Aggregate(ctx, pipeline)
@@ -135,7 +133,7 @@ func (col user) GetByFollower(account, follower string) (
 	}
 
 	item := &v[0]
-	col.toUserDO(&item.dUser, &do)
+	col.toUserDO(item, &do)
 
 	do.FollowerCount = item.FollowerCount
 	do.FollowingCount = item.FollowingCount

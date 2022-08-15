@@ -30,7 +30,7 @@ func AddRouterForUserController(
 
 	rg.POST("/v1/user/following", pc.AddFollowing)
 	rg.DELETE("/v1/user/following/:account", pc.RemoveFollowing)
-	rg.GET("/v1/user/following/", pc.ListFollowing)
+	rg.GET("/v1/user/following", pc.ListFollowing)
 }
 
 type UserController struct {
@@ -228,7 +228,7 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 	}
 
 	// get mine info
-	if u, err := ctl.s.GetByAccount(target); err != nil {
+	if u, err := ctl.s.GetByAccount(pl.DomainAccount()); err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
 	} else {
 		resp(&u, false)

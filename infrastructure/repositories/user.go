@@ -29,11 +29,9 @@ func (impl user) GetByAccount(account domain.Account) (r domain.User, err error)
 	do, err := impl.mapper.GetByAccount(account.Account())
 	if err != nil {
 		err = convertError(err)
-
-		return
+	} else {
+		err = do.toUser(&r)
 	}
-
-	err = do.toUser(&r)
 
 	return
 }
@@ -112,15 +110,15 @@ func (do *UserDO) toUser(r *domain.User) (err error) {
 		return
 	}
 
-	if r.Email, _ = domain.NewEmail(do.Email); err != nil {
+	if r.Email, err = domain.NewEmail(do.Email); err != nil {
 		return
 	}
 
-	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
+	if r.Account, err = domain.NewAccount(do.Account); err != nil {
 		return
 	}
 
-	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
+	if r.AvatarId, err = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
 
