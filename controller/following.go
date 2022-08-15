@@ -13,7 +13,7 @@ import (
 // @Tags  Following
 // @Param	body	body 	followingCreateRequest	true	"body of creating following"
 // @Accept json
-// @Success 201 {object} app.FollowingDTO
+// @Success 201
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 402 not_allowed         can't add yourself as your following
@@ -68,7 +68,7 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 // @Tags  Following
 // @Param	account	path	string	true	"the account of following"
 // @Accept json
-// @Success 204 {object}
+// @Success 204
 // @Failure 400 bad_request_param   invalid account
 // @Failure 401 not_allowed         can't remove yourself from your following
 // @Failure 500 system_error        system error

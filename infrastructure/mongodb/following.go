@@ -14,10 +14,37 @@ func userDocFilterByAccount(account string) bson.M {
 	}
 }
 
+// following
 func (col user) AddFollowing(owner, account string) error {
+	return col.addFollow(owner, account, fieldFollowing)
+}
+
+func (col user) RemoveFollowing(owner, account string) error {
+	return col.removeFollow(owner, account, fieldFollowing)
+}
+
+func (col user) ListFollowing(owner string) ([]repositories.UserInfoDO, error) {
+	return col.listFollow(owner, fieldFollowing)
+}
+
+// follower
+func (col user) AddFollower(owner, account string) error {
+	return col.addFollow(owner, account, fieldFollower)
+}
+
+func (col user) RemoveFollower(owner, account string) error {
+	return col.removeFollow(owner, account, fieldFollower)
+}
+
+func (col user) ListFollower(owner string) ([]repositories.UserInfoDO, error) {
+	return col.listFollow(owner, fieldFollower)
+}
+
+// helper
+func (col user) addFollow(owner, account, field string) error {
 	f := func(ctx context.Context) error {
 		return cli.addToSimpleArray(
-			ctx, col.collectionName, fieldFollowing,
+			ctx, col.collectionName, field,
 			userDocFilterByAccount(owner), account,
 		)
 	}
@@ -33,10 +60,10 @@ func (col user) AddFollowing(owner, account string) error {
 	return nil
 }
 
-func (col user) RemoveFollowing(owner, account string) error {
+func (col user) removeFollow(owner, account, field string) error {
 	f := func(ctx context.Context) error {
 		return cli.removeFromSimpleArray(
-			ctx, col.collectionName, fieldFollowing,
+			ctx, col.collectionName, field,
 			userDocFilterByAccount(owner), account,
 		)
 	}
@@ -44,13 +71,13 @@ func (col user) RemoveFollowing(owner, account string) error {
 	return withContext(f)
 }
 
-func (col user) ListFollowing(owner string) ([]repositories.UserInfoDO, error) {
-	var v dUser
+func (col user) listFollow(owner, field string) ([]repositories.UserInfoDO, error) {
+	var u dUser
 
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
 			ctx, col.collectionName, userDocFilterByAccount(owner),
-			bson.M{fieldFollowing: 1}, &v,
+			bson.M{field: 1}, &u,
 		)
 	}
 
@@ -62,10 +89,18 @@ func (col user) ListFollowing(owner string) ([]repositories.UserInfoDO, error) {
 		return nil, err
 	}
 
-	return col.listFollowing(v.Following)
+	var v []string
+	switch field {
+	case fieldFollower:
+		v = u.Follower
+	case fieldFollowing:
+		v = u.Following
+	}
+
+	return col.listFollows(v)
 }
 
-func (col user) listFollowing(accounts []string) ([]repositories.UserInfoDO, error) {
+func (col user) listFollows(accounts []string) ([]repositories.UserInfoDO, error) {
 	var v []dUser
 
 	f := func(ctx context.Context) error {
@@ -105,5 +140,4 @@ func (col user) listFollowing(accounts []string) ([]repositories.UserInfoDO, err
 	}
 
 	return r, nil
-
 }

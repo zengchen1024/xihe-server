@@ -456,6 +456,135 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/following": {
+            "get": {
+                "description": "list followings",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Following"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.FollowDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "add a following",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Following"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of creating following",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.followingCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "resource_not_exists"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/following/{account}": {
+            "delete": {
+                "description": "remove a following",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Following"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the account of following",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/{account}": {
             "get": {
                 "description": "get info of login",
@@ -536,6 +665,20 @@ const docTemplate = `{
                 }
             }
         },
+        "app.FollowDTO": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "avatar_id": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                }
+            }
+        },
         "app.LoginDTO": {
             "type": "object",
             "properties": {
@@ -591,6 +734,12 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 }
@@ -612,6 +761,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.followingCreateRequest": {
+            "type": "object",
+            "properties": {
+                "account": {
                     "type": "string"
                 }
             }
