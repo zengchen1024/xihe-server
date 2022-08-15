@@ -185,6 +185,17 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 	if !ok {
 		return
 	}
+
+	resp := func(u *app.UserDTO, isFollower bool) {
+		ctx.JSON(http.StatusOK, newResponseData(struct {
+			*app.UserDTO
+			IsFollower bool `json:"is_follower"`
+		}{
+			UserDTO:    u,
+			IsFollower: isFollower,
+		}))
+	}
+
 	if visitor {
 		if target == nil {
 			ctx.JSON(http.StatusOK, newResponseData(nil))
@@ -192,24 +203,32 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		}
 
 		// get by empty follower
+		if u, _, err := ctl.s.GetByFollower(target, nil); err != nil {
+			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		} else {
+			u.Email = ""
+			resp(&u, false)
+		}
 
 		return
 	}
 
-	if target != nil && pl.Account != target.Account() {
+	if target != nil && pl.isNotMe(target) {
 		// get by follower, and pl.Account is follower
+		if u, isFollower, err := ctl.s.GetByFollower(target, pl.DomainAccount()); err != nil {
+			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		} else {
+			u.Email = ""
+			resp(&u, isFollower)
+		}
 
 		return
 	}
 
 	// get mine info
-
-	u, err := ctl.s.GetByAccount(target)
-	if err != nil {
+	if u, err := ctl.s.GetByAccount(target); err != nil {
 		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
-
-		return
+	} else {
+		resp(&u, false)
 	}
-
-	ctx.JSON(http.StatusOK, newResponseData(u))
 }
