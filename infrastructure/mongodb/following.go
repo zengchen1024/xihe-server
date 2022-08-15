@@ -78,9 +78,9 @@ func (col user) listFollowing(accounts []string) ([]repositories.UserInfoDO, err
 		return cli.getDocs(
 			ctx, col.collectionName, filter,
 			bson.M{
+				fieldBio:      1,
 				fieldName:     1,
 				fieldAvatarId: 1,
-				fieldBio:      1,
 			}, &v,
 		)
 	}
@@ -98,9 +98,9 @@ func (col user) listFollowing(accounts []string) ([]repositories.UserInfoDO, err
 		item := &v[i]
 
 		r[i] = repositories.UserInfoDO{
+			Bio:      item.Bio,
 			Account:  item.Name,
 			AvatarId: item.AvatarId,
-			Bio:      item.Bio,
 		}
 	}
 

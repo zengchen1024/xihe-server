@@ -109,7 +109,7 @@ func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
 // @Success 200 {object} app.FollowDTO
 // @Failure 500 system_error        system error
 // @Router /v1/user/following [get]
-func (ctl *UserController) List(ctx *gin.Context) {
+func (ctl *UserController) ListFollowing(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return

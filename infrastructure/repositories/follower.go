@@ -15,11 +15,9 @@ func (impl user) GetByFollower(owner, follower domain.Account) (
 	do, isFollower, err := impl.mapper.GetByFollower(owner.Account(), account)
 	if err != nil {
 		err = convertError(err)
-
-		return
+	} else {
+		err = do.toUser(&u)
 	}
-
-	err = do.toUser(&u)
 
 	return
 }

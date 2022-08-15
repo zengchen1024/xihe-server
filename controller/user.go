@@ -29,6 +29,8 @@ func AddRouterForUserController(
 	rg.GET("/v1/user", pc.Get)
 
 	rg.POST("/v1/user/following", pc.AddFollowing)
+	rg.DELETE("/v1/user/following/:account", pc.RemoveFollowing)
+	rg.GET("/v1/user/following/", pc.ListFollowing)
 }
 
 type UserController struct {
