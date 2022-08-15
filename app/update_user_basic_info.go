@@ -23,8 +23,8 @@ func (cmd *UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
 	return
 }
 
-func (s userService) UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error {
-	user, err := s.repo.Get(userId)
+func (s userService) UpdateBasicInfo(account domain.Account, cmd UpdateUserBasicInfoCmd) error {
+	user, err := s.repo.GetByAccount(account)
 	if err != nil {
 		return err
 	}

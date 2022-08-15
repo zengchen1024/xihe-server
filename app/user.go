@@ -47,6 +47,9 @@ type UserDTO struct {
 	Bio      string `json:"bio"`
 	AvatarId string `json:"avatar_id"`
 
+	FollowerCount  int `json:"follower_count"`
+	FollowingCount int `json:"following_count"`
+
 	Platform struct {
 		UserId      string
 		Token       string
@@ -56,9 +59,14 @@ type UserDTO struct {
 
 type UserService interface {
 	Create(*UserCreateCmd) (UserDTO, error)
-	Get(string) (UserDTO, error)
+	UpdateBasicInfo(domain.Account, UpdateUserBasicInfoCmd) error
+
 	GetByAccount(domain.Account) (UserDTO, error)
-	UpdateBasicInfo(userId string, cmd UpdateUserBasicInfoCmd) error
+	GetByFollower(owner, follower domain.Account) (UserDTO, bool, error)
+
+	AddFollowing(owner, following domain.Account) error
+	RemoveFollowing(owner, following domain.Account) error
+	ListFollowing(owner domain.Account) (dtos []FollowDTO, err error)
 }
 
 // ps: platform user service
@@ -116,8 +124,8 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 	return
 }
 
-func (s userService) Get(userId string) (dto UserDTO, err error) {
-	v, err := s.repo.Get(userId)
+func (s userService) GetByAccount(account domain.Account) (dto UserDTO, err error) {
+	v, err := s.repo.GetByAccount(account)
 	if err != nil {
 		return
 	}
@@ -127,8 +135,10 @@ func (s userService) Get(userId string) (dto UserDTO, err error) {
 	return
 }
 
-func (s userService) GetByAccount(account domain.Account) (dto UserDTO, err error) {
-	v, err := s.repo.GetByAccount(account)
+func (s userService) GetByFollower(owner, follower domain.Account) (
+	dto UserDTO, isFollower bool, err error,
+) {
+	v, isFollower, err := s.repo.GetByFollower(owner, follower)
 	if err != nil {
 		return
 	}
@@ -152,6 +162,9 @@ func (s userService) toUserDTO(u *domain.User, dto *UserDTO) {
 	if u.AvatarId != nil {
 		dto.AvatarId = u.AvatarId.AvatarId()
 	}
+
+	dto.FollowerCount = u.FollowerCount
+	dto.FollowingCount = u.FollowingCount
 
 	dto.Platform.Token = u.PlatformToken
 	dto.Platform.UserId = u.PlatformUser.Id

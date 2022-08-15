@@ -178,6 +178,72 @@ func (cli *client) getDoc(
 	return nil
 }
 
+func (cli *client) getDocs(
+	ctx context.Context, collection string,
+	filterOfDoc, project bson.M, result interface{},
+) error {
+	col := cli.collection(collection)
+
+	var cursor *mongo.Cursor
+	var err error
+	if len(project) > 0 {
+		cursor, err = col.Find(ctx, filterOfDoc, &options.FindOptions{
+			Projection: project,
+		})
+	} else {
+		cursor, err = col.Find(ctx, filterOfDoc)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return cursor.All(ctx, result)
+}
+
+func (cli *client) addToSimpleArray(
+	ctx context.Context, collection, array string,
+	filterOfDoc, value interface{},
+) error {
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{"$addToSet": bson.M{array: value}},
+	)
+	if err != nil {
+		return dbError{err}
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	if r.ModifiedCount == 0 {
+		return errDocExists
+	}
+
+	return nil
+}
+
+func (cli *client) removeFromSimpleArray(
+	ctx context.Context,
+	collection, array string,
+	filterOfDoc, value interface{},
+) error {
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{"$pull": bson.M{array: value}},
+	)
+	if err != nil {
+		return dbError{err}
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	return nil
+}
+
 func (cli *client) pushArrayElem(
 	ctx context.Context,
 	collection, array string,

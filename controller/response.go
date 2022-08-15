@@ -14,6 +14,12 @@ const (
 	errorConcurrentUpdating = "concurrent_updateing"
 )
 
+var (
+	respBadRequestBody = newResponseCodeMsg(
+		errorBadRequestBody, "can't fetch request body",
+	)
+)
+
 // responseData is the response data to client
 type responseData struct {
 	Code string      `json:"code"`

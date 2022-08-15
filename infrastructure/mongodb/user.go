@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -35,6 +36,8 @@ func (col user) Insert(do repositories.UserDO) (identity string, err error) {
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldFollower] = bson.A{}
+	doc[fieldFollowing] = bson.A{}
 
 	f := func(ctx context.Context) error {
 		v, err := cli.newDocIfNotExist(
@@ -79,38 +82,64 @@ func (col user) Update(do repositories.UserDO) (err error) {
 	return
 }
 
-func (col user) Get(uid string) (do repositories.UserDO, err error) {
-	v, err := objectIdFilter(uid)
-	if err != nil {
-		return
-	}
-
-	return col.get(v)
-}
-
 func (col user) GetByAccount(account string) (do repositories.UserDO, err error) {
-	return col.get(bson.M{fieldName: account})
+	do, _, err = col.GetByFollower(account, "")
+
+	return
 }
 
-func (col user) get(filter bson.M) (do repositories.UserDO, err error) {
-	var v dUser
+func (col user) GetByFollower(account, follower string) (
+	do repositories.UserDO, isFollower bool, err error,
+) {
+	var v []dUser
 
 	f := func(ctx context.Context) error {
-		return cli.getDoc(
-			ctx, col.collectionName, filter, nil, &v,
-		)
+		fields := bson.M{
+			fieldFollowerCount:  bson.M{"$size": "$" + fieldFollower},
+			fieldFollowingCount: bson.M{"$size": "$" + fieldFollowing},
+		}
+
+		if follower != "" {
+			fields[fieldIsFollower] = bson.M{
+				"$in": bson.A{follower, "$" + fieldFollower},
+			}
+		}
+
+		pipeline := bson.A{
+			bson.M{"$match": userDocFilterByAccount(account)},
+			bson.M{"$addFields": fields},
+			bson.M{"$project": bson.M{
+				fieldFollowing: 0,
+				fieldFollower:  0,
+			}},
+		}
+
+		cursor, err := cli.collection(col.collectionName).Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
 	}
 
-	err = withContext(f)
+	if err = withContext(f); err != nil {
+		return
+	}
 
-	if err == nil {
-		col.toUserDO(&v, &do)
+	if len(v) == 0 {
+		err = repositories.NewErrorDataNotExists(errors.New("no user"))
 
 		return
 	}
 
-	if isDocNotExists(err) {
-		err = repositories.NewErrorDataNotExists(err)
+	item := &v[0]
+	col.toUserDO(item, &do)
+
+	do.FollowerCount = item.FollowerCount
+	do.FollowingCount = item.FollowingCount
+
+	if follower != "" {
+		isFollower = item.IsFollower
 	}
 
 	return

@@ -27,6 +27,10 @@ func AddRouterForUserController(
 	// rg.POST("/v1/user", pc.Create)
 	rg.PUT("/v1/user", pc.Update)
 	rg.GET("/v1/user", pc.Get)
+
+	rg.POST("/v1/user/following", pc.AddFollowing)
+	rg.DELETE("/v1/user/following/:account", pc.RemoveFollowing)
+	rg.GET("/v1/user/following", pc.ListFollowing)
 }
 
 type UserController struct {
@@ -144,7 +148,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := uc.s.UpdateBasicInfo("", cmd); err != nil {
+	if err := uc.s.UpdateBasicInfo(nil, cmd); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
@@ -179,29 +183,54 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		target = v
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, true, target)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
+
+	resp := func(u *app.UserDTO, isFollower bool) {
+		ctx.JSON(http.StatusOK, newResponseData(struct {
+			*app.UserDTO
+			IsFollower bool `json:"is_follower"`
+		}{
+			UserDTO:    u,
+			IsFollower: isFollower,
+		}))
+	}
+
 	if visitor {
 		if target == nil {
 			ctx.JSON(http.StatusOK, newResponseData(nil))
 			return
 		}
-	} else {
-		target = pl.DomainAccount()
-	}
 
-	u, err := ctl.s.GetByAccount(target)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		// get by empty follower
+		if u, _, err := ctl.s.GetByFollower(target, nil); err != nil {
+			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		} else {
+			u.Email = ""
+			resp(&u, false)
+		}
 
 		return
 	}
 
-	if visitor {
-		u.Email = ""
+	if target != nil && pl.isNotMe(target) {
+		// get by follower, and pl.Account is follower
+		if u, isFollower, err := ctl.s.GetByFollower(target, pl.DomainAccount()); err != nil {
+			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		} else {
+			u.Email = ""
+			resp(&u, isFollower)
+		}
+
+		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(u))
+	// get mine info
+	if u, err := ctl.s.GetByAccount(pl.DomainAccount()); err != nil {
+		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+	} else {
+		resp(&u, false)
+	}
 }

@@ -67,12 +67,12 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 		return
 	}
 
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, false, cmd.Owner)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	if visitor {
+	if pl.isNotMe(cmd.Owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed,
 			"can't create model for other user",
@@ -112,7 +112,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
@@ -124,7 +124,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	if visitor && m.RepoType != domain.RepoTypePublic {
+	if (visitor || pl.isNotMe(owner)) && m.RepoType != domain.RepoTypePublic {
 		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 			errorResourceNotExists,
 			"can't access private model",
@@ -150,7 +150,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 		return
 	}
 
-	_, visitor, ok := ctl.checkUserApiToken(ctx, true, owner)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
@@ -164,7 +164,7 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 		return
 	}
 
-	if visitor {
+	if visitor || pl.isNotMe(owner) {
 		if cmd.RepoType == nil {
 			cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
 		} else {

@@ -111,6 +111,7 @@ func logRequest() gin.HandlerFunc {
 
 		endTime := time.Now()
 
+		// TODO: 500 error
 		logrus.Infof(
 			"| %d | %d | %s | %s |",
 			c.Writer.Status(),

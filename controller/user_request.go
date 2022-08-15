@@ -45,3 +45,7 @@ func (req *userCreateRequest) toCmd(info authing.UserInfo) (cmd app.UserCreateCm
 
 	return
 }
+
+type followingCreateRequest struct {
+	Account string `json:"account" required:"true"`
+}

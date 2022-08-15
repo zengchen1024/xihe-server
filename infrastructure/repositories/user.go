@@ -8,8 +8,12 @@ import (
 type UserMapper interface {
 	Insert(UserDO) (string, error)
 	Update(UserDO) error
-	Get(string) (UserDO, error)
 	GetByAccount(string) (UserDO, error)
+	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
+
+	AddFollowing(owner, account string) error
+	RemoveFollowing(owner, account string) error
+	ListFollowing(string) ([]UserInfoDO, error)
 }
 
 // TODO: mapper can be mysql
@@ -21,28 +25,13 @@ type user struct {
 	mapper UserMapper
 }
 
-func (impl user) Get(uid string) (r domain.User, err error) {
-	do, err := impl.mapper.Get(uid)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	err = do.toUser(&r)
-
-	return
-}
-
 func (impl user) GetByAccount(account domain.Account) (r domain.User, err error) {
 	do, err := impl.mapper.GetByAccount(account.Account())
 	if err != nil {
 		err = convertError(err)
-
-		return
+	} else {
+		err = do.toUser(&r)
 	}
-
-	err = do.toUser(&r)
 
 	return
 }
@@ -108,6 +97,9 @@ type UserDO struct {
 		NamespaceId string
 	}
 
+	FollowerCount  int
+	FollowingCount int
+
 	Version int
 }
 
@@ -118,17 +110,20 @@ func (do *UserDO) toUser(r *domain.User) (err error) {
 		return
 	}
 
-	if r.Email, _ = domain.NewEmail(do.Email); err != nil {
+	if r.Email, err = domain.NewEmail(do.Email); err != nil {
 		return
 	}
 
-	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
+	if r.Account, err = domain.NewAccount(do.Account); err != nil {
 		return
 	}
 
-	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
+	if r.AvatarId, err = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
+
+	r.FollowerCount = do.FollowerCount
+	r.FollowingCount = do.FollowingCount
 
 	r.PlatformToken = do.Platform.Token
 	r.PlatformUser.Id = do.Platform.UserId

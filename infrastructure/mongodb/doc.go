@@ -3,14 +3,21 @@ package mongodb
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
-	fieldId       = "id"
-	fieldName     = "name"
-	fieldItems    = "items"
-	fieldOwner    = "owner"
-	fieldEmail    = "email"
-	fieldVersion  = "version"
-	fieldRepoType = "repo_type"
-	fieldAccount  = "account"
+	fieldId             = "id"
+	fieldBio            = "bio"
+	fieldName           = "name"
+	fieldItems          = "items"
+	fieldOwner          = "owner"
+	fieldEmail          = "email"
+	fieldAccount        = "account"
+	fieldVersion        = "version"
+	fieldRepoType       = "repo_type"
+	fieldAvatarId       = "avatar_id"
+	fieldFollower       = "follower"
+	fieldFollowing      = "following"
+	fieldIsFollower     = "is_follower"
+	fieldFollowerCount  = "follower_count"
+	fieldFollowingCount = "following_count"
 )
 
 type dProject struct {
@@ -75,9 +82,18 @@ type dUser struct {
 	PlatformUserId          string `bson:"uid"        json:"uid"`
 	PlatformUserNamespaceId string `bson:"nid"        json:"nid"`
 
+	Follower  []string `bson:"follower"   json:"-"`
+	Following []string `bson:"following"  json:"-"`
+
 	// Version will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version int `bson:"version"    json:"-"`
+
+	// These 3 items are not the property of User
+	// There are used to store the value when unmarshaling in method of GetByFollower
+	IsFollower     bool `bson:"is_follower"       json:"-"`
+	FollowerCount  int  `bson:"follower_count"    json:"-"`
+	FollowingCount int  `bson:"following_count"   json:"-"`
 }
 
 type dLogin struct {
