@@ -9,7 +9,7 @@ import (
 )
 
 type handler struct {
-	msxRetry int
+	maxRetry int
 	user     app.UserService
 }
 
@@ -34,7 +34,7 @@ func (h *handler) HandleEventRemoveFollowing(f domain.Following) (err error) {
 }
 
 func (h *handler) do(f func() error) (err error) {
-	for i := 0; i < h.msxRetry; i++ {
+	for i := 0; i < h.maxRetry; i++ {
 		if err = f(); err == nil {
 			return
 		}

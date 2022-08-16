@@ -101,6 +101,7 @@ func initDomainConfig(cfg *config.Config) {
 
 func run(cfg *config.Config, log *logrus.Entry) {
 	h := handler{
+		maxRetry: cfg.MaxRetry,
 		user: app.NewUserService(
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
