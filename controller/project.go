@@ -87,7 +87,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 
 	d, err := s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -142,7 +142,7 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 
 	d, err := ctl.s.Update(&proj, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -174,7 +174,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 
 	proj, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -233,7 +233,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 
 	projs, err := ctl.s.List(owner, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -289,7 +289,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 
 	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -310,7 +310,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		Owner: pl.DomainAccount(),
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}

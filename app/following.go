@@ -12,33 +12,33 @@ type FollowDTO struct {
 }
 
 func (s userService) AddFollowing(owner, following domain.Account) error {
-	err := s.repo.AddFollowing(&domain.Following{
+	f := domain.Following{
 		Owner:   owner,
 		Account: following,
-	})
+	}
+	err := s.repo.AddFollowing(&f)
 	if err != nil {
 		return err
 	}
 
 	// TODO: activity
 
-	// TODO: event
-
-	return nil
+	// send event
+	return s.sender.AddFollowing(f)
 }
 
 func (s userService) RemoveFollowing(owner, following domain.Account) error {
-	err := s.repo.RemoveFollowing(&domain.Following{
+	f := domain.Following{
 		Owner:   owner,
 		Account: following,
-	})
+	}
+	err := s.repo.RemoveFollowing(&f)
 	if err != nil {
 		return err
 	}
 
-	// TODO: event
-
-	return nil
+	// send event
+	return s.sender.RemoveFollowing(f)
 }
 
 func (s userService) ListFollowing(owner domain.Account) (

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -74,16 +75,18 @@ type UserService interface {
 }
 
 // ps: platform user service
-func NewUserService(repo repository.User, ps platform.User) UserService {
+func NewUserService(repo repository.User, ps platform.User, sender message.Sender) UserService {
 	return userService{
-		repo: repo,
-		ps:   ps,
+		ps:     ps,
+		repo:   repo,
+		sender: sender,
 	}
 }
 
 type userService struct {
-	ps   platform.User
-	repo repository.User
+	ps     platform.User
+	repo   repository.User
+	sender message.Sender
 }
 
 func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {

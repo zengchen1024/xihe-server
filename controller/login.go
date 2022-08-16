@@ -43,7 +43,7 @@ func AddRouterForLoginController(
 ) {
 	pc := LoginController{
 		auth: auth,
-		us:   app.NewUserService(repo, ps),
+		us:   app.NewUserService(repo, ps, nil),
 		ls:   app.NewLoginService(login),
 	}
 
@@ -74,7 +74,7 @@ type LoginController struct {
 func (ctl *LoginController) Login(ctx *gin.Context) {
 	info, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
 			errorSystemError, err,
 		))
 
@@ -84,7 +84,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 	user, err := ctl.us.GetByAccount(info.Name)
 	if err != nil {
 		if d := newResponseError(err); d.Code != errorResourceNotExists {
-			ctx.JSON(http.StatusInternalServerError, d)
+			ctl.sendRespWithInternalError(ctx, d)
 
 			return
 		}
@@ -107,9 +107,8 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 
 	token, err := ctl.newApiToken(ctx, payload)
 	if err != nil {
-		ctx.JSON(
-			http.StatusInternalServerError,
-			newResponseCodeError(errorSystemError, err),
+		ctl.sendRespWithInternalError(
+			ctx, newResponseCodeError(errorSystemError, err),
 		)
 
 		return
@@ -122,7 +121,7 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 func (ctl *LoginController) newLogin(ctx *gin.Context, info authing.Login) (err error) {
 	token, err := ctl.encryptData(info.IDToken)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
 			errorSystemError, err,
 		))
 
@@ -134,7 +133,7 @@ func (ctl *LoginController) newLogin(ctx *gin.Context, info authing.Login) (err 
 		Info:    token,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	}
 
 	return
@@ -150,7 +149,7 @@ func (ctl *LoginController) newUser(ctx *gin.Context, info authing.Login) (user 
 	}
 
 	if user, err = ctl.us.Create(&cmd); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	}
 
 	return
@@ -192,14 +191,14 @@ func (ctl *LoginController) Logout(ctx *gin.Context) {
 
 	info, err := ctl.ls.Get(account)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
 
 	v, err := ctl.decryptData(info.Info)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
 			errorSystemError, err,
 		))
 

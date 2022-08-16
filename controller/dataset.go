@@ -87,7 +87,7 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 
 	d, err := s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -119,7 +119,7 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 
 	m, err := ctl.s.Get(owner, ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -178,7 +178,7 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 
 	data, err := ctl.s.List(owner, &cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}

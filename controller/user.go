@@ -8,6 +8,7 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -17,11 +18,12 @@ func AddRouterForUserController(
 	repo repository.User,
 	ps platform.User,
 	auth authing.User,
+	sender message.Sender,
 ) {
 	pc := UserController{
 		auth: auth,
 		repo: repo,
-		s:    app.NewUserService(repo, ps),
+		s:    app.NewUserService(repo, ps, sender),
 	}
 
 	// rg.POST("/v1/user", pc.Create)
@@ -60,7 +62,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 
 	info, err := ctl.auth.GetByAccessToken(pl.AccessToken)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseCodeError(
+		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
 			errorSystemError, err,
 		))
 
@@ -97,7 +99,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 
 	d, err := ctl.s.Create(&cmd)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
@@ -109,9 +111,8 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		PlatformUserNamespaceId: d.Platform.NamespaceId,
 	})
 	if err != nil {
-		ctx.JSON(
-			http.StatusInternalServerError,
-			newResponseCodeError(errorSystemError, err),
+		ctl.sendRespWithInternalError(
+			ctx, newResponseCodeError(errorSystemError, err),
 		)
 
 		return
@@ -206,7 +207,7 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 
 		// get by empty follower
 		if u, _, err := ctl.s.GetByFollower(target, nil); err != nil {
-			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
 		} else {
 			u.Email = ""
 			resp(&u, false)
@@ -218,7 +219,7 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 	if target != nil && pl.isNotMe(target) {
 		// get by follower, and pl.Account is follower
 		if u, isFollower, err := ctl.s.GetByFollower(target, pl.DomainAccount()); err != nil {
-			ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
 		} else {
 			u.Email = ""
 			resp(&u, isFollower)
@@ -229,7 +230,7 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 
 	// get mine info
 	if u, err := ctl.s.GetByAccount(pl.DomainAccount()); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		resp(&u, false)
 	}

@@ -51,13 +51,13 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 	}
 
 	if _, err = ctl.repo.GetByAccount(following); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
 
 	if err := ctl.s.AddFollowing(pl.DomainAccount(), following); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData("success"))
 	}
@@ -96,7 +96,7 @@ func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
 	}
 
 	if err := ctl.s.RemoveFollowing(pl.DomainAccount(), following); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusNoContent, newResponseData("success"))
 	}
@@ -118,7 +118,7 @@ func (ctl *UserController) ListFollowing(ctx *gin.Context) {
 	// TODO: list by page
 
 	if data, err := ctl.s.ListFollowing(pl.DomainAccount()); err != nil {
-		ctx.JSON(http.StatusInternalServerError, newResponseError(err))
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))
 	}

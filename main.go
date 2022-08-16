@@ -14,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
+	"github.com/opensourceways/xihe-server/infrastructure/message"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/server"
 )
@@ -37,6 +38,7 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 
 func main() {
 	logrusutil.ComponentInit("xihe")
+	log := logrus.NewEntry(logrus.StandardLogger())
 
 	o := gatherOptions(
 		flag.NewFlagSet(os.Args[0], flag.ExitOnError),
@@ -46,26 +48,38 @@ func main() {
 		logrus.Fatalf("Invalid options, err:%s", err.Error())
 	}
 
+	// cfg
 	cfg, err := config.LoadConfig(o.service.ConfigFile)
 	if err != nil {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
+	// gitlab
 	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
 	}
 
+	// authing
 	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
+	// controller
 	apiConfig := controller.APIConfig{
 		EncryptionKey:  cfg.EncryptionKey,
 		APITokenKey:    cfg.API.APITokenKey,
 		APITokenExpiry: cfg.API.APITokenExpiry,
 	}
-	if err := controller.Init(apiConfig); err != nil {
+	if err := controller.Init(apiConfig, log); err != nil {
 		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
 	}
 
+	// mq
+	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
+		log.Fatalf("initialize mq failed, err:%v", err)
+	}
+
+	defer message.Exit(log)
+
+	// mongo
 	m := &cfg.Mongodb
 	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
 		logrus.Fatalf("initialize mongodb failed, err:%s", err.Error())
@@ -73,8 +87,10 @@ func main() {
 
 	defer mongodb.Close()
 
+	// cfg
 	initDomainConfig(cfg)
 
+	// run
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
 }
 

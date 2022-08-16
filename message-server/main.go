@@ -4,10 +4,8 @@ import (
 	"context"
 	"flag"
 	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 
+	"github.com/opensourceways/community-robot-lib/interrupts"
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/sirupsen/logrus"
@@ -16,8 +14,8 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/message"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
-	"github.com/opensourceways/xihe-server/infrastructure/mq"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
@@ -49,20 +47,22 @@ func main() {
 		logrus.Fatalf("Invalid options, err:%s", err.Error())
 	}
 
+	// cfg
 	cfg, err := config.LoadConfig(o.service.ConfigFile)
 	if err != nil {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
-	// TODO verify log
+	// mq
 	log := logrus.NewEntry(logrus.StandardLogger())
 
-	if err := mq.Init(nil, log); err != nil {
+	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
-	defer mq.Exit(log)
+	defer message.Exit(log)
 
+	// mongo
 	m := &cfg.Mongodb
 	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
 		logrus.Fatalf("initialize mongodb failed, err:%s", err.Error())
@@ -70,8 +70,10 @@ func main() {
 
 	defer mongodb.Close()
 
+	// cfg
 	initDomainConfig(cfg)
 
+	// run
 	run(cfg, log)
 }
 
@@ -104,36 +106,15 @@ func run(cfg *config.Config, log *logrus.Entry) {
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
-			nil,
+			nil, nil,
 		),
 	}
 
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	defer interrupts.WaitForGracefulShutdown()
 
-	var wg sync.WaitGroup
-	defer wg.Wait()
-
-	ctx, done := context.WithCancel(context.Background())
-	// it seems that it will be ok even if invoking 'done' twice.
-	defer done()
-
-	wg.Add(1)
-	go func(ctx context.Context) {
-		defer wg.Done()
-
-		select {
-		case <-ctx.Done():
-			logrus.Info("receive done. exit normally")
-			return
-		case <-sig:
-			logrus.Info("receive exit signal")
-			done()
-			return
+	interrupts.Run(func(ctx context.Context) {
+		if err := message.Subscribe(ctx, h, log); err != nil {
+			log.Errorf("subscribe failed, err:%v", err)
 		}
-	}(ctx)
-
-	if err := mq.Subscribe(ctx, h, log); err != nil {
-		log.Errorf("subscribe failed, err:%v", err)
-	}
+	})
 }

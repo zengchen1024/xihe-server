@@ -1,4 +1,4 @@
-package mq
+package message
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/domain"
-	domainmq "github.com/opensourceways/xihe-server/domain/mq"
+	"github.com/opensourceways/xihe-server/domain/message"
 )
 
 func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) error {
@@ -23,7 +23,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		}
 	}()
 
-	if h, ok := handler.(domainmq.FollowingHandler); ok {
+	if h, ok := handler.(message.FollowingHandler); ok {
 		s, err := registerFollowingHandler(h)
 		if err != nil {
 			return err
@@ -41,7 +41,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	return nil
 }
 
-func registerFollowingHandler(h domainmq.FollowingHandler) (libmq.Subscriber, error) {
+func registerFollowingHandler(h message.FollowingHandler) (libmq.Subscriber, error) {
 	return kafka.Subscribe(topicFollowing, func(e libmq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
