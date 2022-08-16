@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
+
 	"github.com/huaweicloud/golangsdk"
+	"github.com/opensourceways/community-robot-lib/mq"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
@@ -26,6 +29,7 @@ func LoadConfig(path string) (*Config, error) {
 type Config struct {
 	DefaultPassword string `json:"default_password" required:"true"`
 	EncryptionKey   string `json:"encryption_key" required:"true"`
+	MaxRetry        int    `json:"max_retry"`
 
 	Authing  AuthingService `json:"authing_service" required:"true"`
 	Resource Resource       `json:"resource" required:"true"`
@@ -33,11 +37,16 @@ type Config struct {
 	Gitlab   Gitlab         `json:"gitlab" required:"true"`
 	API      API            `json:"api" required:"true"`
 	User     User           `json:"user"`
+	MQ       mq.MQConfig    `json:"mq" required:"true"`
 }
 
 func (cfg *Config) setDefault() {
 	cfg.Resource.setdefault()
 	cfg.User.setDefault()
+
+	if cfg.MaxRetry <= 0 {
+		cfg.MaxRetry = 10
+	}
 }
 
 func (cfg *Config) validate() error {
@@ -46,6 +55,10 @@ func (cfg *Config) validate() error {
 	}
 
 	_, err := domain.NewPassword(cfg.DefaultPassword)
+
+	if len(cfg.MQ.Addresses) == 0 {
+		return errors.New("missing mq.address")
+	}
 
 	return err
 }

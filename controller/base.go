@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -20,9 +22,11 @@ const (
 var (
 	apiConfig     APIConfig
 	encryptHelper utils.SymmetricEncryption
+	log           *logrus.Entry
 )
 
-func Init(cfg APIConfig) error {
+func Init(cfg APIConfig, l *logrus.Entry) error {
+	log = l
 	apiConfig = cfg
 
 	e, err := utils.NewSymmetricEncryption(cfg.EncryptionKey, "")
@@ -204,4 +208,10 @@ func (ctl baseController) decryptData(s string) ([]byte, error) {
 
 func (ctl baseController) getQueryParameter(ctx *gin.Context, key string) string {
 	return ctx.Request.URL.Query().Get(key)
+}
+
+func (ctl baseController) sendRespWithInternalError(ctx *gin.Context, data responseData) {
+	log.Errorf("code: %s, err: %s", data.Code, data.Msg)
+
+	ctx.JSON(http.StatusInternalServerError, data)
 }

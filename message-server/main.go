@@ -1,22 +1,22 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
+	"github.com/opensourceways/community-robot-lib/interrupts"
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/sets"
 
+	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
-	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/infrastructure/authing"
-	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/message"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
-	"github.com/opensourceways/xihe-server/server"
+	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 type options struct {
@@ -54,24 +54,6 @@ func main() {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
-	// gitlab
-	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
-		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
-	}
-
-	// authing
-	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
-
-	// controller
-	apiConfig := controller.APIConfig{
-		EncryptionKey:  cfg.EncryptionKey,
-		APITokenKey:    cfg.API.APITokenKey,
-		APITokenExpiry: cfg.API.APITokenExpiry,
-	}
-	if err := controller.Init(apiConfig, log); err != nil {
-		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
-	}
-
 	// mq
 	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
@@ -91,7 +73,7 @@ func main() {
 	initDomainConfig(cfg)
 
 	// run
-	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
+	run(cfg, log)
 }
 
 func initDomainConfig(cfg *config.Config) {
@@ -114,5 +96,25 @@ func initDomainConfig(cfg *config.Config) {
 			MaxNicknameLength: u.MaxNicknameLength,
 			MaxBioLength:      u.MaxBioLength,
 		},
+	})
+}
+
+func run(cfg *config.Config, log *logrus.Entry) {
+	h := handler{
+		maxRetry: cfg.MaxRetry,
+		user: app.NewUserService(
+			repositories.NewUserRepository(
+				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+			),
+			nil, nil,
+		),
+	}
+
+	defer interrupts.WaitForGracefulShutdown()
+
+	interrupts.Run(func(ctx context.Context) {
+		if err := message.Subscribe(ctx, h, log); err != nil {
+			log.Errorf("subscribe failed, err:%v", err)
+		}
 	})
 }

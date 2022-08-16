@@ -20,6 +20,15 @@ definitions:
           type: string
         type: array
     type: object
+  app.FollowDTO:
+    properties:
+      account:
+        type: string
+      avatar_id:
+        type: string
+      bio:
+        type: string
+    type: object
   app.LoginDTO:
     properties:
       info:
@@ -56,6 +65,10 @@ definitions:
         type: string
       email:
         type: string
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
       id:
         type: string
     type: object
@@ -70,6 +83,11 @@ definitions:
       protocol:
         type: string
       repo_type:
+        type: string
+    type: object
+  controller.followingCreateRequest:
+    properties:
+      account:
         type: string
     type: object
   controller.modelCreateRequest:
@@ -453,4 +471,104 @@ paths:
       summary: Update
       tags:
       - User
+  /v1/user/follower:
+    get:
+      consumes:
+      - application/json
+      description: list followers
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FollowDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Follower
+  /v1/user/following:
+    get:
+      consumes:
+      - application/json
+      description: list followings
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FollowDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Following
+    post:
+      consumes:
+      - application/json
+      description: add a following
+      parameters:
+      - description: body of creating following
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.followingCreateRequest'
+      responses:
+        "201":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "402":
+          description: Payment Required
+          schema:
+            type: not_allowed
+        "403":
+          description: Forbidden
+          schema:
+            type: resource_not_exists
+        "404":
+          description: Not Found
+          schema:
+            type: duplicate_creating
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Following
+  /v1/user/following/{account}:
+    delete:
+      consumes:
+      - application/json
+      description: remove a following
+      parameters:
+      - description: the account of following
+        in: path
+        name: account
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "401":
+          description: Unauthorized
+          schema:
+            type: not_allowed
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Following
 swagger: "2.0"

@@ -16,9 +16,7 @@ type User interface {
 	RemoveFollowing(*domain.Following) error
 	FindFollowing(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 
-	/*
-		AddFollower(*domain.Follower) error
-		RemoveFollower(*domain.Follower) error
-		FindFollower(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
-	*/
+	AddFollower(*domain.Follower) error
+	RemoveFollower(*domain.Follower) error
+	FindFollower(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 }

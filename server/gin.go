@@ -17,6 +17,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
+	"github.com/opensourceways/xihe-server/infrastructure/message"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
@@ -84,6 +85,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			),
 			gitlab.NewUserSerivce(),
 			authing.NewAuthingUser(),
+			message.NewMessageSender(),
 		)
 
 		controller.AddRouterForLoginController(
@@ -111,7 +113,6 @@ func logRequest() gin.HandlerFunc {
 
 		endTime := time.Now()
 
-		// TODO: 500 error
 		logrus.Infof(
 			"| %d | %d | %s | %s |",
 			c.Writer.Status(),

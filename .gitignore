@@ -5,6 +5,7 @@
 *.so
 *.dylib
 xihe-server
+message-server
 test
 
 # Test binary, built with `go test -c`
