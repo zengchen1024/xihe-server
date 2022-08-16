@@ -471,6 +471,22 @@ paths:
       summary: Update
       tags:
       - User
+  /v1/user/follower:
+    get:
+      consumes:
+      - application/json
+      description: list followers
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FollowDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Follower
   /v1/user/following:
     get:
       consumes:

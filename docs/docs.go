@@ -456,6 +456,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/follower": {
+            "get": {
+                "description": "list followers",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Follower"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.FollowDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/following": {
             "get": {
                 "description": "list followings",
