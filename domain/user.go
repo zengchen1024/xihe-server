@@ -37,3 +37,8 @@ type FollowUserInfo struct {
 	AvatarId AvatarId
 	Bio      Bio
 }
+
+type UserInfo struct {
+	Account  Account
+	AvatarId AvatarId
+}

@@ -72,6 +72,7 @@ func (r repoType) RepoType() string {
 // Name
 type ResourceName interface {
 	ResourceName() string
+	ResourceType() ResourceType
 }
 
 // ResourceName
@@ -100,6 +101,10 @@ func (r projName) ResourceName() string {
 	return string(r)
 }
 
+func (r projName) ResourceType() ResourceType {
+	return resourceType(ResourceProject)
+}
+
 type ModelName interface {
 	ModelName() string
 
@@ -122,6 +127,10 @@ func (r modelName) ModelName() string {
 
 func (r modelName) ResourceName() string {
 	return string(r)
+}
+
+func (r modelName) ResourceType() ResourceType {
+	return resourceType(ResourceModel)
 }
 
 type DatasetName interface {
@@ -148,6 +157,10 @@ func (r datasetName) ResourceName() string {
 	return string(r)
 }
 
+func (r datasetName) ResourceType() ResourceType {
+	return resourceType(ResourceDataset)
+}
+
 func checkResourceName(v, prefix string) error {
 	max := config.Resource.MaxNameLength
 	min := config.Resource.MinNameLength
@@ -165,6 +178,28 @@ func checkResourceName(v, prefix string) error {
 	}
 
 	return nil
+}
+
+// ResourceType
+type ResourceType interface {
+	ResourceType() string
+}
+
+func NewResourceType(v string) (ResourceType, error) {
+	b := v == ResourceProject ||
+		v == ResourceModel ||
+		v == ResourceDataset
+	if b {
+		return resourceType(v), nil
+	}
+
+	return nil, errors.New("invalid resource type")
+}
+
+type resourceType string
+
+func (r resourceType) ResourceType() string {
+	return string(r)
 }
 
 // ProjDesc

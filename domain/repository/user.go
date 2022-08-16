@@ -4,6 +4,10 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type UserFindOption struct {
+	Names []domain.Account
+}
+
 type FollowFindOption struct {
 }
 
@@ -11,6 +15,7 @@ type User interface {
 	Save(*domain.User) (domain.User, error)
 	GetByAccount(domain.Account) (domain.User, error)
 	GetByFollower(owner, follower domain.Account) (domain.User, bool, error)
+	Find(UserFindOption) ([]domain.UserInfo, error)
 
 	AddFollowing(*domain.Following) error
 	RemoveFollowing(*domain.Following) error
