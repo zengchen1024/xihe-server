@@ -64,9 +64,9 @@ func registerFollowingHandler(h message.FollowingHandler) (libmq.Subscriber, err
 
 		switch body.Action {
 		case actionAdd:
-			return h.AddFollowing(f)
+			return h.HandleEventAddFollowing(f)
 		case actionRemove:
-			return h.RemoveFollowing(f)
+			return h.HandleEventRemoveFollowing(f)
 		}
 
 		return nil

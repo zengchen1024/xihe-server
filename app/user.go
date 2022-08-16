@@ -75,7 +75,10 @@ type UserService interface {
 }
 
 // ps: platform user service
-func NewUserService(repo repository.User, ps platform.User, sender message.Sender) UserService {
+func NewUserService(
+	repo repository.User,
+	ps platform.User, sender message.Sender,
+) UserService {
 	return userService{
 		ps:     ps,
 		repo:   repo,

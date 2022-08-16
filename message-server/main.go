@@ -38,6 +38,7 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 
 func main() {
 	logrusutil.ComponentInit("xihe")
+	log := logrus.NewEntry(logrus.StandardLogger())
 
 	o := gatherOptions(
 		flag.NewFlagSet(os.Args[0], flag.ExitOnError),
@@ -54,8 +55,6 @@ func main() {
 	}
 
 	// mq
-	log := logrus.NewEntry(logrus.StandardLogger())
-
 	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}

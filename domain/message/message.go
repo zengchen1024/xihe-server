@@ -10,6 +10,6 @@ type Sender interface {
 }
 
 type FollowingHandler interface {
-	AddFollowing(domain.Following) error
-	RemoveFollowing(msg domain.Following) error
+	HandleEventAddFollowing(domain.Following) error
+	HandleEventRemoveFollowing(msg domain.Following) error
 }
