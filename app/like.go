@@ -32,7 +32,7 @@ type LikeDTO struct {
 	Owner struct {
 		Name     string `json:"name"`
 		AvatarId string `json:"avatar_id"`
-	}
+	} `json:"owner"`
 
 	Name     string `json:"name"`
 	Desc     string `json:"description"`
@@ -99,10 +99,21 @@ func (s likeService) ListLike(owner domain.Account) (
 		return
 	}
 
-	users := map[string]domain.Account{}
-	projects := map[string]*repository.UserResourceListOption{}
-	datasets := map[string]*repository.UserResourceListOption{}
-	models := map[string]*repository.UserResourceListOption{}
+	users, projects, datasets, models := s.toOptions(v)
+
+	return s.listLike(users, projects, datasets, models, len(v))
+}
+
+func (s likeService) toOptions(v []domain.Like) (
+	users []domain.Account,
+	projects []repository.UserResourceListOption,
+	datasets []repository.UserResourceListOption,
+	models []repository.UserResourceListOption,
+) {
+	users1 := map[string]domain.Account{}
+	projects1 := map[string]*repository.UserResourceListOption{}
+	datasets1 := map[string]*repository.UserResourceListOption{}
+	models1 := map[string]*repository.UserResourceListOption{}
 
 	set := func(v *domain.Like, m map[string]*repository.UserResourceListOption) {
 		a := v.ResourceOwner.Account()
@@ -120,38 +131,20 @@ func (s likeService) ListLike(owner domain.Account) (
 		item := &v[i]
 
 		account := item.ResourceOwner.Account()
-		if _, ok := users[account]; !ok {
-			users[account] = item.ResourceOwner
+		if _, ok := users1[account]; !ok {
+			users1[account] = item.ResourceOwner
 		}
 
 		switch item.ResourceType.ResourceType() {
 		case domain.ResourceProject:
-			set(item, projects)
+			set(item, projects1)
 
 		case domain.ResourceModel:
-			set(item, models)
+			set(item, models1)
 
 		case domain.ResourceDataset:
-			set(item, datasets)
+			set(item, datasets1)
 		}
-
-	}
-
-	// TODO get user
-	opts := make([]domain.Account, 0, len(users))
-	for _, u := range users {
-		opts = append(opts, u)
-	}
-
-	allUsers, err := s.user.Find(repository.UserFindOption{Names: opts})
-	if err != nil {
-		return
-	}
-
-	userInfos := make(map[string]*domain.UserInfo)
-	for i := range allUsers {
-		item := &allUsers[i]
-		userInfos[item.Account.Account()] = item
 	}
 
 	toList := func(m map[string]*repository.UserResourceListOption) []repository.UserResourceListOption {
@@ -167,11 +160,45 @@ func (s likeService) ListLike(owner domain.Account) (
 		return r
 	}
 
-	dtos = make([]LikeDTO, len(v))
+	projects = toList(projects1)
+	datasets = toList(datasets1)
+	models = toList(models1)
+
+	users = make([]domain.Account, len(users1))
+	i := 0
+	for _, u := range users1 {
+		users[i] = u
+		i++
+	}
+
+	return
+}
+
+func (s likeService) listLike(
+	users []domain.Account,
+	projects []repository.UserResourceListOption,
+	datasets []repository.UserResourceListOption,
+	models []repository.UserResourceListOption,
+	total int,
+) (
+	dtos []LikeDTO, err error,
+) {
+	allUsers, err := s.user.FindUsers(users)
+	if err != nil {
+		return
+	}
+
+	userInfos := make(map[string]*domain.UserInfo)
+	for i := range allUsers {
+		item := &allUsers[i]
+		userInfos[item.Account.Account()] = item
+	}
+
+	dtos = make([]LikeDTO, total)
 	r := dtos
 
 	if n := len(projects); n > 0 {
-		all, err := s.project.FindUserProjects(toList(projects))
+		all, err := s.project.FindUserProjects(projects)
 		if err != nil {
 			return nil, err
 		}
@@ -181,7 +208,7 @@ func (s likeService) ListLike(owner domain.Account) (
 	}
 
 	if n := len(models); n > 0 {
-		all, err := s.model.FindUserModels(toList(models))
+		all, err := s.model.FindUserModels(models)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +218,7 @@ func (s likeService) ListLike(owner domain.Account) (
 	}
 
 	if n := len(datasets); n > 0 {
-		all, err := s.dataset.FindUserDatasets(toList(datasets))
+		all, err := s.dataset.FindUserDatasets(datasets)
 		if err != nil {
 			return nil, err
 		}
@@ -206,7 +233,6 @@ func (s likeService) projectToLikeDTO(
 	userInfos map[string]*domain.UserInfo,
 	projects []domain.Project, dtos []LikeDTO,
 ) {
-
 	for i := range projects {
 		p := &projects[i]
 
@@ -230,6 +256,8 @@ func (s likeService) projectToLikeDTO(
 			v.Owner.Name = u.Account.Account()
 			v.Owner.AvatarId = u.AvatarId.AvatarId()
 		}
+
+		dtos[i] = v
 	}
 }
 
@@ -259,6 +287,8 @@ func (s likeService) modelToLikeDTO(
 			v.Owner.Name = u.Account.Account()
 			v.Owner.AvatarId = u.AvatarId.AvatarId()
 		}
+
+		dtos[i] = v
 	}
 }
 
@@ -288,5 +318,7 @@ func (s likeService) datasetToLikeDTO(
 			v.Owner.Name = u.Account.Account()
 			v.Owner.AvatarId = u.AvatarId.AvatarId()
 		}
+
+		dtos[i] = v
 	}
 }
