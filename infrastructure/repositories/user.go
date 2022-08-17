@@ -10,14 +10,15 @@ type UserMapper interface {
 	Update(UserDO) error
 	GetByAccount(string) (UserDO, error)
 	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
+	ListUsers([]string) ([]UserInfoDO, error)
 
 	AddFollowing(owner, account string) error
 	RemoveFollowing(owner, account string) error
-	ListFollowing(string) ([]UserInfoDO, error)
+	ListFollowing(string) ([]FollowUserInfoDO, error)
 
 	AddFollower(owner, account string) error
 	RemoveFollower(owner, account string) error
-	ListFollower(string) ([]UserInfoDO, error)
+	ListFollower(string) ([]FollowUserInfoDO, error)
 }
 
 // TODO: mapper can be mysql
@@ -63,6 +64,31 @@ func (impl user) Save(u *domain.User) (r domain.User, err error) {
 	return
 }
 
+func (impl user) FindUsers(accounts []domain.Account) (r []domain.UserInfo, err error) {
+	v := make([]string, len(accounts))
+	for i := range accounts {
+		v[i] = accounts[i].Account()
+	}
+
+	d, err := impl.mapper.ListUsers(v)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r = make([]domain.UserInfo, len(d))
+	for i := range d {
+		if r[i].Account, err = domain.NewAccount(d[i].Account); err != nil {
+			return nil, err
+		}
+
+		if r[i].AvatarId, err = domain.NewAvatarId(d[i].AvatarId); err != nil {
+			return nil, err
+		}
+	}
+
+	return
+}
+
 func (impl user) toUserDO(u *domain.User) UserDO {
 	do := UserDO{
 		Id:      u.Id,
@@ -85,6 +111,11 @@ func (impl user) toUserDO(u *domain.User) UserDO {
 	do.Version = u.Version
 
 	return do
+}
+
+type UserInfoDO struct {
+	Account  string
+	AvatarId string
 }
 
 type UserDO struct {

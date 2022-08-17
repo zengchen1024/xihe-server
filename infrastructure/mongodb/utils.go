@@ -387,6 +387,10 @@ func eqCondForArrayElem(key string, value interface{}) bson.M {
 	return bson.M{"$eq": bson.A{condFieldOfArrayElem(key), value}}
 }
 
+func inCondForArrayElem(key string, value interface{}) bson.M {
+	return bson.M{"$in": bson.A{condFieldOfArrayElem(key), value}}
+}
+
 func matchCondForArrayElem(key string, value interface{}) bson.M {
 	return bson.M{
 		"$regexMatch": bson.M{

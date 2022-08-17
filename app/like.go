@@ -104,7 +104,7 @@ func (s likeService) ListLike(owner domain.Account) (
 	return s.listLike(users, projects, datasets, models, len(v))
 }
 
-func (s likeService) toOptions(v []domain.Like) (
+func (s likeService) toOptions(likes []domain.Like) (
 	users []domain.Account,
 	projects []repository.UserResourceListOption,
 	datasets []repository.UserResourceListOption,
@@ -127,8 +127,8 @@ func (s likeService) toOptions(v []domain.Like) (
 		}
 	}
 
-	for i := range v {
-		item := &v[i]
+	for i := range likes {
+		item := &likes[i]
 
 		account := item.ResourceOwner.Account()
 		if _, ok := users1[account]; !ok {

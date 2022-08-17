@@ -10,6 +10,7 @@ type ProjectMapper interface {
 	Update(ProjectDO) error
 	Get(string, string) (ProjectDO, error)
 	List(string, ProjectListDO) ([]ProjectDO, error)
+	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
 }
 
 func NewProjectRepository(mapper ProjectMapper) repository.Project {
@@ -80,6 +81,29 @@ func (impl project) List(owner domain.Account, option repository.ProjectListOpti
 	}
 
 	return
+}
+
+func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
+	[]domain.Project, error,
+) {
+	do := make(map[string][]string)
+	for i := range opts {
+		do[opts[i].Owner.Account()] = opts[i].Ids
+	}
+
+	v, err := impl.mapper.ListUsersProjects(do)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.Project, len(v))
+	for i := range v {
+		if err = v[i].toProject(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
 }
 
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {

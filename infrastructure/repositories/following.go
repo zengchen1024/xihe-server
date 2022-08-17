@@ -51,22 +51,22 @@ func (impl user) FindFollowing(owner domain.Account, option repository.FollowFin
 	return r, nil
 }
 
-type UserInfoDO struct {
+type FollowUserInfoDO struct {
 	Account  string
 	AvatarId string
 	Bio      string
 }
 
-func (do *UserInfoDO) toFollowUserInfo(r *domain.FollowUserInfo) (err error) {
+func (do *FollowUserInfoDO) toFollowUserInfo(r *domain.FollowUserInfo) (err error) {
 	if r.Bio, err = domain.NewBio(do.Bio); err != nil {
 		return
 	}
 
-	if r.Account, _ = domain.NewAccount(do.Account); err != nil {
+	if r.Account, err = domain.NewAccount(do.Account); err != nil {
 		return
 	}
 
-	if r.AvatarId, _ = domain.NewAvatarId(do.AvatarId); err != nil {
+	if r.AvatarId, err = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
 

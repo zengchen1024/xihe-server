@@ -206,6 +206,29 @@ func (col dataset) List(owner string, do repositories.DatasetListDO) (
 	return
 }
 
+func (col dataset) ListUsersDatasets(opts map[string][]string) (
+	r []repositories.DatasetDO, err error,
+) {
+	var v []dDataset
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.DatasetDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toDatasetDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 	docObj := datasetItem{
 		Id:       do.Id,

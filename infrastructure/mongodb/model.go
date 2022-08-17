@@ -206,6 +206,29 @@ func (col model) List(owner string, do repositories.ModelListDO) (
 	return
 }
 
+func (col model) ListUsersModels(opts map[string][]string) (
+	r []repositories.ModelDO, err error,
+) {
+	var v []dModel
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ModelDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toModelDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 	docObj := modelItem{
 		Id:       do.Id,

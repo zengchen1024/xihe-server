@@ -10,6 +10,7 @@ type DatasetMapper interface {
 	Update(DatasetDO) error
 	Get(string, string) (DatasetDO, error)
 	List(string, DatasetListDO) ([]DatasetDO, error)
+	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {
@@ -81,6 +82,29 @@ func (impl dataset) List(owner domain.Account, option repository.DatasetListOpti
 	}
 
 	return
+}
+
+func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
+	[]domain.Dataset, error,
+) {
+	do := make(map[string][]string)
+	for i := range opts {
+		do[opts[i].Owner.Account()] = opts[i].Ids
+	}
+
+	v, err := impl.mapper.ListUsersDatasets(do)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.Dataset, len(v))
+	for i := range v {
+		if err = v[i].toDataset(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
 }
 
 func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {

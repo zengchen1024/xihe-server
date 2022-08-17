@@ -212,6 +212,29 @@ func (col project) List(owner string, do repositories.ProjectListDO) (
 	return
 }
 
+func (col project) ListUsersProjects(opts map[string][]string) (
+	r []repositories.ProjectDO, err error,
+) {
+	var v []dProject
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ProjectDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toProjectDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 	docObj := projectItem{
 		Id:       do.Id,

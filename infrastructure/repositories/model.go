@@ -10,6 +10,7 @@ type ModelMapper interface {
 	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
 	List(string, ModelListDO) ([]ModelDO, error)
+	ListUsersModels(map[string][]string) ([]ModelDO, error)
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {
@@ -81,6 +82,29 @@ func (impl model) List(owner domain.Account, option repository.ModelListOption) 
 	}
 
 	return
+}
+
+func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
+	[]domain.Model, error,
+) {
+	do := make(map[string][]string)
+	for i := range opts {
+		do[opts[i].Owner.Account()] = opts[i].Ids
+	}
+
+	v, err := impl.mapper.ListUsersModels(do)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.Model, len(v))
+	for i := range v {
+		if err = v[i].toModel(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
 }
 
 func (impl model) toModelDO(m *domain.Model) ModelDO {
