@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/opensourceways/community-robot-lib/kafka"
-	libmq "github.com/opensourceways/community-robot-lib/mq"
+	"github.com/opensourceways/community-robot-lib/mq"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -68,7 +68,7 @@ func (s sender) send(topic string, v interface{}) error {
 		return err
 	}
 
-	return kafka.Publish(topic, &libmq.Message{
+	return kafka.Publish(topic, &mq.Message{
 		Body: body,
 	})
 }

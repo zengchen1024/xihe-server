@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/opensourceways/community-robot-lib/kafka"
-	libmq "github.com/opensourceways/community-robot-lib/mq"
+	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -13,7 +13,7 @@ import (
 )
 
 func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) error {
-	subscribers := make(map[string]libmq.Subscriber)
+	subscribers := make(map[string]mq.Subscriber)
 
 	defer func() {
 		for k, s := range subscribers {
@@ -51,13 +51,13 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	return nil
 }
 
-func registerFollowingHandler(handler interface{}) (libmq.Subscriber, error) {
+func registerFollowingHandler(handler interface{}) (mq.Subscriber, error) {
 	h, ok := handler.(message.FollowingHandler)
 	if !ok {
 		return nil, nil
 	}
 
-	return kafka.Subscribe(topics.Following, func(e libmq.Event) (err error) {
+	return kafka.Subscribe(topics.Following, func(e mq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
 			return
@@ -89,13 +89,13 @@ func registerFollowingHandler(handler interface{}) (libmq.Subscriber, error) {
 	})
 }
 
-func registerLikeHandler(handler interface{}) (libmq.Subscriber, error) {
+func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 	h, ok := handler.(message.LikeHandler)
 	if !ok {
 		return nil, nil
 	}
 
-	return kafka.Subscribe(topics.Like, func(e libmq.Event) (err error) {
+	return kafka.Subscribe(topics.Like, func(e mq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
 			return
