@@ -12,6 +12,9 @@ type ProjectMapper interface {
 	GetByName(string, string) (ProjectDO, error)
 	List(string, ProjectListDO) ([]ProjectDO, error)
 	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
+
+	AddLike(string, string) error
+	RemoveLike(string, string) error
 }
 
 func NewProjectRepository(mapper ProjectMapper) repository.Project {

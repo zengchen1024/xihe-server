@@ -14,4 +14,7 @@ type Model struct {
 	RepoId string
 
 	Version int
+
+	// following fileds is not under the controlling of version
+	LikeCount int
 }

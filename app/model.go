@@ -54,6 +54,9 @@ type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
 	Get(domain.Account, string) (ModelDTO, error)
 	List(domain.Account, *ModelListCmd) ([]ModelDTO, error)
+
+	AddLike(domain.Account, string) error
+	RemoveLike(domain.Account, string) error
 }
 
 func NewModelService(repo repository.Model, pr platform.Repository) ModelService {

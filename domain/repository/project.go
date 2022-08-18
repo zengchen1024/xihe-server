@@ -20,4 +20,7 @@ type Project interface {
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
 	List(domain.Account, ProjectListOption) ([]domain.Project, error)
 	FindUserProjects([]UserResourceListOption) ([]domain.Project, error)
+
+	AddLike(domain.Account, string) error
+	RemoveLike(domain.Account, string) error
 }

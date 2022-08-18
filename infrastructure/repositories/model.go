@@ -12,6 +12,9 @@ type ModelMapper interface {
 	GetByName(string, string) (ModelDO, error)
 	List(string, ModelListDO) ([]ModelDO, error)
 	ListUsersModels(map[string][]string) ([]ModelDO, error)
+
+	AddLike(string, string) error
+	RemoveLike(string, string) error
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {

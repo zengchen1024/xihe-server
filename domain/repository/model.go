@@ -15,4 +15,7 @@ type Model interface {
 	GetByName(domain.Account, domain.ModelName) (domain.Model, error)
 	List(domain.Account, ModelListOption) ([]domain.Model, error)
 	FindUserModels([]UserResourceListOption) ([]domain.Model, error)
+
+	AddLike(domain.Account, string) error
+	RemoveLike(domain.Account, string) error
 }

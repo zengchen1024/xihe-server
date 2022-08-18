@@ -15,6 +15,7 @@ const (
 	fieldAvatarId       = "avatar_id"
 	fieldFollower       = "follower"
 	fieldFollowing      = "following"
+	fieldLikeCount      = "like_count"
 	fieldIsFollower     = "is_follower"
 	fieldFollowerCount  = "follower_count"
 	fieldFollowingCount = "following_count"

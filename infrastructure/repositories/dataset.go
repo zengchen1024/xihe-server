@@ -12,6 +12,9 @@ type DatasetMapper interface {
 	GetByName(string, string) (DatasetDO, error)
 	List(string, DatasetListDO) ([]DatasetDO, error)
 	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
+
+	AddLike(string, string) error
+	RemoveLike(string, string) error
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {

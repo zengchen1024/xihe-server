@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -38,6 +39,30 @@ func newResourceDoc(collection, owner string) error {
 
 	if err := withContext(f); err != nil && isDBError(err) {
 		return err
+	}
+
+	return nil
+}
+
+func updateResourceLike(collection, owner, rid string, num int) error {
+	updated := false
+	f := func(ctx context.Context) error {
+		b, err := cli.updateArrayElemCount(
+			ctx, collection, fieldItems, fieldLikeCount, num,
+			resourceOwnerFilter(owner), arrayFilterById(rid),
+		)
+
+		updated = b
+
+		return err
+	}
+
+	if err := withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return dbError{errors.New("no update")}
 	}
 
 	return nil

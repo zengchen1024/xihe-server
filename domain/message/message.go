@@ -12,10 +12,17 @@ type Sender interface {
 	RemoveLike(msg domain.Like) error
 }
 
+type EventHandler interface {
+	FollowingHandler
+	LikeHandler
+}
+
 type FollowingHandler interface {
 	HandleEventAddFollowing(domain.Following) error
 	HandleEventRemoveFollowing(msg domain.Following) error
+}
 
+type LikeHandler interface {
 	HandleEventAddLike(domain.Like) error
 	HandleEventRemoveLike(msg domain.Like) error
 }
