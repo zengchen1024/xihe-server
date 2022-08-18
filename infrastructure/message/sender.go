@@ -10,10 +10,12 @@ import (
 	"github.com/opensourceways/xihe-server/domain/message"
 )
 
-const (
-	topicFollowing = "following"
-	topicLike      = "like"
-)
+var topics Topics
+
+type Topics struct {
+	Following string
+	Like      string
+}
 
 func NewMessageSender() message.Sender {
 	return sender{}
@@ -37,7 +39,7 @@ func (s sender) sendFollowing(msg domain.Following, action string) error {
 		Following: msg.Account.Account(),
 	}
 
-	return s.send(topicFollowing, &v)
+	return s.send(topics.Following, &v)
 }
 
 // Like
@@ -57,7 +59,7 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 		Id:     msg.ResourceId,
 	}
 
-	return s.send(topicLike, &v)
+	return s.send(topics.Like, &v)
 }
 
 func (s sender) send(topic string, v interface{}) error {

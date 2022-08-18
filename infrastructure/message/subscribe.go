@@ -57,7 +57,7 @@ func registerFollowingHandler(handler interface{}) (libmq.Subscriber, error) {
 		return nil, nil
 	}
 
-	return kafka.Subscribe(topicFollowing, func(e libmq.Event) (err error) {
+	return kafka.Subscribe(topics.Following, func(e libmq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
 			return
@@ -95,7 +95,7 @@ func registerLikeHandler(handler interface{}) (libmq.Subscriber, error) {
 		return nil, nil
 	}
 
-	return kafka.Subscribe(topicLike, func(e libmq.Event) (err error) {
+	return kafka.Subscribe(topics.Like, func(e libmq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
 			return

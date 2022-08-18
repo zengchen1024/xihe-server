@@ -150,7 +150,9 @@ func (u *User) setDefault() {
 }
 
 type MQ struct {
-	Address string `json:"address" required:"true"`
+	Address        string `json:"address" required:"true"`
+	TopicLike      string `json:"topic_like" required:"true"`
+	TopicFollowing string `json:"topic_following" required:"true"`
 }
 
 func (cfg MQ) validate() error {
