@@ -150,18 +150,19 @@ type ProjectListDO struct {
 }
 
 type ProjectDO struct {
-	Id       string
-	Owner    string
-	Name     string
-	Desc     string
-	Type     string
-	CoverId  string
-	Protocol string
-	Training string
-	RepoType string
-	RepoId   string
-	Tags     []string
-	Version  int
+	Id        string
+	Owner     string
+	Name      string
+	Desc      string
+	Type      string
+	CoverId   string
+	Protocol  string
+	Training  string
+	RepoType  string
+	RepoId    string
+	Tags      []string
+	Version   int
+	LikeCount int
 }
 
 func (do *ProjectDO) toProject(r *domain.Project) (err error) {
@@ -202,6 +203,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.LikeCount = do.LikeCount
 
 	return
 }

@@ -37,7 +37,11 @@ type projectItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dModel struct {
@@ -53,7 +57,11 @@ type modelItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dDataset struct {
@@ -69,7 +77,11 @@ type datasetItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dUser struct {

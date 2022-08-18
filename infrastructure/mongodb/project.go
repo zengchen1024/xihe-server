@@ -86,6 +86,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := projectDocFilter(do.Owner)
 
@@ -272,17 +273,18 @@ func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 
 func (col project) toProjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
 	*do = repositories.ProjectDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Type:     item.Type,
-		CoverId:  item.CoverId,
-		Protocol: item.Protocol,
-		Training: item.Training,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Type:      item.Type,
+		CoverId:   item.CoverId,
+		Protocol:  item.Protocol,
+		Training:  item.Training,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }

@@ -149,15 +149,16 @@ type ModelListDO struct {
 }
 
 type ModelDO struct {
-	Id       string
-	Owner    string
-	Name     string
-	Desc     string
-	Protocol string
-	RepoType string
-	RepoId   string
-	Tags     []string
-	Version  int
+	Id        string
+	Owner     string
+	Name      string
+	Desc      string
+	Protocol  string
+	RepoType  string
+	RepoId    string
+	Tags      []string
+	Version   int
+	LikeCount int
 }
 
 func (do *ModelDO) toModel(r *domain.Model) (err error) {
@@ -186,6 +187,7 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.LikeCount = do.LikeCount
 
 	return
 }

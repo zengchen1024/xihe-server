@@ -80,6 +80,7 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := modelDocFilter(do.Owner)
 
@@ -263,14 +264,15 @@ func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 
 func (col model) toModelDO(owner string, item *modelItem, do *repositories.ModelDO) {
 	*do = repositories.ModelDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Protocol: item.Protocol,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Protocol:  item.Protocol,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }

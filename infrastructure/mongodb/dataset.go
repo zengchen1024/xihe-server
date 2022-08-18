@@ -80,6 +80,7 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := datasetDocFilter(do.Owner)
 
@@ -263,14 +264,15 @@ func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 
 func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories.DatasetDO) {
 	*do = repositories.DatasetDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Protocol: item.Protocol,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Protocol:  item.Protocol,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }
