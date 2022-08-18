@@ -4,16 +4,18 @@ import (
 	"encoding/json"
 
 	"github.com/opensourceways/community-robot-lib/kafka"
-	libmq "github.com/opensourceways/community-robot-lib/mq"
+	"github.com/opensourceways/community-robot-lib/mq"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
 )
 
-const (
-	topicFollowing = "following"
-	topicLike      = "like"
-)
+var topics Topics
+
+type Topics struct {
+	Following string
+	Like      string
+}
 
 func NewMessageSender() message.Sender {
 	return sender{}
@@ -37,7 +39,7 @@ func (s sender) sendFollowing(msg domain.Following, action string) error {
 		Following: msg.Account.Account(),
 	}
 
-	return s.send(topicFollowing, &v)
+	return s.send(topics.Following, &v)
 }
 
 // Like
@@ -57,7 +59,7 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 		Id:     msg.ResourceId,
 	}
 
-	return s.send(topicLike, &v)
+	return s.send(topics.Like, &v)
 }
 
 func (s sender) send(topic string, v interface{}) error {
@@ -66,7 +68,7 @@ func (s sender) send(topic string, v interface{}) error {
 		return err
 	}
 
-	return kafka.Publish(topic, &libmq.Message{
+	return kafka.Publish(topic, &mq.Message{
 		Body: body,
 	})
 }

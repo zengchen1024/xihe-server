@@ -57,7 +57,11 @@ func main() {
 	}
 
 	// mq
-	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
+	topic := message.Topics{
+		Like:      cfg.MQ.TopicLike,
+		Following: cfg.MQ.TopicFollowing,
+	}
+	if err := message.Init(cfg.GetMQConfig(), log, topic); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 

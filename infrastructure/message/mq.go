@@ -2,14 +2,16 @@ package message
 
 import (
 	"github.com/opensourceways/community-robot-lib/kafka"
-	libmq "github.com/opensourceways/community-robot-lib/mq"
+	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/sirupsen/logrus"
 )
 
-func Init(address []string, log *logrus.Entry) error {
+func Init(cfg mq.MQConfig, log *logrus.Entry, topic Topics) error {
+	topics = topic
+
 	err := kafka.Init(
-		libmq.Addresses(address...),
-		libmq.Log(log),
+		mq.Addresses(cfg.Addresses...),
+		mq.Log(log),
 	)
 	if err != nil {
 		return err
