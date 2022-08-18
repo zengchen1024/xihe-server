@@ -10,7 +10,7 @@ type UserMapper interface {
 	Update(UserDO) error
 	GetByAccount(string) (UserDO, error)
 	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
-	ListUsers([]string) ([]UserInfoDO, error)
+	ListUsersInfo([]string) ([]UserInfoDO, error)
 
 	AddFollowing(owner, account string) error
 	RemoveFollowing(owner, account string) error
@@ -64,13 +64,13 @@ func (impl user) Save(u *domain.User) (r domain.User, err error) {
 	return
 }
 
-func (impl user) FindUsers(accounts []domain.Account) (r []domain.UserInfo, err error) {
+func (impl user) FindUsersInfo(accounts []domain.Account) (r []domain.UserInfo, err error) {
 	v := make([]string, len(accounts))
 	for i := range accounts {
 		v[i] = accounts[i].Account()
 	}
 
-	d, err := impl.mapper.ListUsers(v)
+	d, err := impl.mapper.ListUsersInfo(v)
 	if err != nil {
 		return nil, convertError(err)
 	}

@@ -29,6 +29,30 @@ definitions:
       bio:
         type: string
     type: object
+  app.LikeDTO:
+    properties:
+      cover_id:
+        type: string
+      description:
+        type: string
+      download_count:
+        type: integer
+      fork_count:
+        type: integer
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        properties:
+          avatar_id:
+            type: string
+          name:
+            type: string
+        type: object
+      update_at:
+        type: string
+    type: object
   app.LoginDTO:
     properties:
       info:
@@ -88,6 +112,20 @@ definitions:
   controller.followingCreateRequest:
     properties:
       account:
+        type: string
+    type: object
+  controller.likeCreateRequest:
+    properties:
+      name:
+        type: string
+      owner:
+        type: string
+    type: object
+  controller.likeDeleteRequest:
+    properties:
+      name:
+        type: string
+      owner:
         type: string
     type: object
   controller.modelCreateRequest:
@@ -571,4 +609,96 @@ paths:
             type: system_error
       tags:
       - Following
+  /v1/user/like:
+    delete:
+      consumes:
+      - application/json
+      description: delete a like
+      parameters:
+      - description: body of deleting like
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.likeDeleteRequest'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "402":
+          description: Payment Required
+          schema:
+            type: not_allowed
+        "403":
+          description: Forbidden
+          schema:
+            type: resource_not_exists
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Like
+    get:
+      consumes:
+      - application/json
+      description: list likes
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LikeDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Like
+    post:
+      consumes:
+      - application/json
+      description: create a like
+      parameters:
+      - description: body of creating like
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.likeCreateRequest'
+      responses:
+        "201":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "402":
+          description: Payment Required
+          schema:
+            type: not_allowed
+        "403":
+          description: Forbidden
+          schema:
+            type: resource_not_exists
+        "404":
+          description: Not Found
+          schema:
+            type: duplicate_creating
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Like
 swagger: "2.0"

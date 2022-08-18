@@ -8,13 +8,14 @@ type User struct {
 	Bio      Bio
 	AvatarId AvatarId
 
-	FollowerCount  int
-	FollowingCount int
-
 	PlatformUser  PlatformUser
 	PlatformToken string
 
 	Version int
+
+	// following fileds is not under the controlling of version
+	FollowerCount  int
+	FollowingCount int
 }
 
 type PlatformUser struct {

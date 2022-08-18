@@ -207,7 +207,7 @@ func (s likeService) listLike(
 ) (
 	dtos []LikeDTO, err error,
 ) {
-	allUsers, err := s.user.FindUsers(users)
+	allUsers, err := s.user.FindUsersInfo(users)
 	if err != nil {
 		return
 	}

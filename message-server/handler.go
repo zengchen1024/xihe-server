@@ -60,7 +60,7 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 		if err != nil {
 			if _, ok := err.(repository.ErrorResourceNotExists); ok {
 				h.log.Errorf(
-					"handle event of removing like for owner:%s, rid:%s, err:%v",
+					"handle event of adding like for owner:%s, rid:%s, err:%v",
 					like.ResourceOwner.Account(), like.ResourceId, err,
 				)
 

@@ -37,7 +37,6 @@ func (s sender) sendFollowing(msg domain.Following, action string) error {
 		Following: msg.Account.Account(),
 	}
 
-	// TODO
 	return s.send(topicFollowing, &v)
 }
 
@@ -58,7 +57,6 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 		Id:     msg.ResourceId,
 	}
 
-	//TODO: pass v or &v
 	return s.send(topicLike, &v)
 }
 
@@ -68,7 +66,7 @@ func (s sender) send(topic string, v interface{}) error {
 		return err
 	}
 
-	return kafka.Publish(topicLike, &libmq.Message{
+	return kafka.Publish(topic, &libmq.Message{
 		Body: body,
 	})
 }

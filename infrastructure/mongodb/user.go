@@ -145,7 +145,7 @@ func (col user) GetByFollower(account, follower string) (
 	return
 }
 
-func (col user) ListUsers(accounts []string) ([]repositories.UserInfoDO, error) {
+func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, error) {
 	var v []dUser
 
 	f := func(ctx context.Context) error {

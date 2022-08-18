@@ -32,7 +32,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
-	//
+	// register like
 	s, err = registerLikeHandler(handler)
 	if err != nil {
 		return err

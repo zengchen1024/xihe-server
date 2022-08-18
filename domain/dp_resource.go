@@ -46,7 +46,6 @@ func NewProjName(v string) (ProjName, error) {
 	}
 
 	return projName(v), nil
-
 }
 
 type projName string
@@ -166,9 +165,7 @@ func checkResourceName(v, prefix string) error {
 		return fmt.Errorf("name's length should be between %d to %d", min, max)
 	}
 
-	prefix += "-"
-
-	if !strings.HasPrefix(strings.ToLower(v), prefix) {
+	if prefix += "-"; !strings.HasPrefix(strings.ToLower(v), prefix) {
 		return fmt.Errorf("the name should start with %s as prefix", prefix)
 	}
 

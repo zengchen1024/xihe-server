@@ -4,8 +4,10 @@ import (
 	"context"
 	"flag"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
-	"github.com/opensourceways/community-robot-lib/interrupts"
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/sirupsen/logrus"
@@ -73,7 +75,7 @@ func main() {
 	initDomainConfig(cfg)
 
 	// run
-	run(cfg, log)
+	run(newHandler(cfg, log), log)
 }
 
 func initDomainConfig(cfg *config.Config) {
@@ -99,8 +101,8 @@ func initDomainConfig(cfg *config.Config) {
 	})
 }
 
-func run(cfg *config.Config, log *logrus.Entry) {
-	h := handler{
+func newHandler(cfg *config.Config, log *logrus.Entry) *handler {
+	return &handler{
 		log:      log,
 		maxRetry: cfg.MaxRetry,
 		user: app.NewUserService(
@@ -131,12 +133,43 @@ func run(cfg *config.Config, log *logrus.Entry) {
 			nil,
 		),
 	}
+}
 
-	defer interrupts.WaitForGracefulShutdown()
+func run(h *handler, log *logrus.Entry) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
-	interrupts.Run(func(ctx context.Context) {
-		if err := message.Subscribe(ctx, h, log); err != nil {
-			log.Errorf("subscribe failed, err:%v", err)
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	called := false
+	ctx, done := context.WithCancel(context.Background())
+
+	defer func() {
+		if !called {
+			called = true
+			done()
 		}
-	})
+	}()
+
+	wg.Add(1)
+	go func(ctx context.Context) {
+		defer wg.Done()
+
+		select {
+		case <-ctx.Done():
+			log.Info("receive done. exit normally")
+			return
+
+		case <-sig:
+			log.Info("receive exit signal")
+			done()
+			called = true
+			return
+		}
+	}(ctx)
+
+	if err := message.Subscribe(ctx, h, log); err != nil {
+		log.Errorf("subscribe failed, err:%v", err)
+	}
 }
