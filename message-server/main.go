@@ -101,12 +101,34 @@ func initDomainConfig(cfg *config.Config) {
 
 func run(cfg *config.Config, log *logrus.Entry) {
 	h := handler{
+		log:      log,
 		maxRetry: cfg.MaxRetry,
 		user: app.NewUserService(
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
 			),
 			nil, nil,
+		),
+
+		project: app.NewProjectService(
+			repositories.NewProjectRepository(
+				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
+			),
+			nil,
+		),
+
+		dataset: app.NewDatasetService(
+			repositories.NewDatasetRepository(
+				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
+			),
+			nil,
+		),
+
+		model: app.NewModelService(
+			repositories.NewModelRepository(
+				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
+			),
+			nil,
 		),
 	}
 

@@ -58,11 +58,15 @@ func updateResourceLike(collection, owner, rid string, num int) error {
 	}
 
 	if err := withContext(f); err != nil {
+		if isDocNotExists(err) {
+			err = repositories.NewErrorDataNotExists(err)
+		}
+
 		return err
 	}
 
 	if !updated {
-		return dbError{errors.New("no update")}
+		return repositories.NewErrorDataNotExists(errors.New("no update"))
 	}
 
 	return nil
