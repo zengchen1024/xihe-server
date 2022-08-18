@@ -233,7 +233,7 @@ func (s likeService) listLike(
 				return nil, errors.New("unmatched size")
 			}
 			s.projectToLikeDTO(userInfos, all, r)
-			r = r[len(all):]
+			r = r[n:]
 		}
 	}
 
@@ -243,8 +243,14 @@ func (s likeService) listLike(
 			return nil, err
 		}
 
-		s.modelToLikeDTO(userInfos, all, r)
-		r = r[len(all):]
+		n := len(all)
+		if n > 0 {
+			if len(r) < n {
+				return nil, errors.New("unmatched size")
+			}
+			s.modelToLikeDTO(userInfos, all, r)
+			r = r[n:]
+		}
 	}
 
 	if n := len(datasets); n > 0 {
@@ -253,7 +259,13 @@ func (s likeService) listLike(
 			return nil, err
 		}
 
-		s.datasetToLikeDTO(userInfos, all, r)
+		n := len(all)
+		if n > 0 {
+			if len(r) < n {
+				return nil, errors.New("unmatched size")
+			}
+			s.datasetToLikeDTO(userInfos, all, r)
+		}
 	}
 
 	return

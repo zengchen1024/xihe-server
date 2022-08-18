@@ -100,3 +100,14 @@ type dLogin struct {
 	Account string `bson:"account"   json:"account"`
 	Info    string `bson:"info"      json:"info"`
 }
+
+type dLike struct {
+	Owner string     `bson:"owner" json:"owner"`
+	Items []likeItem `bson:"items" json:"-"`
+}
+
+type likeItem struct {
+	ResourceId    string `bson:"id"        json:"id"`
+	ResourceType  string `bson:"type"      json:"type"`
+	ResourceOwner string `bson:"owner"     json:"owner"`
+}

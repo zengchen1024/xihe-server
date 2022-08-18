@@ -20,6 +20,29 @@ func resourceNameFilter(name string) bson.M {
 	}
 }
 
+func newResourceDoc(collection, owner string) error {
+	docFilter := resourceOwnerFilter(owner)
+
+	doc := bson.M{
+		fieldOwner: owner,
+		fieldItems: bson.A{},
+	}
+
+	f := func(ctx context.Context) error {
+		_, err := cli.newDocIfNotExist(
+			ctx, collection, docFilter, doc,
+		)
+
+		return err
+	}
+
+	if err := withContext(f); err != nil && isDBError(err) {
+		return err
+	}
+
+	return nil
+}
+
 func getResourceByName(collection, owner, name string, result interface{}) error {
 	f := func(ctx context.Context) error {
 		return cli.getArrayElem(
