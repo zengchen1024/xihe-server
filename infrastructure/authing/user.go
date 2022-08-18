@@ -14,8 +14,9 @@ var (
 	cli *authentication.Client
 )
 
-func Init(appId, secret string) {
+func Init(appId, secret, redirectURI string) {
 	cli = authentication.NewClient(appId, secret)
+	cli.RedirectUri = redirectURI
 }
 
 func NewAuthingUser() authing.User {

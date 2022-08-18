@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/opensourceways/community-robot-lib/mq"
@@ -9,6 +11,8 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
 )
+
+var reIpPort = regexp.MustCompile(`^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}:[1-9][0-9]*$`)
 
 func LoadConfig(path string) (*Config, error) {
 	v := new(Config)
@@ -37,7 +41,13 @@ type Config struct {
 	Gitlab   Gitlab         `json:"gitlab" required:"true"`
 	API      API            `json:"api" required:"true"`
 	User     User           `json:"user"`
-	MQ       mq.MQConfig    `json:"mq" required:"true"`
+	MQ       MQ             `json:"mq" required:"true"`
+}
+
+func (cfg *Config) GetMQConfig() mq.MQConfig {
+	return mq.MQConfig{
+		Addresses: cfg.MQ.parseAddress(),
+	}
 }
 
 func (cfg *Config) setDefault() {
@@ -62,11 +72,7 @@ func (cfg *Config) validate() error {
 		return err
 	}
 
-	if len(cfg.MQ.Addresses) == 0 {
-		return errors.New("missing mq.address")
-	}
-
-	return nil
+	return cfg.MQ.validate()
 }
 
 type Mongodb struct {
@@ -80,8 +86,9 @@ type Mongodb struct {
 }
 
 type AuthingService struct {
-	APPId  string `json:"app_id" required:"true"`
-	Secret string `json:"secret" required:"true"`
+	APPId       string `json:"app_id" required:"true"`
+	Secret      string `json:"secret" required:"true"`
+	RedirectURI string `json:"redirect_uri" required:"true"`
 }
 
 type Gitlab struct {
@@ -140,4 +147,28 @@ func (u *User) setDefault() {
 	if u.MaxBioLength == 0 {
 		u.MaxBioLength = 200
 	}
+}
+
+type MQ struct {
+	Address string `json:"address" required:"true"`
+}
+
+func (cfg MQ) validate() error {
+	if r := cfg.parseAddress(); len(r) == 0 {
+		return errors.New("invalid mq address")
+	}
+
+	return nil
+}
+
+func (cfg MQ) parseAddress() []string {
+	v := strings.Split(cfg.Address, ",")
+	r := make([]string, 0, len(v))
+	for i := range v {
+		if reIpPort.MatchString(v[i]) {
+			r = append(r, v[i])
+		}
+	}
+
+	return r
 }
