@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// authing
-	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
+	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret, cfg.Authing.RedirectURI)
 
 	// controller
 	apiConfig := controller.APIConfig{
@@ -73,7 +73,7 @@ func main() {
 	}
 
 	// mq
-	if err := message.Init(cfg.MQ.Addresses, log); err != nil {
+	if err := message.Init(cfg.GetMQConfig().Addresses, log); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
