@@ -11,6 +11,7 @@ type User interface {
 	Save(*domain.User) (domain.User, error)
 	GetByAccount(domain.Account) (domain.User, error)
 	GetByFollower(owner, follower domain.Account) (domain.User, bool, error)
+	FindUsersInfo([]domain.Account) ([]domain.UserInfo, error)
 
 	AddFollowing(*domain.Following) error
 	RemoveFollowing(*domain.Following) error

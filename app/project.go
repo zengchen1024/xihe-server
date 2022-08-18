@@ -68,6 +68,9 @@ type ProjectService interface {
 	List(domain.Account, *ProjectListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 	Fork(*ProjectForkCmd) (ProjectDTO, error)
+
+	AddLike(domain.Account, string) error
+	RemoveLike(domain.Account, string) error
 }
 
 func NewProjectService(repo repository.Project, pr platform.Repository) ProjectService {

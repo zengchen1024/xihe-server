@@ -598,6 +598,147 @@
                 }
             }
         },
+        "/v1/user/like": {
+            "get": {
+                "description": "list likes",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LikeDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create a like",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of creating like",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.likeCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "resource_not_exists"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "duplicate_creating"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete a like",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of deleting like",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.likeDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "resource_not_exists"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/{account}": {
             "get": {
                 "description": "get info of login",
@@ -692,6 +833,43 @@
                 }
             }
         },
+        "app.LikeDTO": {
+            "type": "object",
+            "properties": {
+                "cover_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "fork_count": {
+                    "type": "integer"
+                },
+                "like_count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "object",
+                    "properties": {
+                        "avatar_id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "update_at": {
+                    "type": "string"
+                }
+            }
+        },
         "app.LoginDTO": {
             "type": "object",
             "properties": {
@@ -782,6 +960,28 @@
             "type": "object",
             "properties": {
                 "account": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.likeCreateRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.likeDeleteRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
                     "type": "string"
                 }
             }

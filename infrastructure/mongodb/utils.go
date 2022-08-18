@@ -305,6 +305,41 @@ func (cli *client) updateArrayElem(
 	return r.ModifiedCount > 0, nil
 }
 
+func (cli *client) updateArrayElemCount(
+	ctx context.Context,
+	collection, array, field string, num int,
+	filterOfDoc, filterOfArray bson.M,
+) (bool, error) {
+	arrayFilter := bson.M{}
+	for k, v := range filterOfArray {
+		arrayFilter["i."+k] = v
+	}
+
+	col := cli.collection(collection)
+	r, err := col.UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{
+			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, field): num},
+		},
+		&options.UpdateOptions{
+			ArrayFilters: &options.ArrayFilters{
+				Filters: bson.A{
+					arrayFilter,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if r.MatchedCount == 0 {
+		return false, errDocNotExists
+	}
+
+	return r.ModifiedCount > 0, nil
+}
+
 func (cli *client) getArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray bson.M,
@@ -385,6 +420,10 @@ func condFieldOfArrayElem(key string) string {
 
 func eqCondForArrayElem(key string, value interface{}) bson.M {
 	return bson.M{"$eq": bson.A{condFieldOfArrayElem(key), value}}
+}
+
+func inCondForArrayElem(key string, value interface{}) bson.M {
+	return bson.M{"$in": bson.A{condFieldOfArrayElem(key), value}}
 }
 
 func matchCondForArrayElem(key string, value interface{}) bson.M {

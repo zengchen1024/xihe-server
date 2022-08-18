@@ -23,7 +23,7 @@ func (col user) RemoveFollowing(owner, account string) error {
 	return col.removeFollow(owner, account, fieldFollowing)
 }
 
-func (col user) ListFollowing(owner string) ([]repositories.UserInfoDO, error) {
+func (col user) ListFollowing(owner string) ([]repositories.FollowUserInfoDO, error) {
 	return col.listFollow(owner, fieldFollowing)
 }
 
@@ -36,7 +36,7 @@ func (col user) RemoveFollower(owner, account string) error {
 	return col.removeFollow(owner, account, fieldFollower)
 }
 
-func (col user) ListFollower(owner string) ([]repositories.UserInfoDO, error) {
+func (col user) ListFollower(owner string) ([]repositories.FollowUserInfoDO, error) {
 	return col.listFollow(owner, fieldFollower)
 }
 
@@ -71,7 +71,7 @@ func (col user) removeFollow(owner, account, field string) error {
 	return withContext(f)
 }
 
-func (col user) listFollow(owner, field string) ([]repositories.UserInfoDO, error) {
+func (col user) listFollow(owner, field string) ([]repositories.FollowUserInfoDO, error) {
 	var u dUser
 
 	f := func(ctx context.Context) error {
@@ -100,7 +100,7 @@ func (col user) listFollow(owner, field string) ([]repositories.UserInfoDO, erro
 	return col.listFollows(v)
 }
 
-func (col user) listFollows(accounts []string) ([]repositories.UserInfoDO, error) {
+func (col user) listFollows(accounts []string) ([]repositories.FollowUserInfoDO, error) {
 	var v []dUser
 
 	f := func(ctx context.Context) error {
@@ -128,11 +128,11 @@ func (col user) listFollows(accounts []string) ([]repositories.UserInfoDO, error
 		return nil, nil
 	}
 
-	r := make([]repositories.UserInfoDO, len(v))
+	r := make([]repositories.FollowUserInfoDO, len(v))
 	for i := range v {
 		item := &v[i]
 
-		r[i] = repositories.UserInfoDO{
+		r[i] = repositories.FollowUserInfoDO{
 			Bio:      item.Bio,
 			Account:  item.Name,
 			AvatarId: item.AvatarId,

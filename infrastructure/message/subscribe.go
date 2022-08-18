@@ -23,15 +23,25 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		}
 	}()
 
-	if h, ok := handler.(message.FollowingHandler); ok {
-		s, err := registerFollowingHandler(h)
-		if err != nil {
-			return err
-		}
-
-		subscribers[topicFollowing] = s
+	// register following
+	s, err := registerFollowingHandler(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
 	}
 
+	// register like
+	s, err = registerLikeHandler(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
+	// register end
 	if len(subscribers) == 0 {
 		return nil
 	}
@@ -41,7 +51,12 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	return nil
 }
 
-func registerFollowingHandler(h message.FollowingHandler) (libmq.Subscriber, error) {
+func registerFollowingHandler(handler interface{}) (libmq.Subscriber, error) {
+	h, ok := handler.(message.FollowingHandler)
+	if !ok {
+		return nil, nil
+	}
+
 	return kafka.Subscribe(topicFollowing, func(e libmq.Event) (err error) {
 		msg := e.Message()
 		if msg == nil {
@@ -65,8 +80,49 @@ func registerFollowingHandler(h message.FollowingHandler) (libmq.Subscriber, err
 		switch body.Action {
 		case actionAdd:
 			return h.HandleEventAddFollowing(f)
+
 		case actionRemove:
 			return h.HandleEventRemoveFollowing(f)
+		}
+
+		return nil
+	})
+}
+
+func registerLikeHandler(handler interface{}) (libmq.Subscriber, error) {
+	h, ok := handler.(message.LikeHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topicLike, func(e libmq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgLike{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		like := domain.Like{}
+		if like.ResourceOwner, err = domain.NewAccount(body.Owner); err != nil {
+			return
+		}
+
+		if like.ResourceType, err = domain.NewResourceType(body.Type); err != nil {
+			return
+		}
+
+		like.ResourceId = body.Id
+
+		switch body.Action {
+		case actionAdd:
+			return h.HandleEventAddLike(like)
+
+		case actionRemove:
+			return h.HandleEventRemoveLike(like)
 		}
 
 		return nil

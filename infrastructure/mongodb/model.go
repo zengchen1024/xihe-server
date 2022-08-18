@@ -80,6 +80,7 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := modelDocFilter(do.Owner)
 
@@ -158,6 +159,24 @@ func (col model) Get(owner, identity string) (do repositories.ModelDO, err error
 	return
 }
 
+func (col model) GetByName(owner, name string) (do repositories.ModelDO, err error) {
+	var v []dModel
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toModelDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col model) List(owner string, do repositories.ModelListDO) (
 	r []repositories.ModelDO, err error,
 ) {
@@ -206,6 +225,29 @@ func (col model) List(owner string, do repositories.ModelListDO) (
 	return
 }
 
+func (col model) ListUsersModels(opts map[string][]string) (
+	r []repositories.ModelDO, err error,
+) {
+	var v []dModel
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ModelDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toModelDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 	docObj := modelItem{
 		Id:       do.Id,
@@ -222,14 +264,15 @@ func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 
 func (col model) toModelDO(owner string, item *modelItem, do *repositories.ModelDO) {
 	*do = repositories.ModelDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Protocol: item.Protocol,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Protocol:  item.Protocol,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }

@@ -80,6 +80,7 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := datasetDocFilter(do.Owner)
 
@@ -158,6 +159,24 @@ func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err e
 	return
 }
 
+func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err error) {
+	var v []dDataset
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toDatasetDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col dataset) List(owner string, do repositories.DatasetListDO) (
 	r []repositories.DatasetDO, err error,
 ) {
@@ -206,6 +225,29 @@ func (col dataset) List(owner string, do repositories.DatasetListDO) (
 	return
 }
 
+func (col dataset) ListUsersDatasets(opts map[string][]string) (
+	r []repositories.DatasetDO, err error,
+) {
+	var v []dDataset
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.DatasetDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toDatasetDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 	docObj := datasetItem{
 		Id:       do.Id,
@@ -222,14 +264,15 @@ func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 
 func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories.DatasetDO) {
 	*do = repositories.DatasetDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Protocol: item.Protocol,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Protocol:  item.Protocol,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }

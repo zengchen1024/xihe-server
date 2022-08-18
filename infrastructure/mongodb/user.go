@@ -145,6 +145,46 @@ func (col user) GetByFollower(account, follower string) (
 	return
 }
 
+func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, error) {
+	var v []dUser
+
+	f := func(ctx context.Context) error {
+		filter := bson.M{
+			fieldName: bson.M{
+				"$in": accounts,
+			},
+		}
+
+		return cli.getDocs(
+			ctx, col.collectionName, filter,
+			bson.M{
+				fieldName:     1,
+				fieldAvatarId: 1,
+			}, &v,
+		)
+	}
+
+	if err := withContext(f); err != nil {
+		return nil, err
+	}
+
+	if len(v) == 0 {
+		return nil, nil
+	}
+
+	r := make([]repositories.UserInfoDO, len(v))
+	for i := range v {
+		item := &v[i]
+
+		r[i] = repositories.UserInfoDO{
+			Account:  item.Name,
+			AvatarId: item.AvatarId,
+		}
+	}
+
+	return r, nil
+}
+
 func (col user) toUserDoc(do *repositories.UserDO) (bson.M, error) {
 	docObj := dUser{
 		Name:                    do.Account,

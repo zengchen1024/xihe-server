@@ -9,7 +9,12 @@ type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Update(DatasetDO) error
 	Get(string, string) (DatasetDO, error)
+	GetByName(string, string) (DatasetDO, error)
 	List(string, DatasetListDO) ([]DatasetDO, error)
+	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
+
+	AddLike(string, string) error
+	RemoveLike(string, string) error
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {
@@ -54,6 +59,19 @@ func (impl dataset) Get(owner domain.Account, identity string) (r domain.Dataset
 	return
 }
 
+func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
+	r domain.Dataset, err error,
+) {
+	v, err := impl.mapper.GetByName(owner.Account(), name.DatasetName())
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toDataset(&r)
+	}
+
+	return
+}
+
 func (impl dataset) List(owner domain.Account, option repository.DatasetListOption) (
 	r []domain.Dataset, err error,
 ) {
@@ -83,6 +101,29 @@ func (impl dataset) List(owner domain.Account, option repository.DatasetListOpti
 	return
 }
 
+func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
+	[]domain.Dataset, error,
+) {
+	do := make(map[string][]string)
+	for i := range opts {
+		do[opts[i].Owner.Account()] = opts[i].Ids
+	}
+
+	v, err := impl.mapper.ListUsersDatasets(do)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.Dataset, len(v))
+	for i := range v {
+		if err = v[i].toDataset(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
+}
+
 func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 	do := DatasetDO{
 		Id:       d.Id,
@@ -108,15 +149,16 @@ type DatasetListDO struct {
 }
 
 type DatasetDO struct {
-	Id       string
-	Owner    string
-	Name     string
-	Desc     string
-	Protocol string
-	RepoType string
-	RepoId   string
-	Tags     []string
-	Version  int
+	Id        string
+	Owner     string
+	Name      string
+	Desc      string
+	Protocol  string
+	RepoType  string
+	RepoId    string
+	Tags      []string
+	Version   int
+	LikeCount int
 }
 
 func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
@@ -145,6 +187,7 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.LikeCount = do.LikeCount
 
 	return
 }

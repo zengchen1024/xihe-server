@@ -9,7 +9,12 @@ type ModelMapper interface {
 	Insert(ModelDO) (string, error)
 	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
+	GetByName(string, string) (ModelDO, error)
 	List(string, ModelListDO) ([]ModelDO, error)
+	ListUsersModels(map[string][]string) ([]ModelDO, error)
+
+	AddLike(string, string) error
+	RemoveLike(string, string) error
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {
@@ -54,6 +59,19 @@ func (impl model) Get(owner domain.Account, identity string) (r domain.Model, er
 	return
 }
 
+func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
+	r domain.Model, err error,
+) {
+	v, err := impl.mapper.GetByName(owner.Account(), name.ModelName())
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toModel(&r)
+	}
+
+	return
+}
+
 func (impl model) List(owner domain.Account, option repository.ModelListOption) (
 	r []domain.Model, err error,
 ) {
@@ -83,6 +101,29 @@ func (impl model) List(owner domain.Account, option repository.ModelListOption) 
 	return
 }
 
+func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
+	[]domain.Model, error,
+) {
+	do := make(map[string][]string)
+	for i := range opts {
+		do[opts[i].Owner.Account()] = opts[i].Ids
+	}
+
+	v, err := impl.mapper.ListUsersModels(do)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.Model, len(v))
+	for i := range v {
+		if err = v[i].toModel(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
+}
+
 func (impl model) toModelDO(m *domain.Model) ModelDO {
 	do := ModelDO{
 		Id:       m.Id,
@@ -108,15 +149,16 @@ type ModelListDO struct {
 }
 
 type ModelDO struct {
-	Id       string
-	Owner    string
-	Name     string
-	Desc     string
-	Protocol string
-	RepoType string
-	RepoId   string
-	Tags     []string
-	Version  int
+	Id        string
+	Owner     string
+	Name      string
+	Desc      string
+	Protocol  string
+	RepoType  string
+	RepoId    string
+	Tags      []string
+	Version   int
+	LikeCount int
 }
 
 func (do *ModelDO) toModel(r *domain.Model) (err error) {
@@ -145,6 +187,7 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.LikeCount = do.LikeCount
 
 	return
 }

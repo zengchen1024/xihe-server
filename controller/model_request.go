@@ -18,7 +18,7 @@ func (req *modelCreateRequest) toCmd() (cmd app.ModelCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.NewModelName(req.Name); err != nil {
+	if cmd.Name, err = domain.GenModelName(req.Name); err != nil {
 		return
 	}
 

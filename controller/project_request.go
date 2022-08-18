@@ -21,7 +21,7 @@ func (p *projectCreateRequest) toCmd() (cmd app.ProjectCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.NewProjName(p.Name); err != nil {
+	if cmd.Name, err = domain.GenProjName(p.Name); err != nil {
 		return
 	}
 

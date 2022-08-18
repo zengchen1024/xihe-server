@@ -54,6 +54,9 @@ type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
 	Get(domain.Account, string) (DatasetDTO, error)
 	List(domain.Account, *DatasetListCmd) ([]DatasetDTO, error)
+
+	AddLike(domain.Account, string) error
+	RemoveLike(domain.Account, string) error
 }
 
 func NewDatasetService(repo repository.Dataset, pr platform.Repository) DatasetService {

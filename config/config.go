@@ -54,13 +54,19 @@ func (cfg *Config) validate() error {
 		return err
 	}
 
-	_, err := domain.NewPassword(cfg.DefaultPassword)
+	if err := cfg.Resource.validate(); err != nil {
+		return err
+	}
+
+	if _, err := domain.NewPassword(cfg.DefaultPassword); err != nil {
+		return err
+	}
 
 	if len(cfg.MQ.Addresses) == 0 {
 		return errors.New("missing mq.address")
 	}
 
-	return err
+	return nil
 }
 
 type Mongodb struct {
@@ -111,6 +117,14 @@ func (r *Resource) setdefault() {
 	if r.MaxDescLength == 0 {
 		r.MaxDescLength = 100
 	}
+}
+
+func (r *Resource) validate() error {
+	if r.MaxNameLength < (r.MinNameLength + 10) {
+		return errors.New("invalid name length")
+	}
+
+	return nil
 }
 
 type User struct {

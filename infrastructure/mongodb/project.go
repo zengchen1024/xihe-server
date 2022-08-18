@@ -86,6 +86,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 		return
 	}
 	doc[fieldVersion] = 0
+	doc[fieldLikeCount] = 0
 
 	docFilter := projectDocFilter(do.Owner)
 
@@ -164,6 +165,24 @@ func (col project) Get(owner, identity string) (do repositories.ProjectDO, err e
 	return
 }
 
+func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err error) {
+	var v []dProject
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toProjectDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col project) List(owner string, do repositories.ProjectListDO) (
 	r []repositories.ProjectDO, err error,
 ) {
@@ -212,6 +231,29 @@ func (col project) List(owner string, do repositories.ProjectListDO) (
 	return
 }
 
+func (col project) ListUsersProjects(opts map[string][]string) (
+	r []repositories.ProjectDO, err error,
+) {
+	var v []dProject
+
+	err = listUsersResources(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ProjectDO, 0, len(v))
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		for j := range items {
+			col.toProjectDO(owner, &items[j], &r[i])
+		}
+	}
+
+	return
+}
+
 func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 	docObj := projectItem{
 		Id:       do.Id,
@@ -231,17 +273,18 @@ func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 
 func (col project) toProjectDO(owner string, item *projectItem, do *repositories.ProjectDO) {
 	*do = repositories.ProjectDO{
-		Id:       item.Id,
-		Owner:    owner,
-		Name:     item.Name,
-		Desc:     item.Desc,
-		Type:     item.Type,
-		CoverId:  item.CoverId,
-		Protocol: item.Protocol,
-		Training: item.Training,
-		RepoType: item.RepoType,
-		RepoId:   item.RepoId,
-		Tags:     item.Tags,
-		Version:  item.Version,
+		Id:        item.Id,
+		Owner:     owner,
+		Name:      item.Name,
+		Desc:      item.Desc,
+		Type:      item.Type,
+		CoverId:   item.CoverId,
+		Protocol:  item.Protocol,
+		Training:  item.Training,
+		RepoType:  item.RepoType,
+		RepoId:    item.RepoId,
+		Tags:      item.Tags,
+		Version:   item.Version,
+		LikeCount: item.LikeCount,
 	}
 }

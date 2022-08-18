@@ -15,6 +15,7 @@ const (
 	fieldAvatarId       = "avatar_id"
 	fieldFollower       = "follower"
 	fieldFollowing      = "following"
+	fieldLikeCount      = "like_count"
 	fieldIsFollower     = "is_follower"
 	fieldFollowerCount  = "follower_count"
 	fieldFollowingCount = "following_count"
@@ -36,7 +37,11 @@ type projectItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dModel struct {
@@ -52,7 +57,11 @@ type modelItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dDataset struct {
@@ -68,7 +77,11 @@ type datasetItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
-	Version  int      `bson:"version"    json:"-"`
+
+	// Version, LikeCount will be increased by 1 automatically.
+	// So, don't marshal it to avoid setting it occasionally.
+	Version   int `bson:"version"       json:"-"`
+	LikeCount int `bson:"like_count"    json:"-"`
 }
 
 type dUser struct {
@@ -99,4 +112,15 @@ type dUser struct {
 type dLogin struct {
 	Account string `bson:"account"   json:"account"`
 	Info    string `bson:"info"      json:"info"`
+}
+
+type dLike struct {
+	Owner string     `bson:"owner" json:"owner"`
+	Items []likeItem `bson:"items" json:"-"`
+}
+
+type likeItem struct {
+	ResourceId    string `bson:"id"        json:"id"`
+	ResourceType  string `bson:"type"      json:"type"`
+	ResourceOwner string `bson:"owner"     json:"owner"`
 }

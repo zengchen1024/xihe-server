@@ -43,3 +43,11 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto Pr
 
 	return
 }
+
+func (s projectService) AddLike(owner domain.Account, rid string) error {
+	return s.repo.AddLike(owner, rid)
+}
+
+func (s projectService) RemoveLike(owner domain.Account, rid string) error {
+	return s.repo.RemoveLike(owner, rid)
+}
