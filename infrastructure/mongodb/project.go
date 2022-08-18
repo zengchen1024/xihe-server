@@ -164,6 +164,24 @@ func (col project) Get(owner, identity string) (do repositories.ProjectDO, err e
 	return
 }
 
+func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err error) {
+	var v []dProject
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toProjectDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col project) List(owner string, do repositories.ProjectListDO) (
 	r []repositories.ProjectDO, err error,
 ) {

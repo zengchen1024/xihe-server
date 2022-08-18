@@ -9,6 +9,7 @@ type ModelMapper interface {
 	Insert(ModelDO) (string, error)
 	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
+	GetByName(string, string) (ModelDO, error)
 	List(string, ModelListDO) ([]ModelDO, error)
 	ListUsersModels(map[string][]string) ([]ModelDO, error)
 }
@@ -46,6 +47,19 @@ func (impl model) Save(m *domain.Model) (r domain.Model, err error) {
 
 func (impl model) Get(owner domain.Account, identity string) (r domain.Model, err error) {
 	v, err := impl.mapper.Get(owner.Account(), identity)
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toModel(&r)
+	}
+
+	return
+}
+
+func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
+	r domain.Model, err error,
+) {
+	v, err := impl.mapper.GetByName(owner.Account(), name.ModelName())
 	if err != nil {
 		err = convertError(err)
 	} else {

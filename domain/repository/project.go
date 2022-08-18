@@ -17,6 +17,7 @@ type ProjectListOption struct {
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
+	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
 	List(domain.Account, ProjectListOption) ([]domain.Project, error)
 	FindUserProjects([]UserResourceListOption) ([]domain.Project, error)
 }

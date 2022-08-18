@@ -14,6 +14,24 @@ func resourceOwnerFilter(owner string) bson.M {
 	}
 }
 
+func resourceNameFilter(name string) bson.M {
+	return bson.M{
+		fieldName: name,
+	}
+}
+
+func getResourceByName(collection, owner, name string, result interface{}) error {
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(owner), resourceNameFilter(name),
+			bson.M{fieldItems: 1}, result,
+		)
+	}
+
+	return withContext(f)
+}
+
 func listResource(
 	collection, owner string,
 	do repositories.ResourceListDO, result interface{},

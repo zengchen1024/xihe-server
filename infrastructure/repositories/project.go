@@ -9,6 +9,7 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Update(ProjectDO) error
 	Get(string, string) (ProjectDO, error)
+	GetByName(string, string) (ProjectDO, error)
 	List(string, ProjectListDO) ([]ProjectDO, error)
 	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
 }
@@ -46,6 +47,19 @@ func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 
 func (impl project) Get(owner domain.Account, identity string) (r domain.Project, err error) {
 	v, err := impl.mapper.Get(owner.Account(), identity)
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toProject(&r)
+	}
+
+	return
+}
+
+func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
+	r domain.Project, err error,
+) {
+	v, err := impl.mapper.GetByName(owner.Account(), name.ProjName())
 	if err != nil {
 		err = convertError(err)
 	} else {

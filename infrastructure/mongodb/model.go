@@ -158,6 +158,24 @@ func (col model) Get(owner, identity string) (do repositories.ModelDO, err error
 	return
 }
 
+func (col model) GetByName(owner, name string) (do repositories.ModelDO, err error) {
+	var v []dModel
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toModelDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col model) List(owner string, do repositories.ModelListDO) (
 	r []repositories.ModelDO, err error,
 ) {

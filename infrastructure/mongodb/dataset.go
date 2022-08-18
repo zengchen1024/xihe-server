@@ -158,6 +158,24 @@ func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err e
 	return
 }
 
+func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err error) {
+	var v []dDataset
+
+	if err = getResourceByName(col.collectionName, owner, name, &v); err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	col.toDatasetDO(owner, &v[0].Items[0], &do)
+
+	return
+}
+
 func (col dataset) List(owner string, do repositories.DatasetListDO) (
 	r []repositories.DatasetDO, err error,
 ) {

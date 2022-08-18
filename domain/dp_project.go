@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 )
@@ -12,17 +11,11 @@ import (
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "priviate"
-
-	ResourceProject = "project"
-	ResourceDataset = "dataset"
-	ResourceModel   = "model"
 )
 
 var (
-	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
-	config         = Config{}
-	reResourceName = reName
-	reEmail        = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
+	config  = Config{}
+	reEmail = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
 )
 
 func Init(cfg Config) {
@@ -66,139 +59,6 @@ func NewRepoType(v string) (RepoType, error) {
 type repoType string
 
 func (r repoType) RepoType() string {
-	return string(r)
-}
-
-// Name
-type ResourceName interface {
-	ResourceName() string
-	ResourceType() ResourceType
-}
-
-// ResourceName
-type ProjName interface {
-	ProjName() string
-
-	ResourceName
-}
-
-func NewProjName(v string) (ProjName, error) {
-	if err := checkResourceName(v, ResourceProject); err != nil {
-		return nil, err
-	}
-
-	return projName(v), nil
-
-}
-
-type projName string
-
-func (r projName) ProjName() string {
-	return string(r)
-}
-
-func (r projName) ResourceName() string {
-	return string(r)
-}
-
-func (r projName) ResourceType() ResourceType {
-	return resourceType(ResourceProject)
-}
-
-type ModelName interface {
-	ModelName() string
-
-	ResourceName
-}
-
-func NewModelName(v string) (ModelName, error) {
-	if err := checkResourceName(v, ResourceModel); err != nil {
-		return nil, err
-	}
-
-	return modelName(v), nil
-}
-
-type modelName string
-
-func (r modelName) ModelName() string {
-	return string(r)
-}
-
-func (r modelName) ResourceName() string {
-	return string(r)
-}
-
-func (r modelName) ResourceType() ResourceType {
-	return resourceType(ResourceModel)
-}
-
-type DatasetName interface {
-	DatasetName() string
-
-	ResourceName
-}
-
-func NewDatasetName(v string) (DatasetName, error) {
-	if err := checkResourceName(v, ResourceDataset); err != nil {
-		return nil, err
-	}
-
-	return datasetName(v), nil
-}
-
-type datasetName string
-
-func (r datasetName) DatasetName() string {
-	return string(r)
-}
-
-func (r datasetName) ResourceName() string {
-	return string(r)
-}
-
-func (r datasetName) ResourceType() ResourceType {
-	return resourceType(ResourceDataset)
-}
-
-func checkResourceName(v, prefix string) error {
-	max := config.Resource.MaxNameLength
-	min := config.Resource.MinNameLength
-
-	if n := len(v); n > max || n < min {
-		return fmt.Errorf("name's length should be between %d to %d", min, max)
-	}
-
-	if strings.HasPrefix(strings.ToLower(v), prefix) {
-		return fmt.Errorf("the name should not start with %s as prefix", prefix)
-	}
-
-	if !reResourceName.MatchString(v) {
-		return errors.New("invalid name")
-	}
-
-	return nil
-}
-
-// ResourceType
-type ResourceType interface {
-	ResourceType() string
-}
-
-func NewResourceType(v string) (ResourceType, error) {
-	b := v == ResourceProject ||
-		v == ResourceModel ||
-		v == ResourceDataset
-	if b {
-		return resourceType(v), nil
-	}
-
-	return nil, errors.New("invalid resource type")
-}
-
-type resourceType string
-
-func (r resourceType) ResourceType() string {
 	return string(r)
 }
 

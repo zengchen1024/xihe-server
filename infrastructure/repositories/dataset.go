@@ -9,6 +9,7 @@ type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Update(DatasetDO) error
 	Get(string, string) (DatasetDO, error)
+	GetByName(string, string) (DatasetDO, error)
 	List(string, DatasetListDO) ([]DatasetDO, error)
 	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
 }
@@ -46,6 +47,19 @@ func (impl dataset) Save(d *domain.Dataset) (r domain.Dataset, err error) {
 
 func (impl dataset) Get(owner domain.Account, identity string) (r domain.Dataset, err error) {
 	v, err := impl.mapper.Get(owner.Account(), identity)
+	if err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toDataset(&r)
+	}
+
+	return
+}
+
+func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
+	r domain.Dataset, err error,
+) {
+	v, err := impl.mapper.GetByName(owner.Account(), name.DatasetName())
 	if err != nil {
 		err = convertError(err)
 	} else {

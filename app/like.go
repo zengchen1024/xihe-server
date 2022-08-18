@@ -44,6 +44,30 @@ type LikeDTO struct {
 	ForkCount     int `json:"fork_count"`
 }
 
+type LikeService interface {
+	Create(domain.Account, LikeCreateCmd) error
+	Delete(domain.Account, LikeRemoveCmd) error
+	List(domain.Account) ([]LikeDTO, error)
+}
+
+func NewLikeService(
+	repo repository.Like,
+	user repository.User,
+	model repository.Model,
+	project repository.Project,
+	dataset repository.Dataset,
+	sender message.Sender,
+) LikeService {
+	return likeService{
+		repo:    repo,
+		user:    user,
+		model:   model,
+		project: project,
+		dataset: dataset,
+		sender:  sender,
+	}
+}
+
 type likeService struct {
 	repo    repository.Like
 	user    repository.User
@@ -73,7 +97,7 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 	return s.sender.AddLike(v.Like)
 }
 
-func (s likeService) RemoveLike(owner domain.Account, cmd LikeRemoveCmd) error {
+func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 	v := domain.UserLike{
 		Owner: owner,
 		Like: domain.Like{
@@ -91,7 +115,7 @@ func (s likeService) RemoveLike(owner domain.Account, cmd LikeRemoveCmd) error {
 	return s.sender.RemoveLike(v.Like)
 }
 
-func (s likeService) ListLike(owner domain.Account) (
+func (s likeService) List(owner domain.Account) (
 	dtos []LikeDTO, err error,
 ) {
 	v, err := s.repo.Find(owner, repository.LikeFindOption{})
@@ -197,24 +221,30 @@ func (s likeService) listLike(
 	dtos = make([]LikeDTO, total)
 	r := dtos
 
-	if n := len(projects); n > 0 {
+	if len(projects) > 0 {
 		all, err := s.project.FindUserProjects(projects)
 		if err != nil {
 			return nil, err
 		}
 
-		s.projectToLikeDTO(userInfos, all, r)
-		r = r[n:]
+		n := len(all)
+		if n > 0 {
+			if len(r) < n {
+				return nil, errors.New("unmatched size")
+			}
+			s.projectToLikeDTO(userInfos, all, r)
+			r = r[len(all):]
+		}
 	}
 
-	if n := len(models); n > 0 {
+	if len(models) > 0 {
 		all, err := s.model.FindUserModels(models)
 		if err != nil {
 			return nil, err
 		}
 
 		s.modelToLikeDTO(userInfos, all, r)
-		r = r[n:]
+		r = r[len(all):]
 	}
 
 	if n := len(datasets); n > 0 {
