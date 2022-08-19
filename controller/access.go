@@ -83,7 +83,7 @@ func (ctl *accessController) verify(roles []string, addr string) error {
 	}
 
 	if ctl.RemoteAddr != addr {
-		return fmt.Errorf("unmatched remote address")
+		return fmt.Errorf("unmatched remote address, %s!=%s", ctl.RemoteAddr, addr)
 	}
 
 	return nil
