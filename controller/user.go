@@ -35,6 +35,7 @@ func AddRouterForUserController(
 	rg.GET("/v1/user/following", pc.ListFollowing)
 
 	rg.GET("/v1/user/follower", pc.ListFollower)
+	rg.GET("/v1/user/:account/gitlab", pc.GitlabToken)
 }
 
 type UserController struct {
@@ -165,7 +166,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 // @Tags  User
 // @Param	account	query	string	false	"account"
 // @Accept json
-// @Success 200 {object} app.UserDTO
+// @Success 200 {object} userDetail
 // @Failure 400 bad_request_param   account is invalid
 // @Failure 401 resource_not_exists user does not exist
 // @Failure 500 system_error        system error
@@ -192,13 +193,12 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 	}
 
 	resp := func(u *app.UserDTO, isFollower bool) {
-		ctx.JSON(http.StatusOK, newResponseData(struct {
-			*app.UserDTO
-			IsFollower bool `json:"is_follower"`
-		}{
-			UserDTO:    u,
-			IsFollower: isFollower,
-		}))
+		ctx.JSON(http.StatusOK, newResponseData(
+			userDetail{
+				UserDTO:    u,
+				IsFollower: isFollower,
+			}),
+		)
 	}
 
 	if visitor {
@@ -236,4 +236,44 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 	} else {
 		resp(&u, false)
 	}
+}
+
+// @Title GitLabToken
+// @Description get code platform info of user
+// @Tags  User
+// @Param	account	path	string	true	"account"
+// @Accept json
+// @Success 200 {object} platformInfo
+// @Failure 400 bad_request_param   account is invalid
+// @Failure 401 not_allowed         can't get info of other user
+// @Router /{account}/gitlab [get]
+func (ctl *UserController) GitlabToken(ctx *gin.Context) {
+	account, err := domain.NewAccount(ctx.Param("account"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(account) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't get token of other user",
+		))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(platformInfo{pl.PlatformToken}))
+}
+
+type platformInfo struct {
+	Token string `json:"token"`
 }

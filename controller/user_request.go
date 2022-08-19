@@ -49,3 +49,9 @@ func (req *userCreateRequest) toCmd(info authing.UserInfo) (cmd app.UserCreateCm
 type followingCreateRequest struct {
 	Account string `json:"account" required:"true"`
 }
+
+type userDetail struct {
+	*app.UserDTO
+
+	IsFollower bool `json:"is_follower"`
+}
