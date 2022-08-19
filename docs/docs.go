@@ -377,7 +377,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.UserDTO"
+                            "$ref": "#/definitions/controller.userDetail"
                         }
                     },
                     "400": {
@@ -796,6 +796,46 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/{account}/gitlab": {
+            "get": {
+                "description": "get code platform info of user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "account",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.platformInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "not_allowed"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1018,6 +1058,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.platformInfo": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.projectCreateRequest": {
             "type": "object",
             "properties": {
@@ -1079,6 +1127,35 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.userDetail": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "avatar_id": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_follower": {
+                    "type": "boolean"
                 }
             }
         }
