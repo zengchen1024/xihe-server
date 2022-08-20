@@ -91,7 +91,13 @@ func (col user) GetByAccount(account string) (do repositories.UserDO, err error)
 func (col user) GetByFollower(account, follower string) (
 	do repositories.UserDO, isFollower bool, err error,
 ) {
-	var v []dUser
+	var v []struct {
+		dUser `bson:",inline"`
+
+		IsFollower     bool `bson:"is_follower"       json:"-"`
+		FollowerCount  int  `bson:"follower_count"    json:"-"`
+		FollowingCount int  `bson:"following_count"   json:"-"`
+	}
 
 	f := func(ctx context.Context) error {
 		fields := bson.M{
@@ -133,7 +139,7 @@ func (col user) GetByFollower(account, follower string) (
 	}
 
 	item := &v[0]
-	col.toUserDO(item, &do)
+	col.toUserDO(&item.dUser, &do)
 
 	do.FollowerCount = item.FollowerCount
 	do.FollowingCount = item.FollowingCount
