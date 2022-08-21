@@ -220,3 +220,12 @@ type ResourceObj struct {
 	ResourceType  ResourceType
 	ResourceId    string
 }
+
+func (r *ResourceObj) String() string {
+	return fmt.Sprintf(
+		"%s_%s_%s",
+		r.ResourceOwner.Account(),
+		r.ResourceType.ResourceType(),
+		r.ResourceId,
+	)
+}

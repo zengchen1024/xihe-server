@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	ActivityTypeLike   = "like"
-	ActivityTypeCreate = "create"
+	activityTypeLike   = "like"
+	activityTypeCreate = "create"
 )
 
 // ActivityType
@@ -15,11 +15,19 @@ type ActivityType interface {
 }
 
 func NewActivityType(v string) (ActivityType, error) {
-	if v != ActivityTypeLike && v != ActivityTypeCreate {
+	if v != activityTypeLike && v != activityTypeCreate {
 		return nil, errors.New("unknown activity type")
 	}
 
 	return activityType(v), nil
+}
+
+func NewActivityTypeLike() ActivityType {
+	return activityType(activityTypeLike)
+}
+
+func NewActivityTypeCreate() ActivityType {
+	return activityType(activityTypeCreate)
 }
 
 type activityType string
@@ -37,6 +45,7 @@ type UserActivity struct {
 
 type Activity struct {
 	Type ActivityType
+	Time string
 
 	ResourceObj
 }
