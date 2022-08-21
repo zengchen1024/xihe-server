@@ -135,6 +135,7 @@ type dActivity struct {
 
 type activityItem struct {
 	Type string `bson:"type" json:"type"`
+	Time int64  `bson:"time" json:"time"`
 
 	ResourceObj `bson:",inline"`
 }

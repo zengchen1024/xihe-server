@@ -72,9 +72,11 @@ type likeService struct {
 }
 
 func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
+	now := utils.Now()
 	v := domain.UserLike{
 		Owner: owner,
 		Like: domain.Like{
+			CreatedAt: now,
 			ResourceObj: domain.ResourceObj{
 				ResourceOwner: cmd.ResourceOwner,
 				ResourceType:  cmd.ResourceType,
@@ -91,6 +93,7 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 		Owner: owner,
 		Activity: domain.Activity{
 			Type:        domain.NewActivityTypeLike(),
+			Time:        now,
 			ResourceObj: v.ResourceObj,
 		},
 	}
@@ -110,8 +113,7 @@ func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 				ResourceOwner: cmd.ResourceOwner,
 				ResourceType:  cmd.ResourceType,
 				ResourceId:    cmd.ResourceId,
-			},
-		},
+			}},
 	}
 
 	if err := s.repo.Remove(&v); err != nil {

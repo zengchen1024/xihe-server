@@ -58,7 +58,7 @@ func (col like) insert(owner string, do repositories.LikeDO) error {
 }
 
 func (col like) Delete(owner string, do repositories.LikeDO) error {
-	doc, err := col.toLikeDoc(&do)
+	doc, err := genDoc(toResourceObj(&do.ResourceObjDO))
 	if err != nil {
 		return err
 	}
@@ -103,11 +103,8 @@ func (col like) List(owner string, opt repositories.LikeListDO) (
 
 func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 	docObj := likeItem{
-		ResourceObj: ResourceObj{
-			ResourceId:    do.ResourceId,
-			ResourceType:  do.ResourceType,
-			ResourceOwner: do.ResourceOwner,
-		},
+		CreatedAt:   do.CreatedAt,
+		ResourceObj: toResourceObj(&do.ResourceObjDO),
 	}
 
 	return genDoc(docObj)
@@ -115,8 +112,11 @@ func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 
 func (col like) toLikeDO(item *likeItem, do *repositories.LikeDO) {
 	*do = repositories.LikeDO{
-		ResourceId:    item.ResourceId,
-		ResourceType:  item.ResourceType,
-		ResourceOwner: item.ResourceOwner,
+		CreatedAt: item.CreatedAt,
+		ResourceObjDO: repositories.ResourceObjDO{
+			ResourceId:    item.ResourceId,
+			ResourceType:  item.ResourceType,
+			ResourceOwner: item.ResourceOwner,
+		},
 	}
 }

@@ -10,8 +10,9 @@ type orderByTime struct {
 	p int
 }
 
-// Most of the elements in items are already sorted in ascending order.
-// No need to reverse the items in order to increase the sorting.
+// sortAndSet will sort the items by time in descending order.
+// But, most of the elements in items are already sorted in ascending order.
+// In order to increase the sorting, no need to reverse the items.
 func sortAndSet(items []orderByTime, do func(int, int) error) error {
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].t < items[j].t
