@@ -5,6 +5,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ActivityDTO struct {
@@ -48,9 +49,14 @@ func (s activityService) List(owner domain.Account) (
 		return
 	}
 
-	objs := make([]*domain.ResourceObj, len(activities))
+	total := len(activities)
+	objs := make([]*domain.ResourceObj, total)
+	orders := make([]orderByTime, total)
 	for i := range activities {
-		objs[i] = &activities[i].ResourceObj
+		item := &activities[i]
+
+		objs[i] = &item.ResourceObj
+		orders[i] = orderByTime{t: item.Time, p: i}
 	}
 
 	resources, err := s.rs.list(objs)
@@ -65,21 +71,23 @@ func (s activityService) List(owner domain.Account) (
 		rm[item.identity()] = item
 	}
 
-	dtos = make([]ActivityDTO, len(activities))
-	for i := range activities {
+	dtos = make([]ActivityDTO, total)
+	err = sortAndSet(orders, func(i, j int) error {
 		item := &activities[i]
 
 		r, ok := rm[item.String()]
 		if !ok {
-			return nil, errors.New("no matched resource")
+			return errors.New("no matched resource")
 		}
 
-		dtos[i] = ActivityDTO{
+		dtos[j] = ActivityDTO{
 			Type:     item.Type.ActivityType(),
-			Time:     item.Time,
+			Time:     utils.ToDate(item.Time),
 			Resource: *r,
 		}
-	}
+
+		return nil
+	})
 
 	return
 }

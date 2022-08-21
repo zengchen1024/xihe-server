@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type LikeCreateCmd struct {
@@ -89,12 +90,8 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 	ua := domain.UserActivity{
 		Owner: owner,
 		Activity: domain.Activity{
-			Type: domain.NewActivityTypeLike(),
-			ResourceObj: domain.ResourceObj{
-				ResourceOwner: cmd.ResourceOwner,
-				ResourceType:  cmd.ResourceType,
-				ResourceId:    cmd.ResourceId,
-			},
+			Type:        domain.NewActivityTypeLike(),
+			ResourceObj: v.ResourceObj,
 		},
 	}
 	if err := s.activity.Save(&ua); err != nil {
@@ -133,9 +130,14 @@ func (s likeService) List(owner domain.Account) (
 		return
 	}
 
-	objs := make([]*domain.ResourceObj, len(likes))
+	total := len(likes)
+	objs := make([]*domain.ResourceObj, total)
+	orders := make([]orderByTime, total)
 	for i := range likes {
-		objs[i] = &likes[i].ResourceObj
+		item := &likes[i]
+
+		objs[i] = &item.ResourceObj
+		orders[i] = orderByTime{t: item.CreatedAt, p: i}
 	}
 
 	resources, err := s.rs.list(objs)
@@ -151,19 +153,21 @@ func (s likeService) List(owner domain.Account) (
 	}
 
 	dtos = make([]LikeDTO, len(likes))
-	for i := range likes {
+	err = sortAndSet(orders, func(i, j int) error {
 		item := &likes[i]
 
 		r, ok := rm[item.String()]
 		if !ok {
-			return nil, errors.New("no matched resource")
+			return errors.New("no matched resource")
 		}
 
-		dtos[i] = LikeDTO{
-			Time:     item.CreatedAt,
+		dtos[j] = LikeDTO{
+			Time:     utils.ToDate(item.CreatedAt),
 			Resource: *r,
 		}
-	}
+
+		return nil
+	})
 
 	return
 }

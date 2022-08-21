@@ -7,7 +7,7 @@ type UserLike struct {
 }
 
 type Like struct {
-	CreatedAt string
+	CreatedAt int64
 
 	ResourceObj
 }

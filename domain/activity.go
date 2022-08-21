@@ -45,7 +45,7 @@ type UserActivity struct {
 
 type Activity struct {
 	Type ActivityType
-	Time string
+	Time int64
 
 	ResourceObj
 }
