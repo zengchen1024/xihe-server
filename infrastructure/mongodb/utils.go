@@ -264,6 +264,29 @@ func (cli *client) pushArrayElem(
 	return nil
 }
 
+func (cli *client) pushElemToLimitedArray(
+	ctx context.Context,
+	collection, array string, keep int,
+	filterOfDoc, value bson.M,
+) error {
+	r, err := cli.collection(collection).UpdateOne(
+		ctx, filterOfDoc,
+		bson.M{"$push": bson.M{array: bson.M{
+			"$each":  bson.A{value},
+			"$slice": keep,
+		}}},
+	)
+	if err != nil {
+		return dbError{err}
+	}
+
+	if r.MatchedCount == 0 {
+		return errDocNotExists
+	}
+
+	return nil
+}
+
 func (cli *client) updateArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray, updateCmd bson.M, version int,

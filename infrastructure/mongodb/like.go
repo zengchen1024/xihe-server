@@ -23,7 +23,7 @@ type like struct {
 }
 
 func (col like) Insert(owner string, do repositories.LikeDO) (err error) {
-	if err = col.insert(owner, do); err == nil || isDBError(err) {
+	if err = col.insert(owner, do); err == nil || !isDocNotExists(err) {
 		return
 	}
 
@@ -103,9 +103,11 @@ func (col like) List(owner string, opt repositories.LikeListDO) (
 
 func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 	docObj := likeItem{
-		ResourceId:    do.ResourceId,
-		ResourceType:  do.ResourceType,
-		ResourceOwner: do.ResourceOwner,
+		ResourceObj: ResourceObj{
+			ResourceId:    do.ResourceId,
+			ResourceType:  do.ResourceType,
+			ResourceOwner: do.ResourceOwner,
+		},
 	}
 
 	return genDoc(docObj)

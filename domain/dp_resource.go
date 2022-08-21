@@ -213,3 +213,10 @@ type resourceType string
 func (r resourceType) ResourceType() string {
 	return string(r)
 }
+
+// ResourceObj
+type ResourceObj struct {
+	ResourceOwner Account
+	ResourceType  ResourceType
+	ResourceId    string
+}

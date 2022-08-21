@@ -8,12 +8,6 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func activityDocFilter(owner string) bson.M {
-	return bson.M{
-		fieldOwner: owner,
-	}
-}
-
 func NewActivityMapper(name string, keep int) repositories.ActivityMapper {
 	return activity{
 		collectionName: name,
@@ -27,7 +21,7 @@ type activity struct {
 }
 
 func (col activity) Insert(owner string, do repositories.ActivityDO) (err error) {
-	if err = col.insert(owner, do); err == nil || isDBError(err) {
+	if err = col.insert(owner, do); err == nil || !isDocNotExists(err) {
 		return
 	}
 
@@ -43,34 +37,19 @@ func (col activity) Insert(owner string, do repositories.ActivityDO) (err error)
 }
 
 func (col activity) insert(owner string, do repositories.ActivityDO) error {
-	v := col.toActivityDoc(&do)
-	doc, err := genDoc(v)
+	doc, err := col.toActivityDoc(&do)
 	if err != nil {
 		return err
 	}
 
-	docFilter := activityDocFilter(owner)
-	resource, _ := genDoc(v.ResourceObj)
-	appendElemMatchToFilter(fieldItems, false, resource, docFilter)
+	docFilter := resourceOwnerFilter(owner)
+	appendElemMatchToFilter(fieldItems, false, doc, docFilter)
 
 	f := func(ctx context.Context) error {
-		r, err := cli.collection(col.collectionName).UpdateOne(
-			ctx, docFilter,
-			bson.M{"$push": bson.M{fieldItems: bson.M{
-				"$each":  bson.A{doc},
-				"$slice": col.keepNum,
-			}}},
+		return cli.pushElemToLimitedArray(
+			ctx, col.collectionName, fieldItems, col.keepNum,
+			docFilter, doc,
 		)
-		if err != nil {
-			return dbError{err}
-		}
-
-		if r.MatchedCount == 0 {
-			return errDocNotExists
-		}
-
-		return nil
-
 	}
 
 	return withContext(f)
@@ -83,7 +62,7 @@ func (col activity) List(owner string, opt repositories.ActivityListDO) (
 
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
-			ctx, col.collectionName, activityDocFilter(owner), nil, &v,
+			ctx, col.collectionName, resourceOwnerFilter(owner), nil, &v,
 		)
 	}
 
@@ -104,8 +83,8 @@ func (col activity) List(owner string, opt repositories.ActivityListDO) (
 	return
 }
 
-func (col activity) toActivityDoc(do *repositories.ActivityDO) activityItem {
-	return activityItem{
+func (col activity) toActivityDoc(do *repositories.ActivityDO) (bson.M, error) {
+	v := activityItem{
 		Type: do.Type,
 		ResourceObj: ResourceObj{
 			ResourceId:    do.ResourceId,
@@ -113,6 +92,8 @@ func (col activity) toActivityDoc(do *repositories.ActivityDO) activityItem {
 			ResourceOwner: do.ResourceOwner,
 		},
 	}
+
+	return genDoc(v)
 }
 
 func (col activity) toActivityDO(item *activityItem, do *repositories.ActivityDO) {

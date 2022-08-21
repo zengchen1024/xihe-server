@@ -28,6 +28,7 @@ func (r activityType) ActivityType() string {
 	return string(r)
 }
 
+// UserActivity
 type UserActivity struct {
 	Owner Account
 
@@ -35,10 +36,7 @@ type UserActivity struct {
 }
 
 type Activity struct {
-	Type     ActivityType
-	CreateAt int64
+	Type ActivityType
 
-	ResourceOwner Account
-	ResourceType  ResourceType
-	ResourceId    string
+	ResourceObj
 }

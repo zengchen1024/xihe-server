@@ -7,6 +7,11 @@ type UserLike struct {
 }
 
 type Like struct {
+	/*
+		CreatedAt int64
+
+		ResourceObj
+	*/
 	ResourceOwner Account
 	ResourceType  ResourceType
 	ResourceId    string
