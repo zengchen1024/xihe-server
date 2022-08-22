@@ -44,8 +44,9 @@ func (col like) insert(owner string, do repositories.LikeDO) error {
 		return err
 	}
 
+	obj, _ := genDoc(toResourceObj(&do.ResourceObjDO))
 	docFilter := likeDocFilter(owner)
-	appendElemMatchToFilter(fieldItems, false, doc, docFilter)
+	appendElemMatchToFilter(fieldItems, false, obj, docFilter)
 
 	f := func(ctx context.Context) error {
 		return cli.pushArrayElem(
@@ -112,11 +113,7 @@ func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 
 func (col like) toLikeDO(item *likeItem, do *repositories.LikeDO) {
 	*do = repositories.LikeDO{
-		CreatedAt: item.CreatedAt,
-		ResourceObjDO: repositories.ResourceObjDO{
-			ResourceId:    item.ResourceId,
-			ResourceType:  item.ResourceType,
-			ResourceOwner: item.ResourceOwner,
-		},
+		CreatedAt:     item.CreatedAt,
+		ResourceObjDO: toResourceObjDO(&item.ResourceObj),
 	}
 }

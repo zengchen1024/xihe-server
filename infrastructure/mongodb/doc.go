@@ -20,6 +20,7 @@ const (
 	fieldFollowerCount  = "follower_count"
 	fieldFollowingCount = "following_count"
 	fieldCreatedAt      = "created_at"
+	fieldType           = "type"
 )
 
 type dProject struct {

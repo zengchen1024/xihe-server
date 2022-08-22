@@ -42,8 +42,11 @@ func (col activity) insert(owner string, do repositories.ActivityDO) error {
 		return err
 	}
 
+	obj, _ := genDoc(toResourceObj(&do.ResourceObjDO))
+	obj[fieldType] = do.Type
+
 	docFilter := resourceOwnerFilter(owner)
-	appendElemMatchToFilter(fieldItems, false, doc, docFilter)
+	appendElemMatchToFilter(fieldItems, false, obj, docFilter)
 
 	f := func(ctx context.Context) error {
 		return cli.pushElemToLimitedArray(
@@ -85,13 +88,9 @@ func (col activity) List(owner string, opt repositories.ActivityListDO) (
 
 func (col activity) toActivityDoc(do *repositories.ActivityDO) (bson.M, error) {
 	v := activityItem{
-		Type: do.Type,
-		Time: do.Time,
-		ResourceObj: ResourceObj{
-			ResourceId:    do.ResourceId,
-			ResourceType:  do.ResourceType,
-			ResourceOwner: do.ResourceOwner,
-		},
+		Type:        do.Type,
+		Time:        do.Time,
+		ResourceObj: toResourceObj(&do.ResourceObjDO),
 	}
 
 	return genDoc(v)
@@ -101,8 +100,6 @@ func (col activity) toActivityDO(item *activityItem, do *repositories.ActivityDO
 	*do = repositories.ActivityDO{
 		Type:          item.Type,
 		Time:          item.Time,
-		ResourceId:    item.ResourceId,
-		ResourceType:  item.ResourceType,
-		ResourceOwner: item.ResourceOwner,
+		ResourceObjDO: toResourceObjDO(&item.ResourceObj),
 	}
 }

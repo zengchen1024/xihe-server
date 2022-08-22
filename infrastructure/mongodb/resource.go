@@ -29,6 +29,14 @@ func toResourceObj(do *repositories.ResourceObjDO) ResourceObj {
 	}
 }
 
+func toResourceObjDO(doc *ResourceObj) repositories.ResourceObjDO {
+	return repositories.ResourceObjDO{
+		ResourceId:    doc.ResourceId,
+		ResourceType:  doc.ResourceType,
+		ResourceOwner: doc.ResourceOwner,
+	}
+}
+
 func newResourceDoc(collection, owner string) error {
 	docFilter := resourceOwnerFilter(owner)
 

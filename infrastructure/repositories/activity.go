@@ -53,9 +53,7 @@ func (impl activity) toActivityDO(v *domain.Activity) ActivityDO {
 	return ActivityDO{
 		Type:          v.Type.ActivityType(),
 		Time:          v.Time,
-		ResourceOwner: v.ResourceOwner.Account(),
-		ResourceType:  v.ResourceType.ResourceType(),
-		ResourceId:    v.ResourceId,
+		ResourceObjDO: toResourceObjDO(&v.ResourceObj),
 	}
 }
 
@@ -66,9 +64,7 @@ type ActivityDO struct {
 	Type string
 	Time int64
 
-	ResourceOwner string
-	ResourceType  string
-	ResourceId    string
+	ResourceObjDO
 }
 
 func (do *ActivityDO) toActivity(r *domain.Activity) (err error) {
@@ -76,15 +72,7 @@ func (do *ActivityDO) toActivity(r *domain.Activity) (err error) {
 		return
 	}
 
-	if r.ResourceOwner, err = domain.NewAccount(do.ResourceOwner); err != nil {
-		return
-	}
+	r.Time = do.Time
 
-	if r.ResourceType, err = domain.NewResourceType(do.ResourceType); err != nil {
-		return
-	}
-
-	r.ResourceId = do.ResourceId
-
-	return
+	return do.ResourceObjDO.toResourceObj(&r.ResourceObj)
 }
