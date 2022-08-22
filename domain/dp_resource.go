@@ -213,3 +213,19 @@ type resourceType string
 func (r resourceType) ResourceType() string {
 	return string(r)
 }
+
+// ResourceObj
+type ResourceObj struct {
+	ResourceOwner Account
+	ResourceType  ResourceType
+	ResourceId    string
+}
+
+func (r *ResourceObj) String() string {
+	return fmt.Sprintf(
+		"%s_%s_%s",
+		r.ResourceOwner.Account(),
+		r.ResourceType.ResourceType(),
+		r.ResourceId,
+	)
+}

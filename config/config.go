@@ -34,6 +34,7 @@ type Config struct {
 	DefaultPassword string `json:"default_password" required:"true"`
 	EncryptionKey   string `json:"encryption_key" required:"true"`
 	MaxRetry        int    `json:"max_retry"`
+	ActivityKeepNum int    `json:"activity_keep_num"`
 
 	Authing  AuthingService `json:"authing_service" required:"true"`
 	Resource Resource       `json:"resource" required:"true"`
@@ -57,6 +58,10 @@ func (cfg *Config) setDefault() {
 	if cfg.MaxRetry <= 0 {
 		cfg.MaxRetry = 10
 	}
+
+	if cfg.ActivityKeepNum <= 0 {
+		cfg.ActivityKeepNum = 25
+	}
 }
 
 func (cfg *Config) validate() error {
@@ -76,13 +81,15 @@ func (cfg *Config) validate() error {
 }
 
 type Mongodb struct {
-	MongodbConn       string `json:"mongodb_conn" required:"true"`
-	DBName            string `json:"mongodb_db" required:"true"`
-	ProjectCollection string `json:"project_collection" required:"true"`
-	ModelCollection   string `json:"model_collection" required:"true"`
-	DatasetCollection string `json:"dataset_collection" required:"true"`
-	UserCollection    string `json:"user_collection" required:"true"`
-	LoginCollection   string `json:"login_collection" required:"true"`
+	MongodbConn        string `json:"mongodb_conn" required:"true"`
+	DBName             string `json:"mongodb_db" required:"true"`
+	ProjectCollection  string `json:"project_collection" required:"true"`
+	ModelCollection    string `json:"model_collection" required:"true"`
+	DatasetCollection  string `json:"dataset_collection" required:"true"`
+	UserCollection     string `json:"user_collection" required:"true"`
+	LoginCollection    string `json:"login_collection" required:"true"`
+	LikeCollection     string `json:"like_collection" required:"true"`
+	ActivityCollection string `json:"activity_collection" required:"true"`
 }
 
 type AuthingService struct {

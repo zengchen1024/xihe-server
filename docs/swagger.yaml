@@ -1,4 +1,13 @@
 definitions:
+  app.ActivityDTO:
+    properties:
+      resource:
+        $ref: '#/definitions/app.ResourceDTO'
+      time:
+        type: string
+      type:
+        type: string
+    type: object
   app.DatasetDTO:
     properties:
       desc:
@@ -31,26 +40,9 @@ definitions:
     type: object
   app.LikeDTO:
     properties:
-      cover_id:
-        type: string
-      description:
-        type: string
-      download_count:
-        type: integer
-      fork_count:
-        type: integer
-      like_count:
-        type: integer
-      name:
-        type: string
-      owner:
-        properties:
-          avatar_id:
-            type: string
-          name:
-            type: string
-        type: object
-      update_at:
+      resource:
+        $ref: '#/definitions/app.ResourceDTO'
+      time:
         type: string
     type: object
   app.LoginDTO:
@@ -78,6 +70,34 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  app.ResourceDTO:
+    properties:
+      cover_id:
+        type: string
+      description:
+        type: string
+      download_count:
+        type: integer
+      fork_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        properties:
+          avatar_id:
+            type: string
+          name:
+            type: string
+        type: object
+      type:
+        type: string
+      update_at:
+        type: string
     type: object
   app.UserDTO:
     properties:
@@ -559,6 +579,22 @@ paths:
       summary: Update
       tags:
       - User
+  /v1/user/activity:
+    get:
+      consumes:
+      - application/json
+      description: list activitys
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ActivityDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Activity
   /v1/user/follower:
     get:
       consumes:

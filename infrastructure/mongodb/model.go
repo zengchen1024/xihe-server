@@ -53,17 +53,14 @@ func (col model) newDoc(owner string) error {
 }
 
 func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
-	identity, err = col.insert(do)
-	if err == nil || isDBError(err) {
+	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}
 
 	// doc is not exist or duplicate insert
 
 	if err = col.newDoc(do.Owner); err == nil {
-		identity, err = col.insert(do)
-
-		if err != nil && isDocNotExists(err) {
+		if identity, err = col.insert(do); err != nil && isDocNotExists(err) {
 			err = repositories.NewErrorDuplicateCreating(err)
 		}
 	}

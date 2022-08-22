@@ -456,6 +456,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/activity": {
+            "get": {
+                "description": "list activitys",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Activity"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ActivityDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/follower": {
             "get": {
                 "description": "list followers",
@@ -839,6 +864,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "app.ActivityDTO": {
+            "type": "object",
+            "properties": {
+                "resource": {
+                    "$ref": "#/definitions/app.ResourceDTO"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "app.DatasetDTO": {
             "type": "object",
             "properties": {
@@ -888,36 +927,10 @@ const docTemplate = `{
         "app.LikeDTO": {
             "type": "object",
             "properties": {
-                "cover_id": {
-                    "type": "string"
+                "resource": {
+                    "$ref": "#/definitions/app.ResourceDTO"
                 },
-                "description": {
-                    "type": "string"
-                },
-                "download_count": {
-                    "type": "integer"
-                },
-                "fork_count": {
-                    "type": "integer"
-                },
-                "like_count": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
-                    "type": "object",
-                    "properties": {
-                        "avatar_id": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "update_at": {
+                "time": {
                     "type": "string"
                 }
             }
@@ -959,6 +972,49 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "app.ResourceDTO": {
+            "type": "object",
+            "properties": {
+                "cover_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "fork_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "object",
+                    "properties": {
+                        "avatar_id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "update_at": {
+                    "type": "string"
                 }
             }
         },

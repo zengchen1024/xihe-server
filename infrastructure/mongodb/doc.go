@@ -19,6 +19,8 @@ const (
 	fieldIsFollower     = "is_follower"
 	fieldFollowerCount  = "follower_count"
 	fieldFollowingCount = "following_count"
+	fieldCreatedAt      = "created_at"
+	fieldType           = "type"
 )
 
 type dProject struct {
@@ -102,11 +104,13 @@ type dUser struct {
 	// So, don't marshal it to avoid setting it occasionally.
 	Version int `bson:"version"    json:"-"`
 
-	// These 3 items are not the property of User
-	// There are used to store the value when unmarshaling in method of GetByFollower
-	IsFollower     bool `bson:"is_follower"       json:"-"`
-	FollowerCount  int  `bson:"follower_count"    json:"-"`
-	FollowingCount int  `bson:"following_count"   json:"-"`
+	/*
+		// These 3 items are not the property of User
+		// There are used to store the value when unmarshaling in method of GetByFollower
+		IsFollower     bool `bson:"is_follower"       json:"-"`
+		FollowerCount  int  `bson:"follower_count"    json:"-"`
+		FollowingCount int  `bson:"following_count"   json:"-"`
+	*/
 }
 
 type dLogin struct {
@@ -120,7 +124,25 @@ type dLike struct {
 }
 
 type likeItem struct {
-	ResourceId    string `bson:"id"        json:"id"`
-	ResourceType  string `bson:"type"      json:"type"`
-	ResourceOwner string `bson:"owner"     json:"owner"`
+	CreatedAt int64 `bson:"created_at" json:"created_at"`
+
+	ResourceObj `bson:",inline"`
+}
+
+type dActivity struct {
+	Owner string         `bson:"owner" json:"owner"`
+	Items []activityItem `bson:"items" json:"-"`
+}
+
+type activityItem struct {
+	Type string `bson:"type" json:"type"`
+	Time int64  `bson:"time" json:"time"`
+
+	ResourceObj `bson:",inline"`
+}
+
+type ResourceObj struct {
+	ResourceId    string `bson:"rid"     json:"rid"`
+	ResourceType  string `bson:"rtype"   json:"rtype"`
+	ResourceOwner string `bson:"rowner"  json:"rowner"`
 }

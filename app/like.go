@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type LikeCreateCmd struct {
@@ -29,19 +30,8 @@ func (cmd *LikeCreateCmd) Validate() error {
 type LikeRemoveCmd = LikeCreateCmd
 
 type LikeDTO struct {
-	Owner struct {
-		Name     string `json:"name"`
-		AvatarId string `json:"avatar_id"`
-	} `json:"owner"`
-
-	Name     string `json:"name"`
-	Desc     string `json:"description"`
-	CoverId  string `json:"cover_id"`
-	UpdateAt string `json:"update_at"`
-
-	LikeCount     int `json:"like_count"`
-	DownloadCount int `json:"download_count"`
-	ForkCount     int `json:"fork_count"`
+	Time     string      `json:"time"`
+	Resource ResourceDTO `json:"resource"`
 }
 
 type LikeService interface {
@@ -56,34 +46,42 @@ func NewLikeService(
 	model repository.Model,
 	project repository.Project,
 	dataset repository.Dataset,
+	activity repository.Activity,
 	sender message.Sender,
 ) LikeService {
 	return likeService{
-		repo:    repo,
-		user:    user,
-		model:   model,
-		project: project,
-		dataset: dataset,
-		sender:  sender,
+		repo:     repo,
+		activity: activity,
+		sender:   sender,
+
+		rs: resourceService{
+			user:    user,
+			model:   model,
+			project: project,
+			dataset: dataset,
+		},
 	}
 }
 
 type likeService struct {
-	repo    repository.Like
-	user    repository.User
-	model   repository.Model
-	project repository.Project
-	dataset repository.Dataset
-	sender  message.Sender
+	repo     repository.Like
+	activity repository.Activity
+	sender   message.Sender
+
+	rs resourceService
 }
 
 func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
+	now := utils.Now()
 	v := domain.UserLike{
 		Owner: owner,
 		Like: domain.Like{
-			ResourceOwner: cmd.ResourceOwner,
-			ResourceType:  cmd.ResourceType,
-			ResourceId:    cmd.ResourceId,
+			CreatedAt: now,
+			ResourceObj: domain.ResourceObj{
+				ResourceOwner: cmd.ResourceOwner,
+				ResourceType:  cmd.ResourceType,
+				ResourceId:    cmd.ResourceId,
+			},
 		},
 	}
 
@@ -91,7 +89,17 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 		return err
 	}
 
-	// TODO: activity
+	ua := domain.UserActivity{
+		Owner: owner,
+		Activity: domain.Activity{
+			Type:        domain.NewActivityTypeLike(),
+			Time:        now,
+			ResourceObj: v.ResourceObj,
+		},
+	}
+	if err := s.activity.Save(&ua); err != nil {
+		return err
+	}
 
 	// send event
 	return s.sender.AddLike(v.Like)
@@ -101,10 +109,11 @@ func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 	v := domain.UserLike{
 		Owner: owner,
 		Like: domain.Like{
-			ResourceOwner: cmd.ResourceOwner,
-			ResourceType:  cmd.ResourceType,
-			ResourceId:    cmd.ResourceId,
-		},
+			ResourceObj: domain.ResourceObj{
+				ResourceOwner: cmd.ResourceOwner,
+				ResourceType:  cmd.ResourceType,
+				ResourceId:    cmd.ResourceId,
+			}},
 	}
 
 	if err := s.repo.Remove(&v); err != nil {
@@ -118,249 +127,49 @@ func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 func (s likeService) List(owner domain.Account) (
 	dtos []LikeDTO, err error,
 ) {
-	v, err := s.repo.Find(owner, repository.LikeFindOption{})
-	if err != nil || len(v) == 0 {
+	likes, err := s.repo.Find(owner, repository.LikeFindOption{})
+	if err != nil || len(likes) == 0 {
 		return
 	}
 
-	users, projects, datasets, models := s.toOptions(v)
-
-	return s.listLike(users, projects, datasets, models, len(v))
-}
-
-func (s likeService) toOptions(likes []domain.Like) (
-	users []domain.Account,
-	projects []repository.UserResourceListOption,
-	datasets []repository.UserResourceListOption,
-	models []repository.UserResourceListOption,
-) {
-	users1 := map[string]domain.Account{}
-	projects1 := map[string]*repository.UserResourceListOption{}
-	datasets1 := map[string]*repository.UserResourceListOption{}
-	models1 := map[string]*repository.UserResourceListOption{}
-
-	set := func(v *domain.Like, m map[string]*repository.UserResourceListOption) {
-		a := v.ResourceOwner.Account()
-		if p, ok := m[a]; !ok {
-			m[a] = &repository.UserResourceListOption{
-				Owner: v.ResourceOwner,
-				Ids:   []string{v.ResourceId},
-			}
-		} else {
-			p.Ids = append(p.Ids, v.ResourceId)
-		}
-	}
-
+	total := len(likes)
+	objs := make([]*domain.ResourceObj, total)
+	orders := make([]orderByTime, total)
 	for i := range likes {
 		item := &likes[i]
 
-		account := item.ResourceOwner.Account()
-		if _, ok := users1[account]; !ok {
-			users1[account] = item.ResourceOwner
-		}
-
-		switch item.ResourceType.ResourceType() {
-		case domain.ResourceProject:
-			set(item, projects1)
-
-		case domain.ResourceModel:
-			set(item, models1)
-
-		case domain.ResourceDataset:
-			set(item, datasets1)
-		}
+		objs[i] = &item.ResourceObj
+		orders[i] = orderByTime{t: item.CreatedAt, p: i}
 	}
 
-	toList := func(m map[string]*repository.UserResourceListOption) []repository.UserResourceListOption {
-		n := len(m)
-		r := make([]repository.UserResourceListOption, n)
-
-		i := 0
-		for _, v := range m {
-			r[i] = *v
-			i++
-		}
-
-		return r
-	}
-
-	projects = toList(projects1)
-	datasets = toList(datasets1)
-	models = toList(models1)
-
-	users = make([]domain.Account, len(users1))
-	i := 0
-	for _, u := range users1 {
-		users[i] = u
-		i++
-	}
-
-	return
-}
-
-func (s likeService) listLike(
-	users []domain.Account,
-	projects []repository.UserResourceListOption,
-	datasets []repository.UserResourceListOption,
-	models []repository.UserResourceListOption,
-	total int,
-) (
-	dtos []LikeDTO, err error,
-) {
-	allUsers, err := s.user.FindUsersInfo(users)
+	resources, err := s.rs.list(objs)
 	if err != nil {
 		return
 	}
 
-	userInfos := make(map[string]*domain.UserInfo)
-	for i := range allUsers {
-		item := &allUsers[i]
-		userInfos[item.Account.Account()] = item
+	rm := make(map[string]*ResourceDTO)
+	for i := range resources {
+		item := &resources[i]
+
+		rm[item.identity()] = item
 	}
 
-	dtos = make([]LikeDTO, total)
-	r := dtos
+	dtos = make([]LikeDTO, len(likes))
+	err = sortAndSet(orders, func(i, j int) error {
+		item := &likes[i]
 
-	if len(projects) > 0 {
-		all, err := s.project.FindUserProjects(projects)
-		if err != nil {
-			return nil, err
+		r, ok := rm[item.String()]
+		if !ok {
+			return errors.New("no matched resource")
 		}
 
-		n := len(all)
-		if n > 0 {
-			if len(r) < n {
-				return nil, errors.New("unmatched size")
-			}
-			s.projectToLikeDTO(userInfos, all, r)
-			r = r[n:]
-		}
-	}
-
-	if len(models) > 0 {
-		all, err := s.model.FindUserModels(models)
-		if err != nil {
-			return nil, err
+		dtos[j] = LikeDTO{
+			Time:     utils.ToDate(item.CreatedAt),
+			Resource: *r,
 		}
 
-		n := len(all)
-		if n > 0 {
-			if len(r) < n {
-				return nil, errors.New("unmatched size")
-			}
-			s.modelToLikeDTO(userInfos, all, r)
-			r = r[n:]
-		}
-	}
-
-	if n := len(datasets); n > 0 {
-		all, err := s.dataset.FindUserDatasets(datasets)
-		if err != nil {
-			return nil, err
-		}
-
-		n := len(all)
-		if n > 0 {
-			if len(r) < n {
-				return nil, errors.New("unmatched size")
-			}
-			s.datasetToLikeDTO(userInfos, all, r)
-		}
-	}
+		return nil
+	})
 
 	return
-}
-
-func (s likeService) projectToLikeDTO(
-	userInfos map[string]*domain.UserInfo,
-	projects []domain.Project, dtos []LikeDTO,
-) {
-	for i := range projects {
-		p := &projects[i]
-
-		v := LikeDTO{
-			Name:    p.Name.ProjName(),
-			CoverId: p.CoverId.CoverId(),
-			/*
-				UpdateAt string `json:"update_at"`
-
-				LikeCount     int `json:"like_count"`
-				DownloadCount int `json:"download_count"`
-				ForkCount     int `json:"fork_count"`
-			*/
-		}
-
-		if p.Desc != nil {
-			v.Desc = p.Desc.ProjDesc()
-		}
-
-		if u, ok := userInfos[p.Owner.Account()]; ok {
-			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
-		}
-
-		dtos[i] = v
-	}
-}
-
-func (s likeService) modelToLikeDTO(
-	userInfos map[string]*domain.UserInfo,
-	data []domain.Model, dtos []LikeDTO,
-) {
-	for i := range data {
-		d := &data[i]
-
-		v := LikeDTO{
-			Name: d.Name.ModelName(),
-			/*
-				UpdateAt string `json:"update_at"`
-
-				LikeCount     int `json:"like_count"`
-				DownloadCount int `json:"download_count"`
-				ForkCount     int `json:"fork_count"`
-			*/
-		}
-
-		if d.Desc != nil {
-			v.Desc = d.Desc.ProjDesc()
-		}
-
-		if u, ok := userInfos[d.Owner.Account()]; ok {
-			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
-		}
-
-		dtos[i] = v
-	}
-}
-
-func (s likeService) datasetToLikeDTO(
-	userInfos map[string]*domain.UserInfo,
-	data []domain.Dataset, dtos []LikeDTO,
-) {
-	for i := range data {
-		d := &data[i]
-
-		v := LikeDTO{
-			Name: d.Name.DatasetName(),
-			/*
-				UpdateAt string `json:"update_at"`
-
-				LikeCount     int `json:"like_count"`
-				DownloadCount int `json:"download_count"`
-				ForkCount     int `json:"fork_count"`
-			*/
-		}
-
-		if d.Desc != nil {
-			v.Desc = d.Desc.ProjDesc()
-		}
-
-		if u, ok := userInfos[d.Owner.Account()]; ok {
-			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
-		}
-
-		dtos[i] = v
-	}
 }

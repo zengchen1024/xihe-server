@@ -21,6 +21,22 @@ func resourceNameFilter(name string) bson.M {
 	}
 }
 
+func toResourceObj(do *repositories.ResourceObjDO) ResourceObj {
+	return ResourceObj{
+		ResourceId:    do.ResourceId,
+		ResourceType:  do.ResourceType,
+		ResourceOwner: do.ResourceOwner,
+	}
+}
+
+func toResourceObjDO(doc *ResourceObj) repositories.ResourceObjDO {
+	return repositories.ResourceObjDO{
+		ResourceId:    doc.ResourceId,
+		ResourceType:  doc.ResourceType,
+		ResourceOwner: doc.ResourceOwner,
+	}
+}
+
 func newResourceDoc(collection, owner string) error {
 	docFilter := resourceOwnerFilter(owner)
 

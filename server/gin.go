@@ -52,53 +52,71 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		})
 	}
 
+	proj := repositories.NewProjectRepository(
+		mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
+	)
+
+	model := repositories.NewModelRepository(
+		mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
+	)
+
+	dataset := repositories.NewDatasetRepository(
+		mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
+	)
+
+	user := repositories.NewUserRepository(
+		mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+	)
+
+	login := repositories.NewLoginRepository(
+		mongodb.NewLoginMapper(cfg.Mongodb.LoginCollection),
+	)
+
+	like := repositories.NewLikeRepository(
+		mongodb.NewLikeMapper(cfg.Mongodb.LikeCollection),
+	)
+
+	activity := repositories.NewActivityRepository(
+		mongodb.NewActivityMapper(
+			cfg.Mongodb.ActivityCollection,
+			cfg.ActivityKeepNum,
+		),
+	)
+
+	gitlabUser := gitlab.NewUserSerivce()
+	authingUser := authing.NewAuthingUser()
+	sender := message.NewMessageSender()
+
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
-			v1,
-			repositories.NewProjectRepository(
-				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
-			),
-			newPlatformRepository,
+			v1, proj, newPlatformRepository,
 		)
 
 		controller.AddRouterForModelController(
-			v1,
-			repositories.NewModelRepository(
-				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
-			),
-			newPlatformRepository,
+			v1, model, newPlatformRepository,
 		)
 
 		controller.AddRouterForDatasetController(
-			v1,
-			repositories.NewDatasetRepository(
-				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
-			),
-			newPlatformRepository,
+			v1, dataset, newPlatformRepository,
 		)
 
 		controller.AddRouterForUserController(
-			v1,
-			repositories.NewUserRepository(
-				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
-			),
-			gitlab.NewUserSerivce(),
-			authing.NewAuthingUser(),
-			message.NewMessageSender(),
+			v1, user, gitlabUser,
+			authingUser, sender,
 		)
 
 		controller.AddRouterForLoginController(
-			v1,
-			repositories.NewUserRepository(
-				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
-			),
-			gitlab.NewUserSerivce(),
-			authing.NewAuthingUser(),
-			repositories.NewLoginRepository(
-				mongodb.NewLoginMapper(cfg.Mongodb.LoginCollection),
-			),
-			cfg.DefaultPassword,
+			v1, user, gitlabUser, authingUser,
+			login, cfg.DefaultPassword,
+		)
+
+		controller.AddRouterForLikeController(
+			v1, like, user, proj, model, dataset, activity, sender,
+		)
+
+		controller.AddRouterForActivityController(
+			v1, activity, user, proj, model, dataset,
 		)
 	}
 

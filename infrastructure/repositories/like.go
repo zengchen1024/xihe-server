@@ -61,9 +61,8 @@ func (impl like) Find(owner domain.Account, opt repository.LikeFindOption) (
 
 func (impl like) toLikeDO(v *domain.Like) LikeDO {
 	return LikeDO{
-		ResourceOwner: v.ResourceOwner.Account(),
-		ResourceType:  v.ResourceType.ResourceType(),
-		ResourceId:    v.ResourceId,
+		CreatedAt:     v.CreatedAt,
+		ResourceObjDO: toResourceObjDO(&v.ResourceObj),
 	}
 }
 
@@ -71,21 +70,13 @@ type LikeListDO struct {
 }
 
 type LikeDO struct {
-	ResourceOwner string
-	ResourceType  string
-	ResourceId    string
+	CreatedAt int64
+
+	ResourceObjDO
 }
 
 func (do *LikeDO) toLike(r *domain.Like) (err error) {
-	if r.ResourceOwner, err = domain.NewAccount(do.ResourceOwner); err != nil {
-		return
-	}
+	r.CreatedAt = do.CreatedAt
 
-	if r.ResourceType, err = domain.NewResourceType(do.ResourceType); err != nil {
-		return
-	}
-
-	r.ResourceId = do.ResourceId
-
-	return
+	return do.ResourceObjDO.toResourceObj(&r.ResourceObj)
 }
