@@ -44,7 +44,7 @@ func StartWebServer(port int, timeout time.Duration, cfg *config.Config) {
 func setRouter(engine *gin.Engine, cfg *config.Config) {
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Title = "xihe"
-	docs.SwaggerInfo.Description = "set token name: 'Authorization' at header "
+	docs.SwaggerInfo.Description = "set header: 'PRIVATE-TOKEN=xxx'"
 
 	newPlatformRepository := func(token, namespace string) platform.Repository {
 		return gitlab.NewRepositoryService(gitlab.UserInfo{

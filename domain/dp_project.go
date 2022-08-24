@@ -9,6 +9,32 @@ const (
 	RepoTypePrivate = "private"
 )
 
+func Init(cfg Config) {
+	config = cfg
+}
+
+type Config struct {
+	Resource ResourceConfig
+	User     UserConfig
+	Training TrainingConfig
+}
+
+type ResourceConfig struct {
+	MaxNameLength int
+	MinNameLength int
+	MaxDescLength int
+
+	Covers           sets.String
+	Protocols        sets.String
+	ProjectType      sets.String
+	TrainingPlatform sets.String
+}
+
+type UserConfig struct {
+	MaxNicknameLength int
+	MaxBioLength      int
+}
+
 // RepoType
 type RepoType interface {
 	RepoType() string
@@ -25,6 +51,26 @@ func NewRepoType(v string) (RepoType, error) {
 type repoType string
 
 func (r repoType) RepoType() string {
+	return string(r)
+}
+
+// ProjDesc
+type ProjDesc interface {
+	ProjDesc() string
+}
+
+func NewProjDesc(v string) (ProjDesc, error) {
+	max := config.Resource.MaxDescLength
+	if len(v) > max {
+		return nil, fmt.Errorf("the length of desc should be less than %d", max)
+	}
+
+	return projDesc(v), nil
+}
+
+type projDesc string
+
+func (r projDesc) ProjDesc() string {
 	return string(r)
 }
 
