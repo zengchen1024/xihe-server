@@ -18,6 +18,6 @@ type Login struct {
 }
 
 type User interface {
-	GetByCode(code string) (Login, error)
+	GetByCode(code, redirectURI string) (Login, error)
 	GetByAccessToken(accessToken string) (UserInfo, error)
 }
