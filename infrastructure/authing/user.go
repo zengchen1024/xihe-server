@@ -1,10 +1,13 @@
 package authing
 
 import (
-	"encoding/json"
 	"errors"
+	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/Authing/authing-go-sdk/lib/authentication"
+	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
@@ -14,26 +17,22 @@ var (
 	cli *authentication.Client
 )
 
-func Init(appId, secret, redirectURI string) {
+func Init(appId, secret string) {
 	cli = authentication.NewClient(appId, secret)
-	cli.RedirectUri = redirectURI
 }
 
 func NewAuthingUser() authing.User {
 	return user{}
 }
 
-type user struct{}
+type user struct {
+	hc utils.HttpClient
+}
 
 func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo, err error) {
 	if accessToken == "" {
 		err = errors.New("no access token")
 
-		return
-	}
-
-	resp, err := cli.GetUserInfoByAccessToken(accessToken)
-	if err != nil {
 		return
 	}
 
@@ -43,7 +42,7 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		Email   string `json:"email,omitempty"`
 	}
 
-	if err = json.Unmarshal([]byte(resp), &v); err != nil {
+	if err = getUserInfoByAccessToken(accessToken, &v); err != nil {
 		return
 	}
 
@@ -62,18 +61,13 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 	return
 }
 
-func (impl user) GetByCode(code string) (login authing.Login, err error) {
-	respStr, err := cli.GetAccessTokenByCode(code)
-	if err != nil {
-		return
-	}
-
+func (impl user) GetByCode(code, redirectURI string) (login authing.Login, err error) {
 	var v struct {
 		AccessToken string `json:"access_token"`
 		IdToken     string `json:"id_token"`
 	}
 
-	if err = json.Unmarshal([]byte(respStr), &v); err != nil {
+	if err = getAccessTokenByCode(code, redirectURI, &v); err != nil {
 		return
 	}
 
@@ -90,4 +84,50 @@ func (impl user) GetByCode(code string) (login authing.Login, err error) {
 	}
 
 	return
+}
+
+func getAccessTokenByCode(code, redirectURI string, result interface{}) error {
+	body := map[string]string{
+		"client_id":     cli.AppId,
+		"client_secret": cli.Secret,
+		"grant_type":    "authorization_code",
+		"code":          code,
+		"redirect_uri":  redirectURI,
+	}
+
+	value := make(url.Values)
+	for k, v := range body {
+		value.Add(k, v)
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost, cli.Host+"/oidc/token",
+		strings.NewReader(strings.TrimSpace(value.Encode())),
+	)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	return sendHttpRequest(req, result)
+}
+
+func getUserInfoByAccessToken(accessToken string, result interface{}) error {
+	url := cli.Host + "/oidc/me?access_token=" + accessToken
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	return sendHttpRequest(req, result)
+}
+
+func sendHttpRequest(req *http.Request, result interface{}) error {
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "xihe-server-authing")
+
+	hc := utils.HttpClient{MaxRetries: 3}
+	return hc.ForwardTo(req, result)
 }
