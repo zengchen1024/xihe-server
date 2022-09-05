@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -35,6 +37,8 @@ func (impl user) GetByAccount(account domain.Account) (r domain.User, err error)
 	if err != nil {
 		err = convertError(err)
 	} else {
+		// TODO: delete
+		fmt.Printf("GetByAccount, do = %v\n", do)
 		err = do.toUser(&r)
 	}
 
