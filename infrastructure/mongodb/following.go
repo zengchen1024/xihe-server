@@ -72,7 +72,7 @@ func (col user) removeFollow(owner, account, field string) error {
 }
 
 func (col user) listFollow(owner, field string) ([]repositories.FollowUserInfoDO, error) {
-	var u dUser
+	var u DUser
 
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
@@ -101,7 +101,7 @@ func (col user) listFollow(owner, field string) ([]repositories.FollowUserInfoDO
 }
 
 func (col user) listFollows(accounts []string) ([]repositories.FollowUserInfoDO, error) {
-	var v []dUser
+	var v []DUser
 
 	f := func(ctx context.Context) error {
 		filter := bson.M{

@@ -86,7 +86,7 @@ type datasetItem struct {
 	LikeCount int `bson:"like_count"    json:"-"`
 }
 
-type dUser struct {
+type DUser struct {
 	Id primitive.ObjectID `bson:"_id"       json:"-"`
 
 	Name                    string `bson:"name"       json:"name"`
@@ -103,14 +103,6 @@ type dUser struct {
 	// Version will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version int `bson:"version"    json:"-"`
-
-	/*
-		// These 3 items are not the property of User
-		// There are used to store the value when unmarshaling in method of GetByFollower
-		IsFollower     bool `bson:"is_follower"       json:"-"`
-		FollowerCount  int  `bson:"follower_count"    json:"-"`
-		FollowingCount int  `bson:"following_count"   json:"-"`
-	*/
 }
 
 type dLogin struct {
