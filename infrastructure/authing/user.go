@@ -25,9 +25,7 @@ func NewAuthingUser() authing.User {
 	return user{}
 }
 
-type user struct {
-	hc utils.HttpClient
-}
+type user struct{}
 
 func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo, err error) {
 	if accessToken == "" {
@@ -129,5 +127,6 @@ func sendHttpRequest(req *http.Request, result interface{}) error {
 	req.Header.Set("User-Agent", "xihe-server-authing")
 
 	hc := utils.HttpClient{MaxRetries: 3}
+
 	return hc.ForwardTo(req, result)
 }

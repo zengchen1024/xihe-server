@@ -93,9 +93,8 @@ type Mongodb struct {
 }
 
 type AuthingService struct {
-	APPId       string `json:"app_id" required:"true"`
-	Secret      string `json:"secret" required:"true"`
-	RedirectURI string `json:"redirect_uri" required:"true"`
+	APPId  string `json:"app_id" required:"true"`
+	Secret string `json:"secret" required:"true"`
 }
 
 type Gitlab struct {

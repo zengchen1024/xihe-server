@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// authing
-	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret, cfg.Authing.RedirectURI)
+	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
 	// controller
 	apiConfig := controller.APIConfig{

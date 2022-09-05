@@ -65,14 +65,18 @@ type LoginController struct {
 // @Title Login
 // @Description callback of authentication by authing
 // @Tags  Login
-// @Param	code	query	string	true	"authing code"
+// @Param	code		query	string	true	"authing code"
+// @Param	redirect_uri	query	string	true	"redirect uri"
 // @Accept json
 // @Success 200 {object} app.UserDTO
 // @Failure 500 system_error         system error
 // @Failure 501 duplicate_creating   create user repeatedly which should not happen
 // @Router / [get]
 func (ctl *LoginController) Login(ctx *gin.Context) {
-	info, err := ctl.auth.GetByCode(ctl.getQueryParameter(ctx, "code"))
+	info, err := ctl.auth.GetByCode(
+		ctl.getQueryParameter(ctx, "code"),
+		ctl.getQueryParameter(ctx, "redirect_uri"),
+	)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
 			errorSystemError, err,
