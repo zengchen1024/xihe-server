@@ -92,11 +92,11 @@ func (col user) GetByFollower(account, follower string) (
 	do repositories.UserDO, isFollower bool, err error,
 ) {
 	var v []struct {
-		dUser `bson:",inline"`
+		DUser `bson:",inline"`
 
-		IsFollower     bool `bson:"is_follower"       json:"-"`
-		FollowerCount  int  `bson:"follower_count"    json:"-"`
-		FollowingCount int  `bson:"following_count"   json:"-"`
+		IsFollower     bool `bson:"is_follower"`
+		FollowerCount  int  `bson:"follower_count"`
+		FollowingCount int  `bson:"following_count"`
 	}
 
 	f := func(ctx context.Context) error {
@@ -139,7 +139,7 @@ func (col user) GetByFollower(account, follower string) (
 	}
 
 	item := &v[0]
-	col.toUserDO(&item.dUser, &do)
+	col.toUserDO(&item.DUser, &do)
 
 	do.FollowerCount = item.FollowerCount
 	do.FollowingCount = item.FollowingCount
@@ -152,7 +152,7 @@ func (col user) GetByFollower(account, follower string) (
 }
 
 func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, error) {
-	var v []dUser
+	var v []DUser
 
 	f := func(ctx context.Context) error {
 		filter := bson.M{
@@ -192,7 +192,7 @@ func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, err
 }
 
 func (col user) toUserDoc(do *repositories.UserDO) (bson.M, error) {
-	docObj := dUser{
+	docObj := DUser{
 		Name:                    do.Account,
 		Email:                   do.Email,
 		Bio:                     do.Bio,
@@ -205,7 +205,7 @@ func (col user) toUserDoc(do *repositories.UserDO) (bson.M, error) {
 	return genDoc(docObj)
 }
 
-func (col user) toUserDO(u *dUser, do *repositories.UserDO) {
+func (col user) toUserDO(u *DUser, do *repositories.UserDO) {
 	*do = repositories.UserDO{
 		Id:       u.Id.Hex(),
 		Email:    u.Email,
