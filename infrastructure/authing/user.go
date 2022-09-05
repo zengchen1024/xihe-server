@@ -2,6 +2,7 @@ package authing
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -44,6 +45,8 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		return
 	}
 
+	fmt.Printf("user info = %v\n", v)
+	
 	if userInfo.Name, err = domain.NewAccount(v.Name); err != nil {
 		return
 	}
