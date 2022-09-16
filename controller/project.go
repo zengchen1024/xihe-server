@@ -305,7 +305,11 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
-	data, err := ctl.s.Fork(&app.ProjectForkCmd{
+	s := app.NewProjectService(ctl.repo, ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	))
+
+	data, err := s.Fork(&app.ProjectForkCmd{
 		From:  proj,
 		Owner: pl.DomainAccount(),
 	})
