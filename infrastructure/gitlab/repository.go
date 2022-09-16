@@ -33,14 +33,17 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 	}
 
 	name := repo.Name.ResourceName()
-	des := repo.Desc.ProjDesc()
+	desc := ""
+	if repo.Desc != nil {
+		desc = repo.Desc.ProjDesc()
+	}
 	b := true
 
 	v, _, err := cli.Projects.CreateProject(&sdk.CreateProjectOptions{
 		Name:                 &name,
 		Path:                 &name,
 		NamespaceID:          &ns,
-		Description:          &des,
+		Description:          &desc,
 		InitializeWithReadme: &b,
 	})
 
@@ -57,19 +60,28 @@ func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, e
 		return "", err
 	}
 
+	ns, err := strconv.Atoi(r.user.Namespace)
+	if err != nil {
+		return "", err
+	}
+
 	repoId, err := strconv.Atoi(srcRepoId)
 	if err != nil {
 		return "", err
 	}
 
 	name := repo.Name.ResourceName()
-	des := repo.Desc.ProjDesc()
+	desc := ""
+	if repo.Desc != nil {
+		desc = repo.Desc.ProjDesc()
+	}
 	b := true
 
 	v, _, err := cli.Projects.ForkProject(repoId, &sdk.ForkProjectOptions{
 		Name:                          &name,
 		Path:                          &name,
-		Description:                   &des,
+		NamespaceID:                   &ns,
+		Description:                   &desc,
 		MergeRequestDefaultTargetSelf: &b,
 	})
 
