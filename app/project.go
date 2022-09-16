@@ -91,8 +91,9 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	}
 
 	pid, err := s.pr.New(platform.RepoOption{
-		Name: cmd.Name,
-		Desc: cmd.Desc,
+		Name:     cmd.Name,
+		Desc:     cmd.Desc,
+		RepoType: cmd.RepoType,
 	})
 	if err != nil {
 		return
@@ -104,8 +105,6 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	if err != nil {
 		return
 	}
-
-	// TODO: webhook
 
 	s.toProjectDTO(&p, &dto)
 

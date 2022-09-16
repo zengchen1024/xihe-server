@@ -10,7 +10,7 @@ import (
 
 const (
 	RepoTypePublic  = "public"
-	RepoTypePrivate = "priviate"
+	RepoTypePrivate = "private"
 )
 
 var (
