@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/xanzy/go-gitlab"
 
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 )
 
@@ -39,11 +40,21 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 	}
 	b := true
 
+	var visibility sdk.VisibilityValue
+	switch repo.RepoType.RepoType() {
+	case domain.RepoTypePrivate:
+		visibility = sdk.PrivateVisibility
+
+	default:
+		visibility = sdk.PublicVisibility
+	}
+
 	v, _, err := cli.Projects.CreateProject(&sdk.CreateProjectOptions{
 		Name:                 &name,
 		Path:                 &name,
 		NamespaceID:          &ns,
 		Description:          &desc,
+		Visibility:           &visibility,
 		InitializeWithReadme: &b,
 	})
 

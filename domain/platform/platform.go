@@ -16,8 +16,9 @@ type User interface {
 }
 
 type RepoOption struct {
-	Name domain.ResourceName
-	Desc domain.ProjDesc
+	Name     domain.ResourceName
+	Desc     domain.ProjDesc
+	RepoType domain.RepoType
 }
 
 type Repository interface {

@@ -77,8 +77,9 @@ func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
 	}
 
 	pid, err := s.pr.New(platform.RepoOption{
-		Name: cmd.Name,
-		Desc: cmd.Desc,
+		Name:     cmd.Name,
+		Desc:     cmd.Desc,
+		RepoType: cmd.RepoType,
 	})
 	if err != nil {
 		return
