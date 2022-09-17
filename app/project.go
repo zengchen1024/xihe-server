@@ -38,13 +38,15 @@ func (cmd *ProjectCreateCmd) Validate() error {
 func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	return domain.Project{
 		Owner:    cmd.Owner,
-		Name:     cmd.Name,
-		Desc:     cmd.Desc,
 		Type:     cmd.Type,
-		CoverId:  cmd.CoverId,
-		RepoType: cmd.RepoType,
 		Protocol: cmd.Protocol,
 		Training: cmd.Training,
+		ProjectModifiableProperty: domain.ProjectModifiableProperty{
+			Name:     cmd.Name,
+			Desc:     cmd.Desc,
+			CoverId:  cmd.CoverId,
+			RepoType: cmd.RepoType,
+		},
 	}
 }
 
@@ -83,13 +85,6 @@ type projectService struct {
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
-	v := cmd.toProject()
-
-	p, err := s.repo.Save(&v)
-	if err != nil {
-		return
-	}
-
 	pid, err := s.pr.New(platform.RepoOption{
 		Name:     cmd.Name,
 		Desc:     cmd.Desc,
@@ -99,9 +94,10 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 		return
 	}
 
-	p.RepoId = pid
+	v := cmd.toProject()
+	v.RepoId = pid
 
-	p, err = s.repo.Save(&p)
+	p, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}

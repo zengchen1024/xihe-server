@@ -11,7 +11,7 @@ type ProjectUpdateCmd struct {
 	CoverId  domain.CoverId
 }
 
-func (cmd *ProjectUpdateCmd) toProject(p *domain.Project) {
+func (cmd *ProjectUpdateCmd) toProject(p *domain.ProjectModifiableProperty) {
 	if cmd.Name != nil {
 		p.Name = cmd.Name
 	}
@@ -27,12 +27,10 @@ func (cmd *ProjectUpdateCmd) toProject(p *domain.Project) {
 	if cmd.CoverId != nil {
 		p.CoverId = cmd.CoverId
 	}
-
-	// tags
 }
 
 func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto ProjectDTO, err error) {
-	cmd.toProject(p)
+	cmd.toProject(&p.ProjectModifiableProperty)
 
 	v, err := s.repo.Save(p)
 	if err != nil {
