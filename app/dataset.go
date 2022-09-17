@@ -53,7 +53,7 @@ type DatasetDTO struct {
 type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName) (DatasetDTO, error)
-	List(domain.Account, *DatasetListCmd) ([]DatasetDTO, error)
+	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
@@ -110,23 +110,10 @@ func (s datasetService) GetByName(
 	return
 }
 
-type DatasetListCmd struct {
-	Name     domain.DatasetName
-	RepoType domain.RepoType
-}
-
-func (cmd *DatasetListCmd) toDatasetListOption() (
-	option repository.DatasetListOption,
-) {
-	option.Name = cmd.Name
-
-	return
-}
-
-func (s datasetService) List(owner domain.Account, cmd *DatasetListCmd) (
+func (s datasetService) List(owner domain.Account, cmd *ResourceListCmd) (
 	dtos []DatasetDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toDatasetListOption())
+	v, err := s.repo.List(owner, cmd.toResourceListOption())
 	if err != nil || len(v) == 0 {
 		return
 	}

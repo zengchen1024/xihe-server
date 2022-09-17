@@ -10,7 +10,7 @@ type ProjectMapper interface {
 	Update(ProjectDO) error
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
-	List(string, ProjectListDO) ([]ProjectDO, error)
+	List(string, ResourceListDO) ([]ProjectDO, error)
 	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
 
 	AddLike(string, string) error
@@ -72,12 +72,11 @@ func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
 	return
 }
 
-func (impl project) List(owner domain.Account, option repository.ProjectListOption) (
+func (impl project) List(owner domain.Account, option repository.ResourceListOption) (
 	r []domain.Project, err error,
 ) {
-	do := ProjectListDO{}
-	if option.Name != nil {
-		do.Name = option.Name.ProjName()
+	do := ResourceListDO{
+		Name: option.Name,
 	}
 	if option.RepoType != nil {
 		do.RepoType = option.RepoType.RepoType()

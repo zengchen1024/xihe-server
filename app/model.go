@@ -53,7 +53,7 @@ type ModelDTO struct {
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
 	GetByName(domain.Account, domain.ModelName) (ModelDTO, error)
-	List(domain.Account, *ModelListCmd) ([]ModelDTO, error)
+	List(domain.Account, *ResourceListCmd) ([]ModelDTO, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
@@ -110,24 +110,10 @@ func (s modelService) GetByName(
 	return
 }
 
-type ModelListCmd struct {
-	Name     domain.ModelName
-	RepoType domain.RepoType
-}
-
-func (cmd *ModelListCmd) toModelListOption() (
-	option repository.ModelListOption,
-) {
-	option.Name = cmd.Name
-	option.RepoType = cmd.RepoType
-
-	return
-}
-
-func (s modelService) List(owner domain.Account, cmd *ModelListCmd) (
+func (s modelService) List(owner domain.Account, cmd *ResourceListCmd) (
 	dtos []ModelDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toModelListOption())
+	v, err := s.repo.List(owner, cmd.toResourceListOption())
 	if err != nil || len(v) == 0 {
 		return
 	}

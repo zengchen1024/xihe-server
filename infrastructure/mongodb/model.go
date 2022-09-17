@@ -174,38 +174,13 @@ func (col model) GetByName(owner, name string) (do repositories.ModelDO, err err
 	return
 }
 
-func (col model) List(owner string, do repositories.ModelListDO) (
+func (col model) List(owner string, do repositories.ResourceListDO) (
 	r []repositories.ModelDO, err error,
 ) {
 	var v []dModel
 
-	f := func(ctx context.Context) error {
-		return cli.getArraysElemsByCustomizedCond(
-			ctx, col.collectionName, modelDocFilter(owner),
-			map[string]func() bson.M{
-				fieldItems: func() bson.M {
-					conds := bson.A{}
-
-					if do.RepoType != "" {
-						conds = append(conds, eqCondForArrayElem(
-							fieldRepoType, do.RepoType,
-						))
-					}
-
-					if do.Name != "" {
-						conds = append(conds, matchCondForArrayElem(
-							fieldName, do.Name,
-						))
-					}
-
-					return condForArrayElem(conds)
-				},
-			},
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	err = listResource(col.collectionName, owner, do, &v)
+	if err != nil {
 		return
 	}
 

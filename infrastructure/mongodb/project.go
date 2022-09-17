@@ -180,38 +180,13 @@ func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err
 	return
 }
 
-func (col project) List(owner string, do repositories.ProjectListDO) (
+func (col project) List(owner string, do repositories.ResourceListDO) (
 	r []repositories.ProjectDO, err error,
 ) {
 	var v []dProject
 
-	f := func(ctx context.Context) error {
-		return cli.getArraysElemsByCustomizedCond(
-			ctx, col.collectionName, projectDocFilter(owner),
-			map[string]func() bson.M{
-				fieldItems: func() bson.M {
-					conds := bson.A{}
-
-					if do.RepoType != "" {
-						conds = append(conds, eqCondForArrayElem(
-							fieldRepoType, do.RepoType,
-						))
-					}
-
-					if do.Name != "" {
-						conds = append(conds, matchCondForArrayElem(
-							fieldName, do.Name,
-						))
-					}
-
-					return condForArrayElem(conds)
-				},
-			},
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	err = listResource(col.collectionName, owner, do, &v)
+	if err != nil {
 		return
 	}
 

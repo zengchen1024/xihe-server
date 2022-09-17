@@ -68,7 +68,7 @@ func (s projectService) genForkedRepoName(
 ) (domain.ProjName, error) {
 	items, err := s.repo.List(
 		owner,
-		repository.ProjectListOption{Name: srcName},
+		repository.ResourceListOption{Name: srcName.ProjName()},
 	)
 	if err != nil {
 		return nil, err

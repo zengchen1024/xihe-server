@@ -10,7 +10,7 @@ type ModelMapper interface {
 	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
-	List(string, ModelListDO) ([]ModelDO, error)
+	List(string, ResourceListDO) ([]ModelDO, error)
 	ListUsersModels(map[string][]string) ([]ModelDO, error)
 
 	AddLike(string, string) error
@@ -72,13 +72,11 @@ func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
 	return
 }
 
-func (impl model) List(owner domain.Account, option repository.ModelListOption) (
+func (impl model) List(owner domain.Account, option repository.ResourceListOption) (
 	r []domain.Model, err error,
 ) {
-	do := ModelListDO{}
-
-	if option.Name != nil {
-		do.Name = option.Name.ModelName()
+	do := ResourceListDO{
+		Name: option.Name,
 	}
 	if option.RepoType != nil {
 		do.RepoType = option.RepoType.RepoType()
