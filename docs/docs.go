@@ -32,6 +32,13 @@ const docTemplate = `{
                         "name": "code",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "redirect uri",
+                        "name": "redirect_uri",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -115,7 +122,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/v1/dataset/{owner}/{id}": {
+        "/v1/dataset/{owner}/{name}": {
             "get": {
                 "description": "get dataset",
                 "consumes": [
@@ -128,8 +135,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id of dataset",
-                        "name": "id",
+                        "description": "owner of dataset",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of dataset",
+                        "name": "name",
                         "in": "path",
                         "required": true
                     }
@@ -203,7 +217,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/v1/model/{owner}/{id}": {
+        "/v1/model/{owner}/{name}": {
             "get": {
                 "description": "get model",
                 "consumes": [
@@ -216,8 +230,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id of model",
-                        "name": "id",
+                        "description": "owner of model",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of model",
+                        "name": "name",
                         "in": "path",
                         "required": true
                     }
@@ -276,29 +297,6 @@ const docTemplate = `{
             }
         },
         "/v1/project/{owner}/{id}": {
-            "get": {
-                "description": "get project",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project"
-                ],
-                "summary": "Get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id of project",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            },
             "put": {
                 "description": "update project",
                 "consumes": [
@@ -348,6 +346,38 @@ const docTemplate = `{
                         "type": "string",
                         "description": "id of project",
                         "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/project/{owner}/{name}": {
+            "get": {
+                "description": "get project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of project",
+                        "name": "name",
                         "in": "path",
                         "required": true
                     }

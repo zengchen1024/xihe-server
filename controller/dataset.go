@@ -23,7 +23,7 @@ func AddRouterForDatasetController(
 	}
 
 	rg.POST("/v1/dataset", c.Create)
-	rg.GET("/v1/dataset/:owner/:id", c.Get)
+	rg.GET("/v1/dataset/:owner/:name", c.Get)
 	rg.GET("/v1/dataset/:owner", c.List)
 }
 
@@ -98,12 +98,22 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 // @Summary Get
 // @Description get dataset
 // @Tags  Dataset
-// @Param	id	path	string	true	"id of dataset"
+// @Param	owner	path	string	true	"owner of dataset"
+// @Param	name	path	string	true	"name of dataset"
 // @Accept json
 // @Success 200 {object} app.DatasetDTO
-// @Router /v1/dataset/{owner}/{id} [get]
+// @Router /v1/dataset/{owner}/{name} [get]
 func (ctl *DatasetController) Get(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewDatasetName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -117,7 +127,7 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		return
 	}
 
-	m, err := ctl.s.Get(owner, ctx.Param("id"))
+	m, err := ctl.s.GetByName(owner, name)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

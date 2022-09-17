@@ -23,7 +23,7 @@ func AddRouterForModelController(
 	}
 
 	rg.POST("/v1/model", pc.Create)
-	rg.GET("/v1/model/:owner/:id", pc.Get)
+	rg.GET("/v1/model/:owner/:name", pc.Get)
 	rg.GET("/v1/model/:owner", pc.List)
 }
 
@@ -98,12 +98,22 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 // @Summary Get
 // @Description get model
 // @Tags  Model
-// @Param	id	path	string	true	"id of model"
+// @Param	owner	path	string	true	"owner of model"
+// @Param	name	path	string	true	"name of model"
 // @Accept json
 // @Success 200 {object} app.ModelDTO
-// @Router /v1/model/{owner}/{id} [get]
+// @Router /v1/model/{owner}/{name} [get]
 func (ctl *ModelController) Get(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewModelName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -117,7 +127,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	m, err := ctl.s.Get(owner, ctx.Param("id"))
+	m, err := ctl.s.GetByName(owner, name)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

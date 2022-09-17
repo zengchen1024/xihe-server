@@ -25,7 +25,7 @@ func AddRouterForProjectController(
 
 	rg.POST("/v1/project", pc.Create)
 	rg.PUT("/v1/project/:owner/:id", pc.Update)
-	rg.GET("/v1/project/:owner/:id", pc.Get)
+	rg.GET("/v1/project/:owner/:name", pc.Get)
 	rg.GET("/v1/project/:owner", pc.List)
 
 	rg.POST("/v1/project/:owner/:id", pc.Fork)
@@ -153,12 +153,22 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 // @Summary Get
 // @Description get project
 // @Tags  Project
-// @Param	id	path	string	true	"id of project"
+// @Param	owner	path	string	true	"owner of project"
+// @Param	name	path	string	true	"name of project"
 // @Accept json
 // @Produce json
-// @Router /v1/project/{owner}/{id} [get]
+// @Router /v1/project/{owner}/{name} [get]
 func (ctl *ProjectController) Get(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewProjName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -172,7 +182,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	proj, err := ctl.s.Get(owner, ctx.Param("id"))
+	proj, err := ctl.s.GetByName(owner, name)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -241,7 +251,9 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(projs))
 }
 
-func (ctl *ProjectController) getListParameter(ctx *gin.Context) (cmd app.ProjectListCmd, err error) {
+func (ctl *ProjectController) getListParameter(
+	ctx *gin.Context,
+) (cmd app.ProjectListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
 		if cmd.Name, err = domain.NewProjName(v); err != nil {
 			return

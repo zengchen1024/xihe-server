@@ -241,6 +241,11 @@ paths:
         name: code
         required: true
         type: string
+      - description: redirect uri
+        in: query
+        name: redirect_uri
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -351,15 +356,20 @@ paths:
       summary: List
       tags:
       - Dataset
-  /v1/dataset/{owner}/{id}:
+  /v1/dataset/{owner}/{name}:
     get:
       consumes:
       - application/json
       description: get dataset
       parameters:
-      - description: id of dataset
+      - description: owner of dataset
         in: path
-        name: id
+        name: owner
+        required: true
+        type: string
+      - description: name of dataset
+        in: path
+        name: name
         required: true
         type: string
       responses:
@@ -409,15 +419,20 @@ paths:
       summary: List
       tags:
       - Model
-  /v1/model/{owner}/{id}:
+  /v1/model/{owner}/{name}:
     get:
       consumes:
       - application/json
       description: get model
       parameters:
-      - description: id of model
+      - description: owner of model
         in: path
-        name: id
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: path
+        name: name
         required: true
         type: string
       responses:
@@ -458,22 +473,6 @@ paths:
       tags:
       - Project
   /v1/project/{owner}/{id}:
-    get:
-      consumes:
-      - application/json
-      description: get project
-      parameters:
-      - description: id of project
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: Get
-      tags:
-      - Project
     post:
       consumes:
       - application/json
@@ -510,6 +509,28 @@ paths:
       - application/json
       responses: {}
       summary: Update
+      tags:
+      - Project
+  /v1/project/{owner}/{name}:
+    get:
+      consumes:
+      - application/json
+      description: get project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of project
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Get
       tags:
       - Project
   /v1/user:
