@@ -64,7 +64,7 @@ type ProjectDTO struct {
 
 type ProjectService interface {
 	Create(*ProjectCreateCmd) (ProjectDTO, error)
-	Get(domain.Account, string) (ProjectDTO, error)
+	GetByName(domain.Account, domain.ProjName) (ProjectDTO, error)
 	List(domain.Account, *ProjectListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 	Fork(*ProjectForkCmd) (ProjectDTO, error)
@@ -111,8 +111,10 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	return
 }
 
-func (s projectService) Get(owner domain.Account, projectId string) (dto ProjectDTO, err error) {
-	v, err := s.repo.Get(owner, projectId)
+func (s projectService) GetByName(
+	owner domain.Account, name domain.ProjName,
+) (dto ProjectDTO, err error) {
+	v, err := s.repo.GetByName(owner, name)
 	if err != nil {
 		return
 	}

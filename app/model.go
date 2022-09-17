@@ -52,7 +52,7 @@ type ModelDTO struct {
 
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
-	Get(domain.Account, string) (ModelDTO, error)
+	GetByName(domain.Account, domain.ModelName) (ModelDTO, error)
 	List(domain.Account, *ModelListCmd) ([]ModelDTO, error)
 
 	AddLike(domain.Account, string) error
@@ -97,8 +97,10 @@ func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
 	return
 }
 
-func (s modelService) Get(owner domain.Account, modelId string) (dto ModelDTO, err error) {
-	v, err := s.repo.Get(owner, modelId)
+func (s modelService) GetByName(
+	owner domain.Account, name domain.ModelName,
+) (dto ModelDTO, err error) {
+	v, err := s.repo.GetByName(owner, name)
 	if err != nil {
 		return
 	}
