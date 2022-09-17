@@ -4,15 +4,11 @@ type Project struct {
 	Id string
 
 	Owner    Account
-	Name     ProjName
-	Desc     ProjDesc
 	Type     ProjType
-	CoverId  CoverId
-	RepoType RepoType
 	Protocol ProtocolName
 	Training TrainingPlatform
 
-	Tags []string
+	ProjectModifiableProperty
 
 	RepoId string
 
@@ -20,4 +16,12 @@ type Project struct {
 
 	// following fileds is not under the controlling of version
 	LikeCount int
+}
+
+type ProjectModifiableProperty struct {
+	Name     ProjName
+	Desc     ProjDesc
+	CoverId  CoverId
+	RepoType RepoType
+	Tags     []string
 }

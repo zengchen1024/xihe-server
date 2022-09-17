@@ -134,6 +134,7 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		Training: p.Training.TrainingPlatform(),
 		Tags:     p.Tags,
 		RepoId:   p.RepoId,
+		Version:  p.Version,
 	}
 
 	if p.Desc != nil {

@@ -19,14 +19,16 @@ func (cmd *ProjectForkCmd) toProject(name domain.ProjName) domain.Project {
 	p := &cmd.From
 	return domain.Project{
 		Owner:    cmd.Owner,
-		Name:     name,
-		Desc:     p.Desc,
 		Type:     p.Type,
-		CoverId:  p.CoverId,
-		RepoType: p.RepoType,
 		Protocol: p.Protocol,
 		Training: p.Training,
-		Tags:     p.Tags,
+		ProjectModifiableProperty: domain.ProjectModifiableProperty{
+			Name:     p.Name,
+			Desc:     p.Desc,
+			CoverId:  p.CoverId,
+			RepoType: p.RepoType,
+			Tags:     p.Tags,
+		},
 	}
 }
 
