@@ -65,7 +65,7 @@ type ProjectDTO struct {
 type ProjectService interface {
 	Create(*ProjectCreateCmd) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ProjName) (ProjectDTO, error)
-	List(domain.Account, *ProjectListCmd) ([]ProjectDTO, error)
+	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
 	Fork(*ProjectForkCmd) (ProjectDTO, error)
 
@@ -124,13 +124,13 @@ func (s projectService) GetByName(
 	return
 }
 
-type ProjectListCmd struct {
-	Name     domain.ProjName
+type ResourceListCmd struct {
+	Name     string
 	RepoType domain.RepoType
 }
 
-func (cmd *ProjectListCmd) toProjectListOption() (
-	option repository.ProjectListOption,
+func (cmd *ResourceListCmd) toResourceListOption() (
+	option repository.ResourceListOption,
 ) {
 	option.Name = cmd.Name
 	option.RepoType = cmd.RepoType
@@ -138,10 +138,10 @@ func (cmd *ProjectListCmd) toProjectListOption() (
 	return
 }
 
-func (s projectService) List(owner domain.Account, cmd *ProjectListCmd) (
+func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 	dtos []ProjectDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toProjectListOption())
+	v, err := s.repo.List(owner, cmd.toResourceListOption())
 	if err != nil || len(v) == 0 {
 		return
 	}

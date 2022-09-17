@@ -10,7 +10,7 @@ type DatasetMapper interface {
 	Update(DatasetDO) error
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
-	List(string, DatasetListDO) ([]DatasetDO, error)
+	List(string, ResourceListDO) ([]DatasetDO, error)
 	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
 
 	AddLike(string, string) error
@@ -72,13 +72,11 @@ func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
 	return
 }
 
-func (impl dataset) List(owner domain.Account, option repository.DatasetListOption) (
+func (impl dataset) List(owner domain.Account, option repository.ResourceListOption) (
 	r []domain.Dataset, err error,
 ) {
-	do := DatasetListDO{}
-
-	if option.Name != nil {
-		do.Name = option.Name.DatasetName()
+	do := ResourceListDO{
+		Name: option.Name,
 	}
 	if option.RepoType != nil {
 		do.RepoType = option.RepoType.RepoType()

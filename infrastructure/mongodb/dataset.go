@@ -174,38 +174,13 @@ func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err
 	return
 }
 
-func (col dataset) List(owner string, do repositories.DatasetListDO) (
+func (col dataset) List(owner string, do repositories.ResourceListDO) (
 	r []repositories.DatasetDO, err error,
 ) {
 	var v []dDataset
 
-	f := func(ctx context.Context) error {
-		return cli.getArraysElemsByCustomizedCond(
-			ctx, col.collectionName, datasetDocFilter(owner),
-			map[string]func() bson.M{
-				fieldItems: func() bson.M {
-					conds := bson.A{}
-
-					if do.RepoType != "" {
-						conds = append(conds, eqCondForArrayElem(
-							fieldRepoType, do.RepoType,
-						))
-					}
-
-					if do.Name != "" {
-						conds = append(conds, matchCondForArrayElem(
-							fieldName, do.Name,
-						))
-					}
-
-					return condForArrayElem(conds)
-				},
-			},
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	err = listResource(col.collectionName, owner, do, &v)
+	if err != nil {
 		return
 	}
 

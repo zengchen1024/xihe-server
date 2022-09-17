@@ -196,11 +196,11 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(data))
 }
 
-func (ctl *ModelController) getListParameter(ctx *gin.Context) (cmd app.ModelListCmd, err error) {
+func (ctl *ModelController) getListParameter(
+	ctx *gin.Context,
+) (cmd app.ResourceListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		if cmd.Name, err = domain.NewModelName(v); err != nil {
-			return
-		}
+		cmd.Name = v
 	}
 
 	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {

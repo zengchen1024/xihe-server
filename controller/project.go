@@ -253,11 +253,9 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 
 func (ctl *ProjectController) getListParameter(
 	ctx *gin.Context,
-) (cmd app.ProjectListCmd, err error) {
+) (cmd app.ResourceListCmd, err error) {
 	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		if cmd.Name, err = domain.NewProjName(v); err != nil {
-			return
-		}
+		cmd.Name = v
 	}
 
 	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
