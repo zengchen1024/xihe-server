@@ -6,7 +6,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -45,10 +44,7 @@ func (s projectService) Fork(cmd *ProjectForkCmd) (dto ProjectDTO, err error) {
 		return
 	}
 
-	pid, err := s.pr.Fork(cmd.From.RepoId, platform.RepoOption{
-		Name: name,
-		Desc: cmd.From.Desc,
-	})
+	pid, err := s.pr.Fork(cmd.From.RepoId, name)
 	if err != nil {
 		return
 	}

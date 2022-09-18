@@ -73,9 +73,8 @@ type datasetService struct {
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error) {
-	pid, err := s.pr.New(platform.RepoOption{
+	pid, err := s.pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
-		Desc:     cmd.Desc,
 		RepoType: cmd.RepoType,
 	})
 	if err != nil {

@@ -86,9 +86,8 @@ type projectService struct {
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
-	pid, err := s.pr.New(platform.RepoOption{
+	pid, err := s.pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
-		Desc:     cmd.Desc,
 		RepoType: cmd.RepoType,
 	})
 	if err != nil {

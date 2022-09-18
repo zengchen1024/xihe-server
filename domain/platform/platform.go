@@ -17,11 +17,15 @@ type User interface {
 
 type RepoOption struct {
 	Name     domain.ResourceName
-	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 }
 
+func (r *RepoOption) IsNotEmpty() bool {
+	return r.Name != nil || r.RepoType != nil
+}
+
 type Repository interface {
-	New(repo RepoOption) (string, error)
-	Fork(srcRepoId string, repo RepoOption) (string, error)
+	New(repo *RepoOption) (string, error)
+	Fork(srcRepoId string, Name domain.ResourceName) (string, error)
+	Update(repoId string, repo *RepoOption) error
 }
