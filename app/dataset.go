@@ -32,10 +32,12 @@ func (cmd *DatasetCreateCmd) Validate() error {
 func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
 	return domain.Dataset{
 		Owner:    cmd.Owner,
-		Name:     cmd.Name,
-		Desc:     cmd.Desc,
-		RepoType: cmd.RepoType,
 		Protocol: cmd.Protocol,
+		DatasetModifiableProperty: domain.DatasetModifiableProperty{
+			Name:     cmd.Name,
+			Desc:     cmd.Desc,
+			RepoType: cmd.RepoType,
+		},
 	}
 }
 
@@ -52,6 +54,7 @@ type DatasetDTO struct {
 
 type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
+	Update(*domain.Dataset, *DatasetUpdateCmd) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName) (DatasetDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
 
@@ -69,13 +72,6 @@ type datasetService struct {
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error) {
-	v := cmd.toDataset()
-
-	d, err := s.repo.Save(&v)
-	if err != nil {
-		return
-	}
-
 	pid, err := s.pr.New(platform.RepoOption{
 		Name:     cmd.Name,
 		Desc:     cmd.Desc,
@@ -85,9 +81,10 @@ func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error
 		return
 	}
 
-	d.RepoId = pid
+	v := cmd.toDataset()
+	v.RepoId = pid
 
-	d, err = s.repo.Save(&d)
+	d, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}

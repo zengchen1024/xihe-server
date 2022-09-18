@@ -131,6 +131,7 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		Protocol: d.Protocol.ProtocolName(),
 		Tags:     d.Tags,
 		RepoId:   d.RepoId,
+		Version:  d.Version,
 	}
 
 	if d.Desc != nil {

@@ -131,6 +131,7 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		Protocol: m.Protocol.ProtocolName(),
 		Tags:     m.Tags,
 		RepoId:   m.RepoId,
+		Version:  m.Version,
 	}
 
 	if m.Desc != nil {

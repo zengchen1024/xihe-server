@@ -38,3 +38,34 @@ func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
 
 	return
 }
+
+type datasetUpdateRequest struct {
+	Name     *string `json:"name"`
+	Desc     *string `json:"desc"`
+	RepoType *string `json:"type"`
+}
+
+func (p *datasetUpdateRequest) toCmd() (cmd app.DatasetUpdateCmd, err error) {
+	if p.Name != nil {
+		cmd.Name, err = domain.NewDatasetName(*p.Name)
+		if err != nil {
+			return
+		}
+	}
+
+	if p.Desc != nil {
+		cmd.Desc, err = domain.NewProjDesc(*p.Desc)
+		if err != nil {
+			return
+		}
+	}
+
+	if p.RepoType != nil {
+		cmd.RepoType, err = domain.NewRepoType(*p.RepoType)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}

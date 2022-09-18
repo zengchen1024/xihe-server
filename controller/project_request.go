@@ -59,8 +59,6 @@ type projectUpdateRequest struct {
 	Desc     *string `json:"desc"`
 	RepoType *string `json:"type"`
 	CoverId  *string `json:"cover_id"`
-	// json [] will be converted to []string
-	Tags []string `json:"tags"`
 }
 
 func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
@@ -90,10 +88,6 @@ func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 		if err != nil {
 			return
 		}
-	}
-
-	if p.Tags != nil {
-		// TODO check tags
 	}
 
 	return

@@ -158,7 +158,7 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(m))
+	ctx.JSON(http.StatusAccepted, newResponseData(m))
 }
 
 // @Summary Get

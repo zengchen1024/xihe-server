@@ -16,19 +16,19 @@ func AddRouterForProjectController(
 	repo repository.Project,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
-	pc := ProjectController{
+	ctl := ProjectController{
 		repo: repo,
 		s:    app.NewProjectService(repo, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
 
-	rg.POST("/v1/project", pc.Create)
-	rg.PUT("/v1/project/:owner/:id", pc.Update)
-	rg.GET("/v1/project/:owner/:name", pc.Get)
-	rg.GET("/v1/project/:owner", pc.List)
+	rg.POST("/v1/project", ctl.Create)
+	rg.PUT("/v1/project/:owner/:id", ctl.Update)
+	rg.GET("/v1/project/:owner/:name", ctl.Get)
+	rg.GET("/v1/project/:owner", ctl.List)
 
-	rg.POST("/v1/project/:owner/:id", pc.Fork)
+	rg.POST("/v1/project/:owner/:id", ctl.Fork)
 }
 
 type ProjectController struct {
@@ -98,7 +98,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 // @Summary Update
 // @Description update project
 // @Tags  Project
-// @Param	id	path	string	true	"id of project"
+// @Param	id	path	string			true	"id of project"
 // @Param	body	body 	projectUpdateRequest	true	"body of updating project"
 // @Accept json
 // @Produce json
@@ -133,6 +133,20 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update project for other user",
+		))
+
+		return
+	}
+
 	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
@@ -147,7 +161,7 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(d))
+	ctx.JSON(http.StatusAccepted, newResponseData(d))
 }
 
 // @Summary Get

@@ -32,10 +32,12 @@ func (cmd *ModelCreateCmd) Validate() error {
 func (cmd *ModelCreateCmd) toModel() domain.Model {
 	return domain.Model{
 		Owner:    cmd.Owner,
-		Name:     cmd.Name,
-		Desc:     cmd.Desc,
-		RepoType: cmd.RepoType,
 		Protocol: cmd.Protocol,
+		ModelModifiableProperty: domain.ModelModifiableProperty{
+			Name:     cmd.Name,
+			Desc:     cmd.Desc,
+			RepoType: cmd.RepoType,
+		},
 	}
 }
 
@@ -52,6 +54,7 @@ type ModelDTO struct {
 
 type ModelService interface {
 	Create(*ModelCreateCmd) (ModelDTO, error)
+	Update(*domain.Model, *ModelUpdateCmd) (ModelDTO, error)
 	GetByName(domain.Account, domain.ModelName) (ModelDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]ModelDTO, error)
 
@@ -69,13 +72,6 @@ type modelService struct {
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
-	v := cmd.toModel()
-
-	m, err := s.repo.Save(&v)
-	if err != nil {
-		return
-	}
-
 	pid, err := s.pr.New(platform.RepoOption{
 		Name:     cmd.Name,
 		Desc:     cmd.Desc,
@@ -85,9 +81,10 @@ func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
 		return
 	}
 
-	m.RepoId = pid
+	v := cmd.toModel()
+	v.RepoId = pid
 
-	m, err = s.repo.Save(&m)
+	m, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}

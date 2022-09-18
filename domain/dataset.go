@@ -4,12 +4,9 @@ type Dataset struct {
 	Id string
 
 	Owner    Account
-	Name     DatasetName
-	Desc     ProjDesc
-	RepoType RepoType
 	Protocol ProtocolName
 
-	Tags []string
+	DatasetModifiableProperty
 
 	RepoId string
 
@@ -17,4 +14,11 @@ type Dataset struct {
 
 	// following fileds is not under the controlling of version
 	LikeCount int
+}
+
+type DatasetModifiableProperty struct {
+	Name     DatasetName
+	Desc     ProjDesc
+	RepoType RepoType
+	Tags     []string
 }
