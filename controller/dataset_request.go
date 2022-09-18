@@ -22,7 +22,7 @@ func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Desc, err = domain.NewProjDesc(req.Desc); err != nil {
+	if cmd.Desc, err = domain.NewResourceDesc(req.Desc); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func (p *datasetUpdateRequest) toCmd() (cmd app.DatasetUpdateCmd, err error) {
 	}
 
 	if p.Desc != nil {
-		if cmd.Desc, err = domain.NewProjDesc(*p.Desc); err != nil {
+		if cmd.Desc, err = domain.NewResourceDesc(*p.Desc); err != nil {
 			return
 		}
 	}

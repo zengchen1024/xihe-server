@@ -18,7 +18,7 @@ type Model struct {
 
 type ModelModifiableProperty struct {
 	Name     ModelName
-	Desc     ProjDesc
+	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
 }

@@ -11,7 +11,7 @@ import (
 type ModelCreateCmd struct {
 	Owner    domain.Account
 	Name     domain.ModelName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
 }
@@ -19,6 +19,7 @@ type ModelCreateCmd struct {
 func (cmd *ModelCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
+		cmd.Desc != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
 
@@ -128,13 +129,10 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 		Id:       m.Id,
 		Owner:    m.Owner.Account(),
 		Name:     m.Name.ModelName(),
+		Desc:     m.Desc.ResourceDesc(),
 		Protocol: m.Protocol.ProtocolName(),
 		RepoType: m.RepoType.RepoType(),
 		RepoId:   m.RepoId,
 		Tags:     m.Tags,
-	}
-
-	if m.Desc != nil {
-		dto.Desc = m.Desc.ProjDesc()
 	}
 }

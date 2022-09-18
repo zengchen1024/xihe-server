@@ -22,7 +22,7 @@ func (req *modelCreateRequest) toCmd() (cmd app.ModelCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Desc, err = domain.NewProjDesc(req.Desc); err != nil {
+	if cmd.Desc, err = domain.NewResourceDesc(req.Desc); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func (p *modelUpdateRequest) toCmd() (cmd app.ModelUpdateCmd, err error) {
 	}
 
 	if p.Desc != nil {
-		if cmd.Desc, err = domain.NewProjDesc(*p.Desc); err != nil {
+		if cmd.Desc, err = domain.NewResourceDesc(*p.Desc); err != nil {
 			return
 		}
 	}

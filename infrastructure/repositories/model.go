@@ -123,23 +123,17 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 }
 
 func (impl model) toModelDO(m *domain.Model) ModelDO {
-	do := ModelDO{
+	return ModelDO{
 		Id:       m.Id,
 		Owner:    m.Owner.Account(),
 		Name:     m.Name.ModelName(),
+		Desc:     m.Desc.ResourceDesc(),
 		RepoType: m.RepoType.RepoType(),
 		Protocol: m.Protocol.ProtocolName(),
 		Tags:     m.Tags,
 		RepoId:   m.RepoId,
 		Version:  m.Version,
 	}
-
-	if m.Desc != nil {
-		do.Desc = m.Desc.ProjDesc()
-
-	}
-
-	return do
 }
 
 type ModelListDO struct {
@@ -171,7 +165,7 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
-	if r.Desc, err = domain.NewProjDesc(do.Desc); err != nil {
+	if r.Desc, err = domain.NewResourceDesc(do.Desc); err != nil {
 		return
 	}
 

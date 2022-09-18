@@ -123,23 +123,17 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 }
 
 func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
-	do := DatasetDO{
+	return DatasetDO{
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
 		Name:     d.Name.DatasetName(),
+		Desc:     d.Desc.ResourceDesc(),
 		RepoType: d.RepoType.RepoType(),
 		Protocol: d.Protocol.ProtocolName(),
 		Tags:     d.Tags,
 		RepoId:   d.RepoId,
 		Version:  d.Version,
 	}
-
-	if d.Desc != nil {
-		do.Desc = d.Desc.ProjDesc()
-
-	}
-
-	return do
 }
 
 type DatasetListDO struct {
@@ -171,7 +165,7 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 		return
 	}
 
-	if r.Desc, err = domain.NewProjDesc(do.Desc); err != nil {
+	if r.Desc, err = domain.NewResourceDesc(do.Desc); err != nil {
 		return
 	}
 

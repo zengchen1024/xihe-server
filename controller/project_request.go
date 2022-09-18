@@ -29,7 +29,7 @@ func (p *projectCreateRequest) toCmd() (cmd app.ProjectCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Desc, err = domain.NewProjDesc(p.Desc); err != nil {
+	if cmd.Desc, err = domain.NewResourceDesc(p.Desc); err != nil {
 		return
 	}
 
@@ -69,7 +69,7 @@ func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 	}
 
 	if p.Desc != nil {
-		if cmd.Desc, err = domain.NewProjDesc(*p.Desc); err != nil {
+		if cmd.Desc, err = domain.NewResourceDesc(*p.Desc); err != nil {
 			return
 		}
 	}

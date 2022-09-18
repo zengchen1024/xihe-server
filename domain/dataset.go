@@ -18,7 +18,7 @@ type Dataset struct {
 
 type DatasetModifiableProperty struct {
 	Name     DatasetName
-	Desc     ProjDesc
+	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
 }

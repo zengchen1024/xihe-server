@@ -11,7 +11,7 @@ import (
 type ProjectCreateCmd struct {
 	Owner    domain.Account
 	Name     domain.ProjName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	Type     domain.ProjType
 	CoverId  domain.CoverId
 	RepoType domain.RepoType
@@ -22,6 +22,7 @@ type ProjectCreateCmd struct {
 func (cmd *ProjectCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
+		cmd.Desc != nil &&
 		cmd.Type != nil &&
 		cmd.CoverId != nil &&
 		cmd.RepoType != nil &&
@@ -155,6 +156,7 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		Id:       p.Id,
 		Owner:    p.Owner.Account(),
 		Name:     p.Name.ProjName(),
+		Desc:     p.Desc.ResourceDesc(),
 		Type:     p.Type.ProjType(),
 		CoverId:  p.CoverId.CoverId(),
 		Protocol: p.Protocol.ProtocolName(),
@@ -162,9 +164,5 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		RepoType: p.RepoType.RepoType(),
 		RepoId:   p.RepoId,
 		Tags:     p.Tags,
-	}
-
-	if p.Desc != nil {
-		dto.Desc = p.Desc.ProjDesc()
 	}
 }

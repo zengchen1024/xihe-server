@@ -11,7 +11,7 @@ import (
 type DatasetCreateCmd struct {
 	Owner    domain.Account
 	Name     domain.DatasetName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
 }
@@ -19,6 +19,7 @@ type DatasetCreateCmd struct {
 func (cmd *DatasetCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
+		cmd.Desc != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
 
@@ -128,13 +129,10 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
 		Name:     d.Name.DatasetName(),
+		Desc:     d.Desc.ResourceDesc(),
 		Protocol: d.Protocol.ProtocolName(),
 		RepoType: d.RepoType.RepoType(),
 		RepoId:   d.RepoId,
 		Tags:     d.Tags,
-	}
-
-	if d.Desc != nil {
-		dto.Desc = d.Desc.ProjDesc()
 	}
 }

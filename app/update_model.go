@@ -6,7 +6,7 @@ import (
 
 type ModelUpdateCmd struct {
 	Name     domain.ModelName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 }
 

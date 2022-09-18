@@ -36,7 +36,7 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 	name := repo.Name.ResourceName()
 	desc := ""
 	if repo.Desc != nil {
-		desc = repo.Desc.ProjDesc()
+		desc = repo.Desc.ResourceDesc()
 	}
 	b := true
 
@@ -84,7 +84,7 @@ func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, e
 	name := repo.Name.ResourceName()
 	desc := ""
 	if repo.Desc != nil {
-		desc = repo.Desc.ProjDesc()
+		desc = repo.Desc.ResourceDesc()
 	}
 	b := true
 

@@ -214,7 +214,7 @@ func (s resourceService) projectToResourceDTO(
 		}
 
 		if p.Desc != nil {
-			v.Desc = p.Desc.ProjDesc()
+			v.Desc = p.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
@@ -245,7 +245,7 @@ func (s resourceService) modelToResourceDTO(
 		}
 
 		if d.Desc != nil {
-			v.Desc = d.Desc.ProjDesc()
+			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
@@ -276,7 +276,7 @@ func (s resourceService) datasetToResourceDTO(
 		}
 
 		if d.Desc != nil {
-			v.Desc = d.Desc.ProjDesc()
+			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {

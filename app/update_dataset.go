@@ -6,7 +6,7 @@ import (
 
 type DatasetUpdateCmd struct {
 	Name     domain.DatasetName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 }
 

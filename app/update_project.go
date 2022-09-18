@@ -6,7 +6,7 @@ import (
 
 type ProjectUpdateCmd struct {
 	Name     domain.ProjName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	CoverId  domain.CoverId
 }
