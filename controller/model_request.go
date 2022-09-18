@@ -47,22 +47,19 @@ type modelUpdateRequest struct {
 
 func (p *modelUpdateRequest) toCmd() (cmd app.ModelUpdateCmd, err error) {
 	if p.Name != nil {
-		cmd.Name, err = domain.NewModelName(*p.Name)
-		if err != nil {
+		if cmd.Name, err = domain.NewModelName(*p.Name); err != nil {
 			return
 		}
 	}
 
 	if p.Desc != nil {
-		cmd.Desc, err = domain.NewProjDesc(*p.Desc)
-		if err != nil {
+		if cmd.Desc, err = domain.NewProjDesc(*p.Desc); err != nil {
 			return
 		}
 	}
 
 	if p.RepoType != nil {
-		cmd.RepoType, err = domain.NewRepoType(*p.RepoType)
-		if err != nil {
+		if cmd.RepoType, err = domain.NewRepoType(*p.RepoType); err != nil {
 			return
 		}
 	}

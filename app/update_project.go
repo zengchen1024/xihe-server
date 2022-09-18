@@ -38,6 +38,7 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto Pr
 	}
 
 	// TODO update repo visibility
+	// update repo name
 
 	s.toProjectDTO(&v, &dto)
 
