@@ -22,7 +22,7 @@ func (req *modelCreateRequest) toCmd() (cmd app.ModelCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Desc, err = domain.NewProjDesc(req.Desc); err != nil {
+	if cmd.Desc, err = domain.NewResourceDesc(req.Desc); err != nil {
 		return
 	}
 
@@ -35,6 +35,34 @@ func (req *modelCreateRequest) toCmd() (cmd app.ModelCreateCmd, err error) {
 	}
 
 	err = cmd.Validate()
+
+	return
+}
+
+type modelUpdateRequest struct {
+	Name     *string `json:"name"`
+	Desc     *string `json:"desc"`
+	RepoType *string `json:"type"`
+}
+
+func (p *modelUpdateRequest) toCmd() (cmd app.ModelUpdateCmd, err error) {
+	if p.Name != nil {
+		if cmd.Name, err = domain.NewModelName(*p.Name); err != nil {
+			return
+		}
+	}
+
+	if p.Desc != nil {
+		if cmd.Desc, err = domain.NewResourceDesc(*p.Desc); err != nil {
+			return
+		}
+	}
+
+	if p.RepoType != nil {
+		if cmd.RepoType, err = domain.NewRepoType(*p.RepoType); err != nil {
+			return
+		}
+	}
 
 	return
 }

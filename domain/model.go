@@ -4,12 +4,9 @@ type Model struct {
 	Id string
 
 	Owner    Account
-	Name     ModelName
-	Desc     ProjDesc
-	RepoType RepoType
 	Protocol ProtocolName
 
-	Tags []string
+	ModelModifiableProperty
 
 	RepoId string
 
@@ -17,4 +14,11 @@ type Model struct {
 
 	// following fileds is not under the controlling of version
 	LikeCount int
+}
+
+type ModelModifiableProperty struct {
+	Name     ModelName
+	Desc     ResourceDesc
+	RepoType RepoType
+	Tags     []string
 }

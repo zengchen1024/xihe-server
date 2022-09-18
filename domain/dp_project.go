@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -59,26 +58,6 @@ func NewRepoType(v string) (RepoType, error) {
 type repoType string
 
 func (r repoType) RepoType() string {
-	return string(r)
-}
-
-// ProjDesc
-type ProjDesc interface {
-	ProjDesc() string
-}
-
-func NewProjDesc(v string) (ProjDesc, error) {
-	max := config.Resource.MaxDescLength
-	if len(v) > max || v == "" {
-		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
-	}
-
-	return projDesc(v), nil
-}
-
-type projDesc string
-
-func (r projDesc) ProjDesc() string {
 	return string(r)
 }
 

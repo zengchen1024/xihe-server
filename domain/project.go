@@ -20,7 +20,7 @@ type Project struct {
 
 type ProjectModifiableProperty struct {
 	Name     ProjName
-	Desc     ProjDesc
+	Desc     ResourceDesc
 	CoverId  CoverId
 	RepoType RepoType
 	Tags     []string

@@ -123,10 +123,11 @@ func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
 }
 
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {
-	do := ProjectDO{
+	return ProjectDO{
 		Id:       p.Id,
 		Owner:    p.Owner.Account(),
 		Name:     p.Name.ProjName(),
+		Desc:     p.Desc.ResourceDesc(),
 		Type:     p.Type.ProjType(),
 		CoverId:  p.CoverId.CoverId(),
 		RepoType: p.RepoType.RepoType(),
@@ -136,12 +137,6 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		RepoId:   p.RepoId,
 		Version:  p.Version,
 	}
-
-	if p.Desc != nil {
-		do.Desc = p.Desc.ProjDesc()
-	}
-
-	return do
 }
 
 type ProjectListDO struct {
@@ -176,7 +171,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 		return
 	}
 
-	if r.Desc, err = domain.NewProjDesc(do.Desc); err != nil {
+	if r.Desc, err = domain.NewResourceDesc(do.Desc); err != nil {
 		return
 	}
 

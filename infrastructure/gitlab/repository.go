@@ -22,7 +22,7 @@ type repository struct {
 	user UserInfo
 }
 
-func (r *repository) New(repo platform.RepoOption) (string, error) {
+func (r *repository) New(repo *platform.RepoOption) (string, error) {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
 	if err != nil {
 		return "", err
@@ -33,13 +33,6 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 		return "", err
 	}
 
-	name := repo.Name.ResourceName()
-	desc := ""
-	if repo.Desc != nil {
-		desc = repo.Desc.ProjDesc()
-	}
-	b := true
-
 	var visibility sdk.VisibilityValue
 	switch repo.RepoType.RepoType() {
 	case domain.RepoTypePrivate:
@@ -49,11 +42,13 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 		visibility = sdk.PublicVisibility
 	}
 
+	name := repo.Name.ResourceName()
+	b := true
+
 	v, _, err := cli.Projects.CreateProject(&sdk.CreateProjectOptions{
 		Name:                 &name,
 		Path:                 &name,
 		NamespaceID:          &ns,
-		Description:          &desc,
 		Visibility:           &visibility,
 		InitializeWithReadme: &b,
 	})
@@ -65,7 +60,7 @@ func (r *repository) New(repo platform.RepoOption) (string, error) {
 	return strconv.Itoa(v.ID), nil
 }
 
-func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, error) {
+func (r *repository) Fork(srcRepoId string, repoName domain.ResourceName) (string, error) {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
 	if err != nil {
 		return "", err
@@ -81,18 +76,13 @@ func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, e
 		return "", err
 	}
 
-	name := repo.Name.ResourceName()
-	desc := ""
-	if repo.Desc != nil {
-		desc = repo.Desc.ProjDesc()
-	}
+	name := repoName.ResourceName()
 	b := true
 
 	v, _, err := cli.Projects.ForkProject(repoId, &sdk.ForkProjectOptions{
 		Name:                          &name,
 		Path:                          &name,
 		NamespaceID:                   &ns,
-		Description:                   &desc,
 		MergeRequestDefaultTargetSelf: &b,
 	})
 
@@ -101,4 +91,41 @@ func (r *repository) Fork(srcRepoId string, repo platform.RepoOption) (string, e
 	}
 
 	return strconv.Itoa(v.ID), nil
+}
+
+func (r *repository) Update(repoId string, repo *platform.RepoOption) error {
+	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
+	if err != nil {
+		return err
+	}
+
+	pid, err := strconv.Atoi(repoId)
+	if err != nil {
+		return err
+	}
+
+	opts := &sdk.EditProjectOptions{}
+
+	if repo.Name != nil {
+		n := repo.Name.ResourceName()
+		opts.Name = &n
+	}
+
+	if repo.RepoType != nil {
+		var v sdk.VisibilityValue
+
+		switch repo.RepoType.RepoType() {
+		case domain.RepoTypePrivate:
+			v = sdk.PrivateVisibility
+
+		default:
+			v = sdk.PublicVisibility
+		}
+
+		opts.Visibility = &v
+	}
+
+	_, _, err = cli.Projects.EditProject(pid, opts)
+
+	return err
 }

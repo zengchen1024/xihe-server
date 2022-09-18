@@ -11,7 +11,7 @@ import (
 type DatasetCreateCmd struct {
 	Owner    domain.Account
 	Name     domain.DatasetName
-	Desc     domain.ProjDesc
+	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
 }
@@ -19,6 +19,7 @@ type DatasetCreateCmd struct {
 func (cmd *DatasetCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
+		cmd.Desc != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
 
@@ -32,10 +33,12 @@ func (cmd *DatasetCreateCmd) Validate() error {
 func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
 	return domain.Dataset{
 		Owner:    cmd.Owner,
-		Name:     cmd.Name,
-		Desc:     cmd.Desc,
-		RepoType: cmd.RepoType,
 		Protocol: cmd.Protocol,
+		DatasetModifiableProperty: domain.DatasetModifiableProperty{
+			Name:     cmd.Name,
+			Desc:     cmd.Desc,
+			RepoType: cmd.RepoType,
+		},
 	}
 }
 
@@ -52,6 +55,7 @@ type DatasetDTO struct {
 
 type DatasetService interface {
 	Create(*DatasetCreateCmd) (DatasetDTO, error)
+	Update(*domain.Dataset, *DatasetUpdateCmd) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName) (DatasetDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
 
@@ -69,25 +73,18 @@ type datasetService struct {
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error) {
-	v := cmd.toDataset()
-
-	d, err := s.repo.Save(&v)
-	if err != nil {
-		return
-	}
-
-	pid, err := s.pr.New(platform.RepoOption{
+	pid, err := s.pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
-		Desc:     cmd.Desc,
 		RepoType: cmd.RepoType,
 	})
 	if err != nil {
 		return
 	}
 
-	d.RepoId = pid
+	v := cmd.toDataset()
+	v.RepoId = pid
 
-	d, err = s.repo.Save(&d)
+	d, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
@@ -131,13 +128,10 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
 		Name:     d.Name.DatasetName(),
+		Desc:     d.Desc.ResourceDesc(),
 		Protocol: d.Protocol.ProtocolName(),
 		RepoType: d.RepoType.RepoType(),
 		RepoId:   d.RepoId,
 		Tags:     d.Tags,
-	}
-
-	if d.Desc != nil {
-		dto.Desc = d.Desc.ProjDesc()
 	}
 }

@@ -229,3 +229,23 @@ func (r *ResourceObj) String() string {
 		r.ResourceId,
 	)
 }
+
+// ResourceDesc
+type ResourceDesc interface {
+	ResourceDesc() string
+}
+
+func NewResourceDesc(v string) (ResourceDesc, error) {
+	max := config.Resource.MaxDescLength
+	if len(v) > max || v == "" {
+		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
+	}
+
+	return resourceDesc(v), nil
+}
+
+type resourceDesc string
+
+func (r resourceDesc) ResourceDesc() string {
+	return string(r)
+}

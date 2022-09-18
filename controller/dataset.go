@@ -15,16 +15,17 @@ func AddRouterForDatasetController(
 	repo repository.Dataset,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
-	c := DatasetController{
+	ctl := DatasetController{
 		repo: repo,
 		s:    app.NewDatasetService(repo, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
 
-	rg.POST("/v1/dataset", c.Create)
-	rg.GET("/v1/dataset/:owner/:name", c.Get)
-	rg.GET("/v1/dataset/:owner", c.List)
+	rg.POST("/v1/dataset", ctl.Create)
+	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
+	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
+	rg.GET("/v1/dataset/:owner", ctl.List)
 }
 
 type DatasetController struct {
@@ -93,6 +94,75 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(d))
+}
+
+// @Summary Update
+// @Description update property of dataset
+// @Tags  Dataset
+// @Param	id	path	string			true	"id of dataset"
+// @Param	body	body 	datasetUpdateRequest	true	"body of updating dataset"
+// @Accept json
+// @Produce json
+// @Router /v1/dataset/{owner}/{id} [put]
+func (ctl *DatasetController) Update(ctx *gin.Context) {
+	req := datasetUpdateRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update dataset for other user",
+		))
+
+		return
+	}
+
+	m, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	d, err := ctl.s.Update(&m, &cmd)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData(d))
 }
 
 // @Summary Get
