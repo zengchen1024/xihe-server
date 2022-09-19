@@ -148,7 +148,7 @@ type Resource struct {
 	TrainingPlatform []string `json:"training_platform" required:"true"`
 }
 
-func (r *Resource) Setdefault() {
+func (r *Resource) SetDefault() {
 	if r.MaxNameLength == 0 {
 		r.MaxNameLength = 50
 	}
