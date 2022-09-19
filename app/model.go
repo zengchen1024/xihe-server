@@ -54,8 +54,8 @@ type ModelDTO struct {
 }
 
 type ModelService interface {
-	Create(*ModelCreateCmd) (ModelDTO, error)
-	Update(*domain.Model, *ModelUpdateCmd) (ModelDTO, error)
+	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
+	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
 	GetByName(domain.Account, domain.ModelName) (ModelDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]ModelDTO, error)
 
@@ -63,17 +63,20 @@ type ModelService interface {
 	RemoveLike(domain.Account, string) error
 }
 
-func NewModelService(repo repository.Model, pr platform.Repository) ModelService {
-	return modelService{repo: repo, pr: pr}
+func NewModelService(
+	repo repository.Model, activity repository.Activity, pr platform.Repository,
+) ModelService {
+	return modelService{repo: repo, activity: activity}
 }
 
 type modelService struct {
 	repo repository.Model
-	pr   platform.Repository
+	//pr       platform.Repository
+	activity repository.Activity
 }
 
-func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
-	pid, err := s.pr.New(&platform.RepoOption{
+func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto ModelDTO, err error) {
+	pid, err := pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
 		RepoType: cmd.RepoType,
 	})
@@ -90,6 +93,13 @@ func (s modelService) Create(cmd *ModelCreateCmd) (dto ModelDTO, err error) {
 	}
 
 	s.toModelDTO(&m, &dto)
+
+	// add activity
+	ua := genActivityForCreatingResource(
+		m.Owner, domain.ResourceTypeModel, m.Id,
+	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
 
 	return
 }

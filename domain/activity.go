@@ -9,6 +9,11 @@ const (
 	activityTypeCreate = "create"
 )
 
+var (
+	ActivityTypeLike   = activityType(activityTypeLike)
+	ActivityTypeCreate = activityType(activityTypeCreate)
+)
+
 // ActivityType
 type ActivityType interface {
 	ActivityType() string
@@ -20,14 +25,6 @@ func NewActivityType(v string) (ActivityType, error) {
 	}
 
 	return activityType(v), nil
-}
-
-func NewActivityTypeLike() ActivityType {
-	return activityType(activityTypeLike)
-}
-
-func NewActivityTypeCreate() ActivityType {
-	return activityType(activityTypeCreate)
 }
 
 type activityType string

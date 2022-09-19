@@ -46,7 +46,7 @@ func (cmd *ProjectUpdateCmd) toProject(
 	return
 }
 
-func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto ProjectDTO, err error) {
+func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
 	opt := new(platform.RepoOption)
 	if !cmd.toProject(&p.ProjectModifiableProperty, opt) {
 		s.toProjectDTO(p, &dto)
@@ -60,7 +60,7 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd) (dto Pr
 	}
 
 	if opt.IsNotEmpty() {
-		if err = s.pr.Update(p.RepoId, opt); err != nil {
+		if err = pr.Update(p.RepoId, opt); err != nil {
 			return
 		}
 	}

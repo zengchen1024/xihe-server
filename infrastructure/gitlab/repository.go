@@ -22,6 +22,7 @@ type repository struct {
 	user UserInfo
 }
 
+// TODO admin create repo instead
 func (r *repository) New(repo *platform.RepoOption) (string, error) {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
 	if err != nil {
@@ -60,6 +61,7 @@ func (r *repository) New(repo *platform.RepoOption) (string, error) {
 	return strconv.Itoa(v.ID), nil
 }
 
+// TODO admin fork repo instead
 func (r *repository) Fork(srcRepoId string, repoName domain.ResourceName) (string, error) {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
 	if err != nil {
@@ -93,6 +95,7 @@ func (r *repository) Fork(srcRepoId string, repoName domain.ResourceName) (strin
 	return strconv.Itoa(v.ID), nil
 }
 
+// TODO admin update repo instead
 func (r *repository) Update(repoId string, repo *platform.RepoOption) error {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
 	if err != nil {

@@ -66,27 +66,31 @@ type ProjectDTO struct {
 }
 
 type ProjectService interface {
-	Create(*ProjectCreateCmd) (ProjectDTO, error)
+	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ProjName) (ProjectDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
-	Update(*domain.Project, *ProjectUpdateCmd) (ProjectDTO, error)
-	Fork(*ProjectForkCmd) (ProjectDTO, error)
+	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
+	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
 }
 
-func NewProjectService(repo repository.Project, pr platform.Repository) ProjectService {
-	return projectService{repo: repo, pr: pr}
+func NewProjectService(
+	repo repository.Project, activity repository.Activity,
+	pr platform.Repository,
+) ProjectService {
+	return projectService{repo: repo, activity: activity}
 }
 
 type projectService struct {
 	repo repository.Project
-	pr   platform.Repository
+	//pr       platform.Repository
+	activity repository.Activity
 }
 
-func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error) {
-	pid, err := s.pr.New(&platform.RepoOption{
+func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
+	pid, err := pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
 		RepoType: cmd.RepoType,
 	})
@@ -103,6 +107,13 @@ func (s projectService) Create(cmd *ProjectCreateCmd) (dto ProjectDTO, err error
 	}
 
 	s.toProjectDTO(&p, &dto)
+
+	// add activity
+	ua := genActivityForCreatingResource(
+		p.Owner, domain.ResourceTypeProject, p.Id,
+	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
 
 	return
 }

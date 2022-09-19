@@ -40,7 +40,9 @@ func (cmd *ModelUpdateCmd) toModel(
 	return
 }
 
-func (s modelService) Update(p *domain.Model, cmd *ModelUpdateCmd) (dto ModelDTO, err error) {
+func (s modelService) Update(
+	p *domain.Model, cmd *ModelUpdateCmd, pr platform.Repository,
+) (dto ModelDTO, err error) {
 	opt := new(platform.RepoOption)
 	if !cmd.toModel(&p.ModelModifiableProperty, opt) {
 		s.toModelDTO(p, &dto)
@@ -55,7 +57,7 @@ func (s modelService) Update(p *domain.Model, cmd *ModelUpdateCmd) (dto ModelDTO
 	}
 
 	if opt.IsNotEmpty() {
-		if err = s.pr.Update(p.RepoId, opt); err != nil {
+		if err = pr.Update(p.RepoId, opt); err != nil {
 			return
 		}
 	}

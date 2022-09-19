@@ -16,6 +16,10 @@ const (
 var (
 	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 	reResourceName = reName
+
+	ResourceTypeProject = resourceType(ResourceProject)
+	ResourceTypeModel   = resourceType(ResourceModel)
+	ResourceTypeDataset = resourceType(ResourceDataset)
 )
 
 // Name
@@ -59,7 +63,7 @@ func (r projName) ResourceName() string {
 }
 
 func (r projName) ResourceType() ResourceType {
-	return resourceType(ResourceProject)
+	return ResourceTypeProject
 }
 
 // ModelName
@@ -97,7 +101,7 @@ func (r modelName) ResourceName() string {
 }
 
 func (r modelName) ResourceType() ResourceType {
-	return resourceType(ResourceModel)
+	return ResourceTypeModel
 }
 
 // DatasetName
@@ -135,7 +139,7 @@ func (r datasetName) ResourceName() string {
 }
 
 func (r datasetName) ResourceType() ResourceType {
-	return resourceType(ResourceDataset)
+	return ResourceTypeDataset
 }
 
 func genResourceName(v, prefix string) (string, error) {
@@ -181,22 +185,6 @@ type ResourceType interface {
 	ResourceType() string
 }
 
-func ResourceTypeByName(n string) (ResourceType, error) {
-	if strings.HasPrefix(n, ResourceProject) {
-		return NewResourceType(ResourceProject)
-	}
-
-	if strings.HasPrefix(n, ResourceDataset) {
-		return NewResourceType(ResourceDataset)
-	}
-
-	if strings.HasPrefix(n, ResourceModel) {
-		return NewResourceType(ResourceModel)
-	}
-
-	return nil, errors.New("unknow resource")
-}
-
 func NewResourceType(v string) (ResourceType, error) {
 	b := v == ResourceProject ||
 		v == ResourceModel ||
@@ -212,22 +200,6 @@ type resourceType string
 
 func (r resourceType) ResourceType() string {
 	return string(r)
-}
-
-// ResourceObj
-type ResourceObj struct {
-	ResourceOwner Account
-	ResourceType  ResourceType
-	ResourceId    string
-}
-
-func (r *ResourceObj) String() string {
-	return fmt.Sprintf(
-		"%s_%s_%s",
-		r.ResourceOwner.Account(),
-		r.ResourceType.ResourceType(),
-		r.ResourceId,
-	)
 }
 
 // ResourceDesc

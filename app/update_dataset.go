@@ -40,7 +40,9 @@ func (cmd *DatasetUpdateCmd) toDataset(
 	return
 }
 
-func (s datasetService) Update(p *domain.Dataset, cmd *DatasetUpdateCmd) (dto DatasetDTO, err error) {
+func (s datasetService) Update(
+	p *domain.Dataset, cmd *DatasetUpdateCmd, pr platform.Repository,
+) (dto DatasetDTO, err error) {
 	opt := new(platform.RepoOption)
 	if !cmd.toDataset(&p.DatasetModifiableProperty, opt) {
 		s.toDatasetDTO(p, &dto)
@@ -55,7 +57,7 @@ func (s datasetService) Update(p *domain.Dataset, cmd *DatasetUpdateCmd) (dto Da
 	}
 
 	if opt.IsNotEmpty() {
-		if err = s.pr.Update(p.RepoId, opt); err != nil {
+		if err = pr.Update(p.RepoId, opt); err != nil {
 			return
 		}
 	}

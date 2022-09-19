@@ -13,11 +13,12 @@ import (
 func AddRouterForModelController(
 	rg *gin.RouterGroup,
 	repo repository.Model,
+	activity repository.Activity,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ModelController{
 		repo: repo,
-		s:    app.NewModelService(repo, nil),
+		s:    app.NewModelService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -82,11 +83,11 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewModelService(ctl.repo, ctl.newPlatformRepository(
+	pr := ctl.newPlatformRepository(
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
-	))
+	)
 
-	d, err := s.Create(&cmd)
+	d, err := ctl.s.Create(&cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -155,7 +156,11 @@ func (ctl *ModelController) Update(ctx *gin.Context) {
 		return
 	}
 
-	d, err := ctl.s.Update(&m, &cmd)
+	pr := ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	)
+
+	d, err := ctl.s.Update(&m, &cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

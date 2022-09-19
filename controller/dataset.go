@@ -13,11 +13,12 @@ import (
 func AddRouterForDatasetController(
 	rg *gin.RouterGroup,
 	repo repository.Dataset,
+	activity repository.Activity,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := DatasetController{
 		repo: repo,
-		s:    app.NewDatasetService(repo, nil),
+		s:    app.NewDatasetService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -82,11 +83,11 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewDatasetService(ctl.repo, ctl.newPlatformRepository(
+	pr := ctl.newPlatformRepository(
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
-	))
+	)
 
-	d, err := s.Create(&cmd)
+	d, err := ctl.s.Create(&cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -155,7 +156,11 @@ func (ctl *DatasetController) Update(ctx *gin.Context) {
 		return
 	}
 
-	d, err := ctl.s.Update(&m, &cmd)
+	pr := ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	)
+
+	d, err := ctl.s.Update(&m, &cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

@@ -6,6 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -31,7 +32,7 @@ func (cmd *ProjectForkCmd) toProject(name domain.ProjName) domain.Project {
 	}
 }
 
-func (s projectService) Fork(cmd *ProjectForkCmd) (dto ProjectDTO, err error) {
+func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto ProjectDTO, err error) {
 	name, err := s.genForkedRepoName(cmd.Owner, cmd.From.Name)
 	if err != nil {
 		return
@@ -44,7 +45,7 @@ func (s projectService) Fork(cmd *ProjectForkCmd) (dto ProjectDTO, err error) {
 		return
 	}
 
-	pid, err := s.pr.Fork(cmd.From.RepoId, name)
+	pid, err := pr.Fork(cmd.From.RepoId, name)
 	if err != nil {
 		return
 	}
@@ -57,6 +58,13 @@ func (s projectService) Fork(cmd *ProjectForkCmd) (dto ProjectDTO, err error) {
 	}
 
 	s.toProjectDTO(&p, &dto)
+
+	// create activity
+	ua := genActivityForCreatingResource(
+		p.Owner, domain.ResourceTypeProject, p.Id,
+	)
+
+	_ = s.activity.Save(&ua)
 
 	return
 }
