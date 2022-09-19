@@ -49,8 +49,8 @@ func main() {
 	}
 
 	// cfg
-	cfg, err := config.LoadConfig(o.service.ConfigFile)
-	if err != nil {
+	cfg := new(config.Config)
+	if err := config.LoadConfig(o.service.ConfigFile, cfg); err != nil {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 

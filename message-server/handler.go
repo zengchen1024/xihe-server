@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -12,6 +13,8 @@ import (
 )
 
 var _ message.EventHandler = (*handler)(nil)
+
+const sleepTime = 100 * time.Millisecond
 
 type handler struct {
 	log *logrus.Entry
@@ -101,7 +104,13 @@ func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 }
 
 func (h *handler) do(f func() error) (err error) {
-	for i := 0; i < h.maxRetry; i++ {
+	if err = f(); err == nil {
+		return
+	}
+
+	for i := 1; i < h.maxRetry; i++ {
+		time.Sleep(sleepTime)
+
 		if err = f(); err == nil {
 			return
 		}

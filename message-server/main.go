@@ -51,8 +51,8 @@ func main() {
 	}
 
 	// cfg
-	cfg, err := config.LoadConfig(o.service.ConfigFile)
-	if err != nil {
+	cfg := new(configuration)
+	if err := config.LoadConfig(o.service.ConfigFile, cfg); err != nil {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
@@ -61,7 +61,7 @@ func main() {
 		Like:      cfg.MQ.TopicLike,
 		Following: cfg.MQ.TopicFollowing,
 	}
-	if err := message.Init(cfg.GetMQConfig(), log, topic); err != nil {
+	if err := message.Init(cfg.getMQConfig(), log, topic); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
@@ -82,7 +82,7 @@ func main() {
 	run(newHandler(cfg, log), log)
 }
 
-func initDomainConfig(cfg *config.Config) {
+func initDomainConfig(cfg *configuration) {
 	r := &cfg.Resource
 	u := &cfg.User
 
@@ -105,7 +105,7 @@ func initDomainConfig(cfg *config.Config) {
 	})
 }
 
-func newHandler(cfg *config.Config, log *logrus.Entry) *handler {
+func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 	return &handler{
 		log:      log,
 		maxRetry: cfg.MaxRetry,
