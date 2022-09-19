@@ -60,6 +60,18 @@ func (cfg *Config) GetMQConfig() mq.MQConfig {
 	}
 }
 
+func (cfg *Config) configItems() []interface{} {
+	return []interface{}{
+		&cfg.Authing,
+		&cfg.Resource,
+		&cfg.Mongodb,
+		&cfg.Gitlab,
+		&cfg.API,
+		&cfg.User,
+		&cfg.MQ,
+	}
+}
+
 func (cfg *Config) SetDefault() {
 	if cfg.MaxRetry <= 0 {
 		cfg.MaxRetry = 10
@@ -69,15 +81,7 @@ func (cfg *Config) SetDefault() {
 		cfg.ActivityKeepNum = 25
 	}
 
-	items := []interface{}{
-		&cfg.Authing,
-		&cfg.Resource,
-		&cfg.Mongodb,
-		&cfg.Gitlab,
-		&cfg.API,
-		&cfg.User,
-		&cfg.MQ,
-	}
+	items := cfg.configItems()
 	for _, i := range items {
 		if f, ok := i.(ConfigSetDefault); ok {
 			f.SetDefault()
@@ -94,15 +98,7 @@ func (cfg *Config) Validate() error {
 		return err
 	}
 
-	items := []interface{}{
-		&cfg.Authing,
-		&cfg.Resource,
-		&cfg.Mongodb,
-		&cfg.Gitlab,
-		&cfg.API,
-		&cfg.User,
-		&cfg.MQ,
-	}
+	items := cfg.configItems()
 	for _, i := range items {
 		if f, ok := i.(ConfigValidate); ok {
 			if err := f.Validate(); err != nil {
