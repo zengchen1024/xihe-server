@@ -8,6 +8,6 @@ RUN cd /go/src/github.com/opensourceways/xihe-server/message-server && GO111MODU
 FROM alpine:latest
 WORKDIR /opt/app/
 
-COPY  --from=BUILDER /go/src/github.com/opensourceways/xihe-server/xihe-server/message-server/message-server /opt/app
+COPY  --from=BUILDER /go/src/github.com/opensourceways/xihe-server/message-server/message-server /opt/app
 
 ENTRYPOINT ["/opt/app/message-server"]
