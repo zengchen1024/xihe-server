@@ -1,8 +1,11 @@
 package app
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ProjectUpdateCmd struct {
@@ -76,4 +79,82 @@ func (s projectService) AddLike(owner domain.Account, rid string) error {
 
 func (s projectService) RemoveLike(owner domain.Account, rid string) error {
 	return s.repo.RemoveLike(owner, rid)
+}
+
+type RelatedResourceModifyCmd domain.ResourceObj
+
+func (cmd *RelatedResourceModifyCmd) ValidateForProject() error {
+	if err := cmd.validate(); err != nil {
+		return err
+	}
+
+	t := cmd.ResourceType.ResourceType()
+	if t != domain.ResourceDataset && t != domain.ResourceModel {
+		return errors.New("unspported resource type")
+	}
+
+	return nil
+}
+
+func (cmd *RelatedResourceModifyCmd) validate() error {
+	b := cmd.ResourceOwner == nil ||
+		cmd.ResourceId == "" ||
+		cmd.ResourceType == nil
+	if b {
+		return errors.New("invalid related resource modify cmd")
+	}
+
+	return nil
+}
+
+func (s projectService) AddRelatedResource(
+	p *domain.Project, cmd *RelatedResourceModifyCmd,
+) error {
+	// TODO limited num of related resources
+
+	var v domain.RelatedResources
+	switch cmd.ResourceType.ResourceType() {
+	case domain.ResourceModel:
+		v = p.RelatedModels
+	case domain.ResourceDataset:
+		v = p.RelatedDatasets
+	}
+
+	if v.Has(cmd.ResourceOwner, cmd.ResourceId) {
+		return nil
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:       p.Owner,
+		ResourceId:  p.Id,
+		Version:     p.Version,
+		ResourceObj: *(*domain.ResourceObj)(cmd),
+	}
+
+	return s.repo.AddRelatedResource(&info)
+}
+
+func (s projectService) RemoveRelatedResource(
+	p *domain.Project, cmd *RelatedResourceModifyCmd,
+) error {
+	var v domain.RelatedResources
+	switch cmd.ResourceType.ResourceType() {
+	case domain.ResourceModel:
+		v = p.RelatedModels
+	case domain.ResourceDataset:
+		v = p.RelatedDatasets
+	}
+
+	if !v.Has(cmd.ResourceOwner, cmd.ResourceId) {
+		return nil
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:       p.Owner,
+		ResourceId:  p.Id,
+		Version:     p.Version,
+		ResourceObj: *(*domain.ResourceObj)(cmd),
+	}
+
+	return s.repo.RemoveRelatedResource(&info)
 }

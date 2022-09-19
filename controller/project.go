@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,9 @@ func AddRouterForProjectController(
 	rg.GET("/v1/project/:owner", ctl.List)
 
 	rg.POST("/v1/project/:owner/:id", ctl.Fork)
+
+	rg.PUT("/v1/project/:owner/:id/relation", ctl.AddRelatedResource)
+	rg.DELETE("/v1/project/:owner/:id/relation", ctl.RemoveRelatedResource)
 }
 
 type ProjectController struct {
@@ -37,6 +41,9 @@ type ProjectController struct {
 
 	repo repository.Project
 	s    app.ProjectService
+
+	model   repository.Model
+	dataset repository.Dataset
 
 	newPlatformRepository func(string, string) platform.Repository
 }
@@ -99,6 +106,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 // @Summary Update
 // @Description update project
 // @Tags  Project
+// @Param	owner	path	string			true	"owner of project"
 // @Param	id	path	string			true	"id of project"
 // @Param	body	body 	projectUpdateRequest	true	"body of updating project"
 // @Accept json
@@ -221,6 +229,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Summary List
 // @Description list project
 // @Tags  Project
+// @Param	owner	path	string			true	"owner of project"
 // @Accept json
 // @Produce json
 // @Router /v1/project/{owner} [get]
@@ -289,7 +298,8 @@ func (ctl *ProjectController) getListParameter(
 // @Summary Fork
 // @Description fork project
 // @Tags  Project
-// @Param	id	path	string	true	"id of project"
+// @Param	owner	path	string	true	"owner of forked project"
+// @Param	id	path	string	true	"id of forked project"
 // @Accept json
 // @Produce json
 // @Router /v1/project/{owner}/{id} [post]
@@ -348,4 +358,161 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusCreated, newResponseData(data))
+}
+
+// @Summary AddRelatedResource
+// @Description add related resource to project
+// @Tags  Project
+// @Param	owner	path	string				true	"owner of project"
+// @Param	id	path	string				true	"id of project"
+// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating project"
+// @Accept json
+// @Success 200 {object} app.ResourceDTO
+// @Router /v1/project/{owner}/{id}/relation [put]
+func (ctl *ProjectController) AddRelatedResource(ctx *gin.Context) {
+	req := relatedResourceModifyRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toProjectCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update project for other user",
+		))
+
+		return
+	}
+
+	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	var data interface{}
+
+	switch cmd.ResourceType.ResourceType() {
+	case domain.ResourceModel:
+		data, err = ctl.model.Get(cmd.ResourceOwner, cmd.ResourceId)
+	case domain.ResourceDataset:
+		data, err = ctl.dataset.Get(cmd.ResourceOwner, cmd.ResourceId)
+	default:
+		err = errors.New("unsupported related resource")
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if err = ctl.s.AddRelatedResource(&proj, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData(convertToRelatedResource(data)))
+}
+
+// @Summary RemoveRelatedResource
+// @Description remove related resource from project
+// @Tags  Project
+// @Param	owner	path	string				true	"owner of project"
+// @Param	id	path	string				true	"id of project"
+// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating project"
+// @Accept json
+// @Success 204
+// @Router /v1/project/{owner}/{id}/relation [delete]
+func (ctl *ProjectController) RemoveRelatedResource(ctx *gin.Context) {
+	req := relatedResourceModifyRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toProjectCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update project for other user",
+		))
+
+		return
+	}
+
+	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	if err = ctl.s.RemoveRelatedResource(&proj, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }

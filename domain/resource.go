@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 func ResourceTypeByName(n string) (ResourceType, error) {
@@ -36,4 +38,23 @@ func (r *ResourceObj) String() string {
 		r.ResourceType.ResourceType(),
 		r.ResourceId,
 	)
+}
+
+type ResourceIndex struct {
+	ResourceOwner Account
+	ResourceId    string
+}
+
+type RelatedResources []ResourceIndex
+
+func (r RelatedResources) Has(owner Account, rid string) bool {
+	v := sets.NewString()
+
+	for i := range ([]ResourceIndex)(r) {
+		v.Insert(
+			r[i].ResourceOwner.Account() + r[i].ResourceId,
+		)
+	}
+
+	return v.Has(owner.Account() + rid)
 }

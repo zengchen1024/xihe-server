@@ -74,6 +74,9 @@ type ProjectService interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	AddRelatedResource(*domain.Project, *RelatedResourceModifyCmd) error
+	RemoveRelatedResource(*domain.Project, *RelatedResourceModifyCmd) error
 }
 
 func NewProjectService(
