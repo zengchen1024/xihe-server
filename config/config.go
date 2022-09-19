@@ -5,29 +5,38 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/huaweicloud/golangsdk"
 	"github.com/opensourceways/community-robot-lib/mq"
+	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/utils"
 )
 
 var reIpPort = regexp.MustCompile(`^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}:[1-9][0-9]*$`)
 
-func LoadConfig(path string) (*Config, error) {
-	v := new(Config)
-
-	if err := utils.LoadFromYaml(path, v); err != nil {
-		return nil, err
+func LoadConfig(path string, cfg interface{}) error {
+	if err := utils.LoadFromYaml(path, cfg); err != nil {
+		return err
 	}
 
-	v.setDefault()
-
-	if err := v.validate(); err != nil {
-		return nil, err
+	if f, ok := cfg.(ConfigSetDefault); ok {
+		f.SetDefault()
 	}
 
-	return v, nil
+	if f, ok := cfg.(ConfigValidate); ok {
+		if err := f.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type ConfigValidate interface {
+	Validate() error
+}
+
+type ConfigSetDefault interface {
+	SetDefault()
 }
 
 type Config struct {
@@ -47,14 +56,23 @@ type Config struct {
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
 	return mq.MQConfig{
-		Addresses: cfg.MQ.parseAddress(),
+		Addresses: cfg.MQ.ParseAddress(),
 	}
 }
 
-func (cfg *Config) setDefault() {
-	cfg.Resource.setdefault()
-	cfg.User.setDefault()
+func (cfg *Config) configItems() []interface{} {
+	return []interface{}{
+		&cfg.Authing,
+		&cfg.Resource,
+		&cfg.Mongodb,
+		&cfg.Gitlab,
+		&cfg.API,
+		&cfg.User,
+		&cfg.MQ,
+	}
+}
 
+func (cfg *Config) SetDefault() {
 	if cfg.MaxRetry <= 0 {
 		cfg.MaxRetry = 10
 	}
@@ -62,14 +80,17 @@ func (cfg *Config) setDefault() {
 	if cfg.ActivityKeepNum <= 0 {
 		cfg.ActivityKeepNum = 25
 	}
+
+	items := cfg.configItems()
+	for _, i := range items {
+		if f, ok := i.(ConfigSetDefault); ok {
+			f.SetDefault()
+		}
+	}
 }
 
-func (cfg *Config) validate() error {
-	if _, err := golangsdk.BuildRequestBody(cfg, ""); err != nil {
-		return err
-	}
-
-	if err := cfg.Resource.validate(); err != nil {
+func (cfg *Config) Validate() error {
+	if _, err := utils.BuildRequestBody(cfg, ""); err != nil {
 		return err
 	}
 
@@ -77,7 +98,16 @@ func (cfg *Config) validate() error {
 		return err
 	}
 
-	return cfg.MQ.validate()
+	items := cfg.configItems()
+	for _, i := range items {
+		if f, ok := i.(ConfigValidate); ok {
+			if err := f.Validate(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 type Mongodb struct {
@@ -118,7 +148,7 @@ type Resource struct {
 	TrainingPlatform []string `json:"training_platform" required:"true"`
 }
 
-func (r *Resource) setdefault() {
+func (r *Resource) Setdefault() {
 	if r.MaxNameLength == 0 {
 		r.MaxNameLength = 50
 	}
@@ -132,7 +162,7 @@ func (r *Resource) setdefault() {
 	}
 }
 
-func (r *Resource) validate() error {
+func (r *Resource) Validate() error {
 	if r.MaxNameLength < (r.MinNameLength + 10) {
 		return errors.New("invalid name length")
 	}
@@ -145,7 +175,7 @@ type User struct {
 	MaxBioLength      int `json:"max_bio_length"`
 }
 
-func (u *User) setDefault() {
+func (u *User) SetDefault() {
 	if u.MaxNicknameLength == 0 {
 		u.MaxNicknameLength = 20
 	}
@@ -161,15 +191,15 @@ type MQ struct {
 	TopicFollowing string `json:"topic_following" required:"true"`
 }
 
-func (cfg MQ) validate() error {
-	if r := cfg.parseAddress(); len(r) == 0 {
+func (cfg *MQ) Validate() error {
+	if r := cfg.ParseAddress(); len(r) == 0 {
 		return errors.New("invalid mq address")
 	}
 
 	return nil
 }
 
-func (cfg MQ) parseAddress() []string {
+func (cfg *MQ) ParseAddress() []string {
 	v := strings.Split(cfg.Address, ",")
 	r := make([]string, 0, len(v))
 	for i := range v {

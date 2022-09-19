@@ -6,8 +6,7 @@ require (
 	github.com/Authing/authing-go-sdk v0.2.8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
-	github.com/huaweicloud/golangsdk v0.0.0-20210831081626-d823fe11ceba
-	github.com/opensourceways/community-robot-lib v0.0.0-20220623114205-07aa27bde501
+	github.com/opensourceways/community-robot-lib v0.0.0-20220914071039-19b5510b1482
 	github.com/sirupsen/logrus v1.8.1
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
 	github.com/swaggo/gin-swagger v1.5.0
