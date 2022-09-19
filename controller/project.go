@@ -14,11 +14,12 @@ import (
 func AddRouterForProjectController(
 	rg *gin.RouterGroup,
 	repo repository.Project,
+	activity repository.Activity,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
 		repo: repo,
-		s:    app.NewProjectService(repo, nil),
+		s:    app.NewProjectService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -81,11 +82,11 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewProjectService(ctl.repo, ctl.newPlatformRepository(
+	pr := ctl.newPlatformRepository(
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
-	))
+	)
 
-	d, err := s.Create(&cmd)
+	d, err := ctl.s.Create(&cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -154,7 +155,11 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	d, err := ctl.s.Update(&proj, &cmd)
+	pr := ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	)
+
+	d, err := ctl.s.Update(&proj, &cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -329,14 +334,14 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
-	s := app.NewProjectService(ctl.repo, ctl.newPlatformRepository(
+	pr := ctl.newPlatformRepository(
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
-	))
+	)
 
-	data, err := s.Fork(&app.ProjectForkCmd{
+	data, err := ctl.s.Fork(&app.ProjectForkCmd{
 		From:  proj,
 		Owner: pl.DomainAccount(),
-	})
+	}, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

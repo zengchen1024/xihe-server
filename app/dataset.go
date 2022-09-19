@@ -54,8 +54,8 @@ type DatasetDTO struct {
 }
 
 type DatasetService interface {
-	Create(*DatasetCreateCmd) (DatasetDTO, error)
-	Update(*domain.Dataset, *DatasetUpdateCmd) (DatasetDTO, error)
+	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
+	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName) (DatasetDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
 
@@ -63,17 +63,20 @@ type DatasetService interface {
 	RemoveLike(domain.Account, string) error
 }
 
-func NewDatasetService(repo repository.Dataset, pr platform.Repository) DatasetService {
-	return datasetService{repo: repo, pr: pr}
+func NewDatasetService(
+	repo repository.Dataset, activity repository.Activity, pr platform.Repository,
+) DatasetService {
+	return datasetService{repo: repo, activity: activity}
 }
 
 type datasetService struct {
 	repo repository.Dataset
-	pr   platform.Repository
+	//pr       platform.Repository
+	activity repository.Activity
 }
 
-func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error) {
-	pid, err := s.pr.New(&platform.RepoOption{
+func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (dto DatasetDTO, err error) {
+	pid, err := pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
 		RepoType: cmd.RepoType,
 	})
@@ -90,6 +93,13 @@ func (s datasetService) Create(cmd *DatasetCreateCmd) (dto DatasetDTO, err error
 	}
 
 	s.toDatasetDTO(&d, &dto)
+
+	// add activity
+	ua := genActivityForCreatingResource(
+		d.Owner, domain.ResourceTypeDataset, d.Id,
+	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
 
 	return
 }

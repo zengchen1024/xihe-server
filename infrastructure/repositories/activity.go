@@ -32,6 +32,10 @@ func (impl activity) Find(owner domain.Account, opt repository.ActivityFindOptio
 ) {
 	v, err := impl.mapper.List(owner.Account(), ActivityListDO{})
 	if err != nil {
+		if _, ok := err.(ErrorDataNotExists); ok {
+			return nil, nil
+		}
+
 		return nil, convertError(err)
 	}
 

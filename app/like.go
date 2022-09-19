@@ -92,7 +92,7 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 	ua := domain.UserActivity{
 		Owner: owner,
 		Activity: domain.Activity{
-			Type:        domain.NewActivityTypeLike(),
+			Type:        domain.ActivityTypeLike,
 			Time:        now,
 			ResourceObj: v.ResourceObj,
 		},
