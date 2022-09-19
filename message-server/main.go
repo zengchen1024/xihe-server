@@ -120,21 +120,21 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			repositories.NewProjectRepository(
 				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
 			),
-			nil,
+			nil, nil,
 		),
 
 		dataset: app.NewDatasetService(
 			repositories.NewDatasetRepository(
 				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
 			),
-			nil,
+			nil, nil,
 		),
 
 		model: app.NewModelService(
 			repositories.NewModelRepository(
 				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
 			),
-			nil,
+			nil, nil,
 		),
 	}
 }
