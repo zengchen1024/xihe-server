@@ -35,6 +35,8 @@ type ResourceConfig struct {
 	Protocols        sets.String
 	ProjectType      sets.String
 	TrainingPlatform sets.String
+
+	MaxRelatedResourceNum int
 }
 
 type UserConfig struct {

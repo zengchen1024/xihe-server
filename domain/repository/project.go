@@ -19,7 +19,7 @@ type RelatedResourceInfo struct {
 	ResourceId string
 	Version    int
 
-	domain.ResourceObj
+	domain.ResourceIndex
 }
 
 type Project interface {
@@ -32,6 +32,9 @@ type Project interface {
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
 
-	AddRelatedResource(*RelatedResourceInfo) error
-	RemoveRelatedResource(*RelatedResourceInfo) error
+	AddRelatedModel(*RelatedResourceInfo) error
+	RemoveRelatedModel(*RelatedResourceInfo) error
+
+	AddRelatedDataset(*RelatedResourceInfo) error
+	RemoveRelatedDataset(*RelatedResourceInfo) error
 }

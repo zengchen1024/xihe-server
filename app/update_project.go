@@ -110,39 +110,56 @@ func (cmd *RelatedResourceModifyCmd) validate() error {
 func (s projectService) AddRelatedResource(
 	p *domain.Project, cmd *RelatedResourceModifyCmd,
 ) error {
-	// TODO limited num of related resources
-
+	var f func(*repository.RelatedResourceInfo) error
 	var v domain.RelatedResources
+
 	switch cmd.ResourceType.ResourceType() {
 	case domain.ResourceModel:
 		v = p.RelatedModels
+		f = s.repo.AddRelatedModel
+
 	case domain.ResourceDataset:
 		v = p.RelatedDatasets
+		f = s.repo.AddRelatedDataset
 	}
 
 	if v.Has(cmd.ResourceOwner, cmd.ResourceId) {
 		return nil
 	}
 
-	info := repository.RelatedResourceInfo{
-		Owner:       p.Owner,
-		ResourceId:  p.Id,
-		Version:     p.Version,
-		ResourceObj: *(*domain.ResourceObj)(cmd),
+	if v.Count()+1 > p.MaxRelatedResourceNum() {
+		return ErrorExceedMaxRelatedResourceNum{
+			errors.New("exceed max related reousrce num"),
+		}
 	}
 
-	return s.repo.AddRelatedResource(&info)
+	info := repository.RelatedResourceInfo{
+		Owner:      p.Owner,
+		ResourceId: p.Id,
+		Version:    p.Version,
+		ResourceIndex: domain.ResourceIndex{
+			ResourceOwner: cmd.ResourceOwner,
+			ResourceId:    cmd.ResourceId,
+		},
+	}
+
+	return f(&info)
 }
 
 func (s projectService) RemoveRelatedResource(
 	p *domain.Project, cmd *RelatedResourceModifyCmd,
 ) error {
+	var f func(*repository.RelatedResourceInfo) error
 	var v domain.RelatedResources
+
 	switch cmd.ResourceType.ResourceType() {
 	case domain.ResourceModel:
 		v = p.RelatedModels
+		f = s.repo.RemoveRelatedModel
+
 	case domain.ResourceDataset:
 		v = p.RelatedDatasets
+		f = s.repo.RemoveRelatedDataset
 	}
 
 	if !v.Has(cmd.ResourceOwner, cmd.ResourceId) {
@@ -150,11 +167,14 @@ func (s projectService) RemoveRelatedResource(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:       p.Owner,
-		ResourceId:  p.Id,
-		Version:     p.Version,
-		ResourceObj: *(*domain.ResourceObj)(cmd),
+		Owner:      p.Owner,
+		ResourceId: p.Id,
+		Version:    p.Version,
+		ResourceIndex: domain.ResourceIndex{
+			ResourceOwner: cmd.ResourceOwner,
+			ResourceId:    cmd.ResourceId,
+		},
 	}
 
-	return s.repo.RemoveRelatedResource(&info)
+	return f(&info)
 }

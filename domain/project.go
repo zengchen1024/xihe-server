@@ -21,6 +21,10 @@ type Project struct {
 	LikeCount int
 }
 
+func (p *Project) MaxRelatedResourceNum() int {
+	return config.Resource.MaxRelatedResourceNum
+}
+
 type ProjectModifiableProperty struct {
 	Name     ProjName
 	Desc     ResourceDesc

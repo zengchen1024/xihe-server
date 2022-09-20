@@ -1,6 +1,9 @@
 package controller
 
-import "github.com/opensourceways/xihe-server/domain/repository"
+import (
+	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain/repository"
+)
 
 const (
 	errorNotAllowed         = "not_allowed"
@@ -12,6 +15,7 @@ const (
 	errorDuplicateCreating  = "duplicate_creating"
 	errorResourceNotExists  = "resource_not_exists"
 	errorConcurrentUpdating = "concurrent_updateing"
+	errorExccedMaxNum       = "exceed_max_num"
 )
 
 var (
@@ -39,6 +43,10 @@ func newResponseError(err error) responseData {
 
 	case repository.ErrorConcurrentUpdating:
 		code = errorConcurrentUpdating
+
+	case app.ErrorExceedMaxRelatedResourceNum:
+		code = errorExccedMaxNum
+
 	}
 
 	return responseData{

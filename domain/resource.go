@@ -58,3 +58,7 @@ func (r RelatedResources) Has(owner Account, rid string) bool {
 
 	return v.Has(owner.Account() + rid)
 }
+
+func (r RelatedResources) Count() int {
+	return len(r)
+}

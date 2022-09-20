@@ -15,6 +15,12 @@ type ProjectMapper interface {
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
+
+	AddRelatedModel(*RelatedResourceDO) error
+	RemoveRelatedModel(*RelatedResourceDO) error
+
+	AddRelatedDataset(*RelatedResourceDO) error
+	RemoveRelatedDataset(*RelatedResourceDO) error
 }
 
 func NewProjectRepository(mapper ProjectMapper) repository.Project {

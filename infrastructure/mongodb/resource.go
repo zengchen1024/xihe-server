@@ -159,3 +159,46 @@ func listUsersResources(collection string, opts map[string][]string, result inte
 
 	return withContext(f)
 }
+
+func updateRelatedResource(
+	collection, field string, add bool,
+	do *repositories.RelatedResourceDO,
+) error {
+	doc := bson.M{
+		field: bson.M{
+			fieldRId:    do.ResourceId,
+			fieldROwner: do.ResourceOwner,
+		},
+	}
+
+	docFilter := resourceOwnerFilter(do.Owner)
+	arrayFilter := arrayFilterById(do.Id)
+
+	updated := false
+	var err error
+	f := func(ctx context.Context) error {
+		if add {
+			updated, err = cli.pushNestedArrayElem(
+				ctx, collection, fieldItems,
+				docFilter, arrayFilter, doc, do.Version,
+			)
+		} else {
+			updated, err = cli.pullNestedArrayElem(
+				ctx, collection, fieldItems,
+				docFilter, arrayFilter, doc, do.Version,
+			)
+		}
+
+		return nil
+	}
+
+	if withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
+	}
+
+	return nil
+}
