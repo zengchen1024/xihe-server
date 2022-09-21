@@ -153,7 +153,7 @@ func listUsersResources(collection string, opts map[string][]string, result inte
 					return inCondForArrayElem(fieldId, ids)
 				},
 			},
-			nil, result,
+			bson.M{fieldOwner: 1, fieldItems: 1}, result,
 		)
 	}
 

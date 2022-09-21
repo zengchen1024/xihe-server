@@ -202,7 +202,10 @@ func (s resourceService) projectToResourceDTO(
 		p := &projects[i]
 
 		v := ResourceDTO{
+			Id:      p.Id,
 			Name:    p.Name.ProjName(),
+			Type:    domain.ResourceProject,
+			Desc:    p.Desc.ResourceDesc(),
 			CoverId: p.CoverId.CoverId(),
 			/*
 				UpdateAt
@@ -211,10 +214,6 @@ func (s resourceService) projectToResourceDTO(
 				DownloadCount
 				ForkCount
 			*/
-		}
-
-		if p.Desc != nil {
-			v.Desc = p.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
@@ -234,7 +233,10 @@ func (s resourceService) modelToResourceDTO(
 		d := &data[i]
 
 		v := ResourceDTO{
+			Id:   d.Id,
 			Name: d.Name.ModelName(),
+			Type: domain.ResourceModel,
+			Desc: d.Desc.ResourceDesc(),
 			/*
 				UpdateAt
 
@@ -242,10 +244,6 @@ func (s resourceService) modelToResourceDTO(
 				DownloadCount
 				ForkCount
 			*/
-		}
-
-		if d.Desc != nil {
-			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
@@ -265,7 +263,10 @@ func (s resourceService) datasetToResourceDTO(
 		d := &data[i]
 
 		v := ResourceDTO{
+			Id:   d.Id,
 			Name: d.Name.DatasetName(),
+			Type: domain.ResourceDataset,
+			Desc: d.Desc.ResourceDesc(),
 			/*
 				UpdateAt
 
@@ -273,10 +274,6 @@ func (s resourceService) datasetToResourceDTO(
 				DownloadCount
 				ForkCount
 			*/
-		}
-
-		if d.Desc != nil {
-			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
