@@ -207,7 +207,7 @@ func (col model) ListUsersModels(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.ModelDO, 0, len(v))
+	r = make([]repositories.ModelDO, len(v))
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items

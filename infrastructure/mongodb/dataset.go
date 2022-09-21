@@ -207,7 +207,7 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.DatasetDO, 0, len(v))
+	r = make([]repositories.DatasetDO, len(v))
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items

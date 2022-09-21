@@ -213,7 +213,7 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.ProjectDO, 0, len(v))
+	r = make([]repositories.ProjectDO, len(v))
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
