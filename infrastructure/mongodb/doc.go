@@ -69,7 +69,7 @@ type modelItem struct {
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
 
-	// These two items are not allowd to be set,
+	// RelatedDatasets is not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
