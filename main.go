@@ -7,11 +7,9 @@ import (
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
-	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/message"
@@ -92,31 +90,8 @@ func main() {
 	defer mongodb.Close()
 
 	// cfg
-	initDomainConfig(cfg)
+	cfg.InitDomainConfig()
 
 	// run
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
-}
-
-func initDomainConfig(cfg *config.Config) {
-	r := &cfg.Resource
-	u := &cfg.User
-
-	domain.Init(domain.Config{
-		Resource: domain.ResourceConfig{
-			MaxNameLength: r.MaxNameLength,
-			MinNameLength: r.MinNameLength,
-			MaxDescLength: r.MaxDescLength,
-
-			Covers:           sets.NewString(r.Covers...),
-			Protocols:        sets.NewString(r.Protocols...),
-			ProjectType:      sets.NewString(r.ProjectType...),
-			TrainingPlatform: sets.NewString(r.TrainingPlatform...),
-		},
-
-		User: domain.UserConfig{
-			MaxNicknameLength: u.MaxNicknameLength,
-			MaxBioLength:      u.MaxBioLength,
-		},
-	})
 }

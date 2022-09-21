@@ -1,8 +1,9 @@
 package controller
 
 import (
-	"github.com/opensourceways/xihe-server/app"
+	"errors"
 
+	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 )
 
@@ -13,7 +14,7 @@ type relatedResourceModifyRequest struct {
 }
 
 func (req *relatedResourceModifyRequest) toProjectCmd() (
-	cmd app.RelatedResourceModifyCmd, err error,
+	cmd domain.ResourceObj, err error,
 ) {
 	if cmd.ResourceOwner, err = domain.NewAccount(req.Owner); err != nil {
 		return
@@ -23,9 +24,13 @@ func (req *relatedResourceModifyRequest) toProjectCmd() (
 		return
 	}
 
-	cmd.ResourceId = req.Id
+	if req.Id == "" {
+		err = errors.New("missing id")
 
-	err = cmd.ValidateForProject()
+		return
+	}
+
+	cmd.ResourceId = req.Id
 
 	return
 }

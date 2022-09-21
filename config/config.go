@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/opensourceways/community-robot-lib/utils"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
 )
@@ -138,9 +139,10 @@ type API struct {
 }
 
 type Resource struct {
-	MaxNameLength int `json:"max_name_length"`
-	MinNameLength int `json:"min_name_length"`
-	MaxDescLength int `json:"max_desc_length"`
+	MaxNameLength         int `json:"max_name_length"`
+	MinNameLength         int `json:"min_name_length"`
+	MaxDescLength         int `json:"max_desc_length"`
+	MaxRelatedResourceNum int `json:"max_related_resource_num"`
 
 	Covers           []string `json:"covers" required:"true"`
 	Protocols        []string `json:"protocols" required:"true"`
@@ -149,16 +151,20 @@ type Resource struct {
 }
 
 func (r *Resource) SetDefault() {
-	if r.MaxNameLength == 0 {
+	if r.MaxNameLength <= 0 {
 		r.MaxNameLength = 50
 	}
 
-	if r.MinNameLength == 0 {
+	if r.MinNameLength <= 0 {
 		r.MinNameLength = 5
 	}
 
-	if r.MaxDescLength == 0 {
+	if r.MaxDescLength <= 0 {
 		r.MaxDescLength = 100
+	}
+
+	if r.MaxRelatedResourceNum <= 0 {
+		r.MaxRelatedResourceNum = 5
 	}
 }
 
@@ -209,4 +215,29 @@ func (cfg *MQ) ParseAddress() []string {
 	}
 
 	return r
+}
+
+func (cfg *Config) InitDomainConfig() {
+	InitDomainConfig(&cfg.Resource, &cfg.User)
+}
+
+func InitDomainConfig(r *Resource, u *User) {
+	domain.Init(&domain.Config{
+		Resource: domain.ResourceConfig{
+			MaxNameLength:         r.MaxNameLength,
+			MinNameLength:         r.MinNameLength,
+			MaxDescLength:         r.MaxDescLength,
+			MaxRelatedResourceNum: r.MaxRelatedResourceNum,
+
+			Covers:           sets.NewString(r.Covers...),
+			Protocols:        sets.NewString(r.Protocols...),
+			ProjectType:      sets.NewString(r.ProjectType...),
+			TrainingPlatform: sets.NewString(r.TrainingPlatform...),
+		},
+
+		User: domain.UserConfig{
+			MaxNicknameLength: u.MaxNicknameLength,
+			MaxBioLength:      u.MaxBioLength,
+		},
+	})
 }

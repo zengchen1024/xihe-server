@@ -81,49 +81,29 @@ func (s projectService) RemoveLike(owner domain.Account, rid string) error {
 	return s.repo.RemoveLike(owner, rid)
 }
 
-type RelatedResourceModifyCmd domain.ResourceObj
-
-func (cmd *RelatedResourceModifyCmd) ValidateForProject() error {
-	if err := cmd.validate(); err != nil {
-		return err
-	}
-
-	t := cmd.ResourceType.ResourceType()
-	if t != domain.ResourceDataset && t != domain.ResourceModel {
-		return errors.New("unspported resource type")
-	}
-
-	return nil
-}
-
-func (cmd *RelatedResourceModifyCmd) validate() error {
-	b := cmd.ResourceOwner == nil ||
-		cmd.ResourceId == "" ||
-		cmd.ResourceType == nil
-	if b {
-		return errors.New("invalid related resource modify cmd")
-	}
-
-	return nil
-}
-
-func (s projectService) AddRelatedResource(
-	p *domain.Project, cmd *RelatedResourceModifyCmd,
+func (s projectService) AddRelatedModel(
+	p *domain.Project, index *domain.ResourceIndex,
 ) error {
-	var f func(*repository.RelatedResourceInfo) error
-	var v domain.RelatedResources
+	return s.addRelatedResource(
+		p, index, p.RelatedModels, s.repo.AddRelatedModel,
+	)
+}
 
-	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceModel:
-		v = p.RelatedModels
-		f = s.repo.AddRelatedModel
+func (s projectService) AddRelatedDataset(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.addRelatedResource(
+		p, index, p.RelatedDatasets, s.repo.AddRelatedDataset,
+	)
+}
 
-	case domain.ResourceDataset:
-		v = p.RelatedDatasets
-		f = s.repo.AddRelatedDataset
-	}
+func (s projectService) addRelatedResource(
+	p *domain.Project, index *domain.ResourceIndex,
+	v domain.RelatedResources,
+	f func(*repository.RelatedResourceInfo) error,
 
-	if v.Has(cmd.ResourceOwner, cmd.ResourceId) {
+) error {
+	if v.Has(index.ResourceOwner, index.ResourceId) {
 		return nil
 	}
 
@@ -134,46 +114,45 @@ func (s projectService) AddRelatedResource(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:      p.Owner,
-		ResourceId: p.Id,
-		Version:    p.Version,
-		ResourceIndex: domain.ResourceIndex{
-			ResourceOwner: cmd.ResourceOwner,
-			ResourceId:    cmd.ResourceId,
-		},
+		Owner:         p.Owner,
+		ResourceId:    p.Id,
+		Version:       p.Version,
+		ResourceIndex: *index,
 	}
 
 	return f(&info)
 }
 
-func (s projectService) RemoveRelatedResource(
-	p *domain.Project, cmd *RelatedResourceModifyCmd,
+func (s projectService) RemoveRelatedModel(
+	p *domain.Project, index *domain.ResourceIndex,
 ) error {
-	var f func(*repository.RelatedResourceInfo) error
-	var v domain.RelatedResources
+	return s.removeRelatedResource(
+		p, index, p.RelatedModels, s.repo.RemoveRelatedModel,
+	)
+}
 
-	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceModel:
-		v = p.RelatedModels
-		f = s.repo.RemoveRelatedModel
+func (s projectService) RemoveRelatedDataset(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.removeRelatedResource(
+		p, index, p.RelatedDatasets, s.repo.RemoveRelatedDataset,
+	)
+}
 
-	case domain.ResourceDataset:
-		v = p.RelatedDatasets
-		f = s.repo.RemoveRelatedDataset
-	}
-
-	if !v.Has(cmd.ResourceOwner, cmd.ResourceId) {
+func (s projectService) removeRelatedResource(
+	p *domain.Project, index *domain.ResourceIndex,
+	v domain.RelatedResources,
+	f func(*repository.RelatedResourceInfo) error,
+) error {
+	if !v.Has(index.ResourceOwner, index.ResourceId) {
 		return nil
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:      p.Owner,
-		ResourceId: p.Id,
-		Version:    p.Version,
-		ResourceIndex: domain.ResourceIndex{
-			ResourceOwner: cmd.ResourceOwner,
-			ResourceId:    cmd.ResourceId,
-		},
+		Owner:         p.Owner,
+		ResourceId:    p.Id,
+		Version:       p.Version,
+		ResourceIndex: *index,
 	}
 
 	return f(&info)

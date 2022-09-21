@@ -17,8 +17,8 @@ var (
 	reEmail = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
 )
 
-func Init(cfg Config) {
-	config = cfg
+func Init(cfg *Config) {
+	config = *cfg
 }
 
 type Config struct {
@@ -27,16 +27,15 @@ type Config struct {
 }
 
 type ResourceConfig struct {
-	MaxNameLength int
-	MinNameLength int
-	MaxDescLength int
+	MaxNameLength         int
+	MinNameLength         int
+	MaxDescLength         int
+	MaxRelatedResourceNum int
 
 	Covers           sets.String
 	Protocols        sets.String
 	ProjectType      sets.String
 	TrainingPlatform sets.String
-
-	MaxRelatedResourceNum int
 }
 
 type UserConfig struct {
