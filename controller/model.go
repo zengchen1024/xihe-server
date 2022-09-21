@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,12 +14,14 @@ import (
 func AddRouterForModelController(
 	rg *gin.RouterGroup,
 	repo repository.Model,
+	dataset repository.Dataset,
 	activity repository.Activity,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ModelController{
-		repo: repo,
-		s:    app.NewModelService(repo, activity, nil),
+		repo:    repo,
+		dataset: dataset,
+		s:       app.NewModelService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -27,13 +30,17 @@ func AddRouterForModelController(
 	rg.PUT("/v1/model/:owner/:id", ctl.Update)
 	rg.GET("/v1/model/:owner/:name", ctl.Get)
 	rg.GET("/v1/model/:owner", ctl.List)
+
+	rg.PUT("/v1/model/:owner/:id/relation", ctl.AddRelatedDataset)
+	rg.DELETE("/v1/model/:owner/:id/relation", ctl.RemoveRelatedDataset)
 }
 
 type ModelController struct {
 	baseController
 
-	repo repository.Model
-	s    app.ModelService
+	repo    repository.Model
+	dataset repository.Dataset
+	s       app.ModelService
 
 	newPlatformRepository func(string, string) platform.Repository
 }
@@ -285,4 +292,138 @@ func (ctl *ModelController) getListParameter(
 	}
 
 	return
+}
+
+// @Summary AddRelatedDataset
+// @Description add related dataset to model
+// @Tags  Model
+// @Param	owner	path	string				true	"owner of model"
+// @Param	id	path	string				true	"id of model"
+// @Param	body	body 	relatedDatasetModifyRequest	true	"body of updating model"
+// @Accept json
+// @Success 200 {object} app.ResourceDTO
+// @Router /v1/model/{owner}/{id}/relation [put]
+func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
+	ctl.relatedDataset(ctx, true)
+}
+
+func (ctl *ModelController) addRelatedDataset(
+	ctx *gin.Context, m *domain.Model, cmd *domain.ResourceObj,
+) {
+	data, err := ctl.dataset.Get(cmd.ResourceOwner, cmd.ResourceId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	index := domain.ResourceIndex{
+		ResourceOwner: cmd.ResourceOwner,
+		ResourceId:    cmd.ResourceId,
+	}
+	if err := ctl.s.AddRelatedDataset(m, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData(convertToRelatedResource(data)))
+}
+
+// @Summary RemoveRelatedDataset
+// @Description remove related dataset from model
+// @Tags  Model
+// @Param	owner	path	string				true	"owner of model"
+// @Param	id	path	string				true	"id of model"
+// @Param	body	body 	relatedDatasetModifyRequest	true	"body of updating model"
+// @Accept json
+// @Success 204
+// @Router /v1/model/{owner}/{id}/relation [delete]
+func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
+	ctl.relatedDataset(ctx, false)
+}
+
+func (ctl *ModelController) removeRelatedDataset(
+	ctx *gin.Context, m *domain.Model, cmd *domain.ResourceObj,
+) {
+	index := domain.ResourceIndex{
+		ResourceOwner: cmd.ResourceOwner,
+		ResourceId:    cmd.ResourceId,
+	}
+	if err := ctl.s.RemoveRelatedDataset(m, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+}
+
+func (ctl *ModelController) relatedDataset(ctx *gin.Context, add bool) {
+	req := relatedResourceModifyRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if cmd.ResourceType.ResourceType() != domain.ResourceDataset {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam,
+			errors.New("unsupported related resource"),
+		))
+
+		return
+	}
+
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update model for other user",
+		))
+
+		return
+	}
+
+	m, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	if add {
+		ctl.addRelatedDataset(ctx, &m, &cmd)
+	} else {
+		ctl.removeRelatedDataset(ctx, &m, &cmd)
+	}
 }

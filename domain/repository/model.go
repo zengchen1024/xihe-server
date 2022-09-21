@@ -13,4 +13,7 @@ type Model interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	AddRelatedDataset(*RelatedResourceInfo) error
+	RemoveRelatedDataset(*RelatedResourceInfo) error
 }

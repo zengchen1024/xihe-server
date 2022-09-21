@@ -61,6 +61,9 @@ type ModelService interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
+	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 }
 
 func NewModelService(
