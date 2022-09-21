@@ -74,6 +74,12 @@ type ProjectService interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	AddRelatedModel(*domain.Project, *domain.ResourceIndex) error
+	RemoveRelatedModel(*domain.Project, *domain.ResourceIndex) error
+
+	AddRelatedDataset(*domain.Project, *domain.ResourceIndex) error
+	RemoveRelatedDataset(*domain.Project, *domain.ResourceIndex) error
 }
 
 func NewProjectService(

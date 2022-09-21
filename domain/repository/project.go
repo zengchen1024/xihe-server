@@ -14,6 +14,14 @@ type ResourceListOption struct {
 	RepoType domain.RepoType
 }
 
+type RelatedResourceInfo struct {
+	Owner      domain.Account
+	ResourceId string
+	Version    int
+
+	RelatedResource domain.ResourceIndex
+}
+
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
@@ -23,4 +31,10 @@ type Project interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	AddRelatedModel(*RelatedResourceInfo) error
+	RemoveRelatedModel(*RelatedResourceInfo) error
+
+	AddRelatedDataset(*RelatedResourceInfo) error
+	RemoveRelatedDataset(*RelatedResourceInfo) error
 }

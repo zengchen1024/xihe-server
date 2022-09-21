@@ -287,9 +287,43 @@ func (cli *client) pushElemToLimitedArray(
 	return nil
 }
 
+func (cli *client) pullNestedArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray, data bson.M, version int,
+) (bool, error) {
+	return cli.modifyArrayElem(
+		ctx, collection, array,
+		filterOfDoc, filterOfArray, data,
+		"$pull", version,
+	)
+}
+
+func (cli *client) pushNestedArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray, data bson.M, version int,
+) (bool, error) {
+	return cli.modifyArrayElem(
+		ctx, collection, array,
+		filterOfDoc, filterOfArray, data,
+		"$push", version,
+	)
+}
+
 func (cli *client) updateArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray, updateCmd bson.M, version int,
+) (bool, error) {
+	return cli.modifyArrayElem(
+		ctx, collection, array,
+		filterOfDoc, filterOfArray, updateCmd,
+		"$set", version,
+	)
+}
+
+func (cli *client) modifyArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray, updateCmd bson.M,
+	op string, version int,
 ) (bool, error) {
 	cmd := bson.M{}
 	for k, v := range updateCmd {
@@ -306,7 +340,7 @@ func (cli *client) updateArrayElem(
 	r, err := col.UpdateOne(
 		ctx, filterOfDoc,
 		bson.M{
-			"$set": cmd,
+			op:     cmd,
 			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldVersion): 1},
 		},
 		&options.UpdateOptions{

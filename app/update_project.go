@@ -1,8 +1,11 @@
 package app
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ProjectUpdateCmd struct {
@@ -76,4 +79,81 @@ func (s projectService) AddLike(owner domain.Account, rid string) error {
 
 func (s projectService) RemoveLike(owner domain.Account, rid string) error {
 	return s.repo.RemoveLike(owner, rid)
+}
+
+func (s projectService) AddRelatedModel(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.addRelatedResource(
+		p, index, p.RelatedModels, s.repo.AddRelatedModel,
+	)
+}
+
+func (s projectService) AddRelatedDataset(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.addRelatedResource(
+		p, index, p.RelatedDatasets, s.repo.AddRelatedDataset,
+	)
+}
+
+func (s projectService) addRelatedResource(
+	p *domain.Project, index *domain.ResourceIndex,
+	v domain.RelatedResources,
+	f func(*repository.RelatedResourceInfo) error,
+
+) error {
+	if v.Has(index) {
+		return nil
+	}
+
+	if v.Count()+1 > p.MaxRelatedResourceNum() {
+		return ErrorExceedMaxRelatedResourceNum{
+			errors.New("exceed max related reousrce num"),
+		}
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:           p.Owner,
+		ResourceId:      p.Id,
+		Version:         p.Version,
+		RelatedResource: *index,
+	}
+
+	return f(&info)
+}
+
+func (s projectService) RemoveRelatedModel(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.removeRelatedResource(
+		p, index, p.RelatedModels, s.repo.RemoveRelatedModel,
+	)
+}
+
+func (s projectService) RemoveRelatedDataset(
+	p *domain.Project, index *domain.ResourceIndex,
+) error {
+	return s.removeRelatedResource(
+		p, index, p.RelatedDatasets, s.repo.RemoveRelatedDataset,
+	)
+}
+
+func (s projectService) removeRelatedResource(
+	p *domain.Project, index *domain.ResourceIndex,
+	v domain.RelatedResources,
+	f func(*repository.RelatedResourceInfo) error,
+) error {
+	if !v.Has(index) {
+		return nil
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:           p.Owner,
+		ResourceId:      p.Id,
+		Version:         p.Version,
+		RelatedResource: *index,
+	}
+
+	return f(&info)
 }

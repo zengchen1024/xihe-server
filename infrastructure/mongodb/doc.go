@@ -21,6 +21,10 @@ const (
 	fieldFollowingCount = "following_count"
 	fieldCreatedAt      = "created_at"
 	fieldType           = "type"
+	fieldModels         = "models"
+	fieldDatasets       = "datasets"
+	fieldRId            = "rid"
+	fieldROwner         = "rowner"
 )
 
 type dProject struct {
@@ -39,6 +43,11 @@ type projectItem struct {
 	RepoType string   `bson:"repo_type" json:"repo_type"`
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
+
+	// These two items are not allowd to be set,
+	// So, don't marshal it to avoid setting it occasionally.
+	RelatedModels   []ResourceIndex `bson:"models" json:"-"`
+	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
@@ -136,5 +145,10 @@ type activityItem struct {
 type ResourceObj struct {
 	ResourceId    string `bson:"rid"     json:"rid"`
 	ResourceType  string `bson:"rtype"   json:"rtype"`
+	ResourceOwner string `bson:"rowner"  json:"rowner"`
+}
+
+type ResourceIndex struct {
+	ResourceId    string `bson:"rid"     json:"rid"`
 	ResourceOwner string `bson:"rowner"  json:"rowner"`
 }

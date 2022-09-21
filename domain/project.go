@@ -12,10 +12,17 @@ type Project struct {
 
 	RepoId string
 
+	RelatedModels   RelatedResources
+	RelatedDatasets RelatedResources
+
 	Version int
 
 	// following fileds is not under the controlling of version
 	LikeCount int
+}
+
+func (p *Project) MaxRelatedResourceNum() int {
+	return config.Resource.MaxRelatedResourceNum
 }
 
 type ProjectModifiableProperty struct {
