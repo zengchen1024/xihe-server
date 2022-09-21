@@ -213,7 +213,7 @@ func (col model) ListUsersModels(opts map[string][]string) (
 		owner := v[i].Owner
 		items := v[i].Items
 
-		dos := make([]repositories.ModelDO, 0, len(items))
+		dos := make([]repositories.ModelDO, len(items))
 		for j := range items {
 			col.toModelDO(owner, &items[j], &dos[j])
 		}
