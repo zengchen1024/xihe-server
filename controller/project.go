@@ -481,7 +481,7 @@ func (ctl *ProjectController) relatedResource(ctx *gin.Context, add bool) {
 		return
 	}
 
-	cmd, err := req.toProjectCmd()
+	cmd, err := req.toCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,

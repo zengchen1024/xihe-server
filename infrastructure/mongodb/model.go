@@ -78,6 +78,7 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 	}
 	doc[fieldVersion] = 0
 	doc[fieldLikeCount] = 0
+	doc[fieldDatasets] = bson.A{}
 
 	docFilter := modelDocFilter(do.Owner)
 

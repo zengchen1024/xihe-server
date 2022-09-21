@@ -15,6 +15,9 @@ type ModelMapper interface {
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
+
+	AddRelatedDataset(*RelatedResourceDO) error
+	RemoveRelatedDataset(*RelatedResourceDO) error
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {

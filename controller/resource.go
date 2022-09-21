@@ -13,7 +13,7 @@ type relatedResourceModifyRequest struct {
 	Id    string `json:"id" required:"true"`
 }
 
-func (req *relatedResourceModifyRequest) toProjectCmd() (
+func (req *relatedResourceModifyRequest) toCmd() (
 	cmd domain.ResourceObj, err error,
 ) {
 	if cmd.ResourceOwner, err = domain.NewAccount(req.Owner); err != nil {

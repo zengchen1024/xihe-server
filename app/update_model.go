@@ -1,8 +1,11 @@
 package app
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ModelUpdateCmd struct {
@@ -73,4 +76,44 @@ func (s modelService) AddLike(owner domain.Account, rid string) error {
 
 func (s modelService) RemoveLike(owner domain.Account, rid string) error {
 	return s.repo.RemoveLike(owner, rid)
+}
+
+func (s modelService) AddRelatedDataset(
+	m *domain.Model, index *domain.ResourceIndex,
+) error {
+	if m.RelatedDatasets.Has(index) {
+		return nil
+	}
+
+	if m.RelatedDatasets.Count()+1 > m.MaxRelatedResourceNum() {
+		return ErrorExceedMaxRelatedResourceNum{
+			errors.New("exceed max related reousrce num"),
+		}
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:           m.Owner,
+		ResourceId:      m.Id,
+		Version:         m.Version,
+		RelatedResource: *index,
+	}
+
+	return s.repo.AddRelatedDataset(&info)
+}
+
+func (s modelService) RemoveRelatedDataset(
+	m *domain.Model, index *domain.ResourceIndex,
+) error {
+	if !m.RelatedDatasets.Has(index) {
+		return nil
+	}
+
+	info := repository.RelatedResourceInfo{
+		Owner:           m.Owner,
+		ResourceId:      m.Id,
+		Version:         m.Version,
+		RelatedResource: *index,
+	}
+
+	return s.repo.RemoveRelatedDataset(&info)
 }
