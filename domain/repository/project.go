@@ -19,7 +19,7 @@ type RelatedResourceInfo struct {
 	ResourceId string
 	Version    int
 
-	domain.ResourceIndex
+	RelatedResource domain.ResourceIndex
 }
 
 type Project interface {

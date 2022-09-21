@@ -47,7 +47,7 @@ type ResourceIndex struct {
 
 type RelatedResources []ResourceIndex
 
-func (r RelatedResources) Has(owner Account, rid string) bool {
+func (r RelatedResources) Has(index *ResourceIndex) bool {
 	v := sets.NewString()
 
 	for i := range ([]ResourceIndex)(r) {
@@ -56,7 +56,7 @@ func (r RelatedResources) Has(owner Account, rid string) bool {
 		)
 	}
 
-	return v.Has(owner.Account() + rid)
+	return v.Has(index.ResourceOwner.Account() + index.ResourceId)
 }
 
 func (r RelatedResources) Count() int {

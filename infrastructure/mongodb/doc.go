@@ -44,8 +44,10 @@ type projectItem struct {
 	RepoId   string   `bson:"repo_id"   json:"repo_id"`
 	Tags     []string `bson:"tags"      json:"tags"`
 
-	RelatedModels   []ResourceIndex `bson:"models" json:"models"`
-	RelatedDatasets []ResourceIndex `bson:"datasets" json:"datasets"`
+	// These two items are not allowd to be set,
+	// So, don't marshal it to avoid setting it occasionally.
+	RelatedModels   []ResourceIndex `bson:"models" json:"-"`
+	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.

@@ -15,12 +15,16 @@ import (
 func AddRouterForProjectController(
 	rg *gin.RouterGroup,
 	repo repository.Project,
+	model repository.Model,
+	dataset repository.Dataset,
 	activity repository.Activity,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
-		repo: repo,
-		s:    app.NewProjectService(repo, activity, nil),
+		repo:    repo,
+		model:   model,
+		dataset: dataset,
+		s:       app.NewProjectService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}

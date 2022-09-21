@@ -69,8 +69,8 @@ func toRelatedResourceDO(info *repository.RelatedResourceInfo) RelatedResourceDO
 		Owner:   info.Owner.Account(),
 		Version: info.Version,
 
-		ResourceOwner: info.ResourceIndex.ResourceOwner.Account(),
-		ResourceId:    info.ResourceIndex.ResourceId,
+		ResourceOwner: info.RelatedResource.ResourceOwner.Account(),
+		ResourceId:    info.RelatedResource.ResourceId,
 	}
 }
 

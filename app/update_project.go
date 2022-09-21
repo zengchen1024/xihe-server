@@ -103,7 +103,7 @@ func (s projectService) addRelatedResource(
 	f func(*repository.RelatedResourceInfo) error,
 
 ) error {
-	if v.Has(index.ResourceOwner, index.ResourceId) {
+	if v.Has(index) {
 		return nil
 	}
 
@@ -114,10 +114,10 @@ func (s projectService) addRelatedResource(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:         p.Owner,
-		ResourceId:    p.Id,
-		Version:       p.Version,
-		ResourceIndex: *index,
+		Owner:           p.Owner,
+		ResourceId:      p.Id,
+		Version:         p.Version,
+		RelatedResource: *index,
 	}
 
 	return f(&info)
@@ -144,15 +144,15 @@ func (s projectService) removeRelatedResource(
 	v domain.RelatedResources,
 	f func(*repository.RelatedResourceInfo) error,
 ) error {
-	if !v.Has(index.ResourceOwner, index.ResourceId) {
+	if !v.Has(index) {
 		return nil
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:         p.Owner,
-		ResourceId:    p.Id,
-		Version:       p.Version,
-		ResourceIndex: *index,
+		Owner:           p.Owner,
+		ResourceId:      p.Id,
+		Version:         p.Version,
+		RelatedResource: *index,
 	}
 
 	return f(&info)
