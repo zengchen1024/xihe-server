@@ -28,6 +28,7 @@ func (col activity) Insert(owner string, do repositories.ActivityDO) (err error)
 	// doc is not exist or duplicate insert
 
 	if err = newResourceDoc(col.collectionName, owner); err == nil {
+
 		if err = col.insert(owner, do); err != nil && isDocNotExists(err) {
 			err = repositories.NewErrorDuplicateCreating(err)
 		}
@@ -36,17 +37,16 @@ func (col activity) Insert(owner string, do repositories.ActivityDO) (err error)
 	return
 }
 
+// Two same kind of activities can happen at different time,
+// for example, like, unlike, and like again.
 func (col activity) insert(owner string, do repositories.ActivityDO) error {
 	doc, err := col.toActivityDoc(&do)
 	if err != nil {
 		return err
 	}
 
-	obj, _ := genDoc(toResourceObj(&do.ResourceObjDO))
-	obj[fieldType] = do.Type
-
 	docFilter := resourceOwnerFilter(owner)
-	appendElemMatchToFilter(fieldItems, false, obj, docFilter)
+	appendElemMatchToFilter(fieldItems, false, doc, docFilter)
 
 	f := func(ctx context.Context) error {
 		return cli.pushElemToLimitedArray(
