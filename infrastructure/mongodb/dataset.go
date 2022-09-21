@@ -207,14 +207,18 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.DatasetDO, len(v))
+	r = make([]repositories.DatasetDO, 0, len(v))
+
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
 
+		dos := make([]repositories.DatasetDO, len(items))
 		for j := range items {
-			col.toDatasetDO(owner, &items[j], &r[i])
+			col.toDatasetDO(owner, &items[j], &dos[j])
 		}
+
+		r = append(r, dos...)
 	}
 
 	return

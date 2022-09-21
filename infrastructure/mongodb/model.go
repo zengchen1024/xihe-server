@@ -207,14 +207,18 @@ func (col model) ListUsersModels(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.ModelDO, len(v))
+	r = make([]repositories.ModelDO, 0, len(v))
+
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
 
+		dos := make([]repositories.ModelDO, 0, len(items))
 		for j := range items {
-			col.toModelDO(owner, &items[j], &r[i])
+			col.toModelDO(owner, &items[j], &dos[j])
 		}
+
+		r = append(r, dos...)
 	}
 
 	return
