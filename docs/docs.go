@@ -122,6 +122,40 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/v1/dataset/{owner}/{id}": {
+            "put": {
+                "description": "update property of dataset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dataset"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of dataset",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating dataset",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.datasetUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/v1/dataset/{owner}/{name}": {
             "get": {
                 "description": "get dataset",
@@ -217,6 +251,125 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/v1/model/{owner}/{id}": {
+            "put": {
+                "description": "update property of model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of model",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating model",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.modelUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/model/{owner}/{id}/relation": {
+            "put": {
+                "description": "add related dataset to model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "AddRelatedDataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of model",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of model",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating model",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ResourceDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "remove related dataset from model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "RemoveRelatedDataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of model",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of model",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating model",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/model/{owner}/{name}": {
             "get": {
                 "description": "get model",
@@ -293,6 +446,15 @@ const docTemplate = `{
                     "Project"
                 ],
                 "summary": "List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -310,6 +472,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "id of project",
@@ -344,13 +513,105 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id of project",
+                        "description": "owner of forked project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of forked project",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/v1/project/{owner}/{id}/relation": {
+            "put": {
+                "description": "add related resource to project",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "AddRelatedResource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating project",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ResourceDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "remove related resource from project",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "RemoveRelatedResource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of updating project",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
             }
         },
         "/v1/project/{owner}/{name}": {
@@ -511,7 +772,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/follower": {
+        "/v1/user/follower/{account}": {
             "get": {
                 "description": "list followers",
                 "consumes": [
@@ -537,29 +798,6 @@ const docTemplate = `{
             }
         },
         "/v1/user/following": {
-            "get": {
-                "description": "list followings",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Following"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.FollowDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "add a following",
                 "consumes": [
@@ -623,6 +861,29 @@ const docTemplate = `{
             }
         },
         "/v1/user/following/{account}": {
+            "get": {
+                "description": "list followings",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Following"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.FollowDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "remove a following",
                 "consumes": [
@@ -1094,6 +1355,20 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.datasetUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.followingCreateRequest": {
             "type": "object",
             "properties": {
@@ -1140,6 +1415,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.modelUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -1193,12 +1482,19 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "tags": {
-                    "description": "json [] will be converted to []string",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.relatedResourceModifyRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
                 },
                 "type": {
                     "type": "string"

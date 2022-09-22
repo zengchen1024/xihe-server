@@ -299,7 +299,7 @@ func (ctl *ModelController) getListParameter(
 // @Tags  Model
 // @Param	owner	path	string				true	"owner of model"
 // @Param	id	path	string				true	"id of model"
-// @Param	body	body 	relatedDatasetModifyRequest	true	"body of updating model"
+// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating model"
 // @Accept json
 // @Success 200 {object} app.ResourceDTO
 // @Router /v1/model/{owner}/{id}/relation [put]
@@ -337,7 +337,7 @@ func (ctl *ModelController) addRelatedDataset(
 // @Tags  Model
 // @Param	owner	path	string				true	"owner of model"
 // @Param	id	path	string				true	"id of model"
-// @Param	body	body 	relatedDatasetModifyRequest	true	"body of updating model"
+// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating model"
 // @Accept json
 // @Success 204
 // @Router /v1/model/{owner}/{id}/relation [delete]
