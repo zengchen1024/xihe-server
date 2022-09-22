@@ -129,6 +129,15 @@ definitions:
       repo_type:
         type: string
     type: object
+  controller.datasetUpdateRequest:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
   controller.followingCreateRequest:
     properties:
       account:
@@ -159,6 +168,15 @@ definitions:
       protocol:
         type: string
       repo_type:
+        type: string
+    type: object
+  controller.modelUpdateRequest:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      type:
         type: string
     type: object
   controller.platformInfo:
@@ -193,11 +211,15 @@ definitions:
         type: string
       name:
         type: string
-      tags:
-        description: json [] will be converted to []string
-        items:
-          type: string
-        type: array
+      type:
+        type: string
+    type: object
+  controller.relatedResourceModifyRequest:
+    properties:
+      id:
+        type: string
+      owner:
+        type: string
       type:
         type: string
     type: object
@@ -356,6 +378,29 @@ paths:
       summary: List
       tags:
       - Dataset
+  /v1/dataset/{owner}/{id}:
+    put:
+      consumes:
+      - application/json
+      description: update property of dataset
+      parameters:
+      - description: id of dataset
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating dataset
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.datasetUpdateRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Update
+      tags:
+      - Dataset
   /v1/dataset/{owner}/{name}:
     get:
       consumes:
@@ -419,6 +464,86 @@ paths:
       summary: List
       tags:
       - Model
+  /v1/model/{owner}/{id}:
+    put:
+      consumes:
+      - application/json
+      description: update property of model
+      parameters:
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating model
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.modelUpdateRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Update
+      tags:
+      - Model
+  /v1/model/{owner}/{id}/relation:
+    delete:
+      consumes:
+      - application/json
+      description: remove related dataset from model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating model
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceModifyRequest'
+      responses:
+        "204":
+          description: ""
+      summary: RemoveRelatedDataset
+      tags:
+      - Model
+    put:
+      consumes:
+      - application/json
+      description: add related dataset to model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating model
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceModifyRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ResourceDTO'
+      summary: AddRelatedDataset
+      tags:
+      - Model
   /v1/model/{owner}/{name}:
     get:
       consumes:
@@ -466,6 +591,12 @@ paths:
       consumes:
       - application/json
       description: list project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
@@ -478,7 +609,12 @@ paths:
       - application/json
       description: fork project
       parameters:
-      - description: id of project
+      - description: owner of forked project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of forked project
         in: path
         name: id
         required: true
@@ -494,6 +630,11 @@ paths:
       - application/json
       description: update project
       parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
       - description: id of project
         in: path
         name: id
@@ -509,6 +650,63 @@ paths:
       - application/json
       responses: {}
       summary: Update
+      tags:
+      - Project
+  /v1/project/{owner}/{id}/relation:
+    delete:
+      consumes:
+      - application/json
+      description: remove related resource from project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating project
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceModifyRequest'
+      responses:
+        "204":
+          description: ""
+      summary: RemoveRelatedResource
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      description: add related resource to project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of updating project
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceModifyRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ResourceDTO'
+      summary: AddRelatedResource
       tags:
       - Project
   /v1/project/{owner}/{name}:
@@ -616,7 +814,7 @@ paths:
             type: system_error
       tags:
       - Activity
-  /v1/user/follower:
+  /v1/user/follower/{account}:
     get:
       consumes:
       - application/json
@@ -633,21 +831,6 @@ paths:
       tags:
       - Follower
   /v1/user/following:
-    get:
-      consumes:
-      - application/json
-      description: list followings
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.FollowDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      tags:
-      - Following
     post:
       consumes:
       - application/json
@@ -710,6 +893,21 @@ paths:
           description: Unauthorized
           schema:
             type: not_allowed
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Following
+    get:
+      consumes:
+      - application/json
+      description: list followings
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FollowDTO'
         "500":
           description: Internal Server Error
           schema:

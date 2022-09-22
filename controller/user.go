@@ -32,9 +32,9 @@ func AddRouterForUserController(
 
 	rg.POST("/v1/user/following", pc.AddFollowing)
 	rg.DELETE("/v1/user/following/:account", pc.RemoveFollowing)
-	rg.GET("/v1/user/following", pc.ListFollowing)
+	rg.GET("/v1/user/following/:account", pc.ListFollowing)
 
-	rg.GET("/v1/user/follower", pc.ListFollower)
+	rg.GET("/v1/user/follower/:account", pc.ListFollower)
 	rg.GET("/v1/user/:account/gitlab", pc.GitlabToken)
 }
 
