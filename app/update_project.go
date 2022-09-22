@@ -49,6 +49,9 @@ func (cmd *ProjectUpdateCmd) toProject(
 	return
 }
 
+// the step1 must be done before step2.
+// For example, it can't set the project's name to the one existing.
+// gitlab will help to avoid this case.
 func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
 	opt := new(platform.RepoOption)
 	if !cmd.toProject(&p.ProjectModifiableProperty, opt) {
@@ -57,20 +60,45 @@ func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd, pr plat
 		return
 	}
 
-	v, err := s.repo.Save(p)
-	if err != nil {
-		return
-	}
-
+	// step1
 	if opt.IsNotEmpty() {
 		if err = pr.Update(p.RepoId, opt); err != nil {
 			return
 		}
 	}
 
-	s.toProjectDTO(&v, &dto)
+	// step2
+	info := repository.ProjectPropertyUpdateInfo{
+		Owner:    p.Owner,
+		Id:       p.Id,
+		Version:  p.Version,
+		Property: p.ProjectModifiableProperty,
+	}
+	if err = s.repo.UpdateProperty(&info); err != nil {
+		return
+	}
+
+	s.toProjectDTO(p, &dto)
 
 	return
+}
+
+func (s projectService) SetTags(p *domain.Project, cmd *ResourceTagsUpdateCmd) error {
+	tags, b := cmd.toTags(p.ProjectModifiableProperty.Tags)
+	if !b {
+		return nil
+	}
+
+	p.ProjectModifiableProperty.Tags = tags
+
+	info := repository.ProjectPropertyUpdateInfo{
+		Owner:    p.Owner,
+		Id:       p.Id,
+		Version:  p.Version,
+		Property: p.ProjectModifiableProperty,
+	}
+
+	return s.repo.UpdateProperty(&info)
 }
 
 func (s projectService) AddLike(owner domain.Account, rid string) error {

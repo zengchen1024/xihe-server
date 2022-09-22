@@ -63,6 +63,39 @@ func (impl project) RemoveRelatedDataset(info *repository.RelatedResourceInfo) e
 	return nil
 }
 
+func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) error {
+	p := &info.Property
+
+	do := ProjectPropertyDO{
+		Id:       info.Id,
+		Owner:    info.Owner.Account(),
+		Version:  info.Version,
+		Name:     p.Name.ProjName(),
+		Desc:     p.Desc.ResourceDesc(),
+		CoverId:  p.CoverId.CoverId(),
+		RepoType: p.RepoType.RepoType(),
+		Tags:     p.Tags,
+	}
+
+	if err := impl.mapper.UpdateProperty(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+type ProjectPropertyDO struct {
+	Id      string
+	Owner   string
+	Version int
+
+	Name     string
+	Desc     string
+	CoverId  string
+	RepoType string
+	Tags     []string
+}
+
 func toRelatedResourceDO(info *repository.RelatedResourceInfo) RelatedResourceDO {
 	return RelatedResourceDO{
 		Id:      info.ResourceId,

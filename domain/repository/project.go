@@ -22,6 +22,13 @@ type RelatedResourceInfo struct {
 	RelatedResource domain.ResourceIndex
 }
 
+type ProjectPropertyUpdateInfo struct {
+	Owner    domain.Account
+	Id       string
+	Version  int
+	Property domain.ProjectModifiableProperty
+}
+
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
@@ -37,4 +44,6 @@ type Project interface {
 
 	AddRelatedDataset(*RelatedResourceInfo) error
 	RemoveRelatedDataset(*RelatedResourceInfo) error
+
+	UpdateProperty(*ProjectPropertyUpdateInfo) error
 }

@@ -80,6 +80,8 @@ type ProjectService interface {
 
 	AddRelatedDataset(*domain.Project, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Project, *domain.ResourceIndex) error
+
+	SetTags(*domain.Project, *ResourceTagsUpdateCmd) error
 }
 
 func NewProjectService(
@@ -96,6 +98,7 @@ type projectService struct {
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
+	// step1: create repo on gitlab
 	pid, err := pr.New(&platform.RepoOption{
 		Name:     cmd.Name,
 		RepoType: cmd.RepoType,
@@ -104,6 +107,7 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 		return
 	}
 
+	// step2: save
 	v := cmd.toProject()
 	v.RepoId = pid
 
