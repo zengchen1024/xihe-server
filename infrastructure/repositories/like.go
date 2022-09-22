@@ -42,6 +42,10 @@ func (impl like) Find(owner domain.Account, opt repository.LikeFindOption) (
 ) {
 	v, err := impl.mapper.List(owner.Account(), LikeListDO{})
 	if err != nil {
+		if _, ok := err.(ErrorDataNotExists); ok {
+			return nil, nil
+		}
+
 		return nil, convertError(err)
 	}
 
