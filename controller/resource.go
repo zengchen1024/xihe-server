@@ -71,7 +71,7 @@ type resourceTagsUpdateRequest struct {
 }
 
 func (req *resourceTagsUpdateRequest) toCmd(
-	validTags []string,
+	validTags []domain.DomainTags,
 ) (cmd app.ResourceTagsUpdateCmd, err error) {
 
 	err = errors.New("invalid cmd")
@@ -82,7 +82,13 @@ func (req *resourceTagsUpdateRequest) toCmd(
 		}
 	}
 
-	tags := sets.NewString(validTags...)
+	tags := sets.NewString()
+
+	for i := range validTags {
+		for _, item := range validTags[i].Items {
+			tags.Insert(item.Items...)
+		}
+	}
 
 	if len(req.ToAdd) > 0 && !tags.HasAll(req.ToAdd...) {
 		return

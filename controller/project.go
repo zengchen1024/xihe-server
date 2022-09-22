@@ -18,12 +18,14 @@ func AddRouterForProjectController(
 	model repository.Model,
 	dataset repository.Dataset,
 	activity repository.Activity,
+	tags repository.Tags,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
 		repo:    repo,
 		model:   model,
 		dataset: dataset,
+		tags:    tags,
 		s:       app.NewProjectService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
@@ -50,6 +52,7 @@ type ProjectController struct {
 
 	model   repository.Model
 	dataset repository.Dataset
+	tags    repository.Tags
 
 	newPlatformRepository func(string, string) platform.Repository
 }
@@ -550,8 +553,14 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	// TODO
-	cmd, err := req.toCmd(nil)
+	tags, err := ctl.tags.List(domain.ResourceTypeProject)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	cmd, err := req.toCmd(tags)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
