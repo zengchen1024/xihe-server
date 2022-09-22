@@ -25,6 +25,7 @@ const (
 	fieldDatasets       = "datasets"
 	fieldRId            = "rid"
 	fieldROwner         = "rowner"
+	fieldRType          = "rtype"
 )
 
 type dProject struct {
@@ -155,4 +156,15 @@ type ResourceObj struct {
 type ResourceIndex struct {
 	ResourceId    string `bson:"rid"     json:"rid"`
 	ResourceOwner string `bson:"rowner"  json:"rowner"`
+}
+
+type dResourceTags struct {
+	ResourceType string        `bson:"rtype"   json:"rtype"`
+	Items        []dDomainTags `bson:"items"   json:"items"`
+}
+
+type dDomainTags struct {
+	Domain string   `bson:"domain"   json:"domain"`
+	Kind   string   `bson:"kind"     json:"kind"`
+	Tags   []string `bson:"tags"     json:"tags"`
 }
