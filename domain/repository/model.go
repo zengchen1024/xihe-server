@@ -12,7 +12,7 @@ type ModelPropertyUpdateInfo struct {
 }
 
 type Model interface {
-	Save1(*domain.Model) (domain.Model, error)
+	Save(*domain.Model) (domain.Model, error)
 	Get(domain.Account, string) (domain.Model, error)
 	GetByName(domain.Account, domain.ModelName) (domain.Model, error)
 	List(domain.Account, ResourceListOption) ([]domain.Model, error)

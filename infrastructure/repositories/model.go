@@ -1,13 +1,14 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ModelMapper interface {
 	Insert(ModelDO) (string, error)
-	Update(ModelDO) error
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
 	List(string, ResourceListDO) ([]ModelDO, error)
@@ -18,6 +19,8 @@ type ModelMapper interface {
 
 	AddRelatedDataset(*RelatedResourceDO) error
 	RemoveRelatedDataset(*RelatedResourceDO) error
+
+	UpdateProperty(*ModelPropertyDO) error
 }
 
 func NewModelRepository(mapper ModelMapper) repository.Model {
@@ -30,12 +33,7 @@ type model struct {
 
 func (impl model) Save(m *domain.Model) (r domain.Model, err error) {
 	if m.Id != "" {
-		if err = impl.mapper.Update(impl.toModelDO(m)); err != nil {
-			err = convertError(err)
-		} else {
-			r = *m
-			r.Version += 1
-		}
+		err = errors.New("must be a new model")
 
 		return
 	}
