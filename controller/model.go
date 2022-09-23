@@ -332,7 +332,7 @@ func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	m, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -341,7 +341,7 @@ func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 		ResourceOwner: owner,
 		ResourceId:    data.Id,
 	}
-	if err = ctl.s.AddRelatedDataset(&proj, &index); err != nil {
+	if err = ctl.s.AddRelatedDataset(&m, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -380,7 +380,7 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	m, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -389,7 +389,7 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 		ResourceOwner: cmd.ResourceOwner,
 		ResourceId:    cmd.ResourceId,
 	}
-	if err = ctl.s.RemoveRelatedDataset(&proj, &index); err != nil {
+	if err = ctl.s.RemoveRelatedDataset(&m, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -398,7 +398,7 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
-func (ctl *ModelController) checkPermission(ctx *gin.Context) (proj domain.Model, ok bool) {
+func (ctl *ModelController) checkPermission(ctx *gin.Context) (m domain.Model, ok bool) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -422,7 +422,7 @@ func (ctl *ModelController) checkPermission(ctx *gin.Context) (proj domain.Model
 		return
 	}
 
-	proj, err = ctl.repo.Get(owner, ctx.Param("id"))
+	m, err = ctl.repo.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
