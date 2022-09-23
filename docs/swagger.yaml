@@ -522,7 +522,7 @@ paths:
       tags:
       - Model
   /v1/model/{owner}/{id}/dataset/relation:
-    put:
+    delete:
       consumes:
       - application/json
       description: remove related dataset to model
@@ -547,6 +547,35 @@ paths:
         "204":
           description: ""
       summary: RemoveRelatedDataset
+      tags:
+      - Model
+    put:
+      consumes:
+      - application/json
+      description: add related dataset to model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of related dataset
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceAddRequest'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/app.ResourceDTO'
+      summary: AddRelatedDataset
       tags:
       - Model
   /v1/model/{owner}/{name}:
@@ -658,7 +687,7 @@ paths:
       tags:
       - Project
   /v1/project/{owner}/{id}/dataset/relation:
-    put:
+    delete:
       consumes:
       - application/json
       description: remove related dataset to project
@@ -685,8 +714,37 @@ paths:
       summary: RemoveRelatedDataset
       tags:
       - Project
-  /v1/project/{owner}/{id}/model/relation:
     put:
+      consumes:
+      - application/json
+      description: add related dataset to project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of related dataset
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceAddRequest'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/app.ResourceDTO'
+      summary: AddRelatedDataset
+      tags:
+      - Project
+  /v1/project/{owner}/{id}/model/relation:
+    delete:
       consumes:
       - application/json
       description: remove related model to project
@@ -711,6 +769,35 @@ paths:
         "204":
           description: ""
       summary: RemoveRelatedModel
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      description: add related model to project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of related model
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.relatedResourceAddRequest'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/app.ResourceDTO'
+      summary: AddRelatedModel
       tags:
       - Project
   /v1/project/{owner}/{id}/tags:

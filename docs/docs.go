@@ -287,6 +287,49 @@ const docTemplate = `{
         },
         "/v1/model/{owner}/{id}/dataset/relation": {
             "put": {
+                "description": "add related dataset to model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "AddRelatedDataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of model",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of model",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of related dataset",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceAddRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/app.ResourceDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
                 "description": "remove related dataset to model",
                 "consumes": [
                     "application/json"
@@ -488,6 +531,49 @@ const docTemplate = `{
         },
         "/v1/project/{owner}/{id}/dataset/relation": {
             "put": {
+                "description": "add related dataset to project",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "AddRelatedDataset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of related dataset",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceAddRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/app.ResourceDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
                 "description": "remove related dataset to project",
                 "consumes": [
                     "application/json"
@@ -530,6 +616,49 @@ const docTemplate = `{
         },
         "/v1/project/{owner}/{id}/model/relation": {
             "put": {
+                "description": "add related model to project",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "AddRelatedModel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of project",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of related model",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.relatedResourceAddRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/app.ResourceDTO"
+                        }
+                    }
+                }
+            },
+            "delete": {
                 "description": "remove related model to project",
                 "consumes": [
                     "application/json"
