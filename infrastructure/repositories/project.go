@@ -14,6 +14,8 @@ type ProjectMapper interface {
 	List(string, ResourceListDO) ([]ProjectDO, error)
 	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
 
+	IncreaseFork(string, string) error
+
 	AddLike(string, string) error
 	RemoveLike(string, string) error
 
@@ -162,6 +164,7 @@ type ProjectDO struct {
 	Tags      []string
 	Version   int
 	LikeCount int
+	ForkCount int
 }
 
 func (do *ProjectDO) toProject(r *domain.Project) (err error) {
@@ -203,6 +206,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.Tags = do.Tags
 	r.Version = do.Version
 	r.LikeCount = do.LikeCount
+	r.ForkCount = do.ForkCount
 
 	return
 }

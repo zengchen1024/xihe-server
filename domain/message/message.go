@@ -26,3 +26,7 @@ type LikeHandler interface {
 	HandleEventAddLike(domain.Like) error
 	HandleEventRemoveLike(msg domain.Like) error
 }
+
+type ForkHandler interface {
+	HandleEventFork(domain.ResourceIndex) error
+}

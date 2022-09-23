@@ -1,4 +1,4 @@
-package message
+package messages
 
 import (
 	"encoding/json"
@@ -15,6 +15,7 @@ var topics Topics
 type Topics struct {
 	Following string
 	Like      string
+	Fork      string
 }
 
 func NewMessageSender() message.Sender {
@@ -60,6 +61,16 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 	}
 
 	return s.send(topics.Like, &v)
+}
+
+// Fork
+func (s sender) Fork(msg domain.ResourceIndex) error {
+	v := msgFork{
+		Owner: msg.ResourceOwner.Account(),
+		Id:    msg.ResourceId,
+	}
+
+	return s.send(topics.Fork, &v)
 }
 
 func (s sender) send(topic string, v interface{}) error {

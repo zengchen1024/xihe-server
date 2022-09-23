@@ -46,4 +46,6 @@ type Project interface {
 	RemoveRelatedDataset(*RelatedResourceInfo) error
 
 	UpdateProperty(*ProjectPropertyUpdateInfo) error
+
+	IncreaseFork(domain.ResourceIndex) error
 }

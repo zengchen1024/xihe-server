@@ -1,4 +1,4 @@
-package message
+package messages
 
 const (
 	actionAdd    = "add"
@@ -16,4 +16,9 @@ type msgLike struct {
 	Owner  string `json:"owner"`
 	Type   string `json:"type"`
 	Id     string `json:"id"`
+}
+
+type msgFork struct {
+	Owner string `json:"owner"`
+	Id    string `json:"id"`
 }

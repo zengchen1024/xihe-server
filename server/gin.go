@@ -17,7 +17,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
-	"github.com/opensourceways/xihe-server/infrastructure/message"
+	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
@@ -88,7 +88,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	)
 	gitlabUser := gitlab.NewUserSerivce()
 	authingUser := authing.NewAuthingUser()
-	sender := message.NewMessageSender()
+	sender := messages.NewMessageSender()
 
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{

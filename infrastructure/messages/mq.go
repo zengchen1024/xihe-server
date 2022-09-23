@@ -1,4 +1,4 @@
-package message
+package messages
 
 import (
 	"github.com/opensourceways/community-robot-lib/kafka"

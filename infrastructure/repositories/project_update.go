@@ -5,6 +5,18 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+func (impl project) IncreaseFork(index domain.ResourceIndex) error {
+	err := impl.mapper.IncreaseFork(
+		index.ResourceOwner.Account(),
+		index.ResourceId,
+	)
+	if err != nil {
+		err = convertError(err)
+	}
+
+	return err
+}
+
 func (impl project) AddLike(owner domain.Account, pid string) error {
 	err := impl.mapper.AddLike(owner.Account(), pid)
 	if err != nil {
