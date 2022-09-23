@@ -52,7 +52,9 @@ func (cmd *ProjectUpdateCmd) toProject(
 // the step1 must be done before step2.
 // For example, it can't set the project's name to the one existing.
 // gitlab will help to avoid this case.
-func (s projectService) Update(p *domain.Project, cmd *ProjectUpdateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
+func (s projectService) Update(
+	p *domain.Project, cmd *ProjectUpdateCmd, pr platform.Repository,
+) (dto ProjectDTO, err error) {
 	opt := new(platform.RepoOption)
 	if !cmd.toProject(&p.ProjectModifiableProperty, opt) {
 		s.toProjectDTO(p, &dto)

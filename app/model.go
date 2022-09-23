@@ -64,6 +64,8 @@ type ModelService interface {
 
 	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error
+
+	SetTags(*domain.Model, *ResourceTagsUpdateCmd) error
 }
 
 func NewModelService(
