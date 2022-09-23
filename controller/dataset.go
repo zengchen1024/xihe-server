@@ -29,6 +29,8 @@ func AddRouterForDatasetController(
 	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
 	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
 	rg.GET("/v1/dataset/:owner", ctl.List)
+
+	rg.PUT("/v1/dataset/:owner/:id/tags", ctl.SetTags)
 }
 
 type DatasetController struct {
