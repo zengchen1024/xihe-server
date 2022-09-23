@@ -61,6 +61,8 @@ type DatasetService interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	SetTags(*domain.Dataset, *ResourceTagsUpdateCmd) error
 }
 
 func NewDatasetService(

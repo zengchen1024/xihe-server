@@ -4,6 +4,13 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type DatasetPropertyUpdateInfo struct {
+	Owner    domain.Account
+	Id       string
+	Version  int
+	Property domain.DatasetModifiableProperty
+}
+
 type Dataset interface {
 	Save(*domain.Dataset) (domain.Dataset, error)
 	Get(domain.Account, string) (domain.Dataset, error)
@@ -13,4 +20,6 @@ type Dataset interface {
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
+
+	UpdateProperty(*DatasetPropertyUpdateInfo) error
 }
