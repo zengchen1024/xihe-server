@@ -83,6 +83,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		),
 	)
 
+	tags := repositories.NewTagsRepository(
+		mongodb.NewTagsMapper(cfg.Mongodb.TagCollection),
+	)
 	gitlabUser := gitlab.NewUserSerivce()
 	authingUser := authing.NewAuthingUser()
 	sender := message.NewMessageSender()
@@ -90,7 +93,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
-			v1, proj, model, dataset, activity, newPlatformRepository,
+			v1, proj, model, dataset, activity, tags, newPlatformRepository,
 		)
 
 		controller.AddRouterForModelController(
@@ -117,6 +120,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForActivityController(
 			v1, activity, user, proj, model, dataset,
+		)
+
+		controller.AddRouterForTagsController(
+			v1, tags,
 		)
 	}
 

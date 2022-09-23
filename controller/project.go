@@ -18,12 +18,14 @@ func AddRouterForProjectController(
 	model repository.Model,
 	dataset repository.Dataset,
 	activity repository.Activity,
+	tags repository.Tags,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
 		repo:    repo,
 		model:   model,
 		dataset: dataset,
+		tags:    tags,
 		s:       app.NewProjectService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
@@ -38,6 +40,8 @@ func AddRouterForProjectController(
 
 	rg.PUT("/v1/project/:owner/:id/relation", ctl.AddRelatedResource)
 	rg.DELETE("/v1/project/:owner/:id/relation", ctl.RemoveRelatedResource)
+
+	rg.PUT("/v1/project/:owner/:id/tags", ctl.SetTags)
 }
 
 type ProjectController struct {
@@ -48,6 +52,7 @@ type ProjectController struct {
 
 	model   repository.Model
 	dataset repository.Dataset
+	tags    repository.Tags
 
 	newPlatformRepository func(string, string) platform.Repository
 }
@@ -371,7 +376,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 // @Param	id	path	string				true	"id of project"
 // @Param	body	body 	relatedResourceModifyRequest	true	"body of updating project"
 // @Accept json
-// @Success 200 {object} app.ResourceDTO
+// @Success 202 {object} app.ResourceDTO
 // @Router /v1/project/{owner}/{id}/relation [put]
 func (ctl *ProjectController) AddRelatedResource(ctx *gin.Context) {
 	ctl.relatedResource(ctx, true)
@@ -525,4 +530,80 @@ func (ctl *ProjectController) relatedResource(ctx *gin.Context, add bool) {
 	} else {
 		ctl.removeRelatedResource(ctx, &proj, &cmd)
 	}
+}
+
+// @Summary SetTags
+// @Description set tags for project
+// @Tags  Project
+// @Param	owner	path	string				true	"owner of project"
+// @Param	id	path	string				true	"id of project"
+// @Param	body	body 	resourceTagsUpdateRequest	true	"body of updating project"
+// @Accept json
+// @Success 202
+// @Router /v1/project/{owner}/{id}/tags [put]
+func (ctl *ProjectController) SetTags(ctx *gin.Context) {
+	req := resourceTagsUpdateRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	tags, err := ctl.tags.List(domain.ResourceTypeProject)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	cmd, err := req.toCmd(tags)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update project for other user",
+		))
+
+		return
+	}
+
+	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	if err = ctl.s.SetTags(&proj, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }

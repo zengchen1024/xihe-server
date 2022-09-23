@@ -1,13 +1,14 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
-	Update(ProjectDO) error
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 	List(string, ResourceListDO) ([]ProjectDO, error)
@@ -21,6 +22,8 @@ type ProjectMapper interface {
 
 	AddRelatedDataset(*RelatedResourceDO) error
 	RemoveRelatedDataset(*RelatedResourceDO) error
+
+	UpdateProperty(*ProjectPropertyDO) error
 }
 
 func NewProjectRepository(mapper ProjectMapper) repository.Project {
@@ -33,12 +36,7 @@ type project struct {
 
 func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 	if p.Id != "" {
-		if err = impl.mapper.Update(impl.toProjectDO(p)); err != nil {
-			err = convertError(err)
-		} else {
-			r = *p
-			r.Version += 1
-		}
+		err = errors.New("must be a new project")
 
 		return
 	}

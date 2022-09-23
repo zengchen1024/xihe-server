@@ -3,6 +3,8 @@ package controller
 import (
 	"errors"
 
+	"k8s.io/apimachinery/pkg/util/sets"
+
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 )
@@ -59,6 +61,46 @@ func convertToRelatedResource(data interface{}) (r app.ResourceDTO) {
 		r.LikeCount = v.LikeCount
 		//r.DownloadCount =
 	}
+
+	return
+}
+
+type resourceTagsUpdateRequest struct {
+	ToAdd    []string `json:"add"`
+	ToRemove []string `json:"remove"`
+}
+
+func (req *resourceTagsUpdateRequest) toCmd(
+	validTags []domain.DomainTags,
+) (cmd app.ResourceTagsUpdateCmd, err error) {
+
+	err = errors.New("invalid cmd")
+
+	if len(req.ToAdd) > 0 && len(req.ToRemove) > 0 {
+		if sets.NewString(req.ToAdd...).HasAny(req.ToRemove...) {
+			return
+		}
+	}
+
+	tags := sets.NewString()
+
+	for i := range validTags {
+		for _, item := range validTags[i].Items {
+			tags.Insert(item.Items...)
+		}
+	}
+
+	if len(req.ToAdd) > 0 && !tags.HasAll(req.ToAdd...) {
+		return
+	}
+
+	if len(req.ToRemove) > 0 && !tags.HasAll(req.ToRemove...) {
+		return
+	}
+
+	cmd.ToAdd = req.ToAdd
+	cmd.ToRemove = req.ToRemove
+	err = nil
 
 	return
 }

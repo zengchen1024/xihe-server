@@ -121,6 +121,7 @@ type Mongodb struct {
 	LoginCollection    string `json:"login_collection" required:"true"`
 	LikeCollection     string `json:"like_collection" required:"true"`
 	ActivityCollection string `json:"activity_collection" required:"true"`
+	TagCollection      string `json:"tag_collection" required:"true"`
 }
 
 type AuthingService struct {

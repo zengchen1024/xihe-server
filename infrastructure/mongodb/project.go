@@ -106,28 +106,33 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	return
 }
 
-func (col project) Update(do repositories.ProjectDO) error {
-	doc, err := col.toProjectDoc(&do)
+func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
+	docObj := projectItem{
+		Name:     do.Name,
+		Desc:     do.Desc,
+		CoverId:  do.CoverId,
+		RepoType: do.RepoType,
+		Tags:     do.Tags,
+	}
+
+	doc, err := genDoc(docObj)
 	if err != nil {
 		return err
 	}
 
-	docFilter := projectDocFilter(do.Owner)
-
 	updated := false
 
 	f := func(ctx context.Context) error {
-		b, err := cli.updateArrayElem(
+		updated, err = cli.updateArrayElem(
 			ctx, col.collectionName, fieldItems,
-			docFilter, arrayFilterById(do.Id), doc, do.Version,
+			projectDocFilter(do.Owner),
+			arrayFilterById(do.Id), doc, do.Version,
 		)
-
-		updated = b
 
 		return err
 	}
 
-	if err := withContext(f); err != nil {
+	if withContext(f); err != nil {
 		return err
 	}
 
