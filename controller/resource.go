@@ -9,30 +9,50 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
-type relatedResourceModifyRequest struct {
+type relatedResourceAddRequest struct {
 	Owner string `json:"owner" required:"true"`
-	Type  string `json:"type" required:"true"`
+	Name  string `json:"name" required:"true"`
+}
+
+func (req *relatedResourceAddRequest) toModelCmd() (
+	owner domain.Account, name domain.ModelName, err error,
+) {
+	if owner, err = domain.NewAccount(req.Owner); err != nil {
+		return
+	}
+
+	name, err = domain.NewModelName(req.Name)
+
+	return
+}
+
+func (req *relatedResourceAddRequest) toDatasetCmd() (
+	owner domain.Account, name domain.DatasetName, err error,
+) {
+	if owner, err = domain.NewAccount(req.Owner); err != nil {
+		return
+	}
+
+	name, err = domain.NewDatasetName(req.Name)
+
+	return
+}
+
+type relatedResourceRemoveRequest struct {
+	Owner string `json:"owner" required:"true"`
 	Id    string `json:"id" required:"true"`
 }
 
-func (req *relatedResourceModifyRequest) toCmd() (
-	cmd domain.ResourceObj, err error,
+func (req *relatedResourceRemoveRequest) toCmd() (
+	cmd domain.ResourceIndex, err error,
 ) {
 	if cmd.ResourceOwner, err = domain.NewAccount(req.Owner); err != nil {
 		return
 	}
 
-	if cmd.ResourceType, err = domain.NewResourceType(req.Type); err != nil {
-		return
-	}
-
 	if req.Id == "" {
 		err = errors.New("missing id")
-
-		return
 	}
-
-	cmd.ResourceId = req.Id
 
 	return
 }
@@ -41,6 +61,7 @@ func convertToRelatedResource(data interface{}) (r app.ResourceDTO) {
 	switch data.(type) {
 	case domain.Model:
 		v := data.(domain.Model)
+		r.Id = v.Id
 		r.Owner.Name = v.Owner.Account()
 		//r.Owner.AvatarId =
 
@@ -52,6 +73,7 @@ func convertToRelatedResource(data interface{}) (r app.ResourceDTO) {
 
 	case domain.Dataset:
 		v := data.(domain.Dataset)
+		r.Id = v.Id
 		r.Owner.Name = v.Owner.Account()
 		//r.Owner.AvatarId =
 
