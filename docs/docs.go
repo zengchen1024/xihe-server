@@ -983,7 +983,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/activity": {
+        "/v1/user/activity/{account}": {
             "get": {
                 "description": "list activitys",
                 "consumes": [
@@ -991,6 +991,15 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Activity"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the account the activities belong to",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -1016,6 +1025,15 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Follower"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the account the followers belong to",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -1105,6 +1123,15 @@ const docTemplate = `{
                 "tags": [
                     "Following"
                 ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the account the followings belong to",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1163,29 +1190,6 @@ const docTemplate = `{
             }
         },
         "/v1/user/like": {
-            "get": {
-                "description": "list likes",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Like"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.LikeDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "create a like",
                 "consumes": [
@@ -1292,6 +1296,40 @@ const docTemplate = `{
                         "description": "Forbidden",
                         "schema": {
                             "type": "resource_not_exists"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/like/{account}": {
+            "get": {
+                "description": "list likes",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the account the likes belong to",
+                        "name": "account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LikeDTO"
                         }
                     },
                     "500": {
