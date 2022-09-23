@@ -11,6 +11,7 @@ import (
 // @Title List
 // @Description list followers
 // @Tags  Follower
+// @Param	account	path	string	true	"the account the followers belong to"
 // @Accept json
 // @Success 200 {object} app.FollowDTO
 // @Failure 500 system_error        system error
@@ -18,7 +19,7 @@ import (
 func (ctl *UserController) ListFollower(ctx *gin.Context) {
 	// TODO: list by page
 
-	a, err := domain.NewAccount(ctx.Param("account"))
+	account, err := domain.NewAccount(ctx.Param("account"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -27,7 +28,7 @@ func (ctl *UserController) ListFollower(ctx *gin.Context) {
 		return
 	}
 
-	if data, err := ctl.s.ListFollower(a); err != nil {
+	if data, err := ctl.s.ListFollower(account); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))

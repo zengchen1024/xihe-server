@@ -34,7 +34,7 @@ func AddRouterForLikeController(
 
 	rg.POST("/v1/user/like", ctl.Create)
 	rg.DELETE("/v1/user/like", ctl.Delete)
-	rg.GET("/v1/user/like", ctl.List)
+	rg.GET("/v1/user/like/:account", ctl.List)
 }
 
 type LikeController struct {
@@ -139,19 +139,23 @@ func (ctl *LikeController) Delete(ctx *gin.Context) {
 // @Title List
 // @Description list likes
 // @Tags  Like
+// @Param	account	path	string	true	"the account the likes belong to"
 // @Accept json
 // @Success 200 {object} app.LikeDTO
 // @Failure 500 system_error        system error
-// @Router /v1/user/like [get]
+// @Router /v1/user/like/{account} [get]
 func (ctl *LikeController) List(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
-	if !ok {
+	// TODO: list by page
+	account, err := domain.NewAccount(ctx.Param("account"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
 		return
 	}
 
-	// TODO: list by page
-
-	if data, err := ctl.s.List(pl.DomainAccount()); err != nil {
+	if data, err := ctl.s.List(account); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))

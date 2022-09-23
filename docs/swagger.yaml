@@ -989,11 +989,17 @@ paths:
       summary: Update
       tags:
       - User
-  /v1/user/activity:
+  /v1/user/activity/{account}:
     get:
       consumes:
       - application/json
       description: list activitys
+      parameters:
+      - description: the account the activities belong to
+        in: path
+        name: account
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -1010,6 +1016,12 @@ paths:
       consumes:
       - application/json
       description: list followers
+      parameters:
+      - description: the account the followers belong to
+        in: path
+        name: account
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -1094,6 +1106,12 @@ paths:
       consumes:
       - application/json
       description: list followings
+      parameters:
+      - description: the account the followings belong to
+        in: path
+        name: account
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -1142,21 +1160,6 @@ paths:
             type: system_error
       tags:
       - Like
-    get:
-      consumes:
-      - application/json
-      description: list likes
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.LikeDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      tags:
-      - Like
     post:
       consumes:
       - application/json
@@ -1191,6 +1194,28 @@ paths:
           description: Not Found
           schema:
             type: duplicate_creating
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - Like
+  /v1/user/like/{account}:
+    get:
+      consumes:
+      - application/json
+      description: list likes
+      parameters:
+      - description: the account the likes belong to
+        in: path
+        name: account
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LikeDTO'
         "500":
           description: Internal Server Error
           schema:
