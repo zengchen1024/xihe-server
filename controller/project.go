@@ -436,7 +436,7 @@ func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceRemoveRequest	true	"body of related model"
 // @Accept json
 // @Success 204
-// @Router /v1/project/{owner}/{id}/model/relation [put]
+// @Router /v1/project/{owner}/{id}/model/relation [delete]
 func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 	req := relatedResourceRemoveRequest{}
 
@@ -541,7 +541,7 @@ func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceRemoveRequest	true	"body of related dataset"
 // @Accept json
 // @Success 204
-// @Router /v1/project/{owner}/{id}/dataset/relation [put]
+// @Router /v1/project/{owner}/{id}/dataset/relation [delete]
 func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 	req := relatedResourceRemoveRequest{}
 
