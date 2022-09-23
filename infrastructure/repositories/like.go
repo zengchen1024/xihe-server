@@ -9,6 +9,7 @@ type LikeMapper interface {
 	Insert(string, LikeDO) error
 	Delete(string, LikeDO) error
 	List(string, LikeListDO) ([]LikeDO, error)
+	HasLike(string, *ResourceObjDO) (bool, error)
 }
 
 func NewLikeRepository(mapper LikeMapper) repository.Like {
@@ -61,6 +62,17 @@ func (impl like) Find(owner domain.Account, opt repository.LikeFindOption) (
 	}
 
 	return r, nil
+}
+
+func (impl like) HasLike(owner domain.Account, obj *domain.ResourceObj) (bool, error) {
+	do := toResourceObjDO(obj)
+
+	b, err := impl.mapper.HasLike(owner.Account(), &do)
+	if err != nil {
+		return false, convertError(err)
+	}
+
+	return b, nil
 }
 
 func (impl like) toLikeDO(v *domain.Like) LikeDO {

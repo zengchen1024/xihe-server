@@ -195,7 +195,7 @@ func (cli *client) getDocs(
 	}
 
 	if err != nil {
-		return err
+		return dbError{err}
 	}
 
 	return cursor.All(ctx, result)
@@ -395,6 +395,27 @@ func (cli *client) updateArrayElemCount(
 	}
 
 	return r.ModifiedCount > 0, nil
+}
+
+func (cli *client) isArrayElemExists(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray bson.M,
+) (bool, error) {
+	query := bson.M{array: bson.M{"$elemMatch": filterOfArray}}
+	for k, v := range filterOfDoc {
+		query[k] = v
+	}
+
+	var v []struct {
+		ID primitive.ObjectID `bson:"_id"`
+	}
+
+	err := cli.getDocs(ctx, collection, query, bson.M{"_id": 1}, &v)
+	if err != nil {
+		return false, err
+	}
+
+	return len(v) > 0, nil
 }
 
 func (cli *client) getArrayElem(

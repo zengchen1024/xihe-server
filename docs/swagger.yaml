@@ -212,6 +212,39 @@ definitions:
       type:
         type: string
     type: object
+  controller.projectDetail:
+    properties:
+      cover_id:
+        type: string
+      desc:
+        type: string
+      fork_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      liked:
+        type: boolean
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_id:
+        type: string
+      repo_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      training:
+        type: string
+      type:
+        type: string
+    type: object
   controller.projectUpdateRequest:
     properties:
       cover_id:
@@ -902,7 +935,11 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.projectDetail'
       summary: Get
       tags:
       - Project

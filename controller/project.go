@@ -18,6 +18,7 @@ func AddRouterForProjectController(
 	dataset repository.Dataset,
 	activity repository.Activity,
 	tags repository.Tags,
+	like repository.Like,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
@@ -25,6 +26,7 @@ func AddRouterForProjectController(
 		model:   model,
 		dataset: dataset,
 		tags:    tags,
+		like:    like,
 		s:       app.NewProjectService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
@@ -55,6 +57,7 @@ type ProjectController struct {
 	model   repository.Model
 	dataset repository.Dataset
 	tags    repository.Tags
+	like    repository.Like
 
 	newPlatformRepository func(string, string) platform.Repository
 }
@@ -194,6 +197,7 @@ func (ctl *ProjectController) Update(ctx *gin.Context) {
 // @Param	owner	path	string	true	"owner of project"
 // @Param	name	path	string	true	"name of project"
 // @Accept json
+// @Success 200 {object} projectDetail
 // @Produce json
 // @Router /v1/project/{owner}/{name} [get]
 func (ctl *ProjectController) Get(ctx *gin.Context) {
@@ -232,9 +236,29 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 			errorResourceNotExists,
 			"can't access private project",
 		))
-	} else {
-		ctx.JSON(http.StatusOK, newResponseData(proj))
+
+		return
 	}
+
+	liked := true
+	if !visitor && pl.isNotMe(owner) {
+		liked, err = ctl.like.HasLike(pl.DomainAccount(), &domain.ResourceObj{
+			ResourceOwner: owner,
+			ResourceType:  domain.ResourceTypeProject,
+			ResourceId:    proj.Id,
+		})
+
+		if err != nil {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(projectDetail{
+		Liked:      liked,
+		ProjectDTO: &proj,
+	}))
 }
 
 // @Summary List

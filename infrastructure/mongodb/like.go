@@ -102,6 +102,26 @@ func (col like) List(owner string, opt repositories.LikeListDO) (
 	return
 }
 
+func (col like) HasLike(owner string, do *repositories.ResourceObjDO) (b bool, err error) {
+	doc, err := genDoc(toResourceObj(do))
+	if err != nil {
+		return
+	}
+
+	f := func(ctx context.Context) error {
+		b, err = cli.isArrayElemExists(
+			ctx, col.collectionName, fieldItems,
+			likeDocFilter(owner), doc,
+		)
+
+		return nil
+	}
+
+	withContext(f)
+
+	return
+}
+
 func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 	docObj := likeItem{
 		CreatedAt:   do.CreatedAt,
