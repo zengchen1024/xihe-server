@@ -42,3 +42,34 @@ func (impl model) RemoveRelatedDataset(info *repository.RelatedResourceInfo) err
 
 	return nil
 }
+
+func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error {
+	p := &info.Property
+
+	do := ModelPropertyDO{
+		Id:       info.Id,
+		Owner:    info.Owner.Account(),
+		Version:  info.Version,
+		Name:     p.Name.ModelName(),
+		Desc:     p.Desc.ResourceDesc(),
+		RepoType: p.RepoType.RepoType(),
+		Tags:     p.Tags,
+	}
+
+	if err := impl.mapper.UpdateProperty(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+type ModelPropertyDO struct {
+	Id      string
+	Owner   string
+	Version int
+
+	Name     string
+	Desc     string
+	RepoType string
+	Tags     []string
+}

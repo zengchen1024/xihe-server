@@ -15,11 +15,13 @@ func AddRouterForModelController(
 	repo repository.Model,
 	dataset repository.Dataset,
 	activity repository.Activity,
+	tags repository.Tags,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ModelController{
 		repo:    repo,
 		dataset: dataset,
+		tags:    tags,
 		s:       app.NewModelService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
@@ -32,6 +34,8 @@ func AddRouterForModelController(
 
 	rg.PUT("/v1/model/:owner/:id/dataset/relation", ctl.AddRelatedDataset)
 	rg.DELETE("/v1/model/:owner/:id/dataset/relation", ctl.RemoveRelatedDataset)
+
+	rg.PUT("/v1/model/:owner/:id/tags", ctl.SetTags)
 }
 
 type ModelController struct {
@@ -39,6 +43,7 @@ type ModelController struct {
 
 	repo    repository.Model
 	dataset repository.Dataset
+	tags    repository.Tags
 	s       app.ModelService
 
 	newPlatformRepository func(string, string) platform.Repository
@@ -390,6 +395,57 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 		ResourceId:    cmd.ResourceId,
 	}
 	if err = ctl.s.RemoveRelatedDataset(&m, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+}
+
+// @Summary SetTags
+// @Description set tags for model
+// @Tags  Model
+// @Param	owner	path	string				true	"owner of model"
+// @Param	id	path	string				true	"id of model"
+// @Param	body	body 	resourceTagsUpdateRequest	true	"body of tags"
+// @Accept json
+// @Success 202
+// @Router /v1/model/{owner}/{id}/tags [put]
+func (ctl *ModelController) SetTags(ctx *gin.Context) {
+	req := resourceTagsUpdateRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	tags, err := ctl.tags.List(domain.ResourceTypeModel)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	cmd, err := req.toCmd(tags)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	m, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	if err = ctl.s.SetTags(&m, &cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return

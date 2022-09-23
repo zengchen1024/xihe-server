@@ -578,6 +578,34 @@ paths:
       summary: AddRelatedDataset
       tags:
       - Model
+  /v1/model/{owner}/{id}/tags:
+    put:
+      consumes:
+      - application/json
+      description: set tags for model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of tags
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
+      responses:
+        "202":
+          description: ""
+      summary: SetTags
+      tags:
+      - Model
   /v1/model/{owner}/{name}:
     get:
       consumes:

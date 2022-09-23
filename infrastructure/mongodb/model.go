@@ -99,28 +99,32 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 	return
 }
 
-func (col model) Update(do repositories.ModelDO) error {
-	doc, err := col.toModelDoc(&do)
+func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
+	docObj := modelItem{
+		Name:     do.Name,
+		Desc:     do.Desc,
+		RepoType: do.RepoType,
+		Tags:     do.Tags,
+	}
+
+	doc, err := genDoc(docObj)
 	if err != nil {
 		return err
 	}
 
-	docFilter := modelDocFilter(do.Owner)
-
 	updated := false
 
 	f := func(ctx context.Context) error {
-		b, err := cli.updateArrayElem(
+		updated, err = cli.updateArrayElem(
 			ctx, col.collectionName, fieldItems,
-			docFilter, arrayFilterById(do.Id), doc, do.Version,
+			modelDocFilter(do.Owner),
+			arrayFilterById(do.Id), doc, do.Version,
 		)
-
-		updated = b
 
 		return err
 	}
 
-	if err := withContext(f); err != nil {
+	if withContext(f); err != nil {
 		return err
 	}
 

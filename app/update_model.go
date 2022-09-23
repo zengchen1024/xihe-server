@@ -44,30 +44,53 @@ func (cmd *ModelUpdateCmd) toModel(
 }
 
 func (s modelService) Update(
-	p *domain.Model, cmd *ModelUpdateCmd, pr platform.Repository,
+	m *domain.Model, cmd *ModelUpdateCmd, pr platform.Repository,
 ) (dto ModelDTO, err error) {
 	opt := new(platform.RepoOption)
-	if !cmd.toModel(&p.ModelModifiableProperty, opt) {
-		s.toModelDTO(p, &dto)
+	if !cmd.toModel(&m.ModelModifiableProperty, opt) {
+		s.toModelDTO(m, &dto)
 
 		return
 
-	}
-
-	v, err := s.repo.Save(p)
-	if err != nil {
-		return
 	}
 
 	if opt.IsNotEmpty() {
-		if err = pr.Update(p.RepoId, opt); err != nil {
+		if err = pr.Update(m.RepoId, opt); err != nil {
 			return
 		}
 	}
 
-	s.toModelDTO(&v, &dto)
+	info := repository.ModelPropertyUpdateInfo{
+		Owner:    m.Owner,
+		Id:       m.Id,
+		Version:  m.Version,
+		Property: m.ModelModifiableProperty,
+	}
+	if err = s.repo.UpdateProperty(&info); err != nil {
+		return
+	}
+
+	s.toModelDTO(m, &dto)
 
 	return
+}
+
+func (s modelService) SetTags(m *domain.Model, cmd *ResourceTagsUpdateCmd) error {
+	tags, b := cmd.toTags(m.ModelModifiableProperty.Tags)
+	if !b {
+		return nil
+	}
+
+	m.ModelModifiableProperty.Tags = tags
+
+	info := repository.ModelPropertyUpdateInfo{
+		Owner:    m.Owner,
+		Id:       m.Id,
+		Version:  m.Version,
+		Property: m.ModelModifiableProperty,
+	}
+
+	return s.repo.UpdateProperty(&info)
 }
 
 func (s modelService) AddLike(owner domain.Account, rid string) error {
