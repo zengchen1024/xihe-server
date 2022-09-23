@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,8 +37,11 @@ func AddRouterForProjectController(
 
 	rg.POST("/v1/project/:owner/:id", ctl.Fork)
 
-	rg.PUT("/v1/project/:owner/:id/relation", ctl.AddRelatedResource)
-	rg.DELETE("/v1/project/:owner/:id/relation", ctl.RemoveRelatedResource)
+	rg.PUT("/v1/project/:owner/:id/model/relation", ctl.AddRelatedModel)
+	rg.DELETE("/v1/project/:owner/:id/model/relation", ctl.RemoveRelatedModel)
+
+	rg.PUT("/v1/project/:owner/:id/dataset/relation", ctl.AddRelatedDataset)
+	rg.DELETE("/v1/project/:owner/:id/dataset/relation", ctl.RemoveRelatedDataset)
 
 	rg.PUT("/v1/project/:owner/:id/tags", ctl.SetTags)
 }
@@ -369,39 +371,28 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, newResponseData(data))
 }
 
-// @Summary AddRelatedResource
-// @Description add related resource to project
+// @Summary AddRelatedModel
+// @Description add related model to project
 // @Tags  Project
 // @Param	owner	path	string				true	"owner of project"
 // @Param	id	path	string				true	"id of project"
-// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating project"
+// @Param	body	body 	relatedResourceAddRequest	true	"body of related model"
 // @Accept json
 // @Success 202 {object} app.ResourceDTO
-// @Router /v1/project/{owner}/{id}/relation [put]
-func (ctl *ProjectController) AddRelatedResource(ctx *gin.Context) {
-	ctl.relatedResource(ctx, true)
-}
+// @Router /v1/project/{owner}/{id}/model/relation [put]
+func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
+	req := relatedResourceAddRequest{}
 
-func (ctl *ProjectController) addRelatedResource(
-	ctx *gin.Context, proj *domain.Project, cmd *domain.ResourceObj,
-) {
-	var f func(*domain.Project, *domain.ResourceIndex) error
-	var data interface{}
-	var err error
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
 
-	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceModel:
-		data, err = ctl.model.Get(cmd.ResourceOwner, cmd.ResourceId)
-		f = ctl.s.AddRelatedModel
-
-	case domain.ResourceDataset:
-		data, err = ctl.dataset.Get(cmd.ResourceOwner, cmd.ResourceId)
-		f = ctl.s.AddRelatedDataset
-
-	default:
-		err = errors.New("unsupported related resource")
+		return
 	}
 
+	owner, name, err := req.toModelCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -410,11 +401,25 @@ func (ctl *ProjectController) addRelatedResource(
 		return
 	}
 
-	index := domain.ResourceIndex{
-		ResourceOwner: cmd.ResourceOwner,
-		ResourceId:    cmd.ResourceId,
+	data, err := ctl.model.GetByName(owner, name)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
 	}
-	if err = f(proj, &index); err != nil {
+
+	proj, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	index := domain.ResourceIndex{
+		ResourceOwner: owner,
+		ResourceId:    data.Id,
+	}
+	if err = ctl.s.AddRelatedModel(&proj, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -423,59 +428,17 @@ func (ctl *ProjectController) addRelatedResource(
 	ctx.JSON(http.StatusAccepted, newResponseData(convertToRelatedResource(data)))
 }
 
-// @Summary RemoveRelatedResource
-// @Description remove related resource from project
+// @Summary RemoveRelatedModel
+// @Description remove related model to project
 // @Tags  Project
 // @Param	owner	path	string				true	"owner of project"
 // @Param	id	path	string				true	"id of project"
-// @Param	body	body 	relatedResourceModifyRequest	true	"body of updating project"
+// @Param	body	body 	relatedResourceRemoveRequest	true	"body of related model"
 // @Accept json
 // @Success 204
-// @Router /v1/project/{owner}/{id}/relation [delete]
-func (ctl *ProjectController) RemoveRelatedResource(ctx *gin.Context) {
-	ctl.relatedResource(ctx, false)
-}
-
-func (ctl *ProjectController) removeRelatedResource(
-	ctx *gin.Context, proj *domain.Project, cmd *domain.ResourceObj,
-) {
-	var err error
-	var f func(*domain.Project, *domain.ResourceIndex) error
-
-	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceModel:
-		f = ctl.s.RemoveRelatedModel
-
-	case domain.ResourceDataset:
-		f = ctl.s.RemoveRelatedDataset
-
-	default:
-		err = errors.New("unsupported related resource")
-	}
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
-
-		return
-	}
-
-	index := domain.ResourceIndex{
-		ResourceOwner: cmd.ResourceOwner,
-		ResourceId:    cmd.ResourceId,
-	}
-	if err = f(proj, &index); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
-	}
-
-	ctx.JSON(http.StatusAccepted, newResponseData("success"))
-}
-
-func (ctl *ProjectController) relatedResource(ctx *gin.Context, add bool) {
-	req := relatedResourceModifyRequest{}
+// @Router /v1/project/{owner}/{id}/model/relation [put]
+func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
+	req := relatedResourceRemoveRequest{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
@@ -495,7 +458,46 @@ func (ctl *ProjectController) relatedResource(ctx *gin.Context, add bool) {
 		return
 	}
 
-	owner, err := domain.NewAccount(ctx.Param("owner"))
+	proj, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	index := domain.ResourceIndex{
+		ResourceOwner: cmd.ResourceOwner,
+		ResourceId:    cmd.ResourceId,
+	}
+	if err = ctl.s.RemoveRelatedModel(&proj, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+}
+
+// @Summary AddRelatedDataset
+// @Description add related dataset to project
+// @Tags  Project
+// @Param	owner	path	string				true	"owner of project"
+// @Param	id	path	string				true	"id of project"
+// @Param	body	body 	relatedResourceAddRequest	true	"body of related dataset"
+// @Accept json
+// @Success 202 {object} app.ResourceDTO
+// @Router /v1/project/{owner}/{id}/dataset/relation [put]
+func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
+	req := relatedResourceAddRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	owner, name, err := req.toDatasetCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -504,32 +506,79 @@ func (ctl *ProjectController) relatedResource(ctx *gin.Context, add bool) {
 		return
 	}
 
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
-	if !ok {
-		return
-	}
-
-	if pl.isNotMe(owner) {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"can't update project for other user",
+	data, err := ctl.dataset.GetByName(owner, name)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
 		))
 
 		return
 	}
 
-	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+	proj, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	index := domain.ResourceIndex{
+		ResourceOwner: owner,
+		ResourceId:    data.Id,
+	}
+	if err = ctl.s.AddRelatedDataset(&proj, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
 
-	if add {
-		ctl.addRelatedResource(ctx, &proj, &cmd)
-	} else {
-		ctl.removeRelatedResource(ctx, &proj, &cmd)
+	ctx.JSON(http.StatusAccepted, newResponseData(convertToRelatedResource(data)))
+}
+
+// @Summary RemoveRelatedDataset
+// @Description remove related dataset to project
+// @Tags  Project
+// @Param	owner	path	string				true	"owner of project"
+// @Param	id	path	string				true	"id of project"
+// @Param	body	body 	relatedResourceRemoveRequest	true	"body of related dataset"
+// @Accept json
+// @Success 204
+// @Router /v1/project/{owner}/{id}/dataset/relation [put]
+func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
+	req := relatedResourceRemoveRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
 	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	proj, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	index := domain.ResourceIndex{
+		ResourceOwner: cmd.ResourceOwner,
+		ResourceId:    cmd.ResourceId,
+	}
+	if err = ctl.s.RemoveRelatedDataset(&proj, &index); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
 // @Summary SetTags
@@ -569,6 +618,21 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
+	proj, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	if err = ctl.s.SetTags(&proj, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+}
+
+func (ctl *ProjectController) checkPermission(ctx *gin.Context) (proj domain.Project, ok bool) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -592,18 +656,14 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	proj, err := ctl.repo.Get(owner, ctx.Param("id"))
+	proj, err = ctl.repo.Get(owner, ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
 	}
 
-	if err = ctl.s.SetTags(&proj, &cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	ok = true
 
-		return
-	}
-
-	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+	return
 }
