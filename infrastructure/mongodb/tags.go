@@ -2,6 +2,8 @@ package mongodb
 
 import (
 	"context"
+	"errors"
+	"sort"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -40,6 +42,10 @@ func (col tags) List(resourceType string) ([]repositories.DomainTagsDo, error) {
 		return nil, err
 	}
 
+	if err := col.sortTags(&v); err != nil {
+		return nil, err
+	}
+
 	items := v.Items
 	dt := make(map[string][]repositories.TagsDo)
 	for i := range items {
@@ -72,4 +78,29 @@ func (col tags) List(resourceType string) ([]repositories.DomainTagsDo, error) {
 	}
 
 	return r, nil
+}
+
+func (col tags) sortTags(v *dResourceTags) error {
+	items := v.Items
+	orders := v.Orders
+
+	for i := range items {
+		if _, ok := orders[items[i].Domain]; !ok {
+			return errors.New("can't sort tags")
+		}
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+
+		a := orders[items[i].Domain]
+		b := orders[items[j].Domain]
+
+		if a != b {
+			return a < b
+		}
+
+		return items[i].Order < items[j].Order
+	})
+
+	return nil
 }
