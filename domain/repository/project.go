@@ -47,5 +47,5 @@ type Project interface {
 
 	UpdateProperty(*ProjectPropertyUpdateInfo) error
 
-	IncreaseFork(domain.ResourceIndex) error
+	IncreaseFork(*domain.ResourceIndex) error
 }

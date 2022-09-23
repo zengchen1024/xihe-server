@@ -104,7 +104,7 @@ func (s projectService) SetTags(p *domain.Project, cmd *ResourceTagsUpdateCmd) e
 }
 
 func (s projectService) IncreaseFork(index domain.ResourceIndex) error {
-	return s.repo.IncreaseFork(index)
+	return s.repo.IncreaseFork(&index)
 }
 
 func (s projectService) AddLike(owner domain.Account, rid string) error {

@@ -5,7 +5,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (impl project) IncreaseFork(index domain.ResourceIndex) error {
+func (impl project) IncreaseFork(index *domain.ResourceIndex) error {
 	err := impl.mapper.IncreaseFork(
 		index.ResourceOwner.Account(),
 		index.ResourceId,

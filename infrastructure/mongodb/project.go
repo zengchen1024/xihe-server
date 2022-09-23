@@ -269,5 +269,6 @@ func (col project) toProjectDO(owner string, item *projectItem, do *repositories
 		Tags:      item.Tags,
 		Version:   item.Version,
 		LikeCount: item.LikeCount,
+		ForkCount: item.ForkCount,
 	}
 }

@@ -51,10 +51,11 @@ type projectItem struct {
 	RelatedModels   []ResourceIndex `bson:"models" json:"-"`
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
-	// Version, LikeCount will be increased by 1 automatically.
+	// Version, LikeCount and ForkCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version   int `bson:"version"       json:"-"`
 	LikeCount int `bson:"like_count"    json:"-"`
+	ForkCount int `bson:"fork_count"    json:"-"`
 }
 
 type dModel struct {
@@ -75,11 +76,10 @@ type modelItem struct {
 	// So, don't marshal it to avoid setting it occasionally.
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
-	// Version, LikeCount and fork_count will be increased by 1 automatically.
+	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version   int `bson:"version"       json:"-"`
 	LikeCount int `bson:"like_count"    json:"-"`
-	ForkCount int `bson:"fork_count"    json:"-"`
 }
 
 type dDataset struct {

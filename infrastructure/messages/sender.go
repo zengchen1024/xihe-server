@@ -64,7 +64,7 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 }
 
 // Fork
-func (s sender) Fork(msg domain.ResourceIndex) error {
+func (s sender) IncreaseFork(msg domain.ResourceIndex) error {
 	v := msgFork{
 		Owner: msg.ResourceOwner.Account(),
 		Id:    msg.ResourceId,

@@ -10,11 +10,14 @@ type Sender interface {
 
 	AddLike(msg domain.Like) error
 	RemoveLike(msg domain.Like) error
+
+	IncreaseFork(msg domain.ResourceIndex) error
 }
 
 type EventHandler interface {
 	FollowingHandler
 	LikeHandler
+	ForkHandler
 }
 
 type FollowingHandler interface {
