@@ -435,6 +435,34 @@ paths:
       summary: Update
       tags:
       - Dataset
+  /v1/dataset/{owner}/{id}/tags:
+    put:
+      consumes:
+      - application/json
+      description: set tags for dataset
+      parameters:
+      - description: owner of dataset
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of dataset
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of tags
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
+      responses:
+        "202":
+          description: ""
+      summary: SetTags
+      tags:
+      - Dataset
   /v1/dataset/{owner}/{name}:
     get:
       consumes:

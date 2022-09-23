@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type DatasetUpdateCmd struct {
@@ -41,30 +42,53 @@ func (cmd *DatasetUpdateCmd) toDataset(
 }
 
 func (s datasetService) Update(
-	p *domain.Dataset, cmd *DatasetUpdateCmd, pr platform.Repository,
+	d *domain.Dataset, cmd *DatasetUpdateCmd, pr platform.Repository,
 ) (dto DatasetDTO, err error) {
 	opt := new(platform.RepoOption)
-	if !cmd.toDataset(&p.DatasetModifiableProperty, opt) {
-		s.toDatasetDTO(p, &dto)
+	if !cmd.toDataset(&d.DatasetModifiableProperty, opt) {
+		s.toDatasetDTO(d, &dto)
 
 		return
 
-	}
-
-	v, err := s.repo.Save(p)
-	if err != nil {
-		return
 	}
 
 	if opt.IsNotEmpty() {
-		if err = pr.Update(p.RepoId, opt); err != nil {
+		if err = pr.Update(d.RepoId, opt); err != nil {
 			return
 		}
 	}
 
-	s.toDatasetDTO(&v, &dto)
+	info := repository.DatasetPropertyUpdateInfo{
+		Owner:    d.Owner,
+		Id:       d.Id,
+		Version:  d.Version,
+		Property: d.DatasetModifiableProperty,
+	}
+	if err = s.repo.UpdateProperty(&info); err != nil {
+		return
+	}
+
+	s.toDatasetDTO(d, &dto)
 
 	return
+}
+
+func (s datasetService) SetTags(m *domain.Dataset, cmd *ResourceTagsUpdateCmd) error {
+	tags, b := cmd.toTags(m.DatasetModifiableProperty.Tags)
+	if !b {
+		return nil
+	}
+
+	m.DatasetModifiableProperty.Tags = tags
+
+	info := repository.DatasetPropertyUpdateInfo{
+		Owner:    m.Owner,
+		Id:       m.Id,
+		Version:  m.Version,
+		Property: m.DatasetModifiableProperty,
+	}
+
+	return s.repo.UpdateProperty(&info)
 }
 
 func (s datasetService) AddLike(owner domain.Account, rid string) error {

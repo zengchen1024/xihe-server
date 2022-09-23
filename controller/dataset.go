@@ -14,10 +14,12 @@ func AddRouterForDatasetController(
 	rg *gin.RouterGroup,
 	repo repository.Dataset,
 	activity repository.Activity,
+	tags repository.Tags,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := DatasetController{
 		repo: repo,
+		tags: tags,
 		s:    app.NewDatasetService(repo, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
@@ -33,6 +35,7 @@ type DatasetController struct {
 	baseController
 
 	repo repository.Dataset
+	tags repository.Tags
 	s    app.DatasetService
 
 	newPlatformRepository func(string, string) platform.Repository
@@ -283,6 +286,93 @@ func (ctl *DatasetController) getListParameter(
 			return
 		}
 	}
+
+	return
+}
+
+// @Summary SetTags
+// @Description set tags for dataset
+// @Tags  Dataset
+// @Param	owner	path	string				true	"owner of dataset"
+// @Param	id	path	string				true	"id of dataset"
+// @Param	body	body 	resourceTagsUpdateRequest	true	"body of tags"
+// @Accept json
+// @Success 202
+// @Router /v1/dataset/{owner}/{id}/tags [put]
+func (ctl *DatasetController) SetTags(ctx *gin.Context) {
+	req := resourceTagsUpdateRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	tags, err := ctl.tags.List(domain.ResourceTypeDataset)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	cmd, err := req.toCmd(tags)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	d, ok := ctl.checkPermission(ctx)
+	if !ok {
+		return
+	}
+
+	if err = ctl.s.SetTags(&d, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+}
+
+func (ctl *DatasetController) checkPermission(ctx *gin.Context) (d domain.Dataset, ok bool) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed,
+			"can't update dataset for other user",
+		))
+
+		return
+	}
+
+	d, err = ctl.repo.Get(owner, ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseError(err))
+
+		return
+	}
+
+	ok = true
 
 	return
 }

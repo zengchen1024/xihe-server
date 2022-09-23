@@ -98,28 +98,32 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 	return
 }
 
-func (col dataset) Update(do repositories.DatasetDO) error {
-	doc, err := col.toDatasetDoc(&do)
+func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
+	docObj := datasetItem{
+		Name:     do.Name,
+		Desc:     do.Desc,
+		RepoType: do.RepoType,
+		Tags:     do.Tags,
+	}
+
+	doc, err := genDoc(docObj)
 	if err != nil {
 		return err
 	}
 
-	docFilter := datasetDocFilter(do.Owner)
-
 	updated := false
 
 	f := func(ctx context.Context) error {
-		b, err := cli.updateArrayElem(
+		updated, err = cli.updateArrayElem(
 			ctx, col.collectionName, fieldItems,
-			docFilter, arrayFilterById(do.Id), doc, do.Version,
+			datasetDocFilter(do.Owner),
+			arrayFilterById(do.Id), doc, do.Version,
 		)
-
-		updated = b
 
 		return err
 	}
 
-	if err := withContext(f); err != nil {
+	if withContext(f); err != nil {
 		return err
 	}
 

@@ -156,6 +156,48 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/v1/dataset/{owner}/{id}/tags": {
+            "put": {
+                "description": "set tags for dataset",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dataset"
+                ],
+                "summary": "SetTags",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of dataset",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of dataset",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of tags",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.resourceTagsUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/dataset/{owner}/{name}": {
             "get": {
                 "description": "get dataset",

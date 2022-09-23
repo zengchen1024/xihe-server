@@ -1,13 +1,14 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
-	Update(DatasetDO) error
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
 	List(string, ResourceListDO) ([]DatasetDO, error)
@@ -15,6 +16,8 @@ type DatasetMapper interface {
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
+
+	UpdateProperty(*DatasetPropertyDO) error
 }
 
 func NewDatasetRepository(mapper DatasetMapper) repository.Dataset {
@@ -27,12 +30,7 @@ type dataset struct {
 
 func (impl dataset) Save(d *domain.Dataset) (r domain.Dataset, err error) {
 	if d.Id != "" {
-		if err = impl.mapper.Update(impl.toDatasetDO(d)); err != nil {
-			err = convertError(err)
-		} else {
-			r = *d
-			r.Version += 1
-		}
+		err = errors.New("must be a new dataset")
 
 		return
 	}
