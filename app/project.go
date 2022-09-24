@@ -179,8 +179,6 @@ func (s projectService) GetByName(
 		return
 	}
 
-	s.toProjectDTO(&v, &dto.ProjectDTO)
-
 	m, err := s.rs.listModels(v.RelatedModels)
 	if err != nil {
 		return
@@ -192,6 +190,8 @@ func (s projectService) GetByName(
 		return
 	}
 	dto.RelatedDatasets = d
+
+	s.toProjectDTO(&v, &dto.ProjectDTO)
 
 	return
 }
