@@ -93,7 +93,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
-			v1, proj, model, dataset, activity, tags, like, sender, newPlatformRepository,
+			v1, user, proj, model, dataset, activity, tags, like, sender,
+			newPlatformRepository,
 		)
 
 		controller.AddRouterForModelController(

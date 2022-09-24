@@ -92,5 +92,5 @@ func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 type projectDetail struct {
 	Liked bool `json:"liked"`
 
-	*app.ProjectDTO
+	*app.ProjectDetailDTO
 }

@@ -14,6 +14,7 @@ import (
 
 func AddRouterForProjectController(
 	rg *gin.RouterGroup,
+	user repository.User,
 	repo repository.Project,
 	model repository.Model,
 	dataset repository.Dataset,
@@ -29,7 +30,9 @@ func AddRouterForProjectController(
 		dataset: dataset,
 		tags:    tags,
 		like:    like,
-		s:       app.NewProjectService(repo, activity, nil, sender),
+		s: app.NewProjectService(
+			user, repo, model, dataset, activity, nil, sender,
+		),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -226,29 +229,27 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
-	proj, err := ctl.s.GetByName(owner, name)
+	proj, err := ctl.s.GetByName(owner, name, !visitor && pl.isMyself(owner))
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
-	}
-
-	if (visitor || pl.isNotMe(owner)) && proj.RepoType != domain.RepoTypePublic {
-		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
-			errorResourceNotExists,
-			"can't access private project",
-		))
+		if isErrorOfAccessingPrivateRepo(err) {
+			ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+				errorResourceNotExists,
+				"can't access private project",
+			))
+		} else {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		}
 
 		return
 	}
 
 	liked := true
 	if !visitor && pl.isNotMe(owner) {
-		liked, err = ctl.like.HasLike(pl.DomainAccount(), &domain.ResourceObject{
-			Owner: owner,
-			Type:  domain.ResourceTypeProject,
-			Id:    proj.Id,
-		})
+		obj := &domain.ResourceObject{Type: domain.ResourceTypeProject}
+		obj.Owner = owner
+		obj.Id = proj.Id
+
+		liked, err = ctl.like.HasLike(pl.DomainAccount(), obj)
 
 		if err != nil {
 			ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -258,8 +259,8 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(projectDetail{
-		Liked:      liked,
-		ProjectDTO: &proj,
+		Liked:            liked,
+		ProjectDetailDTO: &proj,
 	}))
 }
 
@@ -436,8 +437,17 @@ func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	pl, proj, ok := ctl.checkPermission(ctx)
 	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) && data.RepoType.RepoType() != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+
 		return
 	}
 
@@ -484,7 +494,7 @@ func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	_, proj, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -541,8 +551,17 @@ func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	pl, proj, ok := ctl.checkPermission(ctx)
 	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) && data.RepoType.RepoType() != domain.RepoTypePublic {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+
 		return
 	}
 
@@ -589,7 +608,7 @@ func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	_, proj, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -644,7 +663,7 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	proj, ok := ctl.checkPermission(ctx)
+	_, proj, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -658,7 +677,9 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
-func (ctl *ProjectController) checkPermission(ctx *gin.Context) (proj domain.Project, ok bool) {
+func (ctl *ProjectController) checkPermission(ctx *gin.Context) (
+	info oldUserTokenPayload, proj domain.Project, ok bool,
+) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -675,8 +696,7 @@ func (ctl *ProjectController) checkPermission(ctx *gin.Context) (proj domain.Pro
 
 	if pl.isNotMe(owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"can't update project for other user",
+			errorNotAllowed, "not allowed",
 		))
 
 		return
@@ -689,6 +709,7 @@ func (ctl *ProjectController) checkPermission(ctx *gin.Context) (proj domain.Pro
 		return
 	}
 
+	info = pl
 	ok = true
 
 	return

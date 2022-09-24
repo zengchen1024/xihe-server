@@ -88,10 +88,11 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		),
 
 		project: app.NewProjectService(
+			nil,
 			repositories.NewProjectRepository(
 				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
 			),
-			nil, nil, nil,
+			nil, nil, nil, nil, nil,
 		),
 
 		dataset: app.NewDatasetService(

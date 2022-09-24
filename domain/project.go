@@ -29,6 +29,10 @@ func (p *Project) MaxRelatedResourceNum() int {
 	return config.MaxRelatedResourceNum
 }
 
+func (p *Project) IsPrivate() bool {
+	return p.RepoType.RepoType() == RepoTypePrivate
+}
+
 type ProjectModifiableProperty struct {
 	Name     ProjName
 	Desc     ResourceDesc

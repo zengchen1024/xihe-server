@@ -75,9 +75,16 @@ type ProjectDTO struct {
 	ForkCount int      `json:"fork_count"`
 }
 
+type ProjectDetailDTO struct {
+	ProjectDTO
+
+	RelatedModels   []ResourceDTO `json:"related_models"`
+	RelatedDatasets []ResourceDTO `json:"related_datasets"`
+}
+
 type ProjectService interface {
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
-	GetByName(domain.Account, domain.ProjName) (ProjectDTO, error)
+	GetByName(domain.Account, domain.ProjName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
@@ -97,13 +104,24 @@ type ProjectService interface {
 }
 
 func NewProjectService(
-	repo repository.Project, activity repository.Activity,
-	pr platform.Repository, sender message.Sender,
+	user repository.User,
+	repo repository.Project,
+	model repository.Model,
+	dataset repository.Dataset,
+	activity repository.Activity,
+	pr platform.Repository,
+	sender message.Sender,
 ) ProjectService {
 	return projectService{
 		repo:     repo,
 		activity: activity,
 		sender:   sender,
+		rs: resourceService{
+			user:    user,
+			model:   model,
+			project: repo,
+			dataset: dataset,
+		},
 	}
 }
 
@@ -112,6 +130,7 @@ type projectService struct {
 	//pr       platform.Repository
 	activity repository.Activity
 	sender   message.Sender
+	rs       resourceService
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (dto ProjectDTO, err error) {
@@ -147,13 +166,32 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 
 func (s projectService) GetByName(
 	owner domain.Account, name domain.ProjName,
-) (dto ProjectDTO, err error) {
+	allowPrivacy bool,
+) (dto ProjectDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
 	if err != nil {
 		return
 	}
 
-	s.toProjectDTO(&v, &dto)
+	if !allowPrivacy && v.IsPrivate() {
+		err = ErrorPrivateRepo{errors.New("private repo")}
+
+		return
+	}
+
+	s.toProjectDTO(&v, &dto.ProjectDTO)
+
+	m, err := s.rs.listModels(v.RelatedModels)
+	if err != nil {
+		return
+	}
+	dto.RelatedModels = m
+
+	d, err := s.rs.listModels(v.RelatedModels)
+	if err != nil {
+		return
+	}
+	dto.RelatedDatasets = d
 
 	return
 }

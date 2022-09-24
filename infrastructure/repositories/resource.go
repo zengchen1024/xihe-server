@@ -56,3 +56,20 @@ func toResourceIndexDO(r *domain.ResourceIndex) ResourceIndexDO {
 		Id:    r.Id,
 	}
 }
+
+func convertToResourceIndex(v []ResourceIndexDO) (r []domain.ResourceIndex, err error) {
+	n := len(v)
+	if n == 0 {
+		return
+	}
+
+	r = make([]domain.ResourceIndex, n)
+
+	for i := range v {
+		if err = v[i].toResourceIndex(&r[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
