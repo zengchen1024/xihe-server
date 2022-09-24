@@ -89,7 +89,6 @@ func (s resourceService) singleResourceOptions(resources []domain.ResourceIndex)
 	}
 
 	options = s.toOptionList(ro, ul)
-
 	users = s.userMapToList(ul)
 
 	return

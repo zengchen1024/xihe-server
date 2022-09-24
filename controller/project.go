@@ -442,7 +442,7 @@ func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 		return
 	}
 
-	if pl.isNotMe(owner) && data.RepoType.RepoType() != domain.RepoTypePublic {
+	if pl.isNotMe(owner) && data.IsPrivate() {
 		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 			errorResourceNotExists,
 			"can't access private project",
@@ -556,7 +556,7 @@ func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	if pl.isNotMe(owner) && data.RepoType.RepoType() != domain.RepoTypePublic {
+	if pl.isNotMe(owner) && data.IsPrivate() {
 		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 			errorResourceNotExists,
 			"can't access private project",

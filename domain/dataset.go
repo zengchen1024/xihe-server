@@ -16,6 +16,10 @@ type Dataset struct {
 	LikeCount int
 }
 
+func (d *Dataset) IsPrivate() bool {
+	return d.RepoType.RepoType() == RepoTypePrivate
+}
+
 type DatasetModifiableProperty struct {
 	Name     DatasetName
 	Desc     ResourceDesc

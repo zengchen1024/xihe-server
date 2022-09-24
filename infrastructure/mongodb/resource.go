@@ -38,12 +38,11 @@ func toResourceObjectDO(doc *ResourceObject) repositories.ResourceObjectDO {
 }
 
 func toResourceIndexDO(v []ResourceIndex) []repositories.ResourceIndexDO {
-	n := len(v)
-	if n == 0 {
+	if len(v) == 0 {
 		return nil
 	}
 
-	r := make([]repositories.ResourceIndexDO, n)
+	r := make([]repositories.ResourceIndexDO, len(v))
 	for i := range v {
 		a, b := &r[i], &v[i]
 
