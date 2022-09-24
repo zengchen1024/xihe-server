@@ -7,9 +7,9 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/opensourceways/community-robot-lib/utils"
-	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/messages"
 )
 
 var reIpPort = regexp.MustCompile(`^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}:[1-9][0-9]*$`)
@@ -46,13 +46,13 @@ type Config struct {
 	MaxRetry        int    `json:"max_retry"`
 	ActivityKeepNum int    `json:"activity_keep_num"`
 
-	Authing  AuthingService `json:"authing_service" required:"true"`
-	Resource Resource       `json:"resource" required:"true"`
-	Mongodb  Mongodb        `json:"mongodb" required:"true"`
-	Gitlab   Gitlab         `json:"gitlab" required:"true"`
-	API      API            `json:"api" required:"true"`
-	User     User           `json:"user"`
-	MQ       MQ             `json:"mq" required:"true"`
+	Authing  AuthingService        `json:"authing_service" required:"true"`
+	Resource domain.ResourceConfig `json:"resource" required:"true"`
+	Mongodb  Mongodb               `json:"mongodb" required:"true"`
+	Gitlab   Gitlab                `json:"gitlab" required:"true"`
+	API      API                   `json:"api" required:"true"`
+	User     domain.UserConfig     `json:"user"`
+	MQ       MQ                    `json:"mq" required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
@@ -139,63 +139,9 @@ type API struct {
 	APITokenKey    string `json:"api_token_key" required:"true"`
 }
 
-type Resource struct {
-	MaxNameLength         int `json:"max_name_length"`
-	MinNameLength         int `json:"min_name_length"`
-	MaxDescLength         int `json:"max_desc_length"`
-	MaxRelatedResourceNum int `json:"max_related_resource_num"`
-
-	Covers           []string `json:"covers" required:"true"`
-	Protocols        []string `json:"protocols" required:"true"`
-	ProjectType      []string `json:"project_type" required:"true"`
-	TrainingPlatform []string `json:"training_platform" required:"true"`
-}
-
-func (r *Resource) SetDefault() {
-	if r.MaxNameLength <= 0 {
-		r.MaxNameLength = 50
-	}
-
-	if r.MinNameLength <= 0 {
-		r.MinNameLength = 5
-	}
-
-	if r.MaxDescLength <= 0 {
-		r.MaxDescLength = 100
-	}
-
-	if r.MaxRelatedResourceNum <= 0 {
-		r.MaxRelatedResourceNum = 5
-	}
-}
-
-func (r *Resource) Validate() error {
-	if r.MaxNameLength < (r.MinNameLength + 10) {
-		return errors.New("invalid name length")
-	}
-
-	return nil
-}
-
-type User struct {
-	MaxNicknameLength int `json:"max_nickname_length"`
-	MaxBioLength      int `json:"max_bio_length"`
-}
-
-func (u *User) SetDefault() {
-	if u.MaxNicknameLength == 0 {
-		u.MaxNicknameLength = 20
-	}
-
-	if u.MaxBioLength == 0 {
-		u.MaxBioLength = 200
-	}
-}
-
 type MQ struct {
-	Address        string `json:"address" required:"true"`
-	TopicLike      string `json:"topic_like" required:"true"`
-	TopicFollowing string `json:"topic_following" required:"true"`
+	Address string          `json:"address" required:"true"`
+	Topics  messages.Topics `json:"topics"  required:"true"`
 }
 
 func (cfg *MQ) Validate() error {
@@ -219,26 +165,5 @@ func (cfg *MQ) ParseAddress() []string {
 }
 
 func (cfg *Config) InitDomainConfig() {
-	InitDomainConfig(&cfg.Resource, &cfg.User)
-}
-
-func InitDomainConfig(r *Resource, u *User) {
-	domain.Init(&domain.Config{
-		Resource: domain.ResourceConfig{
-			MaxNameLength:         r.MaxNameLength,
-			MinNameLength:         r.MinNameLength,
-			MaxDescLength:         r.MaxDescLength,
-			MaxRelatedResourceNum: r.MaxRelatedResourceNum,
-
-			Covers:           sets.NewString(r.Covers...),
-			Protocols:        sets.NewString(r.Protocols...),
-			ProjectType:      sets.NewString(r.ProjectType...),
-			TrainingPlatform: sets.NewString(r.TrainingPlatform...),
-		},
-
-		User: domain.UserConfig{
-			MaxNicknameLength: u.MaxNicknameLength,
-			MaxBioLength:      u.MaxBioLength,
-		},
-	})
+	domain.Init(&cfg.Resource, &cfg.User)
 }

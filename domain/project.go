@@ -26,7 +26,7 @@ type Project struct {
 }
 
 func (p *Project) MaxRelatedResourceNum() int {
-	return config.Resource.MaxRelatedResourceNum
+	return config.MaxRelatedResourceNum
 }
 
 type ProjectModifiableProperty struct {

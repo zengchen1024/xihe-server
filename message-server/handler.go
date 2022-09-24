@@ -61,7 +61,7 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 		}
 
 		if err != nil {
-			if _, ok := err.(repository.ErrorResourceNotExists); ok {
+			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of adding like for owner:%s, rid:%s, err:%v",
 					like.ResourceOwner.Account(), like.ResourceId, err,
@@ -89,7 +89,7 @@ func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 		}
 
 		if err != nil {
-			if _, ok := err.(repository.ErrorResourceNotExists); ok {
+			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of removing like for owner:%s, rid:%s, err:%v",
 					like.ResourceOwner.Account(), like.ResourceId, err,
@@ -106,7 +106,7 @@ func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 func (h *handler) HandleEventFork(index domain.ResourceIndex) error {
 	return h.do(func() (err error) {
 		if err = h.project.IncreaseFork(index); err != nil {
-			if _, ok := err.(repository.ErrorResourceNotExists); ok {
+			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of fork for owner:%s, rid:%s, err:%v",
 					index.ResourceOwner.Account(), index.ResourceId, err,
@@ -138,4 +138,10 @@ func (h *handler) do(f func() error) (err error) {
 
 func (h *handler) errMaxRetry(err error) error {
 	return fmt.Errorf("exceed max retry num, last err:%v", err)
+}
+
+func isResourceNotExists(err error) bool {
+	_, ok := err.(repository.ErrorResourceNotExists)
+
+	return ok
 }

@@ -5,15 +5,16 @@ import (
 	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/config"
+	"github.com/opensourceways/xihe-server/domain"
 )
 
 type configuration struct {
 	MaxRetry int `json:"max_retry"`
 
-	Resource config.Resource `json:"resource" required:"true"`
-	Mongodb  config.Mongodb  `json:"mongodb" required:"true"`
-	User     config.User     `json:"user"`
-	MQ       config.MQ       `json:"mq" required:"true"`
+	Resource domain.ResourceConfig `json:"resource" required:"true"`
+	Mongodb  config.Mongodb        `json:"mongodb"  required:"true"`
+	User     domain.UserConfig     `json:"user"`
+	MQ       config.MQ             `json:"mq"       required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -59,4 +60,8 @@ func (cfg *configuration) Validate() error {
 	}
 
 	return nil
+}
+
+func (cfg *configuration) initDomainConfig() {
+	domain.Init(&cfg.Resource, &cfg.User)
 }

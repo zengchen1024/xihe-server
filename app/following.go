@@ -24,7 +24,9 @@ func (s userService) AddFollowing(owner, following domain.Account) error {
 	// TODO: activity
 
 	// send event
-	return s.sender.AddFollowing(f)
+	_ = s.sender.AddFollowing(f)
+
+	return nil
 }
 
 func (s userService) RemoveFollowing(owner, following domain.Account) error {
@@ -38,7 +40,9 @@ func (s userService) RemoveFollowing(owner, following domain.Account) error {
 	}
 
 	// send event
-	return s.sender.RemoveFollowing(f)
+	_ = s.sender.RemoveFollowing(f)
+
+	return nil
 }
 
 func (s userService) ListFollowing(owner domain.Account) (

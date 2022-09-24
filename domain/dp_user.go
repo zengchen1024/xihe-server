@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+
+	"github.com/opensourceways/community-robot-lib/utils"
 )
 
 // Account
@@ -76,7 +78,7 @@ type Nickname interface {
 }
 
 func NewNickname(v string) (Nickname, error) {
-	if len(v) > config.User.MaxNicknameLength {
+	if len(v) > config.MaxNicknameLength {
 		return nil, errors.New("invalid nickname")
 	}
 
@@ -95,7 +97,7 @@ type Bio interface {
 }
 
 func NewBio(v string) (Bio, error) {
-	if len(v) > config.User.MaxBioLength {
+	if len(v) > config.MaxBioLength {
 		return nil, errors.New("invalid bio")
 	}
 
@@ -114,7 +116,7 @@ type Email interface {
 }
 
 func NewEmail(v string) (Email, error) {
-	if v == "" || !reEmail.MatchString(v) {
+	if v == "" || !utils.IsValidEmail(v) {
 		return nil, errors.New("invalid email")
 	}
 

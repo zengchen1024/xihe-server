@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -19,6 +20,7 @@ func AddRouterForProjectController(
 	activity repository.Activity,
 	tags repository.Tags,
 	like repository.Like,
+	sender message.Sender,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
@@ -27,7 +29,7 @@ func AddRouterForProjectController(
 		dataset: dataset,
 		tags:    tags,
 		like:    like,
-		s:       app.NewProjectService(repo, activity, nil),
+		s:       app.NewProjectService(repo, activity, nil, sender),
 
 		newPlatformRepository: newPlatformRepository,
 	}

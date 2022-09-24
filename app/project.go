@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -97,15 +98,20 @@ type ProjectService interface {
 
 func NewProjectService(
 	repo repository.Project, activity repository.Activity,
-	pr platform.Repository,
+	pr platform.Repository, sender message.Sender,
 ) ProjectService {
-	return projectService{repo: repo, activity: activity}
+	return projectService{
+		repo:     repo,
+		activity: activity,
+		sender:   sender,
+	}
 }
 
 type projectService struct {
 	repo repository.Project
 	//pr       platform.Repository
 	activity repository.Activity
+	sender   message.Sender
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (dto ProjectDTO, err error) {

@@ -143,8 +143,8 @@ func (r datasetName) ResourceType() ResourceType {
 }
 
 func genResourceName(v, prefix string) (string, error) {
-	max := config.Resource.MaxNameLength - len(prefix)
-	min := config.Resource.MinNameLength
+	max := config.MaxNameLength - len(prefix)
+	min := config.MinNameLength
 
 	if n := len(v); n > max || n < min {
 		return "", fmt.Errorf("name's length should be between %d to %d", min, max)
@@ -162,8 +162,8 @@ func genResourceName(v, prefix string) (string, error) {
 }
 
 func checkResourceName(v, prefix string) error {
-	max := config.Resource.MaxNameLength
-	min := config.Resource.MinNameLength
+	max := config.MaxNameLength
+	min := config.MinNameLength
 
 	if n := len(v); n > max || n < min {
 		return fmt.Errorf("name's length should be between %d to %d", min, max)
@@ -208,7 +208,7 @@ type ResourceDesc interface {
 }
 
 func NewResourceDesc(v string) (ResourceDesc, error) {
-	max := config.Resource.MaxDescLength
+	max := config.MaxDescLength
 	if len(v) > max || v == "" {
 		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
 	}

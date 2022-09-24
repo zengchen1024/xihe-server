@@ -55,11 +55,7 @@ func main() {
 	}
 
 	// mq
-	topic := messages.Topics{
-		Like:      cfg.MQ.TopicLike,
-		Following: cfg.MQ.TopicFollowing,
-	}
-	if err := messages.Init(cfg.getMQConfig(), log, topic); err != nil {
+	if err := messages.Init(cfg.getMQConfig(), log, cfg.MQ.Topics); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
@@ -74,7 +70,7 @@ func main() {
 	defer mongodb.Close()
 
 	// cfg
-	config.InitDomainConfig(&cfg.Resource, &cfg.User)
+	cfg.initDomainConfig()
 
 	// run
 	run(newHandler(cfg, log), log)
@@ -95,7 +91,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			repositories.NewProjectRepository(
 				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
 			),
-			nil, nil,
+			nil, nil, nil,
 		),
 
 		dataset: app.NewDatasetService(

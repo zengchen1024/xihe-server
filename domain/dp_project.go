@@ -2,46 +2,12 @@ package domain
 
 import (
 	"errors"
-	"regexp"
-
-	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "private"
 )
-
-var (
-	config  = Config{}
-	reEmail = regexp.MustCompile("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$")
-)
-
-func Init(cfg *Config) {
-	config = *cfg
-}
-
-type Config struct {
-	Resource ResourceConfig
-	User     UserConfig
-}
-
-type ResourceConfig struct {
-	MaxNameLength         int
-	MinNameLength         int
-	MaxDescLength         int
-	MaxRelatedResourceNum int
-
-	Covers           sets.String
-	Protocols        sets.String
-	ProjectType      sets.String
-	TrainingPlatform sets.String
-}
-
-type UserConfig struct {
-	MaxNicknameLength int
-	MaxBioLength      int
-}
 
 // RepoType
 type RepoType interface {
@@ -68,7 +34,7 @@ type CoverId interface {
 }
 
 func NewConverId(v string) (CoverId, error) {
-	if !config.Resource.Covers.Has(v) {
+	if !config.hasCover(v) {
 		return nil, errors.New("invalid cover id")
 	}
 
@@ -87,7 +53,7 @@ type ProtocolName interface {
 }
 
 func NewProtocolName(v string) (ProtocolName, error) {
-	if !config.Resource.Protocols.Has(v) {
+	if !config.hasProtocol(v) {
 		return nil, errors.New("unsupported protocol")
 	}
 
@@ -106,7 +72,7 @@ type ProjType interface {
 }
 
 func NewProjType(v string) (ProjType, error) {
-	if !config.Resource.ProjectType.Has(v) {
+	if !config.hasProjectType(v) {
 		return nil, errors.New("unsupported project type")
 	}
 
@@ -125,7 +91,7 @@ type TrainingPlatform interface {
 }
 
 func NewTrainingPlatform(v string) (TrainingPlatform, error) {
-	if !config.Resource.TrainingPlatform.Has(v) {
+	if !config.hasPlatform(v) {
 		return nil, errors.New("unsupport training platform")
 	}
 
