@@ -1,4 +1,4 @@
-package message
+package messages
 
 import (
 	"context"
@@ -126,5 +126,33 @@ func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		return nil
+	})
+}
+
+func registerForkHandler(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.ForkHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Fork, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgFork{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		index := domain.ResourceIndex{}
+		if index.ResourceOwner, err = domain.NewAccount(body.Owner); err != nil {
+			return
+		}
+
+		index.ResourceId = body.Id
+
+		return h.HandleEventFork(index)
 	})
 }

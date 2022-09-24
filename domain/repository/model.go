@@ -5,9 +5,8 @@ import (
 )
 
 type ModelPropertyUpdateInfo struct {
-	Owner    domain.Account
-	Id       string
-	Version  int
+	ResourceToUpdate
+
 	Property domain.ModelModifiableProperty
 }
 

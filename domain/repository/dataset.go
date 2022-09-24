@@ -5,9 +5,8 @@ import (
 )
 
 type DatasetPropertyUpdateInfo struct {
-	Owner    domain.Account
-	Id       string
-	Version  int
+	ResourceToUpdate
+
 	Property domain.DatasetModifiableProperty
 }
 

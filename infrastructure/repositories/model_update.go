@@ -47,9 +47,8 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 	p := &info.Property
 
 	do := ModelPropertyDO{
-		Id:       info.Id,
-		Owner:    info.Owner.Account(),
-		Version:  info.Version,
+		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
+
 		Name:     p.Name.ModelName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
@@ -64,9 +63,7 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 }
 
 type ModelPropertyDO struct {
-	Id      string
-	Owner   string
-	Version int
+	ResourceToUpdateDO
 
 	Name     string
 	Desc     string

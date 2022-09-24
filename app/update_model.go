@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ModelUpdateCmd struct {
@@ -61,10 +62,8 @@ func (s modelService) Update(
 	}
 
 	info := repository.ModelPropertyUpdateInfo{
-		Owner:    m.Owner,
-		Id:       m.Id,
-		Version:  m.Version,
-		Property: m.ModelModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(m),
+		Property:         m.ModelModifiableProperty,
 	}
 	if err = s.repo.UpdateProperty(&info); err != nil {
 		return
@@ -84,10 +83,8 @@ func (s modelService) SetTags(m *domain.Model, cmd *ResourceTagsUpdateCmd) error
 	m.ModelModifiableProperty.Tags = tags
 
 	info := repository.ModelPropertyUpdateInfo{
-		Owner:    m.Owner,
-		Id:       m.Id,
-		Version:  m.Version,
-		Property: m.ModelModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(m),
+		Property:         m.ModelModifiableProperty,
 	}
 
 	return s.repo.UpdateProperty(&info)
@@ -115,10 +112,8 @@ func (s modelService) AddRelatedDataset(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:           m.Owner,
-		ResourceId:      m.Id,
-		Version:         m.Version,
-		RelatedResource: *index,
+		ResourceToUpdate: s.toResourceToUpdate(m),
+		RelatedResource:  *index,
 	}
 
 	return s.repo.AddRelatedDataset(&info)
@@ -132,11 +127,18 @@ func (s modelService) RemoveRelatedDataset(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:           m.Owner,
-		ResourceId:      m.Id,
-		Version:         m.Version,
-		RelatedResource: *index,
+		ResourceToUpdate: s.toResourceToUpdate(m),
+		RelatedResource:  *index,
 	}
 
 	return s.repo.RemoveRelatedDataset(&info)
+}
+
+func (s modelService) toResourceToUpdate(m *domain.Model) repository.ResourceToUpdate {
+	return repository.ResourceToUpdate{
+		Owner:     m.Owner,
+		Id:        m.Id,
+		Version:   m.Version,
+		UpdatedAt: utils.Now(),
+	}
 }

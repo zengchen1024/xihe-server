@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ProjectCreateCmd struct {
@@ -37,11 +38,15 @@ func (cmd *ProjectCreateCmd) Validate() error {
 }
 
 func (cmd *ProjectCreateCmd) toProject() domain.Project {
+	now := utils.Now()
+
 	return domain.Project{
-		Owner:    cmd.Owner,
-		Type:     cmd.Type,
-		Protocol: cmd.Protocol,
-		Training: cmd.Training,
+		Owner:     cmd.Owner,
+		Type:      cmd.Type,
+		Protocol:  cmd.Protocol,
+		Training:  cmd.Training,
+		CreatedAt: now,
+		UpdatedAt: now,
 		ProjectModifiableProperty: domain.ProjectModifiableProperty{
 			Name:     cmd.Name,
 			Desc:     cmd.Desc,
@@ -52,17 +57,21 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 }
 
 type ProjectDTO struct {
-	Id       string   `json:"id"`
-	Owner    string   `json:"owner"`
-	Name     string   `json:"name"`
-	Desc     string   `json:"desc"`
-	Type     string   `json:"type"`
-	CoverId  string   `json:"cover_id"`
-	Protocol string   `json:"protocol"`
-	Training string   `json:"training"`
-	RepoType string   `json:"repo_type"`
-	RepoId   string   `json:"repo_id"`
-	Tags     []string `json:"tags"`
+	Id        string   `json:"id"`
+	Owner     string   `json:"owner"`
+	Name      string   `json:"name"`
+	Desc      string   `json:"desc"`
+	Type      string   `json:"type"`
+	CoverId   string   `json:"cover_id"`
+	Protocol  string   `json:"protocol"`
+	Training  string   `json:"training"`
+	RepoType  string   `json:"repo_type"`
+	RepoId    string   `json:"repo_id"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
+	LikeCount int      `json:"like_count"`
+	ForkCount int      `json:"fork_count"`
 }
 
 type ProjectService interface {
@@ -71,6 +80,8 @@ type ProjectService interface {
 	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
+
+	IncreaseFork(index domain.ResourceIndex) error
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
@@ -173,16 +184,20 @@ func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 
 func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 	*dto = ProjectDTO{
-		Id:       p.Id,
-		Owner:    p.Owner.Account(),
-		Name:     p.Name.ProjName(),
-		Desc:     p.Desc.ResourceDesc(),
-		Type:     p.Type.ProjType(),
-		CoverId:  p.CoverId.CoverId(),
-		Protocol: p.Protocol.ProtocolName(),
-		Training: p.Training.TrainingPlatform(),
-		RepoType: p.RepoType.RepoType(),
-		RepoId:   p.RepoId,
-		Tags:     p.Tags,
+		Id:        p.Id,
+		Owner:     p.Owner.Account(),
+		Name:      p.Name.ProjName(),
+		Desc:      p.Desc.ResourceDesc(),
+		Type:      p.Type.ProjType(),
+		CoverId:   p.CoverId.CoverId(),
+		Protocol:  p.Protocol.ProtocolName(),
+		Training:  p.Training.TrainingPlatform(),
+		RepoType:  p.RepoType.RepoType(),
+		RepoId:    p.RepoId,
+		Tags:      p.Tags,
+		CreatedAt: utils.ToDate(p.CreatedAt),
+		UpdatedAt: utils.ToDate(p.UpdatedAt),
+		LikeCount: p.LikeCount,
+		ForkCount: p.ForkCount,
 	}
 }

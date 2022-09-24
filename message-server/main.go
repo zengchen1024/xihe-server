@@ -14,7 +14,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
-	"github.com/opensourceways/xihe-server/infrastructure/message"
+	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
@@ -55,15 +55,15 @@ func main() {
 	}
 
 	// mq
-	topic := message.Topics{
+	topic := messages.Topics{
 		Like:      cfg.MQ.TopicLike,
 		Following: cfg.MQ.TopicFollowing,
 	}
-	if err := message.Init(cfg.getMQConfig(), log, topic); err != nil {
+	if err := messages.Init(cfg.getMQConfig(), log, topic); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
-	defer message.Exit(log)
+	defer messages.Exit(log)
 
 	// mongo
 	m := &cfg.Mongodb
@@ -148,7 +148,7 @@ func run(h *handler, log *logrus.Entry) {
 		}
 	}(ctx)
 
-	if err := message.Subscribe(ctx, h, log); err != nil {
+	if err := messages.Subscribe(ctx, h, log); err != nil {
 		log.Errorf("subscribe failed, err:%v", err)
 	}
 }

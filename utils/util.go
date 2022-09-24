@@ -24,6 +24,10 @@ func Now() int64 {
 }
 
 func ToDate(n int64) string {
+	if n == 0 {
+		n = Now()
+	}
+
 	return time.Unix(n, 0).Format("2006-01-02")
 }
 

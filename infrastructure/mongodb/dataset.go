@@ -116,8 +116,8 @@ func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
 	f := func(ctx context.Context) error {
 		updated, err = cli.updateArrayElem(
 			ctx, col.collectionName, fieldItems,
-			datasetDocFilter(do.Owner),
-			arrayFilterById(do.Id), doc, do.Version,
+			datasetDocFilter(do.Owner), arrayFilterById(do.Id),
+			doc, do.Version, do.UpdatedAt,
 		)
 
 		return err

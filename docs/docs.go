@@ -854,7 +854,14 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.projectDetail"
+                        }
+                    }
+                }
             }
         },
         "/v1/tags/{type}": {
@@ -1749,6 +1756,56 @@ const docTemplate = `{
                 },
                 "repo_type": {
                     "type": "string"
+                },
+                "training": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.projectDetail": {
+            "type": "object",
+            "properties": {
+                "cover_id": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "fork_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
+                },
+                "liked": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_id": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "training": {
                     "type": "string"

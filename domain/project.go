@@ -15,10 +15,14 @@ type Project struct {
 	RelatedModels   RelatedResources
 	RelatedDatasets RelatedResources
 
+	CreatedAt int64
+	UpdatedAt int64
+
 	Version int
 
 	// following fileds is not under the controlling of version
 	LikeCount int
+	ForkCount int
 }
 
 func (p *Project) MaxRelatedResourceNum() int {

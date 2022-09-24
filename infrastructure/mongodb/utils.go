@@ -195,7 +195,7 @@ func (cli *client) getDocs(
 	}
 
 	if err != nil {
-		return err
+		return dbError{err}
 	}
 
 	return cursor.All(ctx, result)
@@ -289,41 +289,44 @@ func (cli *client) pushElemToLimitedArray(
 
 func (cli *client) pullNestedArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, data bson.M, version int,
+	filterOfDoc, filterOfArray, data bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$pull", version,
+		"$pull", version, t,
 	)
 }
 
 func (cli *client) pushNestedArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, data bson.M, version int,
+	filterOfDoc, filterOfArray, data bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$push", version,
+		"$push", version, t,
 	)
 }
 
 func (cli *client) updateArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, updateCmd bson.M, version int,
+	filterOfDoc, filterOfArray, updateCmd bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, updateCmd,
-		"$set", version,
+		"$set", version, t,
 	)
 }
 
 func (cli *client) modifyArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray, updateCmd bson.M,
-	op string, version int,
+	op string, version int, t int64,
 ) (bool, error) {
 	cmd := bson.M{}
 	for k, v := range updateCmd {
@@ -341,6 +344,7 @@ func (cli *client) modifyArrayElem(
 		ctx, filterOfDoc,
 		bson.M{
 			op:     cmd,
+			"$set": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldUpdatedAt): t},
 			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldVersion): 1},
 		},
 		&options.UpdateOptions{
@@ -395,6 +399,27 @@ func (cli *client) updateArrayElemCount(
 	}
 
 	return r.ModifiedCount > 0, nil
+}
+
+func (cli *client) isArrayElemExists(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray bson.M,
+) (bool, error) {
+	query := bson.M{array: bson.M{"$elemMatch": filterOfArray}}
+	for k, v := range filterOfDoc {
+		query[k] = v
+	}
+
+	var v []struct {
+		ID primitive.ObjectID `bson:"_id"`
+	}
+
+	err := cli.getDocs(ctx, collection, query, bson.M{"_id": 1}, &v)
+	if err != nil {
+		return false, err
+	}
+
+	return len(v) > 0, nil
 }
 
 func (cli *client) getArrayElem(

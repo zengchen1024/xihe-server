@@ -103,6 +103,23 @@ func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 	})
 }
 
+func (h *handler) HandleEventFork(index domain.ResourceIndex) error {
+	return h.do(func() (err error) {
+		if err = h.project.IncreaseFork(index); err != nil {
+			if _, ok := err.(repository.ErrorResourceNotExists); ok {
+				h.log.Errorf(
+					"handle event of fork for owner:%s, rid:%s, err:%v",
+					index.ResourceOwner.Account(), index.ResourceId, err,
+				)
+
+				err = nil
+			}
+		}
+
+		return
+	})
+}
+
 func (h *handler) do(f func() error) (err error) {
 	if err = f(); err == nil {
 		return

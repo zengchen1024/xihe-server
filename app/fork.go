@@ -18,10 +18,12 @@ type ProjectForkCmd struct {
 func (cmd *ProjectForkCmd) toProject(name domain.ProjName) domain.Project {
 	p := &cmd.From
 	return domain.Project{
-		Owner:    cmd.Owner,
-		Type:     p.Type,
-		Protocol: p.Protocol,
-		Training: p.Training,
+		Owner:     cmd.Owner,
+		Type:      p.Type,
+		Protocol:  p.Protocol,
+		Training:  p.Training,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
 		ProjectModifiableProperty: domain.ProjectModifiableProperty{
 			Name:     p.Name,
 			Desc:     p.Desc,
