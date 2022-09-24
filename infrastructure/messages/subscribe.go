@@ -41,6 +41,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// register fork
+	s, err = registerForkHandler(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
 	// register end
 	if len(subscribers) == 0 {
 		return nil

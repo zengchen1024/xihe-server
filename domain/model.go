@@ -19,7 +19,7 @@ type Model struct {
 }
 
 func (m *Model) MaxRelatedResourceNum() int {
-	return config.Resource.MaxRelatedResourceNum
+	return config.MaxRelatedResourceNum
 }
 
 type ModelModifiableProperty struct {

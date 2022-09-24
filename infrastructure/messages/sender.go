@@ -13,9 +13,9 @@ import (
 var topics Topics
 
 type Topics struct {
-	Following string
-	Like      string
-	Fork      string
+	Like      string `json:"like"      required:"true"`
+	Fork      string `json:"fork"      required:"true"`
+	Following string `json:"following" required:"true"`
 }
 
 func NewMessageSender() message.Sender {
