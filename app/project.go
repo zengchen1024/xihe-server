@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ProjectCreateCmd struct {
@@ -37,11 +38,15 @@ func (cmd *ProjectCreateCmd) Validate() error {
 }
 
 func (cmd *ProjectCreateCmd) toProject() domain.Project {
+	now := utils.Now()
+
 	return domain.Project{
-		Owner:    cmd.Owner,
-		Type:     cmd.Type,
-		Protocol: cmd.Protocol,
-		Training: cmd.Training,
+		Owner:     cmd.Owner,
+		Type:      cmd.Type,
+		Protocol:  cmd.Protocol,
+		Training:  cmd.Training,
+		CreatedAt: now,
+		UpdatedAt: now,
 		ProjectModifiableProperty: domain.ProjectModifiableProperty{
 			Name:     cmd.Name,
 			Desc:     cmd.Desc,
@@ -63,6 +68,8 @@ type ProjectDTO struct {
 	RepoType  string   `json:"repo_type"`
 	RepoId    string   `json:"repo_id"`
 	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
 	LikeCount int      `json:"like_count"`
 	ForkCount int      `json:"fork_count"`
 }
@@ -188,6 +195,8 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		RepoType:  p.RepoType.RepoType(),
 		RepoId:    p.RepoId,
 		Tags:      p.Tags,
+		CreatedAt: utils.ToDate(p.CreatedAt),
+		UpdatedAt: utils.ToDate(p.UpdatedAt),
 		LikeCount: p.LikeCount,
 		ForkCount: p.ForkCount,
 	}

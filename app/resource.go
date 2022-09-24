@@ -6,6 +6,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ResourceDTO struct {
@@ -202,18 +203,15 @@ func (s resourceService) projectToResourceDTO(
 		p := &projects[i]
 
 		v := ResourceDTO{
-			Id:      p.Id,
-			Name:    p.Name.ProjName(),
-			Type:    domain.ResourceProject,
-			Desc:    p.Desc.ResourceDesc(),
-			CoverId: p.CoverId.CoverId(),
-			/*
-				UpdateAt
-
-				LikeCount
-				DownloadCount
-				ForkCount
-			*/
+			Id:        p.Id,
+			Name:      p.Name.ProjName(),
+			Type:      domain.ResourceProject,
+			Desc:      p.Desc.ResourceDesc(),
+			CoverId:   p.CoverId.CoverId(),
+			UpdateAt:  utils.ToDate(p.UpdatedAt),
+			LikeCount: p.LikeCount,
+			//DownloadCount
+			ForkCount: p.ForkCount,
 		}
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
