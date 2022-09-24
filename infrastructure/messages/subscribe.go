@@ -116,15 +116,15 @@ func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		like := domain.Like{}
-		if like.ResourceOwner, err = domain.NewAccount(body.Owner); err != nil {
+		if like.Owner, err = domain.NewAccount(body.Owner); err != nil {
 			return
 		}
 
-		if like.ResourceType, err = domain.NewResourceType(body.Type); err != nil {
+		if like.Type, err = domain.NewResourceType(body.Type); err != nil {
 			return
 		}
 
-		like.ResourceId = body.Id
+		like.Id = body.Id
 
 		switch body.Action {
 		case actionAdd:
@@ -156,11 +156,11 @@ func registerForkHandler(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		index := domain.ResourceIndex{}
-		if index.ResourceOwner, err = domain.NewAccount(body.Owner); err != nil {
+		if index.Owner, err = domain.NewAccount(body.Owner); err != nil {
 			return
 		}
 
-		index.ResourceId = body.Id
+		index.Id = body.Id
 
 		return h.HandleEventFork(index)
 	})

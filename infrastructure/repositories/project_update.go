@@ -7,8 +7,8 @@ import (
 
 func (impl project) IncreaseFork(index *domain.ResourceIndex) error {
 	err := impl.mapper.IncreaseFork(
-		index.ResourceOwner.Account(),
-		index.ResourceId,
+		index.Owner.Account(),
+		index.Id,
 	)
 	if err != nil {
 		err = convertError(err)
@@ -108,8 +108,8 @@ type ProjectPropertyDO struct {
 func toRelatedResourceDO(info *repository.RelatedResourceInfo) RelatedResourceDO {
 	return RelatedResourceDO{
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
-		ResourceOwner:      info.RelatedResource.ResourceOwner.Account(),
-		ResourceId:         info.RelatedResource.ResourceId,
+		ResourceOwner:      info.RelatedResource.Owner.Account(),
+		ResourceId:         info.RelatedResource.Id,
 	}
 }
 

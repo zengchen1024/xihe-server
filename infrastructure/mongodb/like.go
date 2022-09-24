@@ -44,7 +44,7 @@ func (col like) insert(owner string, do repositories.LikeDO) error {
 		return err
 	}
 
-	obj, _ := genDoc(toResourceObj(&do.ResourceObjDO))
+	obj, _ := genDoc(toResourceObject(&do.ResourceObjectDO))
 	docFilter := likeDocFilter(owner)
 	appendElemMatchToFilter(fieldItems, false, obj, docFilter)
 
@@ -59,7 +59,7 @@ func (col like) insert(owner string, do repositories.LikeDO) error {
 }
 
 func (col like) Delete(owner string, do repositories.LikeDO) error {
-	doc, err := genDoc(toResourceObj(&do.ResourceObjDO))
+	doc, err := genDoc(toResourceObject(&do.ResourceObjectDO))
 	if err != nil {
 		return err
 	}
@@ -102,8 +102,8 @@ func (col like) List(owner string, opt repositories.LikeListDO) (
 	return
 }
 
-func (col like) HasLike(owner string, do *repositories.ResourceObjDO) (b bool, err error) {
-	doc, err := genDoc(toResourceObj(do))
+func (col like) HasLike(owner string, do *repositories.ResourceObjectDO) (b bool, err error) {
+	doc, err := genDoc(toResourceObject(do))
 	if err != nil {
 		return
 	}
@@ -124,8 +124,8 @@ func (col like) HasLike(owner string, do *repositories.ResourceObjDO) (b bool, e
 
 func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 	docObj := likeItem{
-		CreatedAt:   do.CreatedAt,
-		ResourceObj: toResourceObj(&do.ResourceObjDO),
+		CreatedAt:      do.CreatedAt,
+		ResourceObject: toResourceObject(&do.ResourceObjectDO),
 	}
 
 	return genDoc(docObj)
@@ -133,7 +133,7 @@ func (col like) toLikeDoc(do *repositories.LikeDO) (bson.M, error) {
 
 func (col like) toLikeDO(item *likeItem, do *repositories.LikeDO) {
 	*do = repositories.LikeDO{
-		CreatedAt:     item.CreatedAt,
-		ResourceObjDO: toResourceObjDO(&item.ResourceObj),
+		CreatedAt:        item.CreatedAt,
+		ResourceObjectDO: toResourceObjectDO(&item.ResourceObject),
 	}
 }

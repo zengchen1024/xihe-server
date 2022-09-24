@@ -48,23 +48,23 @@ func (h *handler) HandleEventRemoveFollowing(f domain.Following) (err error) {
 
 func (h *handler) HandleEventAddLike(like domain.Like) error {
 	return h.do(func() (err error) {
-		switch like.ResourceType.ResourceType() {
+		switch like.Type.ResourceType() {
 
 		case domain.ResourceProject:
-			err = h.project.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.project.AddLike(like.Owner, like.Id)
 
 		case domain.ResourceDataset:
-			err = h.dataset.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.dataset.AddLike(like.Owner, like.Id)
 
 		case domain.ResourceModel:
-			err = h.model.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.model.AddLike(like.Owner, like.Id)
 		}
 
 		if err != nil {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of adding like for owner:%s, rid:%s, err:%v",
-					like.ResourceOwner.Account(), like.ResourceId, err,
+					like.Owner.Account(), like.Id, err,
 				)
 
 				err = nil
@@ -77,22 +77,22 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 
 func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 	return h.do(func() (err error) {
-		switch like.ResourceType.ResourceType() {
+		switch like.Type.ResourceType() {
 		case domain.ResourceProject:
-			err = h.project.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.project.AddLike(like.Owner, like.Id)
 
 		case domain.ResourceDataset:
-			err = h.dataset.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.dataset.AddLike(like.Owner, like.Id)
 
 		case domain.ResourceModel:
-			err = h.model.AddLike(like.ResourceOwner, like.ResourceId)
+			err = h.model.AddLike(like.Owner, like.Id)
 		}
 
 		if err != nil {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of removing like for owner:%s, rid:%s, err:%v",
-					like.ResourceOwner.Account(), like.ResourceId, err,
+					like.Owner.Account(), like.Id, err,
 				)
 
 				err = nil
@@ -109,7 +109,7 @@ func (h *handler) HandleEventFork(index domain.ResourceIndex) error {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
 					"handle event of fork for owner:%s, rid:%s, err:%v",
-					index.ResourceOwner.Account(), index.ResourceId, err,
+					index.Owner.Account(), index.Id, err,
 				)
 
 				err = nil

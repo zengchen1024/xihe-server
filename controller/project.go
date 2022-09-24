@@ -244,10 +244,10 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 
 	liked := true
 	if !visitor && pl.isNotMe(owner) {
-		liked, err = ctl.like.HasLike(pl.DomainAccount(), &domain.ResourceObj{
-			ResourceOwner: owner,
-			ResourceType:  domain.ResourceTypeProject,
-			ResourceId:    proj.Id,
+		liked, err = ctl.like.HasLike(pl.DomainAccount(), &domain.ResourceObject{
+			Owner: owner,
+			Type:  domain.ResourceTypeProject,
+			Id:    proj.Id,
 		})
 
 		if err != nil {
@@ -442,8 +442,8 @@ func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: owner,
-		ResourceId:    data.Id,
+		Owner: owner,
+		Id:    data.Id,
 	}
 	if err = ctl.s.AddRelatedModel(&proj, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -490,8 +490,8 @@ func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: cmd.ResourceOwner,
-		ResourceId:    cmd.ResourceId,
+		Owner: cmd.Owner,
+		Id:    cmd.Id,
 	}
 	if err = ctl.s.RemoveRelatedModel(&proj, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -547,8 +547,8 @@ func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: owner,
-		ResourceId:    data.Id,
+		Owner: owner,
+		Id:    data.Id,
 	}
 	if err = ctl.s.AddRelatedDataset(&proj, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -595,8 +595,8 @@ func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: cmd.ResourceOwner,
-		ResourceId:    cmd.ResourceId,
+		Owner: cmd.Owner,
+		Id:    cmd.Id,
 	}
 	if err = ctl.s.RemoveRelatedDataset(&proj, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))

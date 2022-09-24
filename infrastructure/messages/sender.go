@@ -55,9 +55,9 @@ func (s sender) RemoveLike(msg domain.Like) error {
 func (s sender) sendLike(msg domain.Like, action string) error {
 	v := msgLike{
 		Action: action,
-		Owner:  msg.ResourceOwner.Account(),
-		Type:   msg.ResourceType.ResourceType(),
-		Id:     msg.ResourceId,
+		Owner:  msg.Owner.Account(),
+		Type:   msg.Type.ResourceType(),
+		Id:     msg.Id,
 	}
 
 	return s.send(topics.Like, &v)
@@ -66,8 +66,8 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 // Fork
 func (s sender) IncreaseFork(msg domain.ResourceIndex) error {
 	v := msgFork{
-		Owner: msg.ResourceOwner.Account(),
-		Id:    msg.ResourceId,
+		Owner: msg.Owner.Account(),
+		Id:    msg.Id,
 	}
 
 	return s.send(topics.Fork, &v)

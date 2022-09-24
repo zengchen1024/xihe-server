@@ -64,8 +64,8 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 
 	// send event
 	_ = s.sender.IncreaseFork(domain.ResourceIndex{
-		ResourceOwner: cmd.From.Owner,
-		ResourceId:    cmd.From.Id,
+		Owner: cmd.From.Owner,
+		Id:    cmd.From.Id,
 	})
 
 	return

@@ -55,9 +55,9 @@ func (impl activity) Find(owner domain.Account, opt repository.ActivityFindOptio
 
 func (impl activity) toActivityDO(v *domain.Activity) ActivityDO {
 	return ActivityDO{
-		Type:          v.Type.ActivityType(),
-		Time:          v.Time,
-		ResourceObjDO: toResourceObjDO(&v.ResourceObj),
+		Type:             v.Type.ActivityType(),
+		Time:             v.Time,
+		ResourceObjectDO: toResourceObjectDO(&v.ResourceObject),
 	}
 }
 
@@ -68,7 +68,7 @@ type ActivityDO struct {
 	Type string
 	Time int64
 
-	ResourceObjDO
+	ResourceObjectDO
 }
 
 func (do *ActivityDO) toActivity(r *domain.Activity) (err error) {
@@ -78,5 +78,5 @@ func (do *ActivityDO) toActivity(r *domain.Activity) (err error) {
 
 	r.Time = do.Time
 
-	return do.ResourceObjDO.toResourceObj(&r.ResourceObj)
+	return do.ResourceObjectDO.toResourceObject(&r.ResourceObject)
 }
