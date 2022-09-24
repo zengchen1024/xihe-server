@@ -46,72 +46,89 @@ func (s resourceService) list(resources []*domain.ResourceObject) (
 	return s.listResources(users, projects, datasets, models, len(resources))
 }
 
+func (s resourceService) listModels(resources []domain.ResourceIndex) (
+	dtos []ResourceDTO, err error,
+) {
+	if len(resources) == 0 {
+		return
+	}
+
+	users, options := s.singleResourceOptions(resources)
+
+	return s.listResources(users, nil, nil, options, len(resources))
+}
+
+func (s resourceService) listDatasets(resources []domain.ResourceIndex) (
+	dtos []ResourceDTO, err error,
+) {
+	if len(resources) == 0 {
+		return
+	}
+
+	users, options := s.singleResourceOptions(resources)
+
+	return s.listResources(users, nil, options, nil, len(resources))
+}
+
+func (s resourceService) singleResourceOptions(resources []domain.ResourceIndex) (
+	users []domain.Account,
+	options []repository.UserResourceListOption,
+) {
+	ul := make(map[string]domain.Account)
+	ro := make(map[string][]string)
+
+	for i := range resources {
+		item := resources[i]
+
+		account := item.Owner.Account()
+		if _, ok := ul[account]; !ok {
+			ul[account] = item.Owner
+		}
+
+		s.store(&item, ro)
+	}
+
+	options = s.toOptionList(ro, ul)
+	users = s.userMapToList(ul)
+
+	return
+}
+
 func (s resourceService) toOptions(resources []*domain.ResourceObject) (
 	users []domain.Account,
 	projects []repository.UserResourceListOption,
 	datasets []repository.UserResourceListOption,
 	models []repository.UserResourceListOption,
 ) {
-	users1 := map[string]domain.Account{}
-	projects1 := map[string]*repository.UserResourceListOption{}
-	datasets1 := map[string]*repository.UserResourceListOption{}
-	models1 := map[string]*repository.UserResourceListOption{}
-
-	set := func(v *domain.ResourceObject, m map[string]*repository.UserResourceListOption) {
-		a := v.Owner.Account()
-		if p, ok := m[a]; !ok {
-			m[a] = &repository.UserResourceListOption{
-				Owner: v.Owner,
-				Ids:   []string{v.Id},
-			}
-		} else {
-			p.Ids = append(p.Ids, v.Id)
-		}
-	}
+	ul := make(map[string]domain.Account)
+	po := make(map[string][]string)
+	do := make(map[string][]string)
+	mo := make(map[string][]string)
 
 	for i := range resources {
 		item := resources[i]
 
 		account := item.Owner.Account()
-		if _, ok := users1[account]; !ok {
-			users1[account] = item.Owner
+		if _, ok := ul[account]; !ok {
+			ul[account] = item.Owner
 		}
 
 		switch item.Type.ResourceType() {
 		case domain.ResourceProject:
-			set(item, projects1)
+			s.store(&item.ResourceIndex, po)
 
 		case domain.ResourceModel:
-			set(item, models1)
+			s.store(&item.ResourceIndex, mo)
 
 		case domain.ResourceDataset:
-			set(item, datasets1)
+			s.store(&item.ResourceIndex, do)
 		}
 	}
 
-	toList := func(m map[string]*repository.UserResourceListOption) []repository.UserResourceListOption {
-		n := len(m)
-		r := make([]repository.UserResourceListOption, n)
-
-		i := 0
-		for _, v := range m {
-			r[i] = *v
-			i++
-		}
-
-		return r
-	}
-
-	projects = toList(projects1)
-	datasets = toList(datasets1)
-	models = toList(models1)
-
-	users = make([]domain.Account, len(users1))
-	i := 0
-	for _, u := range users1 {
-		users[i] = u
-		i++
-	}
+	projects = s.toOptionList(po, ul)
+	datasets = s.toOptionList(do, ul)
+	models = s.toOptionList(mo, ul)
+	users = s.userMapToList(ul)
 
 	return
 }
@@ -281,4 +298,53 @@ func (s resourceService) datasetToResourceDTO(
 
 		dtos[i] = v
 	}
+}
+
+func (s resourceService) store(v *domain.ResourceIndex, m map[string][]string) {
+	a := v.Owner.Account()
+
+	if p, ok := m[a]; !ok {
+		m[a] = []string{v.Id}
+	} else {
+		m[a] = append(p, v.Id)
+	}
+}
+
+func (s resourceService) toOptionList(
+	m map[string][]string, users map[string]domain.Account,
+) []repository.UserResourceListOption {
+
+	if len(m) == 0 {
+		return nil
+	}
+
+	r := make([]repository.UserResourceListOption, len(m))
+
+	i := 0
+	for k, v := range m {
+		r[i] = repository.UserResourceListOption{
+			Owner: users[k],
+			Ids:   v,
+		}
+
+		i++
+	}
+
+	return r
+}
+
+func (s resourceService) userMapToList(m map[string]domain.Account) []domain.Account {
+	if len(m) == 0 {
+		return nil
+	}
+
+	r := make([]domain.Account, len(m))
+
+	i := 0
+	for _, u := range m {
+		r[i] = u
+		i++
+	}
+
+	return r
 }

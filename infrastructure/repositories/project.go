@@ -169,6 +169,9 @@ type ProjectDO struct {
 	Version   int
 	LikeCount int
 	ForkCount int
+
+	RelatedModels   []ResourceIndexDO
+	RelatedDatasets []ResourceIndexDO
 }
 
 func (do *ProjectDO) toProject(r *domain.Project) (err error) {
@@ -203,6 +206,14 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	}
 
 	if r.Training, err = domain.NewTrainingPlatform(do.Training); err != nil {
+		return
+	}
+
+	if r.RelatedModels, err = convertToResourceIndex(do.RelatedModels); err != nil {
+		return
+	}
+
+	if r.RelatedDatasets, err = convertToResourceIndex(do.RelatedDatasets); err != nil {
 		return
 	}
 

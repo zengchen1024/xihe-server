@@ -274,5 +274,8 @@ func (col project) toProjectDO(owner string, item *projectItem, do *repositories
 		Version:   item.Version,
 		LikeCount: item.LikeCount,
 		ForkCount: item.ForkCount,
+
+		RelatedModels:   toResourceIndexDO(item.RelatedModels),
+		RelatedDatasets: toResourceIndexDO(item.RelatedDatasets),
 	}
 }

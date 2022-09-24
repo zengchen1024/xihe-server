@@ -31,6 +31,12 @@ type responseData struct {
 	Data interface{} `json:"data"`
 }
 
+func isErrorOfAccessingPrivateRepo(err error) bool {
+	_, ok := err.(app.ErrorPrivateRepo)
+
+	return ok
+}
+
 func newResponseError(err error) responseData {
 	code := errorSystemError
 

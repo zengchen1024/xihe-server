@@ -26,9 +26,9 @@ func ResourceTypeByName(n string) (ResourceType, error) {
 
 // ResourceObject
 type ResourceObject struct {
-	Owner Account
-	Type  ResourceType
-	Id    string
+	Type ResourceType
+
+	ResourceIndex
 }
 
 func (r *ResourceObject) String() string {

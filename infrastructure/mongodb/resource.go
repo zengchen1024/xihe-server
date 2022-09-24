@@ -37,6 +37,22 @@ func toResourceObjectDO(doc *ResourceObject) repositories.ResourceObjectDO {
 	}
 }
 
+func toResourceIndexDO(v []ResourceIndex) []repositories.ResourceIndexDO {
+	if len(v) == 0 {
+		return nil
+	}
+
+	r := make([]repositories.ResourceIndexDO, len(v))
+	for i := range v {
+		a, b := &r[i], &v[i]
+
+		a.Id = b.Id
+		a.Owner = b.Owner
+	}
+
+	return r
+}
+
 func newResourceDoc(collection, owner string) error {
 	docFilter := resourceOwnerFilter(owner)
 

@@ -29,6 +29,10 @@ func (pl *oldUserTokenPayload) isNotMe(a domain.Account) bool {
 	return pl.Account != a.Account()
 }
 
+func (pl *oldUserTokenPayload) isMyself(a domain.Account) bool {
+	return pl.Account == a.Account()
+}
+
 type newUserTokenPayload struct {
 	AccessToken string `json:"access_token"`
 }

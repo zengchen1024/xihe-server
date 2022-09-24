@@ -22,6 +22,10 @@ func (m *Model) MaxRelatedResourceNum() int {
 	return config.MaxRelatedResourceNum
 }
 
+func (m *Model) IsPrivate() bool {
+	return m.RepoType.RepoType() == RepoTypePrivate
+}
+
 type ModelModifiableProperty struct {
 	Name     ModelName
 	Desc     ResourceDesc
