@@ -27,9 +27,8 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 	p := &info.Property
 
 	do := DatasetPropertyDO{
-		Id:       info.Id,
-		Owner:    info.Owner.Account(),
-		Version:  info.Version,
+		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
+
 		Name:     p.Name.DatasetName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
@@ -44,9 +43,7 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 }
 
 type DatasetPropertyDO struct {
-	Id      string
-	Owner   string
-	Version int
+	ResourceToUpdateDO
 
 	Name     string
 	Desc     string

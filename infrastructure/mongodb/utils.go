@@ -289,41 +289,44 @@ func (cli *client) pushElemToLimitedArray(
 
 func (cli *client) pullNestedArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, data bson.M, version int,
+	filterOfDoc, filterOfArray, data bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$pull", version,
+		"$pull", version, t,
 	)
 }
 
 func (cli *client) pushNestedArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, data bson.M, version int,
+	filterOfDoc, filterOfArray, data bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$push", version,
+		"$push", version, t,
 	)
 }
 
 func (cli *client) updateArrayElem(
 	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray, updateCmd bson.M, version int,
+	filterOfDoc, filterOfArray, updateCmd bson.M,
+	version int, t int64,
 ) (bool, error) {
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, updateCmd,
-		"$set", version,
+		"$set", version, t,
 	)
 }
 
 func (cli *client) modifyArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray, updateCmd bson.M,
-	op string, version int,
+	op string, version int, t int64,
 ) (bool, error) {
 	cmd := bson.M{}
 	for k, v := range updateCmd {
@@ -341,6 +344,7 @@ func (cli *client) modifyArrayElem(
 		ctx, filterOfDoc,
 		bson.M{
 			op:     cmd,
+			"$set": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldUpdatedAt): t},
 			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldVersion): 1},
 		},
 		&options.UpdateOptions{

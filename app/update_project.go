@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ProjectUpdateCmd struct {
@@ -71,10 +72,8 @@ func (s projectService) Update(
 
 	// step2
 	info := repository.ProjectPropertyUpdateInfo{
-		Owner:    p.Owner,
-		Id:       p.Id,
-		Version:  p.Version,
-		Property: p.ProjectModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(p),
+		Property:         p.ProjectModifiableProperty,
 	}
 	if err = s.repo.UpdateProperty(&info); err != nil {
 		return
@@ -94,10 +93,8 @@ func (s projectService) SetTags(p *domain.Project, cmd *ResourceTagsUpdateCmd) e
 	p.ProjectModifiableProperty.Tags = tags
 
 	info := repository.ProjectPropertyUpdateInfo{
-		Owner:    p.Owner,
-		Id:       p.Id,
-		Version:  p.Version,
-		Property: p.ProjectModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(p),
+		Property:         p.ProjectModifiableProperty,
 	}
 
 	return s.repo.UpdateProperty(&info)
@@ -148,10 +145,8 @@ func (s projectService) addRelatedResource(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:           p.Owner,
-		ResourceId:      p.Id,
-		Version:         p.Version,
-		RelatedResource: *index,
+		ResourceToUpdate: s.toResourceToUpdate(p),
+		RelatedResource:  *index,
 	}
 
 	return f(&info)
@@ -183,11 +178,18 @@ func (s projectService) removeRelatedResource(
 	}
 
 	info := repository.RelatedResourceInfo{
-		Owner:           p.Owner,
-		ResourceId:      p.Id,
-		Version:         p.Version,
-		RelatedResource: *index,
+		ResourceToUpdate: s.toResourceToUpdate(p),
+		RelatedResource:  *index,
 	}
 
 	return f(&info)
+}
+
+func (s projectService) toResourceToUpdate(p *domain.Project) repository.ResourceToUpdate {
+	return repository.ResourceToUpdate{
+		Owner:     p.Owner,
+		Id:        p.Id,
+		Version:   p.Version,
+		UpdatedAt: utils.Now(),
+	}
 }

@@ -79,9 +79,8 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 	p := &info.Property
 
 	do := ProjectPropertyDO{
-		Id:       info.Id,
-		Owner:    info.Owner.Account(),
-		Version:  info.Version,
+		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
+
 		Name:     p.Name.ProjName(),
 		Desc:     p.Desc.ResourceDesc(),
 		CoverId:  p.CoverId.CoverId(),
@@ -97,9 +96,7 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 }
 
 type ProjectPropertyDO struct {
-	Id      string
-	Owner   string
-	Version int
+	ResourceToUpdateDO
 
 	Name     string
 	Desc     string
@@ -110,20 +107,31 @@ type ProjectPropertyDO struct {
 
 func toRelatedResourceDO(info *repository.RelatedResourceInfo) RelatedResourceDO {
 	return RelatedResourceDO{
-		Id:      info.ResourceId,
-		Owner:   info.Owner.Account(),
-		Version: info.Version,
-
-		ResourceOwner: info.RelatedResource.ResourceOwner.Account(),
-		ResourceId:    info.RelatedResource.ResourceId,
+		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
+		ResourceOwner:      info.RelatedResource.ResourceOwner.Account(),
+		ResourceId:         info.RelatedResource.ResourceId,
 	}
 }
 
 type RelatedResourceDO struct {
-	Id      string
-	Owner   string
-	Version int
+	ResourceToUpdateDO
 
 	ResourceOwner string
 	ResourceId    string
+}
+
+type ResourceToUpdateDO struct {
+	Id        string
+	Owner     string
+	Version   int
+	UpdatedAt int64
+}
+
+func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO {
+	return ResourceToUpdateDO{
+		Id:        info.Id,
+		Owner:     info.Owner.Account(),
+		Version:   info.Version,
+		UpdatedAt: info.UpdatedAt,
+	}
 }

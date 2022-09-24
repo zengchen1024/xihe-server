@@ -130,18 +130,20 @@ func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
 
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 	return ProjectDO{
-		Id:       p.Id,
-		Owner:    p.Owner.Account(),
-		Name:     p.Name.ProjName(),
-		Desc:     p.Desc.ResourceDesc(),
-		Type:     p.Type.ProjType(),
-		CoverId:  p.CoverId.CoverId(),
-		RepoType: p.RepoType.RepoType(),
-		Protocol: p.Protocol.ProtocolName(),
-		Training: p.Training.TrainingPlatform(),
-		Tags:     p.Tags,
-		RepoId:   p.RepoId,
-		Version:  p.Version,
+		Id:        p.Id,
+		Owner:     p.Owner.Account(),
+		Name:      p.Name.ProjName(),
+		Desc:      p.Desc.ResourceDesc(),
+		Type:      p.Type.ProjType(),
+		CoverId:   p.CoverId.CoverId(),
+		RepoType:  p.RepoType.RepoType(),
+		Protocol:  p.Protocol.ProtocolName(),
+		Training:  p.Training.TrainingPlatform(),
+		Tags:      p.Tags,
+		RepoId:    p.RepoId,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+		Version:   p.Version,
 	}
 }
 
@@ -162,6 +164,8 @@ type ProjectDO struct {
 	RepoType  string
 	RepoId    string
 	Tags      []string
+	CreatedAt int64
+	UpdatedAt int64
 	Version   int
 	LikeCount int
 	ForkCount int

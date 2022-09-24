@@ -15,6 +15,9 @@ type Project struct {
 	RelatedModels   RelatedResources
 	RelatedDatasets RelatedResources
 
+	CreatedAt int64
+	UpdatedAt int64
+
 	Version int
 
 	// following fileds is not under the controlling of version

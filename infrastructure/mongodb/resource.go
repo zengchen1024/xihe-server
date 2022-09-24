@@ -180,12 +180,14 @@ func updateRelatedResource(
 		if add {
 			updated, err = cli.pushNestedArrayElem(
 				ctx, collection, fieldItems,
-				docFilter, arrayFilter, doc, do.Version,
+				docFilter, arrayFilter, doc,
+				do.Version, do.UpdatedAt,
 			)
 		} else {
 			updated, err = cli.pullNestedArrayElem(
 				ctx, collection, fieldItems,
-				docFilter, arrayFilter, doc, do.Version,
+				docFilter, arrayFilter, doc,
+				do.Version, do.UpdatedAt,
 			)
 		}
 

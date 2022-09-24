@@ -15,18 +15,22 @@ type ResourceListOption struct {
 }
 
 type RelatedResourceInfo struct {
-	Owner      domain.Account
-	ResourceId string
-	Version    int
+	ResourceToUpdate
 
 	RelatedResource domain.ResourceIndex
 }
 
 type ProjectPropertyUpdateInfo struct {
-	Owner    domain.Account
-	Id       string
-	Version  int
+	ResourceToUpdate
+
 	Property domain.ProjectModifiableProperty
+}
+
+type ResourceToUpdate struct {
+	Owner     domain.Account
+	Id        string
+	Version   int
+	UpdatedAt int64
 }
 
 type Project interface {

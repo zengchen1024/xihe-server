@@ -125,8 +125,8 @@ func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 	f := func(ctx context.Context) error {
 		updated, err = cli.updateArrayElem(
 			ctx, col.collectionName, fieldItems,
-			projectDocFilter(do.Owner),
-			arrayFilterById(do.Id), doc, do.Version,
+			projectDocFilter(do.Owner), arrayFilterById(do.Id),
+			doc, do.Version, do.UpdatedAt,
 		)
 
 		return err
@@ -239,16 +239,18 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 
 func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 	docObj := projectItem{
-		Id:       do.Id,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Type:     do.Type,
-		CoverId:  do.CoverId,
-		Protocol: do.Protocol,
-		Training: do.Training,
-		RepoType: do.RepoType,
-		RepoId:   do.RepoId,
-		Tags:     do.Tags,
+		Id:        do.Id,
+		Name:      do.Name,
+		Desc:      do.Desc,
+		Type:      do.Type,
+		CoverId:   do.CoverId,
+		Protocol:  do.Protocol,
+		Training:  do.Training,
+		RepoType:  do.RepoType,
+		RepoId:    do.RepoId,
+		Tags:      do.Tags,
+		CreatedAt: do.CreatedAt,
+		UpdatedAt: do.UpdatedAt,
 	}
 
 	return genDoc(docObj)
@@ -267,6 +269,8 @@ func (col project) toProjectDO(owner string, item *projectItem, do *repositories
 		RepoType:  item.RepoType,
 		RepoId:    item.RepoId,
 		Tags:      item.Tags,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
 		Version:   item.Version,
 		LikeCount: item.LikeCount,
 		ForkCount: item.ForkCount,

@@ -27,6 +27,7 @@ const (
 	fieldRId            = "rid"
 	fieldROwner         = "rowner"
 	fieldRType          = "rtype"
+	fieldUpdatedAt      = "updated_at"
 )
 
 type dProject struct {
@@ -35,16 +36,18 @@ type dProject struct {
 }
 
 type projectItem struct {
-	Id       string   `bson:"id"        json:"id"`
-	Name     string   `bson:"name"      json:"name"`
-	Desc     string   `bson:"desc"      json:"desc"`
-	Type     string   `bson:"type"      json:"type"`
-	CoverId  string   `bson:"cover_id"  json:"cover_id"`
-	Protocol string   `bson:"protocol"  json:"protocol"`
-	Training string   `bson:"training"  json:"training"`
-	RepoType string   `bson:"repo_type" json:"repo_type"`
-	RepoId   string   `bson:"repo_id"   json:"repo_id"`
-	Tags     []string `bson:"tags"      json:"tags"`
+	Id        string   `bson:"id"         json:"id"`
+	Name      string   `bson:"name"       json:"name"`
+	Desc      string   `bson:"desc"       json:"desc"`
+	Type      string   `bson:"type"       json:"type"`
+	CoverId   string   `bson:"cover_id"   json:"cover_id"`
+	Protocol  string   `bson:"protocol"   json:"protocol"`
+	Training  string   `bson:"training"   json:"training"`
+	RepoType  string   `bson:"repo_type"  json:"repo_type"`
+	RepoId    string   `bson:"repo_id"    json:"repo_id"`
+	Tags      []string `bson:"tags"       json:"tags"`
+	CreatedAt int64    `bson:"created_at" json:"created_at"`
+	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
 
 	// These two items are not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
@@ -64,13 +67,15 @@ type dModel struct {
 }
 
 type modelItem struct {
-	Id       string   `bson:"id"        json:"id"`
-	Name     string   `bson:"name"      json:"name"`
-	Desc     string   `bson:"desc"      json:"desc"`
-	Protocol string   `bson:"protocol"  json:"protocol"`
-	RepoType string   `bson:"repo_type" json:"repo_type"`
-	RepoId   string   `bson:"repo_id"   json:"repo_id"`
-	Tags     []string `bson:"tags"      json:"tags"`
+	Id        string   `bson:"id"         json:"id"`
+	Name      string   `bson:"name"       json:"name"`
+	Desc      string   `bson:"desc"       json:"desc"`
+	Protocol  string   `bson:"protocol"   json:"protocol"`
+	RepoType  string   `bson:"repo_type"  json:"repo_type"`
+	RepoId    string   `bson:"repo_id"    json:"repo_id"`
+	Tags      []string `bson:"tags"       json:"tags"`
+	CreatedAt int64    `bson:"created_at" json:"created_at"`
+	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
 
 	// RelatedDatasets is not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
@@ -88,13 +93,15 @@ type dDataset struct {
 }
 
 type datasetItem struct {
-	Id       string   `bson:"id"        json:"id"`
-	Name     string   `bson:"name"      json:"name"`
-	Desc     string   `bson:"desc"      json:"desc"`
-	Protocol string   `bson:"protocol"  json:"protocol"`
-	RepoType string   `bson:"repo_type" json:"repo_type"`
-	RepoId   string   `bson:"repo_id"   json:"repo_id"`
-	Tags     []string `bson:"tags"      json:"tags"`
+	Id        string   `bson:"id"         json:"id"`
+	Name      string   `bson:"name"       json:"name"`
+	Desc      string   `bson:"desc"       json:"desc"`
+	Protocol  string   `bson:"protocol"   json:"protocol"`
+	RepoType  string   `bson:"repo_type"  json:"repo_type"`
+	RepoId    string   `bson:"repo_id"    json:"repo_id"`
+	Tags      []string `bson:"tags"       json:"tags"`
+	CreatedAt int64    `bson:"created_at" json:"created_at"`
+	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.

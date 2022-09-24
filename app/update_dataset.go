@@ -4,6 +4,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type DatasetUpdateCmd struct {
@@ -59,10 +60,8 @@ func (s datasetService) Update(
 	}
 
 	info := repository.DatasetPropertyUpdateInfo{
-		Owner:    d.Owner,
-		Id:       d.Id,
-		Version:  d.Version,
-		Property: d.DatasetModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(d),
+		Property:         d.DatasetModifiableProperty,
 	}
 	if err = s.repo.UpdateProperty(&info); err != nil {
 		return
@@ -73,19 +72,17 @@ func (s datasetService) Update(
 	return
 }
 
-func (s datasetService) SetTags(m *domain.Dataset, cmd *ResourceTagsUpdateCmd) error {
-	tags, b := cmd.toTags(m.DatasetModifiableProperty.Tags)
+func (s datasetService) SetTags(d *domain.Dataset, cmd *ResourceTagsUpdateCmd) error {
+	tags, b := cmd.toTags(d.DatasetModifiableProperty.Tags)
 	if !b {
 		return nil
 	}
 
-	m.DatasetModifiableProperty.Tags = tags
+	d.DatasetModifiableProperty.Tags = tags
 
 	info := repository.DatasetPropertyUpdateInfo{
-		Owner:    m.Owner,
-		Id:       m.Id,
-		Version:  m.Version,
-		Property: m.DatasetModifiableProperty,
+		ResourceToUpdate: s.toResourceToUpdate(d),
+		Property:         d.DatasetModifiableProperty,
 	}
 
 	return s.repo.UpdateProperty(&info)
@@ -97,4 +94,13 @@ func (s datasetService) AddLike(owner domain.Account, rid string) error {
 
 func (s datasetService) RemoveLike(owner domain.Account, rid string) error {
 	return s.repo.RemoveLike(owner, rid)
+}
+
+func (s datasetService) toResourceToUpdate(d *domain.Dataset) repository.ResourceToUpdate {
+	return repository.ResourceToUpdate{
+		Owner:     d.Owner,
+		Id:        d.Id,
+		Version:   d.Version,
+		UpdatedAt: utils.Now(),
+	}
 }
