@@ -77,10 +77,10 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 		Owner: owner,
 		Like: domain.Like{
 			CreatedAt: now,
-			ResourceObj: domain.ResourceObj{
-				ResourceOwner: cmd.ResourceOwner,
-				ResourceType:  cmd.ResourceType,
-				ResourceId:    cmd.ResourceId,
+			ResourceObject: domain.ResourceObject{
+				Owner: cmd.ResourceOwner,
+				Type:  cmd.ResourceType,
+				Id:    cmd.ResourceId,
 			},
 		},
 	}
@@ -92,9 +92,9 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 	ua := domain.UserActivity{
 		Owner: owner,
 		Activity: domain.Activity{
-			Type:        domain.ActivityTypeLike,
-			Time:        now,
-			ResourceObj: v.ResourceObj,
+			Type:           domain.ActivityTypeLike,
+			Time:           now,
+			ResourceObject: v.ResourceObject,
 		},
 	}
 	if err := s.activity.Save(&ua); err != nil {
@@ -111,10 +111,10 @@ func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 	v := domain.UserLike{
 		Owner: owner,
 		Like: domain.Like{
-			ResourceObj: domain.ResourceObj{
-				ResourceOwner: cmd.ResourceOwner,
-				ResourceType:  cmd.ResourceType,
-				ResourceId:    cmd.ResourceId,
+			ResourceObject: domain.ResourceObject{
+				Owner: cmd.ResourceOwner,
+				Type:  cmd.ResourceType,
+				Id:    cmd.ResourceId,
 			}},
 	}
 
@@ -137,12 +137,12 @@ func (s likeService) List(owner domain.Account) (
 	}
 
 	total := len(likes)
-	objs := make([]*domain.ResourceObj, total)
+	objs := make([]*domain.ResourceObject, total)
 	orders := make([]orderByTime, total)
 	for i := range likes {
 		item := &likes[i]
 
-		objs[i] = &item.ResourceObj
+		objs[i] = &item.ResourceObject
 		orders[i] = orderByTime{t: item.CreatedAt, p: i}
 	}
 

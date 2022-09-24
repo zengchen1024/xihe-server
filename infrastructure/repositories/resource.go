@@ -7,30 +7,52 @@ type ResourceListDO struct {
 	RepoType string
 }
 
-type ResourceObjDO struct {
-	ResourceOwner string
-	ResourceType  string
-	ResourceId    string
+type ResourceObjectDO struct {
+	Owner string
+	Type  string
+	Id    string
 }
 
-func (do *ResourceObjDO) toResourceObj(r *domain.ResourceObj) (err error) {
-	if r.ResourceOwner, err = domain.NewAccount(do.ResourceOwner); err != nil {
+func (do *ResourceObjectDO) toResourceObject(r *domain.ResourceObject) (err error) {
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
 		return
 	}
 
-	if r.ResourceType, err = domain.NewResourceType(do.ResourceType); err != nil {
+	if r.Type, err = domain.NewResourceType(do.Type); err != nil {
 		return
 	}
 
-	r.ResourceId = do.ResourceId
+	r.Id = do.Id
 
 	return
 }
 
-func toResourceObjDO(r *domain.ResourceObj) ResourceObjDO {
-	return ResourceObjDO{
-		ResourceOwner: r.ResourceOwner.Account(),
-		ResourceType:  r.ResourceType.ResourceType(),
-		ResourceId:    r.ResourceId,
+func toResourceObjectDO(r *domain.ResourceObject) ResourceObjectDO {
+	return ResourceObjectDO{
+		Owner: r.Owner.Account(),
+		Type:  r.Type.ResourceType(),
+		Id:    r.Id,
+	}
+}
+
+type ResourceIndexDO struct {
+	Owner string
+	Id    string
+}
+
+func (do *ResourceIndexDO) toResourceIndex(r *domain.ResourceIndex) (err error) {
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	r.Id = do.Id
+
+	return
+}
+
+func toResourceIndexDO(r *domain.ResourceIndex) ResourceIndexDO {
+	return ResourceIndexDO{
+		Owner: r.Owner.Account(),
+		Id:    r.Id,
 	}
 }

@@ -9,7 +9,7 @@ type LikeMapper interface {
 	Insert(string, LikeDO) error
 	Delete(string, LikeDO) error
 	List(string, LikeListDO) ([]LikeDO, error)
-	HasLike(string, *ResourceObjDO) (bool, error)
+	HasLike(string, *ResourceObjectDO) (bool, error)
 }
 
 func NewLikeRepository(mapper LikeMapper) repository.Like {
@@ -64,8 +64,8 @@ func (impl like) Find(owner domain.Account, opt repository.LikeFindOption) (
 	return r, nil
 }
 
-func (impl like) HasLike(owner domain.Account, obj *domain.ResourceObj) (bool, error) {
-	do := toResourceObjDO(obj)
+func (impl like) HasLike(owner domain.Account, obj *domain.ResourceObject) (bool, error) {
+	do := toResourceObjectDO(obj)
 
 	b, err := impl.mapper.HasLike(owner.Account(), &do)
 	if err != nil {
@@ -77,8 +77,8 @@ func (impl like) HasLike(owner domain.Account, obj *domain.ResourceObj) (bool, e
 
 func (impl like) toLikeDO(v *domain.Like) LikeDO {
 	return LikeDO{
-		CreatedAt:     v.CreatedAt,
-		ResourceObjDO: toResourceObjDO(&v.ResourceObj),
+		CreatedAt:        v.CreatedAt,
+		ResourceObjectDO: toResourceObjectDO(&v.ResourceObject),
 	}
 }
 
@@ -88,11 +88,11 @@ type LikeListDO struct {
 type LikeDO struct {
 	CreatedAt int64
 
-	ResourceObjDO
+	ResourceObjectDO
 }
 
 func (do *LikeDO) toLike(r *domain.Like) (err error) {
 	r.CreatedAt = do.CreatedAt
 
-	return do.ResourceObjDO.toResourceObj(&r.ResourceObj)
+	return do.ResourceObjectDO.toResourceObject(&r.ResourceObject)
 }

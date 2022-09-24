@@ -24,25 +24,25 @@ func ResourceTypeByName(n string) (ResourceType, error) {
 	return nil, errors.New("unknow resource")
 }
 
-// ResourceObj
-type ResourceObj struct {
-	ResourceOwner Account
-	ResourceType  ResourceType
-	ResourceId    string
+// ResourceObject
+type ResourceObject struct {
+	Owner Account
+	Type  ResourceType
+	Id    string
 }
 
-func (r *ResourceObj) String() string {
+func (r *ResourceObject) String() string {
 	return fmt.Sprintf(
 		"%s_%s_%s",
-		r.ResourceOwner.Account(),
-		r.ResourceType.ResourceType(),
-		r.ResourceId,
+		r.Owner.Account(),
+		r.Type.ResourceType(),
+		r.Id,
 	)
 }
 
 type ResourceIndex struct {
-	ResourceOwner Account
-	ResourceId    string
+	Owner Account
+	Id    string
 }
 
 type RelatedResources []ResourceIndex
@@ -52,11 +52,11 @@ func (r RelatedResources) Has(index *ResourceIndex) bool {
 
 	for i := range ([]ResourceIndex)(r) {
 		v.Insert(
-			r[i].ResourceOwner.Account() + r[i].ResourceId,
+			r[i].Owner.Account() + r[i].Id,
 		)
 	}
 
-	return v.Has(index.ResourceOwner.Account() + index.ResourceId)
+	return v.Has(index.Owner.Account() + index.Id)
 }
 
 func (r RelatedResources) Count() int {

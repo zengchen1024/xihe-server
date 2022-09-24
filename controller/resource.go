@@ -46,7 +46,7 @@ type relatedResourceRemoveRequest struct {
 func (req *relatedResourceRemoveRequest) toCmd() (
 	cmd domain.ResourceIndex, err error,
 ) {
-	if cmd.ResourceOwner, err = domain.NewAccount(req.Owner); err != nil {
+	if cmd.Owner, err = domain.NewAccount(req.Owner); err != nil {
 		return
 	}
 

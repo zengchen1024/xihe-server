@@ -50,12 +50,12 @@ func (s activityService) List(owner domain.Account) (
 	}
 
 	total := len(activities)
-	objs := make([]*domain.ResourceObj, total)
+	objs := make([]*domain.ResourceObject, total)
 	orders := make([]orderByTime, total)
 	for i := range activities {
 		item := &activities[i]
 
-		objs[i] = &item.ResourceObj
+		objs[i] = &item.ResourceObject
 		orders[i] = orderByTime{t: item.Time, p: i}
 	}
 
@@ -100,10 +100,10 @@ func genActivityForCreatingResource(
 		Activity: domain.Activity{
 			Type: domain.ActivityTypeCreate,
 			Time: utils.Now(),
-			ResourceObj: domain.ResourceObj{
-				ResourceOwner: owner,
-				ResourceType:  t,
-				ResourceId:    rid,
+			ResourceObject: domain.ResourceObject{
+				Owner: owner,
+				Type:  t,
+				Id:    rid,
 			},
 		},
 	}

@@ -21,19 +21,19 @@ func resourceNameFilter(name string) bson.M {
 	}
 }
 
-func toResourceObj(do *repositories.ResourceObjDO) ResourceObj {
-	return ResourceObj{
-		ResourceId:    do.ResourceId,
-		ResourceType:  do.ResourceType,
-		ResourceOwner: do.ResourceOwner,
+func toResourceObject(do *repositories.ResourceObjectDO) ResourceObject {
+	return ResourceObject{
+		Id:    do.Id,
+		Type:  do.Type,
+		Owner: do.Owner,
 	}
 }
 
-func toResourceObjDO(doc *ResourceObj) repositories.ResourceObjDO {
-	return repositories.ResourceObjDO{
-		ResourceId:    doc.ResourceId,
-		ResourceType:  doc.ResourceType,
-		ResourceOwner: doc.ResourceOwner,
+func toResourceObjectDO(doc *ResourceObject) repositories.ResourceObjectDO {
+	return repositories.ResourceObjectDO{
+		Id:    doc.Id,
+		Type:  doc.Type,
+		Owner: doc.Owner,
 	}
 }
 

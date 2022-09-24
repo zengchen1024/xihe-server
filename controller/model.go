@@ -343,8 +343,8 @@ func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: owner,
-		ResourceId:    data.Id,
+		Owner: owner,
+		Id:    data.Id,
 	}
 	if err = ctl.s.AddRelatedDataset(&m, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -391,8 +391,8 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 	}
 
 	index := domain.ResourceIndex{
-		ResourceOwner: cmd.ResourceOwner,
-		ResourceId:    cmd.ResourceId,
+		Owner: cmd.Owner,
+		Id:    cmd.Id,
 	}
 	if err = ctl.s.RemoveRelatedDataset(&m, &index); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))

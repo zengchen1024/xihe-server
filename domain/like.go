@@ -9,5 +9,5 @@ type UserLike struct {
 type Like struct {
 	CreatedAt int64
 
-	ResourceObj
+	ResourceObject
 }

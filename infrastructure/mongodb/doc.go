@@ -141,7 +141,7 @@ type dLike struct {
 type likeItem struct {
 	CreatedAt int64 `bson:"created_at" json:"created_at"`
 
-	ResourceObj `bson:",inline"`
+	ResourceObject `bson:",inline"`
 }
 
 type dActivity struct {
@@ -153,18 +153,18 @@ type activityItem struct {
 	Type string `bson:"type" json:"type"`
 	Time int64  `bson:"time" json:"time"`
 
-	ResourceObj `bson:",inline"`
+	ResourceObject `bson:",inline"`
 }
 
-type ResourceObj struct {
-	ResourceId    string `bson:"rid"     json:"rid"`
-	ResourceType  string `bson:"rtype"   json:"rtype"`
-	ResourceOwner string `bson:"rowner"  json:"rowner"`
+type ResourceObject struct {
+	Id    string `bson:"rid"     json:"rid"`
+	Type  string `bson:"rtype"   json:"rtype"`
+	Owner string `bson:"rowner"  json:"rowner"`
 }
 
 type ResourceIndex struct {
-	ResourceId    string `bson:"rid"     json:"rid"`
-	ResourceOwner string `bson:"rowner"  json:"rowner"`
+	Id    string `bson:"rid"     json:"rid"`
+	Owner string `bson:"rowner"  json:"rowner"`
 }
 
 type dResourceTags struct {

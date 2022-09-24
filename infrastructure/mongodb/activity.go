@@ -88,9 +88,9 @@ func (col activity) List(owner string, opt repositories.ActivityListDO) (
 
 func (col activity) toActivityDoc(do *repositories.ActivityDO) (bson.M, error) {
 	v := activityItem{
-		Type:        do.Type,
-		Time:        do.Time,
-		ResourceObj: toResourceObj(&do.ResourceObjDO),
+		Type:           do.Type,
+		Time:           do.Time,
+		ResourceObject: toResourceObject(&do.ResourceObjectDO),
 	}
 
 	return genDoc(v)
@@ -98,8 +98,8 @@ func (col activity) toActivityDoc(do *repositories.ActivityDO) (bson.M, error) {
 
 func (col activity) toActivityDO(item *activityItem, do *repositories.ActivityDO) {
 	*do = repositories.ActivityDO{
-		Type:          item.Type,
-		Time:          item.Time,
-		ResourceObjDO: toResourceObjDO(&item.ResourceObj),
+		Type:             item.Type,
+		Time:             item.Time,
+		ResourceObjectDO: toResourceObjectDO(&item.ResourceObject),
 	}
 }

@@ -38,7 +38,7 @@ type resourceService struct {
 	dataset repository.Dataset
 }
 
-func (s resourceService) list(resources []*domain.ResourceObj) (
+func (s resourceService) list(resources []*domain.ResourceObject) (
 	dtos []ResourceDTO, err error,
 ) {
 	users, projects, datasets, models := s.toOptions(resources)
@@ -46,7 +46,7 @@ func (s resourceService) list(resources []*domain.ResourceObj) (
 	return s.listResources(users, projects, datasets, models, len(resources))
 }
 
-func (s resourceService) toOptions(resources []*domain.ResourceObj) (
+func (s resourceService) toOptions(resources []*domain.ResourceObject) (
 	users []domain.Account,
 	projects []repository.UserResourceListOption,
 	datasets []repository.UserResourceListOption,
@@ -57,27 +57,27 @@ func (s resourceService) toOptions(resources []*domain.ResourceObj) (
 	datasets1 := map[string]*repository.UserResourceListOption{}
 	models1 := map[string]*repository.UserResourceListOption{}
 
-	set := func(v *domain.ResourceObj, m map[string]*repository.UserResourceListOption) {
-		a := v.ResourceOwner.Account()
+	set := func(v *domain.ResourceObject, m map[string]*repository.UserResourceListOption) {
+		a := v.Owner.Account()
 		if p, ok := m[a]; !ok {
 			m[a] = &repository.UserResourceListOption{
-				Owner: v.ResourceOwner,
-				Ids:   []string{v.ResourceId},
+				Owner: v.Owner,
+				Ids:   []string{v.Id},
 			}
 		} else {
-			p.Ids = append(p.Ids, v.ResourceId)
+			p.Ids = append(p.Ids, v.Id)
 		}
 	}
 
 	for i := range resources {
 		item := resources[i]
 
-		account := item.ResourceOwner.Account()
+		account := item.Owner.Account()
 		if _, ok := users1[account]; !ok {
-			users1[account] = item.ResourceOwner
+			users1[account] = item.Owner
 		}
 
-		switch item.ResourceType.ResourceType() {
+		switch item.Type.ResourceType() {
 		case domain.ResourceProject:
 			set(item, projects1)
 

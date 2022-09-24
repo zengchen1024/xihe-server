@@ -44,5 +44,5 @@ type Activity struct {
 	Type ActivityType
 	Time int64
 
-	ResourceObj
+	ResourceObject
 }
