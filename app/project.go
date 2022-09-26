@@ -57,6 +57,19 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	}
 }
 
+type ProjectSummaryDTO struct {
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	CoverId       string   `json:"cover_id"`
+	Tags          []string `json:"tags"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	ForkCount     int      `json:"fork_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
 type ProjectDTO struct {
 	Id            string   `json:"id"`
 	Owner         string   `json:"owner"`
@@ -86,7 +99,7 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ProjName, bool) (ProjectDetailDTO, error)
-	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
+	List(domain.Account, *ResourceListCmd) ([]ProjectSummaryDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
 
@@ -208,11 +221,11 @@ func (cmd *ResourceListCmd) toResourceListOption() repository.ResourceListOption
 }
 
 func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
-	dtos []ProjectDTO, err error,
+	dtos []ProjectSummaryDTO, err error,
 ) {
 	option := cmd.toResourceListOption()
 
-	var v []domain.Project
+	var v []domain.ProjectSummary
 
 	if cmd.SortType == nil {
 		v, err = s.repo.List(owner, &option)
@@ -233,9 +246,9 @@ func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 		return
 	}
 
-	dtos = make([]ProjectDTO, len(v))
+	dtos = make([]ProjectSummaryDTO, len(v))
 	for i := range v {
-		s.toProjectDTO(&v[i], &dtos[i])
+		s.toProjectSummaryDTO(&v[i], &dtos[i])
 	}
 
 	return
@@ -255,6 +268,21 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		RepoId:        p.RepoId,
 		Tags:          p.Tags,
 		CreatedAt:     utils.ToDate(p.CreatedAt),
+		UpdatedAt:     utils.ToDate(p.UpdatedAt),
+		LikeCount:     p.LikeCount,
+		ForkCount:     p.ForkCount,
+		DownloadCount: p.DownloadCount,
+	}
+}
+
+func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *ProjectSummaryDTO) {
+	*dto = ProjectSummaryDTO{
+		Id:            p.Id,
+		Owner:         p.Owner.Account(),
+		Name:          p.Name.ProjName(),
+		Desc:          p.Desc.ResourceDesc(),
+		CoverId:       p.CoverId.CoverId(),
+		Tags:          p.Tags,
 		UpdatedAt:     utils.ToDate(p.UpdatedAt),
 		LikeCount:     p.LikeCount,
 		ForkCount:     p.ForkCount,

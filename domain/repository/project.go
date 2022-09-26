@@ -42,12 +42,12 @@ type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
-	FindUserProjects([]UserResourceListOption) ([]domain.Project, error)
 
-	List(domain.Account, *ResourceListOption) ([]domain.Project, error)
-	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) ([]domain.Project, error)
-	ListAndSortByFirtLetter(domain.Account, *ResourceListOption) ([]domain.Project, error)
-	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) ([]domain.Project, error)
+	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
+	List(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByFirtLetter(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error

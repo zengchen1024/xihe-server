@@ -80,6 +80,31 @@ definitions:
           type: string
         type: array
     type: object
+  app.ProjectSummaryDTO:
+    properties:
+      cover_id:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      fork_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
   app.ResourceDTO:
     properties:
       cover_id:
@@ -754,9 +779,11 @@ paths:
         in: query
         name: sort_by
         type: string
-      produces:
-      - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ProjectSummaryDTO'
       summary: List
       tags:
       - Project

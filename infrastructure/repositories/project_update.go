@@ -138,9 +138,7 @@ func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO 
 
 func (impl project) List(
 	owner domain.Account, option *repository.ResourceListOption,
-) (
-	r []domain.Project, err error,
-) {
+) ([]domain.ProjectSummary, error) {
 	return impl.list(
 		owner, option, impl.mapper.List,
 	)
@@ -148,9 +146,7 @@ func (impl project) List(
 
 func (impl project) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
-) (
-	r []domain.Project, err error,
-) {
+) ([]domain.ProjectSummary, error) {
 	return impl.list(
 		owner, option, impl.mapper.ListAndSortByUpdateTime,
 	)
@@ -158,19 +154,15 @@ func (impl project) ListAndSortByUpdateTime(
 
 func (impl project) ListAndSortByFirtLetter(
 	owner domain.Account, option *repository.ResourceListOption,
-) (
-	r []domain.Project, err error,
-) {
+) ([]domain.ProjectSummary, error) {
 	return impl.list(
-		owner, option, impl.mapper.ListAndSortByFirtLetter,
+		owner, option, impl.mapper.ListAndSortByFirstLetter,
 	)
 }
 
 func (impl project) ListAndSortByDownloadCount(
 	owner domain.Account, option *repository.ResourceListOption,
-) (
-	r []domain.Project, err error,
-) {
+) ([]domain.ProjectSummary, error) {
 	return impl.list(
 		owner, option, impl.mapper.ListAndSortByDownloadCount,
 	)
@@ -179,9 +171,9 @@ func (impl project) ListAndSortByDownloadCount(
 func (impl project) list(
 	owner domain.Account,
 	option *repository.ResourceListOption,
-	f func(string, *ResourceListDO) ([]ProjectDO, error),
+	f func(string, *ResourceListDO) ([]ProjectSummaryDO, error),
 ) (
-	r []domain.Project, err error,
+	[]domain.ProjectSummary, error,
 ) {
 	do := toResourceListDO(option)
 
@@ -189,16 +181,56 @@ func (impl project) list(
 	if err != nil {
 		err = convertError(err)
 
+		return nil, err
+	}
+
+	r := make([]domain.ProjectSummary, len(v))
+	for i := range v {
+		//TODO no need to return detail
+		if err = v[i].toProjectSummary(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
+}
+
+type ProjectSummaryDO struct {
+	Id            string
+	Owner         string
+	Name          string
+	Desc          string
+	CoverId       string
+	Tags          []string
+	UpdatedAt     int64
+	LikeCount     int
+	ForkCount     int
+	DownloadCount int
+}
+
+func (do *ProjectSummaryDO) toProjectSummary(r *domain.ProjectSummary) (err error) {
+	r.Id = do.Id
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
 		return
 	}
 
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		//TODO no need to return detail
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
+	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+		return
 	}
+
+	if r.Desc, err = domain.NewResourceDesc(do.Desc); err != nil {
+		return
+	}
+
+	if r.CoverId, err = domain.NewConverId(do.CoverId); err != nil {
+		return
+	}
+
+	r.Tags = do.Tags
+	r.LikeCount = do.LikeCount
+	r.ForkCount = do.ForkCount
+	r.DownloadCount = do.DownloadCount
 
 	return
 }

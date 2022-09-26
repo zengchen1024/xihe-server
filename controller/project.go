@@ -274,7 +274,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Param	page_num	query	int	false	"page num which starts from 1"
 // @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
-// @Produce json
+// @Success 200 {object} app.ProjectSummaryDTO
 // @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))

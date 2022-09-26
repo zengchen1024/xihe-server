@@ -11,12 +11,12 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
-	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
 
-	List(string, *ResourceListDO) ([]ProjectDO, error)
-	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectDO, error)
-	ListAndSortByFirtLetter(string, *ResourceListDO) ([]ProjectDO, error)
-	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectDO, error)
+	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
+	List(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, error)
 
 	IncreaseFork(string, string) error
 
@@ -83,7 +83,7 @@ func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
 }
 
 func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
-	[]domain.Project, error,
+	[]domain.ProjectSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -95,9 +95,9 @@ func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Project, len(v))
+	r := make([]domain.ProjectSummary, len(v))
 	for i := range v {
-		if err = v[i].toProject(&r[i]); err != nil {
+		if err = v[i].toProjectSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}

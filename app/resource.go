@@ -214,7 +214,7 @@ func (s resourceService) listResources(
 
 func (s resourceService) projectToResourceDTO(
 	userInfos map[string]*domain.UserInfo,
-	projects []domain.Project, dtos []ResourceDTO,
+	projects []domain.ProjectSummary, dtos []ResourceDTO,
 ) {
 	for i := range projects {
 		p := &projects[i]

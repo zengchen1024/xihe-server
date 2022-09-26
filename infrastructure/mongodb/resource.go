@@ -116,40 +116,16 @@ func getResourceByName(collection, owner, name string, result interface{}) error
 	return withContext(f)
 }
 
-func listResourceAndSortByUpdateTime(
-	collection, owner string,
-	do *repositories.ResourceListDO,
-	fields []string, result interface{},
-) error {
-	return listResource(
-		collection, owner, do,
-		bson.M{fieldItems + "." + fieldUpdatedAt: -1},
-		fields, result,
-	)
+func sortByUpdateTime() bson.M {
+	return bson.M{fieldItems + "." + fieldUpdatedAt: -1}
 }
 
-func listResourceAndSortByFirtLetter(
-	collection, owner string,
-	do *repositories.ResourceListDO,
-	fields []string, result interface{},
-) error {
-	return listResource(
-		collection, owner, do,
-		bson.M{fieldItems + "." + fieldFirstLetter: 1},
-		fields, result,
-	)
+func sortByFirstLetter() bson.M {
+	return bson.M{fieldItems + "." + fieldFirstLetter: -1}
 }
 
-func listResourceAndSortByDownloadCount(
-	collection, owner string,
-	do *repositories.ResourceListDO,
-	fields []string, result interface{},
-) error {
-	return listResource(
-		collection, owner, do,
-		bson.M{fieldItems + "." + fieldDownloadCount: -1},
-		fields, result,
-	)
+func sortByDownloadCount() bson.M {
+	return bson.M{fieldItems + "." + fieldDownloadCount: -1}
 }
 
 func listResource(

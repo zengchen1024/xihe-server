@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"go.mongodb.org/mongo-driver/bson"
+
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
@@ -60,60 +62,38 @@ func (col project) IncreaseFork(owner, rid string) (err error) {
 
 func (col project) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectDO, error) {
-	return col.listResource(owner, func() ([]dProject, error) {
-		var v []dProject
-
-		err := listResourceAndSortByUpdateTime(
-			col.collectionName, owner, do, col.summaryFields(), &v,
-		)
-
-		return v, err
-	})
+) ([]repositories.ProjectSummaryDO, error) {
+	return col.listResource(owner, do, sortByUpdateTime())
 }
 
-func (col project) ListAndSortByFirtLetter(
+func (col project) ListAndSortByFirstLetter(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectDO, error) {
-	return col.listResource(owner, func() ([]dProject, error) {
-		var v []dProject
-
-		err := listResourceAndSortByFirtLetter(
-			col.collectionName, owner, do, col.summaryFields(), &v,
-		)
-
-		return v, err
-	})
+) ([]repositories.ProjectSummaryDO, error) {
+	return col.listResource(owner, do, sortByFirstLetter())
 }
 
 func (col project) ListAndSortByDownloadCount(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectDO, error) {
-	return col.listResource(owner, func() ([]dProject, error) {
-		var v []dProject
-
-		err := listResourceAndSortByDownloadCount(
-			col.collectionName, owner, do, col.summaryFields(), &v,
-		)
-
-		return v, err
-	})
+) ([]repositories.ProjectSummaryDO, error) {
+	return col.listResource(owner, do, sortByDownloadCount())
 }
 
 func (col project) listResource(
-	owner string, f func() ([]dProject, error),
-) (r []repositories.ProjectDO, err error) {
-	v, err := f()
-	if err != nil {
-		return
-	}
+	owner string, do *repositories.ResourceListDO, sort bson.M,
+) (r []repositories.ProjectSummaryDO, err error) {
+	var v []dProject
 
-	if len(v) == 0 {
+	err = listResource(
+		col.collectionName, owner, do, sort, col.summaryFields(), &v,
+	)
+
+	if err != nil || len(v) == 0 {
 		return
 	}
 
 	items := v[0].Items
-	r = make([]repositories.ProjectDO, len(items))
+	r = make([]repositories.ProjectSummaryDO, len(items))
+
 	for i := range items {
 		col.toProjectSummary(owner, &items[i], &r[i])
 	}
@@ -128,8 +108,8 @@ func (col project) summaryFields() []string {
 	}
 }
 
-func (col project) toProjectSummary(owner string, item *projectItem, do *repositories.ProjectDO) {
-	*do = repositories.ProjectDO{
+func (col project) toProjectSummary(owner string, item *projectItem, do *repositories.ProjectSummaryDO) {
+	*do = repositories.ProjectSummaryDO{
 		Id:            item.Id,
 		Owner:         owner,
 		Name:          item.Name,
