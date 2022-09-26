@@ -86,6 +86,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	doc[fieldLikeCount] = 0
 	doc[fieldModels] = bson.A{}
 	doc[fieldDatasets] = bson.A{}
+	doc[fieldFirstLetter] = do.Name[0]
 
 	docFilter := projectDocFilter(do.Owner)
 

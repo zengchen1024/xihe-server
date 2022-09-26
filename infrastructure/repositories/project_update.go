@@ -136,91 +136,56 @@ func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO 
 	}
 }
 
-func (impl project) List(owner domain.Account, option repository.ResourceListOption) (
+func (impl project) List(
+	owner domain.Account, option *repository.ResourceListOption,
+) (
 	r []domain.Project, err error,
 ) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), &do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
+	return impl.list(
+		owner, option, impl.mapper.List,
+	)
 }
 
 func (impl project) ListAndSortByUpdateTime(
-	owner domain.Account, option repository.ResourceListOption,
+	owner domain.Account, option *repository.ResourceListOption,
 ) (
 	r []domain.Project, err error,
 ) {
-	do := toResourceListDO(&option)
-
-	v, err := impl.mapper.ListAndSortByUpdateTime(owner.Account(), &do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		//TODO no need to return detail
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
+	return impl.list(
+		owner, option, impl.mapper.ListAndSortByUpdateTime,
+	)
 }
 
 func (impl project) ListAndSortByFirtLetter(
-	owner domain.Account, option repository.ResourceListOption,
+	owner domain.Account, option *repository.ResourceListOption,
 ) (
 	r []domain.Project, err error,
 ) {
-	do := toResourceListDO(&option)
-
-	v, err := impl.mapper.ListAndSortByFirtLetter(owner.Account(), &do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		//TODO no need to return detail
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
+	return impl.list(
+		owner, option, impl.mapper.ListAndSortByFirtLetter,
+	)
 }
 
 func (impl project) ListAndSortByDownloadCount(
-	owner domain.Account, option repository.ResourceListOption,
+	owner domain.Account, option *repository.ResourceListOption,
 ) (
 	r []domain.Project, err error,
 ) {
-	do := toResourceListDO(&option)
+	return impl.list(
+		owner, option, impl.mapper.ListAndSortByDownloadCount,
+	)
+}
 
-	v, err := impl.mapper.ListAndSortByDownloadCount(owner.Account(), &do)
+func (impl project) list(
+	owner domain.Account,
+	option *repository.ResourceListOption,
+	f func(string, *ResourceListDO) ([]ProjectDO, error),
+) (
+	r []domain.Project, err error,
+) {
+	do := toResourceListDO(option)
+
+	v, err := f(owner.Account(), &do)
 	if err != nil {
 		err = convertError(err)
 

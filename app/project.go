@@ -214,7 +214,9 @@ func (cmd *ResourceListCmd) toResourceListOption() (
 func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 	dtos []ProjectDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toResourceListOption())
+	option := cmd.toResourceListOption()
+
+	v, err := s.repo.List(owner, &option)
 	if err != nil || len(v) == 0 {
 		return
 	}

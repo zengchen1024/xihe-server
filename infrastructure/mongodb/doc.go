@@ -40,6 +40,7 @@ type dProject struct {
 type projectItem struct {
 	Id        string   `bson:"id"         json:"id"`
 	Name      string   `bson:"name"       json:"name"`
+	FL        string   `bson:"fl"         json:"fl"`
 	Desc      string   `bson:"desc"       json:"desc"`
 	Type      string   `bson:"type"       json:"type"`
 	CoverId   string   `bson:"cover_id"   json:"cover_id"`
@@ -53,7 +54,7 @@ type projectItem struct {
 
 	// These two items are not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
-	RelatedModels   []ResourceIndex `bson:"models" json:"-"`
+	RelatedModels   []ResourceIndex `bson:"models"   json:"-"`
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
 	// Version, LikeCount and ForkCount will be increased by 1 automatically.
