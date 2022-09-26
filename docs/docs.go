@@ -1771,8 +1771,14 @@ const docTemplate = `{
                 "cover_id": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "desc": {
                     "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
                 },
                 "fork_count": {
                     "type": "integer"
@@ -1795,6 +1801,18 @@ const docTemplate = `{
                 "protocol": {
                     "type": "string"
                 },
+                "related_datasets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
+                "related_models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
                 "repo_id": {
                     "type": "string"
                 },
@@ -1811,6 +1829,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

@@ -58,21 +58,22 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 }
 
 type ProjectDTO struct {
-	Id        string   `json:"id"`
-	Owner     string   `json:"owner"`
-	Name      string   `json:"name"`
-	Desc      string   `json:"desc"`
-	Type      string   `json:"type"`
-	CoverId   string   `json:"cover_id"`
-	Protocol  string   `json:"protocol"`
-	Training  string   `json:"training"`
-	RepoType  string   `json:"repo_type"`
-	RepoId    string   `json:"repo_id"`
-	Tags      []string `json:"tags"`
-	CreatedAt string   `json:"created_at"`
-	UpdatedAt string   `json:"updated_at"`
-	LikeCount int      `json:"like_count"`
-	ForkCount int      `json:"fork_count"`
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	Type          string   `json:"type"`
+	CoverId       string   `json:"cover_id"`
+	Protocol      string   `json:"protocol"`
+	Training      string   `json:"training"`
+	RepoType      string   `json:"repo_type"`
+	RepoId        string   `json:"repo_id"`
+	Tags          []string `json:"tags"`
+	CreatedAt     string   `json:"created_at"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	ForkCount     int      `json:"fork_count"`
+	DownloadCount int      `json:"download_count"`
 }
 
 type ProjectDetailDTO struct {
@@ -228,20 +229,21 @@ func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 
 func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 	*dto = ProjectDTO{
-		Id:        p.Id,
-		Owner:     p.Owner.Account(),
-		Name:      p.Name.ProjName(),
-		Desc:      p.Desc.ResourceDesc(),
-		Type:      p.Type.ProjType(),
-		CoverId:   p.CoverId.CoverId(),
-		Protocol:  p.Protocol.ProtocolName(),
-		Training:  p.Training.TrainingPlatform(),
-		RepoType:  p.RepoType.RepoType(),
-		RepoId:    p.RepoId,
-		Tags:      p.Tags,
-		CreatedAt: utils.ToDate(p.CreatedAt),
-		UpdatedAt: utils.ToDate(p.UpdatedAt),
-		LikeCount: p.LikeCount,
-		ForkCount: p.ForkCount,
+		Id:            p.Id,
+		Owner:         p.Owner.Account(),
+		Name:          p.Name.ProjName(),
+		Desc:          p.Desc.ResourceDesc(),
+		Type:          p.Type.ProjType(),
+		CoverId:       p.CoverId.CoverId(),
+		Protocol:      p.Protocol.ProtocolName(),
+		Training:      p.Training.TrainingPlatform(),
+		RepoType:      p.RepoType.RepoType(),
+		RepoId:        p.RepoId,
+		Tags:          p.Tags,
+		CreatedAt:     utils.ToDate(p.CreatedAt),
+		UpdatedAt:     utils.ToDate(p.UpdatedAt),
+		LikeCount:     p.LikeCount,
+		ForkCount:     p.ForkCount,
+		DownloadCount: p.DownloadCount,
 	}
 }
