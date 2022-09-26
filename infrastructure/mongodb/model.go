@@ -184,7 +184,7 @@ func (col model) List(owner string, do repositories.ResourceListDO) (
 ) {
 	var v []dModel
 
-	err = listResource(col.collectionName, owner, do, &v)
+	err = listResource(col.collectionName, owner, &do, nil, &v)
 	if err != nil {
 		return
 	}

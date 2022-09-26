@@ -11,8 +11,12 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
-	List(string, ResourceListDO) ([]ProjectDO, error)
 	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
+
+	List(string, *ResourceListDO) ([]ProjectDO, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectDO, error)
+	ListAndSortByFirtLetter(string, *ResourceListDO) ([]ProjectDO, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectDO, error)
 
 	IncreaseFork(string, string) error
 
@@ -73,33 +77,6 @@ func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
 		err = convertError(err)
 	} else {
 		err = v.toProject(&r)
-	}
-
-	return
-}
-
-func (impl project) List(owner domain.Account, option repository.ResourceListOption) (
-	r []domain.Project, err error,
-) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
 	}
 
 	return

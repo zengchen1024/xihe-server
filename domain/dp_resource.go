@@ -11,6 +11,10 @@ const (
 	ResourceProject = "project"
 	ResourceDataset = "dataset"
 	ResourceModel   = "model"
+
+	SortTypeUpdateTime    = "update_time"
+	SortTypeFirstLetter   = "first_letter"
+	SortTypeDownloadCount = "download_count"
 )
 
 var (
@@ -220,4 +224,27 @@ type resourceDesc string
 
 func (r resourceDesc) ResourceDesc() string {
 	return string(r)
+}
+
+// SortType
+type SortType interface {
+	SortType() string
+}
+
+func NewSortType(v string) (SortType, error) {
+	b := v != SortTypeUpdateTime &&
+		v != SortTypeFirstLetter &&
+		v != SortTypeDownloadCount
+
+	if b {
+		return nil, errors.New("invliad sort type")
+	}
+
+	return sortType(v), nil
+}
+
+type sortType string
+
+func (s sortType) SortType() string {
+	return string(s)
 }

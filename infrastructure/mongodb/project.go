@@ -187,27 +187,16 @@ func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err
 	return
 }
 
-func (col project) List(owner string, do repositories.ResourceListDO) (
-	r []repositories.ProjectDO, err error,
+func (col project) List(owner string, do *repositories.ResourceListDO) (
+	[]repositories.ProjectDO, error,
 ) {
-	var v []dProject
+	return col.listResource(owner, func() ([]dProject, error) {
+		var v []dProject
 
-	err = listResource(col.collectionName, owner, do, &v)
-	if err != nil {
-		return
-	}
+		err := listResource(col.collectionName, owner, do, nil, &v)
 
-	if len(v) == 0 {
-		return
-	}
-
-	items := v[0].Items
-	r = make([]repositories.ProjectDO, len(items))
-	for i := range items {
-		col.toProjectDO(owner, &items[i], &r[i])
-	}
-
-	return
+		return v, err
+	})
 }
 
 func (col project) ListUsersProjects(opts map[string][]string) (
@@ -228,7 +217,7 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 
 		dos := make([]repositories.ProjectDO, len(items))
 		for j := range items {
-			col.toProjectDO(owner, &items[j], &dos[j])
+			col.toProjectSummary(owner, &items[j], &dos[j])
 		}
 
 		r = append(r, dos...)

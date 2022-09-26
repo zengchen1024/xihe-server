@@ -57,3 +57,82 @@ func (col project) IncreaseFork(owner, rid string) (err error) {
 
 	return
 }
+
+func (col project) ListAndSortByUpdateTime(
+	owner string, do *repositories.ResourceListDO,
+) ([]repositories.ProjectDO, error) {
+	return col.listResource(owner, func() ([]dProject, error) {
+		var v []dProject
+
+		err := listResourceAndSortByUpdateTime(col.collectionName, owner, do, &v)
+
+		return v, err
+	})
+}
+
+func (col project) ListAndSortByFirtLetter(
+	owner string, do *repositories.ResourceListDO,
+) ([]repositories.ProjectDO, error) {
+	return col.listResource(owner, func() ([]dProject, error) {
+		var v []dProject
+
+		err := listResourceAndSortByFirtLetter(col.collectionName, owner, do, &v)
+
+		return v, err
+	})
+}
+
+func (col project) ListAndSortByDownloadCount(
+	owner string, do *repositories.ResourceListDO,
+) ([]repositories.ProjectDO, error) {
+	return col.listResource(owner, func() ([]dProject, error) {
+		var v []dProject
+
+		err := listResourceAndSortByDownloadCount(col.collectionName, owner, do, &v)
+
+		return v, err
+	})
+}
+
+func (col project) listResource(
+	owner string, f func() ([]dProject, error),
+) (r []repositories.ProjectDO, err error) {
+	v, err := f()
+	if err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		return
+	}
+
+	items := v[0].Items
+	r = make([]repositories.ProjectDO, len(items))
+	for i := range items {
+		col.toProjectSummary(owner, &items[i], &r[i])
+	}
+
+	return
+}
+
+func (col project) toProjectSummary(owner string, item *projectItem, do *repositories.ProjectDO) {
+	*do = repositories.ProjectDO{
+		Id:            item.Id,
+		Owner:         owner,
+		Name:          item.Name,
+		Desc:          item.Desc,
+		Type:          item.Type,
+		CoverId:       item.CoverId,
+		Protocol:      item.Protocol,
+		Training:      item.Training,
+		RepoType:      item.RepoType,
+		RepoId:        item.RepoId,
+		Tags:          item.Tags, // TODO need this?
+		CreatedAt:     item.CreatedAt,
+		UpdatedAt:     item.UpdatedAt,
+		Version:       item.Version,
+		LikeCount:     item.LikeCount,
+		ForkCount:     item.ForkCount,
+		DownloadCount: item.DownloadCount,
+	}
+}
