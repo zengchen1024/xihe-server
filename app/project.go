@@ -198,17 +198,13 @@ func (s projectService) GetByName(
 }
 
 type ResourceListCmd struct {
-	Name     string
-	RepoType domain.RepoType
+	repository.ResourceListOption
+
+	SortType domain.SortType
 }
 
-func (cmd *ResourceListCmd) toResourceListOption() (
-	option repository.ResourceListOption,
-) {
-	option.Name = cmd.Name
-	option.RepoType = cmd.RepoType
-
-	return
+func (cmd *ResourceListCmd) toResourceListOption() repository.ResourceListOption {
+	return cmd.ResourceListOption
 }
 
 func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
@@ -216,7 +212,23 @@ func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 ) {
 	option := cmd.toResourceListOption()
 
-	v, err := s.repo.List(owner, &option)
+	var v []domain.Project
+
+	if cmd.SortType == nil {
+		v, err = s.repo.List(owner, &option)
+	} else {
+		switch cmd.SortType.SortType() {
+		case domain.SortTypeUpdateTime:
+			v, err = s.repo.ListAndSortByUpdateTime(owner, &option)
+
+		case domain.SortTypeFirstLetter:
+			v, err = s.repo.ListAndSortByFirtLetter(owner, &option)
+
+		case domain.SortTypeDownloadCount:
+			v, err = s.repo.ListAndSortByDownloadCount(owner, &option)
+		}
+	}
+
 	if err != nil || len(v) == 0 {
 		return
 	}

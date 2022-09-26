@@ -5,11 +5,14 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -214,4 +217,38 @@ func (ctl baseController) sendRespWithInternalError(ctx *gin.Context, data respo
 	log.Errorf("code: %s, err: %s", data.Code, data.Msg)
 
 	ctx.JSON(http.StatusInternalServerError, data)
+}
+
+func (ctl baseController) getListResourceParameter(
+	ctx *gin.Context,
+) (cmd app.ResourceListCmd, err error) {
+	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
+		cmd.Name = v
+	}
+
+	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
+		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
+			return
+		}
+	}
+
+	if v := ctl.getQueryParameter(ctx, "count_per_page"); v != "" {
+		if cmd.CountPerPage, err = strconv.Atoi(v); err != nil {
+			return
+		}
+	}
+
+	if v := ctl.getQueryParameter(ctx, "page_num"); v != "" {
+		if cmd.PageNum, err = strconv.Atoi(v); err != nil {
+			return
+		}
+	}
+
+	if v := ctl.getQueryParameter(ctx, "sort_by"); v != "" {
+		if cmd.SortType, err = domain.NewSortType(v); err != nil {
+			return
+		}
+	}
+
+	return
 }

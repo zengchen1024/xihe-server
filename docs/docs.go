@@ -537,6 +537,36 @@ const docTemplate = `{
                         "name": "owner",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of project",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo type of project, value can be public or private",
+                        "name": "repo_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "count per page",
+                        "name": "count_per_page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page num which starts from 1",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "sort keys, value can be update_time, first_letter, download_count",
+                        "name": "sort_by",
+                        "in": "query"
                     }
                 ],
                 "responses": {}

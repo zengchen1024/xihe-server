@@ -734,6 +734,26 @@ paths:
         name: owner
         required: true
         type: string
+      - description: name of project
+        in: query
+        name: name
+        type: string
+      - description: repo type of project, value can be public or private
+        in: query
+        name: repo_type
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
       produces:
       - application/json
       responses: {}
