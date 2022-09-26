@@ -118,38 +118,44 @@ func getResourceByName(collection, owner, name string, result interface{}) error
 
 func listResourceAndSortByUpdateTime(
 	collection, owner string,
-	do *repositories.ResourceListDO, result interface{},
+	do *repositories.ResourceListDO,
+	fields []string, result interface{},
 ) error {
 	return listResource(
 		collection, owner, do,
-		bson.M{fieldItems + "." + fieldUpdatedAt: -1}, result,
+		bson.M{fieldItems + "." + fieldUpdatedAt: -1},
+		fields, result,
 	)
 }
 
 func listResourceAndSortByFirtLetter(
 	collection, owner string,
-	do *repositories.ResourceListDO, result interface{},
+	do *repositories.ResourceListDO,
+	fields []string, result interface{},
 ) error {
 	return listResource(
 		collection, owner, do,
-		bson.M{fieldItems + "." + fieldFirstLetter: 1}, result,
+		bson.M{fieldItems + "." + fieldFirstLetter: 1},
+		fields, result,
 	)
 }
 
 func listResourceAndSortByDownloadCount(
 	collection, owner string,
-	do *repositories.ResourceListDO, result interface{},
+	do *repositories.ResourceListDO,
+	fields []string, result interface{},
 ) error {
 	return listResource(
 		collection, owner, do,
-		bson.M{fieldItems + "." + fieldDownloadCount: -1}, result,
+		bson.M{fieldItems + "." + fieldDownloadCount: -1},
+		fields, result,
 	)
 }
 
 func listResource(
 	collection, owner string,
 	do *repositories.ResourceListDO,
-	sort bson.M, result interface{},
+	sort bson.M, fields []string, result interface{},
 ) error {
 	fieldItemsRef := "$" + fieldItems
 
@@ -176,9 +182,16 @@ func listResource(
 		},
 	}}}
 
+	keep := bson.M{}
+	s := fieldItems + "."
+	for _, item := range fields {
+		keep[s+item] = 1
+	}
+
 	pipeline := bson.A{
 		bson.M{"$match": resourceOwnerFilter(owner)},
 		bson.M{"$project": project},
+		bson.M{"$project": keep},
 	}
 
 	if sort != nil || do.CountPerPage > 0 {

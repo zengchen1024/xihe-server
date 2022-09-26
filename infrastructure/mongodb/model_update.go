@@ -19,3 +19,25 @@ func (col model) AddRelatedDataset(do *repositories.RelatedResourceDO) error {
 func (col model) RemoveRelatedDataset(do *repositories.RelatedResourceDO) error {
 	return updateRelatedResource(col.collectionName, fieldDatasets, false, do)
 }
+
+func (col model) summaryFields() []string {
+	return []string{
+		fieldId, fieldName, fieldDesc, fieldTags,
+		// fieldUpdatedAt,
+		fieldLikeCount,
+		// fieldDownloadCount,
+	}
+}
+
+func (col model) toModelSummary(owner string, item *modelItem, do *repositories.ModelDO) {
+	*do = repositories.ModelDO{
+		Id:    item.Id,
+		Owner: owner,
+		Name:  item.Name,
+		Desc:  item.Desc,
+		Tags:  item.Tags,
+		//UpdatedAt:     item.UpdatedAt,
+		LikeCount: item.LikeCount,
+		//DownloadCount: item.DownloadCount,
+	}
+}

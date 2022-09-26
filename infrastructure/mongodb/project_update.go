@@ -64,7 +64,9 @@ func (col project) ListAndSortByUpdateTime(
 	return col.listResource(owner, func() ([]dProject, error) {
 		var v []dProject
 
-		err := listResourceAndSortByUpdateTime(col.collectionName, owner, do, &v)
+		err := listResourceAndSortByUpdateTime(
+			col.collectionName, owner, do, col.summaryFields(), &v,
+		)
 
 		return v, err
 	})
@@ -76,7 +78,9 @@ func (col project) ListAndSortByFirtLetter(
 	return col.listResource(owner, func() ([]dProject, error) {
 		var v []dProject
 
-		err := listResourceAndSortByFirtLetter(col.collectionName, owner, do, &v)
+		err := listResourceAndSortByFirtLetter(
+			col.collectionName, owner, do, col.summaryFields(), &v,
+		)
 
 		return v, err
 	})
@@ -88,7 +92,9 @@ func (col project) ListAndSortByDownloadCount(
 	return col.listResource(owner, func() ([]dProject, error) {
 		var v []dProject
 
-		err := listResourceAndSortByDownloadCount(col.collectionName, owner, do, &v)
+		err := listResourceAndSortByDownloadCount(
+			col.collectionName, owner, do, col.summaryFields(), &v,
+		)
 
 		return v, err
 	})
@@ -115,22 +121,22 @@ func (col project) listResource(
 	return
 }
 
+func (col project) summaryFields() []string {
+	return []string{
+		fieldId, fieldName, fieldDesc, fieldCoverId, fieldTags,
+		fieldUpdatedAt, fieldLikeCount, fieldForkCount, fieldDownloadCount,
+	}
+}
+
 func (col project) toProjectSummary(owner string, item *projectItem, do *repositories.ProjectDO) {
 	*do = repositories.ProjectDO{
 		Id:            item.Id,
 		Owner:         owner,
 		Name:          item.Name,
 		Desc:          item.Desc,
-		Type:          item.Type,
 		CoverId:       item.CoverId,
-		Protocol:      item.Protocol,
-		Training:      item.Training,
-		RepoType:      item.RepoType,
-		RepoId:        item.RepoId,
-		Tags:          item.Tags, // TODO need this?
-		CreatedAt:     item.CreatedAt,
+		Tags:          item.Tags,
 		UpdatedAt:     item.UpdatedAt,
-		Version:       item.Version,
 		LikeCount:     item.LikeCount,
 		ForkCount:     item.ForkCount,
 		DownloadCount: item.DownloadCount,

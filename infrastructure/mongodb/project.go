@@ -194,7 +194,9 @@ func (col project) List(owner string, do *repositories.ResourceListDO) (
 	return col.listResource(owner, func() ([]dProject, error) {
 		var v []dProject
 
-		err := listResource(col.collectionName, owner, do, nil, &v)
+		err := listResource(
+			col.collectionName, owner, do, nil, col.summaryFields(), &v,
+		)
 
 		return v, err
 	})
