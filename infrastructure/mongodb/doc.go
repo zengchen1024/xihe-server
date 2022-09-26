@@ -56,9 +56,10 @@ type projectItem struct {
 
 	// Version, LikeCount and ForkCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
-	Version   int `bson:"version"       json:"-"`
-	LikeCount int `bson:"like_count"    json:"-"`
-	ForkCount int `bson:"fork_count"    json:"-"`
+	Version       int `bson:"version"       json:"-"`
+	LikeCount     int `bson:"like_count"    json:"-"`
+	ForkCount     int `bson:"fork_count"    json:"-"`
+	DownloadCount int `bson:"download_count"    json:"-"`
 }
 
 type dModel struct {

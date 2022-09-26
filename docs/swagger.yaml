@@ -216,8 +216,12 @@ definitions:
     properties:
       cover_id:
         type: string
+      created_at:
+        type: string
       desc:
         type: string
+      download_count:
+        type: integer
       fork_count:
         type: integer
       id:
@@ -232,6 +236,14 @@ definitions:
         type: string
       protocol:
         type: string
+      related_datasets:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
+      related_models:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
       repo_id:
         type: string
       repo_type:
@@ -243,6 +255,8 @@ definitions:
       training:
         type: string
       type:
+        type: string
+      updated_at:
         type: string
     type: object
   controller.projectUpdateRequest:

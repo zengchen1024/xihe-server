@@ -153,22 +153,23 @@ type ProjectListDO struct {
 }
 
 type ProjectDO struct {
-	Id        string
-	Owner     string
-	Name      string
-	Desc      string
-	Type      string
-	CoverId   string
-	Protocol  string
-	Training  string
-	RepoType  string
-	RepoId    string
-	Tags      []string
-	CreatedAt int64
-	UpdatedAt int64
-	Version   int
-	LikeCount int
-	ForkCount int
+	Id            string
+	Owner         string
+	Name          string
+	Desc          string
+	Type          string
+	CoverId       string
+	Protocol      string
+	Training      string
+	RepoType      string
+	RepoId        string
+	Tags          []string
+	CreatedAt     int64
+	UpdatedAt     int64
+	Version       int
+	LikeCount     int
+	ForkCount     int
+	DownloadCount int
 
 	RelatedModels   []ResourceIndexDO
 	RelatedDatasets []ResourceIndexDO
@@ -222,6 +223,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.Version = do.Version
 	r.LikeCount = do.LikeCount
 	r.ForkCount = do.ForkCount
+	r.DownloadCount = do.DownloadCount
 
 	return
 }

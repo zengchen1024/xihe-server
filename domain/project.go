@@ -21,8 +21,9 @@ type Project struct {
 	Version int
 
 	// following fileds is not under the controlling of version
-	LikeCount int
-	ForkCount int
+	LikeCount     int
+	ForkCount     int
+	DownloadCount int
 }
 
 func (p *Project) MaxRelatedResourceNum() int {
