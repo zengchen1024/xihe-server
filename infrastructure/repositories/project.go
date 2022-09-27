@@ -12,8 +12,8 @@ type ProjectMapper interface {
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 
-	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
 	List(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, error)
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, error)
@@ -198,6 +198,8 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.CreatedAt = do.CreatedAt
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
 	r.ForkCount = do.ForkCount
 	r.DownloadCount = do.DownloadCount

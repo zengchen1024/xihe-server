@@ -152,7 +152,7 @@ func (impl project) ListAndSortByUpdateTime(
 	)
 }
 
-func (impl project) ListAndSortByFirtLetter(
+func (impl project) ListAndSortByFirstLetter(
 	owner domain.Account, option *repository.ResourceListOption,
 ) ([]domain.ProjectSummary, error) {
 	return impl.list(
@@ -173,7 +173,7 @@ func (impl project) list(
 	option *repository.ResourceListOption,
 	f func(string, *ResourceListDO) ([]ProjectSummaryDO, error),
 ) (
-	[]domain.ProjectSummary, error,
+	r []domain.ProjectSummary, err error,
 ) {
 	do := toResourceListDO(option)
 
@@ -181,18 +181,23 @@ func (impl project) list(
 	if err != nil {
 		err = convertError(err)
 
-		return nil, err
+		return
 	}
 
-	r := make([]domain.ProjectSummary, len(v))
+	if len(v) == 0 {
+		return
+	}
+
+	r = make([]domain.ProjectSummary, len(v))
 	for i := range v {
-		//TODO no need to return detail
 		if err = v[i].toProjectSummary(&r[i]); err != nil {
-			return nil, err
+			r = nil
+
+			return
 		}
 	}
 
-	return r, nil
+	return
 }
 
 type ProjectSummaryDO struct {
@@ -228,6 +233,7 @@ func (do *ProjectSummaryDO) toProjectSummary(r *domain.ProjectSummary) (err erro
 	}
 
 	r.Tags = do.Tags
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
 	r.ForkCount = do.ForkCount
 	r.DownloadCount = do.DownloadCount

@@ -121,7 +121,7 @@ func sortByUpdateTime() bson.M {
 }
 
 func sortByFirstLetter() bson.M {
-	return bson.M{fieldItems + "." + fieldFirstLetter: -1}
+	return bson.M{fieldItems + "." + fieldFirstLetter: 1}
 }
 
 func sortByDownloadCount() bson.M {
