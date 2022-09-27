@@ -24,8 +24,13 @@ var fm *service
 
 func Init(cfg *Config) {
 	fm = &service{
-		cfg: *cfg,
-		hc:  utils.HttpClient{MaxRetries: 3},
+		cfg:            *cfg,
+		hc:             utils.HttpClient{MaxRetries: 3},
+		singlePictures: make(chan string, len(cfg.EndpointsOfSinglePicture)),
+	}
+
+	for _, e := range cfg.EndpointsOfSinglePicture {
+		fm.singlePictures <- e
 	}
 }
 
@@ -37,6 +42,8 @@ type service struct {
 	cfg Config
 
 	hc utils.HttpClient
+
+	singlePictures chan string
 }
 
 func (s *service) DescribePicture(picture io.Reader, contentType string) (string, error) {

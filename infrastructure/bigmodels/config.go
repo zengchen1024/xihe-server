@@ -6,5 +6,6 @@ type Config struct {
 	Project      string `json:"project"         required:"true"`
 	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
 
-	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
+	EndpointOfDescribingPicture string   `json:"endpoint_of_describing_picture" required:"true"`
+	EndpointsOfSinglePicture    []string `json:"endpoints_of_signle_picture"    required:"true"`
 }
