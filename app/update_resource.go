@@ -18,10 +18,9 @@ func (cmd *ResourceTagsUpdateCmd) toTags(old []string) ([]string, bool) {
 		tags.Delete(cmd.ToRemove...)
 	}
 
-	if len(old) != tags.Len() {
-		return tags.UnsortedList(), true
+	if tags.Equal(sets.NewString(old...)) {
+		return nil, false
 	}
 
-	return nil, false
-
+	return tags.UnsortedList(), true
 }

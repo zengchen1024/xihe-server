@@ -42,7 +42,7 @@ func (cmd *ProjectUpdateCmd) toProject(
 		f()
 	}
 
-	if cmd.CoverId != nil && p.CoverId.CoverId() == cmd.CoverId.CoverId() {
+	if cmd.CoverId != nil && p.CoverId.CoverId() != cmd.CoverId.CoverId() {
 		p.CoverId = cmd.CoverId
 		f()
 	}
