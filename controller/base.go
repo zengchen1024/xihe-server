@@ -47,7 +47,7 @@ type APIConfig struct {
 	EncryptionKey   string `json:"encryption_key"       required:"true"`
 	TokenKey        string `json:"token_key"            required:"true"`
 	DefaultPassword string `json:"default_password"     required:"true"`
-	MaxPictureSize  int    `json:"max_picture_size"`
+	MaxPictureSize  int64  `json:"max_picture_size"`
 }
 
 func (cfg *APIConfig) Validate() error {

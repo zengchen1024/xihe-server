@@ -50,7 +50,7 @@ func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
 		return
 	}
 
-	if f.Size > int64(apiConfig.MaxPictureSize) {
+	if f.Size > apiConfig.MaxPictureSize {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestParam, "too big picture",
 		))
