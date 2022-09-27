@@ -320,6 +320,11 @@ definitions:
           type: string
         type: array
     type: object
+  controller.respDescribePicture:
+    properties:
+      desc:
+        type: string
+    type: object
   controller.userCreateRequest:
     properties:
       account:
@@ -445,6 +450,28 @@ paths:
             type: not_allowed
       tags:
       - User
+  /v1/bigmodel/describe_picture:
+    post:
+      consumes:
+      - application/json
+      description: describe a picture
+      parameters:
+      - description: picture
+        in: formData
+        name: picture
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.respDescribePicture'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
   /v1/dataset:
     post:
       consumes:

@@ -63,6 +63,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/describe_picture": {
+            "post": {
+                "description": "describe a picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "picture",
+                        "name": "picture",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.respDescribePicture"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dataset": {
             "post": {
                 "description": "create dataset",
@@ -1961,6 +1995,14 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "controller.respDescribePicture": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
                 }
             }
         },

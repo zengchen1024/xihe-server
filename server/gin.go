@@ -16,6 +16,7 @@ import (
 	"github.com/opensourceways/xihe-server/docs"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -86,6 +87,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	tags := repositories.NewTagsRepository(
 		mongodb.NewTagsMapper(cfg.Mongodb.TagCollection),
 	)
+
+	bigmodel := bigmodels.NewBigModelService()
 	gitlabUser := gitlab.NewUserSerivce()
 	authingUser := authing.NewAuthingUser()
 	sender := messages.NewMessageSender()
@@ -111,8 +114,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForLoginController(
-			v1, user, gitlabUser, authingUser,
-			login, cfg.DefaultPassword,
+			v1, user, gitlabUser, authingUser, login,
 		)
 
 		controller.AddRouterForLikeController(
@@ -125,6 +127,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForTagsController(
 			v1, tags,
+		)
+
+		controller.AddRouterForBigModelController(
+			v1, bigmodel,
 		)
 	}
 

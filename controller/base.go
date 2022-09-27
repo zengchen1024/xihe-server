@@ -28,9 +28,9 @@ var (
 	log           *logrus.Entry
 )
 
-func Init(cfg APIConfig, l *logrus.Entry) error {
+func Init(cfg *APIConfig, l *logrus.Entry) error {
 	log = l
-	apiConfig = cfg
+	apiConfig = *cfg
 
 	e, err := utils.NewSymmetricEncryption(cfg.EncryptionKey, "")
 	if err != nil {
@@ -43,9 +43,23 @@ func Init(cfg APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
-	EncryptionKey  string
-	APITokenKey    string
-	APITokenExpiry int64
+	TokenExpiry     int64  `json:"token_expiry"         required:"true"`
+	EncryptionKey   string `json:"encryption_key"       required:"true"`
+	TokenKey        string `json:"token_key"            required:"true"`
+	DefaultPassword string `json:"default_password"     required:"true"`
+	MaxPictureSize  int    `json:"max_picture_size"`
+}
+
+func (cfg *APIConfig) Validate() error {
+	_, err := domain.NewPassword(cfg.DefaultPassword)
+
+	return err
+}
+
+func (cfg *APIConfig) SetDefault() {
+	if cfg.MaxPictureSize <= 0 {
+		cfg.MaxPictureSize = 200 << 10
+	}
 }
 
 type baseController struct {
@@ -60,13 +74,13 @@ func (ctl baseController) newApiToken(ctx *gin.Context, pl interface{}) (
 	}
 
 	ac := &accessController{
-		Expiry:     utils.Expiry(apiConfig.APITokenExpiry),
+		Expiry:     utils.Expiry(apiConfig.TokenExpiry),
 		Role:       roleIndividuals,
 		Payload:    pl,
 		RemoteAddr: addr,
 	}
 
-	token, err := ac.newToken(apiConfig.APITokenKey)
+	token, err := ac.newToken(apiConfig.TokenKey)
 	if err != nil {
 		return "", err
 	}
@@ -99,7 +113,7 @@ func (ctl baseController) checkApiToken(ctx *gin.Context, token string, pl inter
 		Payload: pl,
 	}
 
-	if err := ac.initByToken(string(b), apiConfig.APITokenKey); err != nil {
+	if err := ac.initByToken(string(b), apiConfig.TokenKey); err != nil {
 		ctx.JSON(
 			http.StatusInternalServerError,
 			newResponseCodeError(errorSystemError, err),
@@ -122,7 +136,7 @@ func (ctl baseController) checkApiToken(ctx *gin.Context, token string, pl inter
 		return
 	}
 
-	if v, err := ac.refreshToken(apiConfig.APITokenExpiry, apiConfig.APITokenKey); err == nil {
+	if v, err := ac.refreshToken(apiConfig.TokenExpiry, apiConfig.TokenKey); err == nil {
 		if v, err = ctl.encryptData(v); err == nil {
 			token = v
 		}
