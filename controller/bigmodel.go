@@ -18,7 +18,9 @@ func AddRouterForBigModelController(
 		s: app.NewBigModelService(bm),
 	}
 
-	rg.POST("/v1/user/like", ctl.DescribePicture)
+	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
+	rg.POST("/v1/bigmodel/single_picture", ctl.GenSinglePicture)
+	rg.POST("/v1/bigmodel/multiple_pictures", ctl.GenMultiplePictures)
 }
 
 type BigModelController struct {
@@ -32,7 +34,7 @@ type BigModelController struct {
 // @Tags  BigModel
 // @Param	picture		formData 	file	true	"picture"
 // @Accept json
-// @Success 201 {object} respDescribePicture
+// @Success 201 {object} describePictureResp
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/describe_picture [post]
 func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
@@ -85,6 +87,78 @@ func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
 	if v, err := ctl.s.DescribePicture(p, ct); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(respDescribePicture{v}))
+		ctx.JSON(http.StatusCreated, newResponseData(describePictureResp{v}))
+	}
+}
+
+// @Title GenSinglePicture
+// @Description generate a picture based on a text
+// @Tags  BigModel
+// @Param	body	body 	pictureGenerateRequest	true	"body of generating picture"
+// @Accept json
+// @Success 201 {object} pictureGenerateResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/single_picture [post]
+func (ctl *BigModelController) GenSinglePicture(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := pictureGenerateRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	if err := req.validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.GenPicture(pl.DomainAccount(), req.Desc); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(pictureGenerateResp{v}))
+	}
+}
+
+// @Title GenMultiplePictures
+// @Description generate multiple pictures based on a text
+// @Tags  BigModel
+// @Param	body	body 	pictureGenerateRequest	true	"body of generating picture"
+// @Accept json
+// @Success 201 {object} multiplePicturesGenerateResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/multiple_pictures [post]
+func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := pictureGenerateRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	if err := req.validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(multiplePicturesGenerateResp{v}))
 	}
 }

@@ -172,6 +172,11 @@ definitions:
       type:
         type: string
     type: object
+  controller.describePictureResp:
+    properties:
+      desc:
+        type: string
+    type: object
   controller.followingCreateRequest:
     properties:
       account:
@@ -211,6 +216,23 @@ definitions:
       name:
         type: string
       type:
+        type: string
+    type: object
+  controller.multiplePicturesGenerateResp:
+    properties:
+      pictures:
+        items:
+          type: string
+        type: array
+    type: object
+  controller.pictureGenerateRequest:
+    properties:
+      desc:
+        type: string
+    type: object
+  controller.pictureGenerateResp:
+    properties:
+      picture:
         type: string
     type: object
   controller.platformInfo:
@@ -319,11 +341,6 @@ definitions:
         items:
           type: string
         type: array
-    type: object
-  controller.respDescribePicture:
-    properties:
-      desc:
-        type: string
     type: object
   controller.userCreateRequest:
     properties:
@@ -465,7 +482,53 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controller.respDescribePicture'
+            $ref: '#/definitions/controller.describePictureResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/multiple_pictures:
+    post:
+      consumes:
+      - application/json
+      description: generate multiple pictures based on a text
+      parameters:
+      - description: body of generating picture
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.pictureGenerateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.multiplePicturesGenerateResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/single_picture:
+    post:
+      consumes:
+      - application/json
+      description: generate a picture based on a text
+      parameters:
+      - description: body of generating picture
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.pictureGenerateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.pictureGenerateResp'
         "500":
           description: Internal Server Error
           schema:

@@ -85,7 +85,79 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controller.respDescribePicture"
+                            "$ref": "#/definitions/controller.describePictureResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/multiple_pictures": {
+            "post": {
+                "description": "generate multiple pictures based on a text",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of generating picture",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.pictureGenerateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.multiplePicturesGenerateResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/single_picture": {
+            "post": {
+                "description": "generate a picture based on a text",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of generating picture",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.pictureGenerateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.pictureGenerateResp"
                         }
                     },
                     "500": {
@@ -1770,6 +1842,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.describePictureResp": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.followingCreateRequest": {
             "type": "object",
             "properties": {
@@ -1830,6 +1910,33 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.multiplePicturesGenerateResp": {
+            "type": "object",
+            "properties": {
+                "pictures": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "controller.pictureGenerateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.pictureGenerateResp": {
+            "type": "object",
+            "properties": {
+                "picture": {
                     "type": "string"
                 }
             }
@@ -1995,14 +2102,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "controller.respDescribePicture": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
                 }
             }
         },
