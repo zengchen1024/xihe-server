@@ -43,7 +43,6 @@ func AddRouterForLoginController(
 	ps platform.User,
 	auth authing.User,
 	login repository.Login,
-	password string,
 ) {
 	pc := LoginController{
 		auth: auth,
@@ -51,7 +50,7 @@ func AddRouterForLoginController(
 		ls:   app.NewLoginService(login),
 	}
 
-	pc.password, _ = domain.NewPassword(password)
+	pc.password, _ = domain.NewPassword(apiConfig.DefaultPassword)
 
 	rg.GET("/v1/login", pc.Login)
 	rg.GET("/v1/login/:account", pc.Logout)

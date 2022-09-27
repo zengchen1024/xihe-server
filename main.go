@@ -11,6 +11,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -61,12 +62,7 @@ func main() {
 	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
 	// controller
-	apiConfig := controller.APIConfig{
-		EncryptionKey:  cfg.EncryptionKey,
-		APITokenKey:    cfg.API.APITokenKey,
-		APITokenExpiry: cfg.API.APITokenExpiry,
-	}
-	if err := controller.Init(apiConfig, log); err != nil {
+	if err := controller.Init(&cfg.API, log); err != nil {
 		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
 	}
 
@@ -87,6 +83,9 @@ func main() {
 
 	// cfg
 	cfg.InitDomainConfig()
+
+	// bigmodel
+	bigmodels.Init(&cfg.BigModel)
 
 	// run
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)

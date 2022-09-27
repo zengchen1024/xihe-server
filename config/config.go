@@ -8,7 +8,9 @@ import (
 	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/opensourceways/community-robot-lib/utils"
 
+	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 )
 
@@ -41,18 +43,17 @@ type ConfigSetDefault interface {
 }
 
 type Config struct {
-	DefaultPassword string `json:"default_password" required:"true"`
-	EncryptionKey   string `json:"encryption_key" required:"true"`
-	MaxRetry        int    `json:"max_retry"`
-	ActivityKeepNum int    `json:"activity_keep_num"`
+	MaxRetry        int `json:"max_retry"`
+	ActivityKeepNum int `json:"activity_keep_num"`
 
 	Authing  AuthingService        `json:"authing_service" required:"true"`
-	Resource domain.ResourceConfig `json:"resource" required:"true"`
-	Mongodb  Mongodb               `json:"mongodb" required:"true"`
-	Gitlab   Gitlab                `json:"gitlab" required:"true"`
-	API      API                   `json:"api" required:"true"`
+	Resource domain.ResourceConfig `json:"resource"        required:"true"`
+	BigModel bigmodels.Config      `json:"bigmodel"        required:"true"`
+	Mongodb  Mongodb               `json:"mongodb"         required:"true"`
+	Gitlab   Gitlab                `json:"gitlab"          required:"true"`
+	API      controller.APIConfig  `json:"api"             required:"true"`
 	User     domain.UserConfig     `json:"user"`
-	MQ       MQ                    `json:"mq" required:"true"`
+	MQ       MQ                    `json:"mq"              required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
@@ -70,6 +71,7 @@ func (cfg *Config) configItems() []interface{} {
 		&cfg.API,
 		&cfg.User,
 		&cfg.MQ,
+		&cfg.BigModel,
 	}
 }
 
@@ -92,10 +94,6 @@ func (cfg *Config) SetDefault() {
 
 func (cfg *Config) Validate() error {
 	if _, err := utils.BuildRequestBody(cfg, ""); err != nil {
-		return err
-	}
-
-	if _, err := domain.NewPassword(cfg.DefaultPassword); err != nil {
 		return err
 	}
 
@@ -132,11 +130,6 @@ type AuthingService struct {
 type Gitlab struct {
 	Endpoint  string `json:"endpoint" required:"true"`
 	RootToken string `json:"root_token" required:"true"`
-}
-
-type API struct {
-	APITokenExpiry int64  `json:"api_token_expiry" required:"true"`
-	APITokenKey    string `json:"api_token_key" required:"true"`
 }
 
 type MQ struct {
