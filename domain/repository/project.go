@@ -10,8 +10,13 @@ type UserResourceListOption struct {
 }
 
 type ResourceListOption struct {
+	// can't define Name as domain.ResourceName
+	// because the Name can be subpart of the real resource name
 	Name     string
 	RepoType domain.RepoType
+
+	CountPerPage int
+	PageNum      int
 }
 
 type RelatedResourceInfo struct {
@@ -37,8 +42,12 @@ type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
-	List(domain.Account, ResourceListOption) ([]domain.Project, error)
-	FindUserProjects([]UserResourceListOption) ([]domain.Project, error)
+
+	List(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error

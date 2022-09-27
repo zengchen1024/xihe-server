@@ -183,7 +183,9 @@ func (col dataset) List(owner string, do repositories.ResourceListDO) (
 ) {
 	var v []dDataset
 
-	err = listResource(col.collectionName, owner, do, &v)
+	err = listResource(
+		col.collectionName, owner, &do, nil, col.summaryFields(), &v,
+	)
 	if err != nil {
 		return
 	}

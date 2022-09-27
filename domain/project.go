@@ -41,3 +41,16 @@ type ProjectModifiableProperty struct {
 	RepoType RepoType
 	Tags     []string
 }
+
+type ProjectSummary struct {
+	Id            string
+	Owner         Account
+	Name          ProjName
+	Desc          ResourceDesc
+	CoverId       CoverId
+	Tags          []string
+	UpdatedAt     int64
+	LikeCount     int
+	ForkCount     int
+	DownloadCount int
+}

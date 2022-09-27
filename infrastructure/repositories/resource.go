@@ -1,10 +1,29 @@
 package repositories
 
-import "github.com/opensourceways/xihe-server/domain"
+import (
+	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/repository"
+)
 
 type ResourceListDO struct {
-	Name     string
-	RepoType string
+	Name         string
+	RepoType     string
+	PageNum      int
+	CountPerPage int
+}
+
+func toResourceListDO(r *repository.ResourceListOption) ResourceListDO {
+	do := ResourceListDO{
+		Name:         r.Name,
+		PageNum:      r.PageNum,
+		CountPerPage: r.CountPerPage,
+	}
+
+	if r.RepoType != nil {
+		do.RepoType = r.RepoType.RepoType()
+	}
+
+	return do
 }
 
 type ResourceObjectDO struct {

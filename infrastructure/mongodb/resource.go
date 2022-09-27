@@ -116,37 +116,91 @@ func getResourceByName(collection, owner, name string, result interface{}) error
 	return withContext(f)
 }
 
+func sortByUpdateTime() bson.M {
+	return bson.M{fieldItems + "." + fieldUpdatedAt: -1}
+}
+
+func sortByFirstLetter() bson.M {
+	return bson.M{fieldItems + "." + fieldFirstLetter: 1}
+}
+
+func sortByDownloadCount() bson.M {
+	return bson.M{fieldItems + "." + fieldDownloadCount: -1}
+}
+
 func listResource(
 	collection, owner string,
-	do repositories.ResourceListDO, result interface{},
+	do *repositories.ResourceListDO,
+	sort bson.M, fields []string, result interface{},
 ) error {
-	f := func(ctx context.Context) error {
-		return cli.getArraysElemsByCustomizedCond(
-			ctx, collection, resourceOwnerFilter(owner),
-			map[string]func() bson.M{
-				fieldItems: func() bson.M {
-					conds := bson.A{}
+	fieldItemsRef := "$" + fieldItems
 
-					if do.RepoType != "" {
-						conds = append(conds, eqCondForArrayElem(
-							fieldRepoType, do.RepoType,
-						))
-					}
+	project := bson.M{fieldItems: bson.M{"$filter": bson.M{
+		"input": fieldItemsRef,
+		"cond": bson.M{
+			fieldItems: func() bson.M {
+				conds := bson.A{}
 
-					if do.Name != "" {
-						conds = append(conds, matchCondForArrayElem(
-							fieldName, do.Name,
-						))
-					}
+				if do.RepoType != "" {
+					conds = append(conds, eqCondForArrayElem(
+						fieldRepoType, do.RepoType,
+					))
+				}
 
-					return condForArrayElem(conds)
-				},
-			},
-			bson.M{fieldItems: 1}, result,
-		)
+				if do.Name != "" {
+					conds = append(conds, matchCondForArrayElem(
+						fieldName, do.Name,
+					))
+				}
+
+				return condForArrayElem(conds)
+			}(),
+		},
+	}}}
+
+	keep := bson.M{}
+	s := fieldItems + "."
+	for _, item := range fields {
+		keep[s+item] = 1
 	}
 
-	return withContext(f)
+	pipeline := bson.A{
+		bson.M{"$match": resourceOwnerFilter(owner)},
+		bson.M{"$project": project},
+		bson.M{"$project": keep},
+	}
+
+	if sort != nil || do.CountPerPage > 0 {
+		pipeline = append(pipeline, bson.M{"$unwind": fieldItemsRef})
+
+		if sort != nil {
+			pipeline = append(pipeline, bson.M{"$sort": sort})
+		}
+
+		if do.CountPerPage > 0 {
+			if do.PageNum > 1 {
+				skip := do.CountPerPage * (do.PageNum - 1)
+				pipeline = append(pipeline, bson.M{"$skip": skip})
+			}
+
+			pipeline = append(pipeline, bson.M{"$limit": do.CountPerPage})
+		}
+
+		pipeline = append(pipeline, bson.M{"$group": bson.M{
+			"_id":      "$_id",
+			fieldItems: bson.M{"$push": fieldItemsRef},
+		}})
+	}
+
+	return withContext(func(ctx context.Context) error {
+		col := cli.collection(collection)
+		cursor, err := col.Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, result)
+	})
 }
 
 func listUsersResources(collection string, opts map[string][]string, result interface{}) error {

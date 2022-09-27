@@ -11,8 +11,12 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
-	List(string, ResourceListDO) ([]ProjectDO, error)
-	ListUsersProjects(map[string][]string) ([]ProjectDO, error)
+
+	List(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, error)
 
 	IncreaseFork(string, string) error
 
@@ -78,35 +82,8 @@ func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
 	return
 }
 
-func (impl project) List(owner domain.Account, option repository.ResourceListOption) (
-	r []domain.Project, err error,
-) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Project, len(v))
-	for i := range v {
-		if err = v[i].toProject(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
-	[]domain.Project, error,
+	[]domain.ProjectSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -118,9 +95,9 @@ func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Project, len(v))
+	r := make([]domain.ProjectSummary, len(v))
 	for i := range v {
-		if err = v[i].toProject(&r[i]); err != nil {
+		if err = v[i].toProjectSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -221,6 +198,8 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.CreatedAt = do.CreatedAt
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
 	r.ForkCount = do.ForkCount
 	r.DownloadCount = do.DownloadCount

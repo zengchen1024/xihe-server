@@ -86,6 +86,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	doc[fieldLikeCount] = 0
 	doc[fieldModels] = bson.A{}
 	doc[fieldDatasets] = bson.A{}
+	doc[fieldFirstLetter] = do.Name[0]
 
 	docFilter := projectDocFilter(do.Owner)
 
@@ -187,31 +188,14 @@ func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err
 	return
 }
 
-func (col project) List(owner string, do repositories.ResourceListDO) (
-	r []repositories.ProjectDO, err error,
+func (col project) List(owner string, do *repositories.ResourceListDO) (
+	[]repositories.ProjectSummaryDO, error,
 ) {
-	var v []dProject
-
-	err = listResource(col.collectionName, owner, do, &v)
-	if err != nil {
-		return
-	}
-
-	if len(v) == 0 {
-		return
-	}
-
-	items := v[0].Items
-	r = make([]repositories.ProjectDO, len(items))
-	for i := range items {
-		col.toProjectDO(owner, &items[i], &r[i])
-	}
-
-	return
+	return col.listResource(owner, do, nil)
 }
 
 func (col project) ListUsersProjects(opts map[string][]string) (
-	r []repositories.ProjectDO, err error,
+	r []repositories.ProjectSummaryDO, err error,
 ) {
 	var v []dProject
 
@@ -220,15 +204,15 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.ProjectDO, 0, len(v))
+	r = make([]repositories.ProjectSummaryDO, 0, len(v))
 
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
 
-		dos := make([]repositories.ProjectDO, len(items))
+		dos := make([]repositories.ProjectSummaryDO, len(items))
 		for j := range items {
-			col.toProjectDO(owner, &items[j], &dos[j])
+			col.toProjectSummary(owner, &items[j], &dos[j])
 		}
 
 		r = append(r, dos...)

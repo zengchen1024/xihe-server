@@ -267,9 +267,14 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Summary List
 // @Description list project
 // @Tags  Project
-// @Param	owner	path	string			true	"owner of project"
+// @Param	owner		path	string	true	"owner of project"
+// @Param	name		query	string	false	"name of project"
+// @Param	repo_type	query	string	false	"repo type of project, value can be public or private"
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
-// @Produce json
+// @Success 200 {object} app.ProjectSummaryDTO
 // @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
@@ -286,7 +291,7 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := ctl.getListParameter(ctx)
+	cmd, err := ctl.getListResourceParameter(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -315,22 +320,6 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(projs))
-}
-
-func (ctl *ProjectController) getListParameter(
-	ctx *gin.Context,
-) (cmd app.ResourceListCmd, err error) {
-	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		cmd.Name = v
-	}
-
-	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
-		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
-			return
-		}
-	}
-
-	return
 }
 
 // @Summary Fork

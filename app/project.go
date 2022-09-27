@@ -57,6 +57,19 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	}
 }
 
+type ProjectSummaryDTO struct {
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	CoverId       string   `json:"cover_id"`
+	Tags          []string `json:"tags"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	ForkCount     int      `json:"fork_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
 type ProjectDTO struct {
 	Id            string   `json:"id"`
 	Owner         string   `json:"owner"`
@@ -86,7 +99,7 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ProjName, bool) (ProjectDetailDTO, error)
-	List(domain.Account, *ResourceListCmd) ([]ProjectDTO, error)
+	List(domain.Account, *ResourceListCmd) ([]ProjectSummaryDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
 
@@ -198,30 +211,44 @@ func (s projectService) GetByName(
 }
 
 type ResourceListCmd struct {
-	Name     string
-	RepoType domain.RepoType
+	repository.ResourceListOption
+
+	SortType domain.SortType
 }
 
-func (cmd *ResourceListCmd) toResourceListOption() (
-	option repository.ResourceListOption,
-) {
-	option.Name = cmd.Name
-	option.RepoType = cmd.RepoType
-
-	return
+func (cmd *ResourceListCmd) toResourceListOption() repository.ResourceListOption {
+	return cmd.ResourceListOption
 }
 
 func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
-	dtos []ProjectDTO, err error,
+	dtos []ProjectSummaryDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toResourceListOption())
+	option := cmd.toResourceListOption()
+
+	var v []domain.ProjectSummary
+
+	if cmd.SortType == nil {
+		v, err = s.repo.List(owner, &option)
+	} else {
+		switch cmd.SortType.SortType() {
+		case domain.SortTypeUpdateTime:
+			v, err = s.repo.ListAndSortByUpdateTime(owner, &option)
+
+		case domain.SortTypeFirstLetter:
+			v, err = s.repo.ListAndSortByFirstLetter(owner, &option)
+
+		case domain.SortTypeDownloadCount:
+			v, err = s.repo.ListAndSortByDownloadCount(owner, &option)
+		}
+	}
+
 	if err != nil || len(v) == 0 {
 		return
 	}
 
-	dtos = make([]ProjectDTO, len(v))
+	dtos = make([]ProjectSummaryDTO, len(v))
 	for i := range v {
-		s.toProjectDTO(&v[i], &dtos[i])
+		s.toProjectSummaryDTO(&v[i], &dtos[i])
 	}
 
 	return
@@ -241,6 +268,21 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		RepoId:        p.RepoId,
 		Tags:          p.Tags,
 		CreatedAt:     utils.ToDate(p.CreatedAt),
+		UpdatedAt:     utils.ToDate(p.UpdatedAt),
+		LikeCount:     p.LikeCount,
+		ForkCount:     p.ForkCount,
+		DownloadCount: p.DownloadCount,
+	}
+}
+
+func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *ProjectSummaryDTO) {
+	*dto = ProjectSummaryDTO{
+		Id:            p.Id,
+		Owner:         p.Owner.Account(),
+		Name:          p.Name.ProjName(),
+		Desc:          p.Desc.ResourceDesc(),
+		CoverId:       p.CoverId.CoverId(),
+		Tags:          p.Tags,
 		UpdatedAt:     utils.ToDate(p.UpdatedAt),
 		LikeCount:     p.LikeCount,
 		ForkCount:     p.ForkCount,

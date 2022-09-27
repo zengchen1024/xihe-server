@@ -5,6 +5,9 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 const (
 	fieldId             = "id"
 	fieldBio            = "bio"
+	fieldDesc           = "desc"
+	fieldCoverId        = "cover_id"
+	fieldTags           = "tags"
 	fieldName           = "name"
 	fieldItems          = "items"
 	fieldOwner          = "owner"
@@ -28,6 +31,8 @@ const (
 	fieldROwner         = "rowner"
 	fieldRType          = "rtype"
 	fieldUpdatedAt      = "updated_at"
+	fieldDownloadCount  = "download_count"
+	fieldFirstLetter    = "fl"
 )
 
 type dProject struct {
@@ -38,6 +43,7 @@ type dProject struct {
 type projectItem struct {
 	Id        string   `bson:"id"         json:"id"`
 	Name      string   `bson:"name"       json:"name"`
+	FL        string   `bson:"fl"         json:"fl"`
 	Desc      string   `bson:"desc"       json:"desc"`
 	Type      string   `bson:"type"       json:"type"`
 	CoverId   string   `bson:"cover_id"   json:"cover_id"`
@@ -51,14 +57,14 @@ type projectItem struct {
 
 	// These two items are not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
-	RelatedModels   []ResourceIndex `bson:"models" json:"-"`
+	RelatedModels   []ResourceIndex `bson:"models"   json:"-"`
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
 
 	// Version, LikeCount and ForkCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
-	Version       int `bson:"version"       json:"-"`
-	LikeCount     int `bson:"like_count"    json:"-"`
-	ForkCount     int `bson:"fork_count"    json:"-"`
+	Version       int `bson:"version"           json:"-"`
+	LikeCount     int `bson:"like_count"        json:"-"`
+	ForkCount     int `bson:"fork_count"        json:"-"`
 	DownloadCount int `bson:"download_count"    json:"-"`
 }
 
