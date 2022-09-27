@@ -21,3 +21,7 @@ func (req *pictureGenerateRequest) validate() error {
 type pictureGenerateResp struct {
 	Picture string `json:"picture"`
 }
+
+type multiplePicturesGenerateResp struct {
+	Pictures []string `json:"pictures"`
+}

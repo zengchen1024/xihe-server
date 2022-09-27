@@ -24,14 +24,17 @@ var fm *service
 
 func Init(cfg *Config) {
 	fm = &service{
-		cfg:            *cfg,
-		hc:             utils.HttpClient{MaxRetries: 3},
-		singlePictures: make(chan string, len(cfg.EndpointsOfSinglePicture)),
+		cfg:              *cfg,
+		hc:               utils.HttpClient{MaxRetries: 3},
+		singlePictures:   make(chan string, len(cfg.EndpointsOfSinglePicture)),
+		multiplePictures: make(chan string, 1),
 	}
 
 	for _, e := range cfg.EndpointsOfSinglePicture {
 		fm.singlePictures <- e
 	}
+
+	fm.multiplePictures <- cfg.EndpointOfMultiplePictures
 }
 
 func NewBigModelService() bigmodel.BigModel {
@@ -43,7 +46,8 @@ type service struct {
 
 	hc utils.HttpClient
 
-	singlePictures chan string
+	singlePictures   chan string
+	multiplePictures chan string
 }
 
 func (s *service) DescribePicture(picture io.Reader, contentType string) (string, error) {

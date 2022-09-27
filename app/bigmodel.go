@@ -10,6 +10,7 @@ import (
 type BigModelService interface {
 	DescribePicture(io.Reader, string) (string, error)
 	GenPicture(domain.Account, string) (string, error)
+	GenPictures(domain.Account, string) ([]string, error)
 }
 
 func NewBigModelService(fm bigmodel.BigModel) BigModelService {
@@ -30,4 +31,10 @@ func (s bigModelService) GenPicture(
 	user domain.Account, desc string,
 ) (string, error) {
 	return s.fm.GenPicture(user, desc)
+}
+
+func (s bigModelService) GenPictures(
+	user domain.Account, desc string,
+) ([]string, error) {
+	return s.fm.GenPictures(user, desc)
 }

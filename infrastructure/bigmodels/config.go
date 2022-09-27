@@ -8,4 +8,5 @@ type Config struct {
 
 	EndpointOfDescribingPicture string   `json:"endpoint_of_describing_picture" required:"true"`
 	EndpointsOfSinglePicture    []string `json:"endpoints_of_signle_picture"    required:"true"`
+	EndpointOfMultiplePictures  string   `json:"endpoints_of_multiple_pictures" required:"true"`
 }
