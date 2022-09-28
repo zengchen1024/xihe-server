@@ -79,13 +79,13 @@ func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 	return h.do(func() (err error) {
 		switch like.Type.ResourceType() {
 		case domain.ResourceProject:
-			err = h.project.AddLike(like.Owner, like.Id)
+			err = h.project.RemoveLike(like.Owner, like.Id)
 
 		case domain.ResourceDataset:
-			err = h.dataset.AddLike(like.Owner, like.Id)
+			err = h.dataset.RemoveLike(like.Owner, like.Id)
 
 		case domain.ResourceModel:
-			err = h.model.AddLike(like.Owner, like.Id)
+			err = h.model.RemoveLike(like.Owner, like.Id)
 		}
 
 		if err != nil {
