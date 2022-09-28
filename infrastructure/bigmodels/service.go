@@ -1,6 +1,7 @@
 package bigmodels
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -28,6 +29,10 @@ func Init(cfg *Config) {
 		hc:               utils.HttpClient{MaxRetries: 3},
 		singlePictures:   make(chan string, len(cfg.EndpointsOfSinglePicture)),
 		multiplePictures: make(chan string, 1),
+	}
+
+	http.DefaultClient.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	for _, e := range cfg.EndpointsOfSinglePicture {
