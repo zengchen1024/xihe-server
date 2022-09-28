@@ -108,8 +108,9 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 }
 
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
-	docObj := projectItem{
+	docObj := ProjectPropertyItem{
 		Name:     do.Name,
+		FL:       do.Name[0],
 		Desc:     do.Desc,
 		CoverId:  do.CoverId,
 		RepoType: do.RepoType,
@@ -224,17 +225,20 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 	docObj := projectItem{
 		Id:        do.Id,
-		Name:      do.Name,
-		Desc:      do.Desc,
 		Type:      do.Type,
-		CoverId:   do.CoverId,
 		Protocol:  do.Protocol,
 		Training:  do.Training,
-		RepoType:  do.RepoType,
 		RepoId:    do.RepoId,
-		Tags:      do.Tags,
 		CreatedAt: do.CreatedAt,
 		UpdatedAt: do.UpdatedAt,
+		ProjectPropertyItem: ProjectPropertyItem{
+			FL:       do.Name[0],
+			Name:     do.Name,
+			Desc:     do.Desc,
+			CoverId:  do.CoverId,
+			RepoType: do.RepoType,
+			Tags:     do.Tags,
+		},
 	}
 
 	return genDoc(docObj)
