@@ -13,6 +13,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	mongoCmdSet         = "$set"
+	mongoCmdInc         = "$inc"
+	mongoCmdPush        = "$push"
+	mongoCmdPull        = "$pull"
+	mongoCmdMatch       = "$match"
+	mongoCmdFilter      = "$filter"
+	mongoCmdProject     = "$project"
+	mongoCmdAddToSet    = "$addToSet"
+	mongoCmdElemMatch   = "$elemMatch"
+	mongoCmdSetOnInsert = "$setOnInsert"
+)
+
 var (
 	errDocExists    = errors.New("doc exists")
 	errDocNotExists = errors.New("doc doesn't exist")
@@ -75,7 +88,7 @@ func isErrNoDocuments(err error) bool {
 }
 
 func appendElemMatchToFilter(array string, exists bool, cond, filter bson.M) {
-	match := bson.M{"$elemMatch": cond}
+	match := bson.M{mongoCmdElemMatch: cond}
 
 	if exists {
 		filter[array] = match
@@ -91,7 +104,7 @@ func (cli *client) newDocIfNotExist(
 	upsert := true
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
-		bson.M{"$setOnInsert": docInfo},
+		bson.M{mongoCmdSetOnInsert: docInfo},
 		&options.UpdateOptions{Upsert: &upsert},
 	)
 	if err != nil {
@@ -137,8 +150,8 @@ func (cli *client) updateDoc(
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
 		bson.M{
-			"$set": update,
-			"$inc": bson.M{fieldVersion: 1},
+			mongoCmdSet: update,
+			mongoCmdInc: bson.M{fieldVersion: 1},
 		},
 	)
 
@@ -207,7 +220,7 @@ func (cli *client) addToSimpleArray(
 ) error {
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
-		bson.M{"$addToSet": bson.M{array: value}},
+		bson.M{mongoCmdAddToSet: bson.M{array: value}},
 	)
 	if err != nil {
 		return dbError{err}
@@ -231,7 +244,7 @@ func (cli *client) removeFromSimpleArray(
 ) error {
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
-		bson.M{"$pull": bson.M{array: value}},
+		bson.M{mongoCmdPull: bson.M{array: value}},
 	)
 	if err != nil {
 		return dbError{err}
@@ -251,7 +264,7 @@ func (cli *client) pushArrayElem(
 ) error {
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
-		bson.M{"$push": bson.M{array: value}},
+		bson.M{mongoCmdPush: bson.M{array: value}},
 	)
 	if err != nil {
 		return dbError{err}
@@ -271,7 +284,7 @@ func (cli *client) pushElemToLimitedArray(
 ) error {
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
-		bson.M{"$push": bson.M{array: bson.M{
+		bson.M{mongoCmdPush: bson.M{array: bson.M{
 			"$each":  bson.A{value},
 			"$slice": keep,
 		}}},
@@ -295,7 +308,7 @@ func (cli *client) pullNestedArrayElem(
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$pull", version, t,
+		mongoCmdPull, version, t,
 	)
 }
 
@@ -307,7 +320,7 @@ func (cli *client) pushNestedArrayElem(
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, data,
-		"$push", version, t,
+		mongoCmdPush, version, t,
 	)
 }
 
@@ -319,7 +332,7 @@ func (cli *client) updateArrayElem(
 	return cli.modifyArrayElem(
 		ctx, collection, array,
 		filterOfDoc, filterOfArray, updateCmd,
-		"$set", version, t,
+		mongoCmdSet, version, t,
 	)
 }
 
@@ -328,9 +341,13 @@ func (cli *client) modifyArrayElem(
 	filterOfDoc, filterOfArray, updateCmd bson.M,
 	op string, version int, t int64,
 ) (bool, error) {
+	key := func(k string) string {
+		return fmt.Sprintf("%s.$[i].%s", array, k)
+	}
+
 	cmd := bson.M{}
 	for k, v := range updateCmd {
-		cmd[fmt.Sprintf("%s.$[i].%s", array, k)] = v
+		cmd[key(k)] = v
 	}
 
 	arrayFilter := bson.M{}
@@ -339,14 +356,20 @@ func (cli *client) modifyArrayElem(
 	}
 	arrayFilter["i."+fieldVersion] = version
 
+	updates := bson.M{
+		mongoCmdSet: bson.M{key(fieldUpdatedAt): t},
+		mongoCmdInc: bson.M{key(fieldVersion): 1},
+	}
+
+	if op == mongoCmdSet {
+		cmd[key(fieldUpdatedAt)] = t
+
+		updates[op] = cmd
+	}
+
 	col := cli.collection(collection)
 	r, err := col.UpdateOne(
-		ctx, filterOfDoc,
-		bson.M{
-			op:     cmd,
-			"$set": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldUpdatedAt): t},
-			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, fieldVersion): 1},
-		},
+		ctx, filterOfDoc, updates,
 		&options.UpdateOptions{
 			ArrayFilters: &options.ArrayFilters{
 				Filters: bson.A{
@@ -380,7 +403,7 @@ func (cli *client) updateArrayElemCount(
 	r, err := col.UpdateOne(
 		ctx, filterOfDoc,
 		bson.M{
-			"$inc": bson.M{fmt.Sprintf("%s.$[i].%s", array, field): num},
+			mongoCmdInc: bson.M{fmt.Sprintf("%s.$[i].%s", array, field): num},
 		},
 		&options.UpdateOptions{
 			ArrayFilters: &options.ArrayFilters{
@@ -405,7 +428,7 @@ func (cli *client) isArrayElemExists(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray bson.M,
 ) (bool, error) {
-	query := bson.M{array: bson.M{"$elemMatch": filterOfArray}}
+	query := bson.M{array: bson.M{mongoCmdElemMatch: filterOfArray}}
 	for k, v := range filterOfDoc {
 		query[k] = v
 	}
@@ -458,13 +481,13 @@ func (cli *client) getArraysElemsByCustomizedCond(
 	filterOfDoc bson.M, filterOfArrays map[string]func() bson.M,
 	project bson.M, result interface{},
 ) error {
-	pipeline := bson.A{bson.M{"$match": filterOfDoc}}
+	pipeline := bson.A{bson.M{mongoCmdMatch: filterOfDoc}}
 
 	if len(filterOfArrays) > 0 {
 		project1 := bson.M{}
 
 		for array, cond := range filterOfArrays {
-			project1[array] = bson.M{"$filter": bson.M{
+			project1[array] = bson.M{mongoCmdFilter: bson.M{
 				"input": fmt.Sprintf("$%s", array),
 				"cond":  cond(),
 			}}
@@ -480,11 +503,11 @@ func (cli *client) getArraysElemsByCustomizedCond(
 			}
 		}
 
-		pipeline = append(pipeline, bson.M{"$project": project1})
+		pipeline = append(pipeline, bson.M{mongoCmdProject: project1})
 	}
 
 	if len(project) > 0 {
-		pipeline = append(pipeline, bson.M{"$project": project})
+		pipeline = append(pipeline, bson.M{mongoCmdProject: project})
 	}
 
 	col := cli.collection(collection)

@@ -41,19 +41,15 @@ type dProject struct {
 }
 
 type projectItem struct {
-	Id        string   `bson:"id"         json:"id"`
-	Name      string   `bson:"name"       json:"name"`
-	FL        string   `bson:"fl"         json:"fl"`
-	Desc      string   `bson:"desc"       json:"desc"`
-	Type      string   `bson:"type"       json:"type"`
-	CoverId   string   `bson:"cover_id"   json:"cover_id"`
-	Protocol  string   `bson:"protocol"   json:"protocol"`
-	Training  string   `bson:"training"   json:"training"`
-	RepoType  string   `bson:"repo_type"  json:"repo_type"`
-	RepoId    string   `bson:"repo_id"    json:"repo_id"`
-	Tags      []string `bson:"tags"       json:"tags"`
-	CreatedAt int64    `bson:"created_at" json:"created_at"`
-	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
+	Id        string `bson:"id"         json:"id"`
+	Type      string `bson:"type"       json:"type"`
+	Protocol  string `bson:"protocol"   json:"protocol"`
+	Training  string `bson:"training"   json:"training"`
+	RepoId    string `bson:"repo_id"    json:"repo_id"`
+	CreatedAt int64  `bson:"created_at" json:"created_at"`
+	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
+
+	ProjectPropertyItem `bson:",inline"`
 
 	// These two items are not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
@@ -66,6 +62,15 @@ type projectItem struct {
 	LikeCount     int `bson:"like_count"        json:"-"`
 	ForkCount     int `bson:"fork_count"        json:"-"`
 	DownloadCount int `bson:"download_count"    json:"-"`
+}
+
+type ProjectPropertyItem struct {
+	Name     string   `bson:"name"       json:"name"`
+	FL       byte     `bson:"fl"         json:"fl"`
+	Desc     string   `bson:"desc"       json:"desc"`
+	CoverId  string   `bson:"cover_id"   json:"cover_id"`
+	RepoType string   `bson:"repo_type"  json:"repo_type"`
+	Tags     []string `bson:"tags"       json:"tags"`
 }
 
 type dModel struct {
