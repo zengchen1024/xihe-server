@@ -43,9 +43,9 @@ func Init(cfg *APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
+	TokenKey        string `json:"token_key"            required:"true"`
 	TokenExpiry     int64  `json:"token_expiry"         required:"true"`
 	EncryptionKey   string `json:"encryption_key"       required:"true"`
-	TokenKey        string `json:"token_key"            required:"true"`
 	DefaultPassword string `json:"default_password"     required:"true"`
 	MaxPictureSize  int64  `json:"max_picture_size"`
 }
