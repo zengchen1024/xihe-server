@@ -363,9 +363,8 @@ func (cli *client) modifyArrayElem(
 
 	if op == mongoCmdSet {
 		cmd[key(fieldUpdatedAt)] = t
-
-		updates[op] = cmd
 	}
+	updates[op] = cmd
 
 	col := cli.collection(collection)
 	r, err := col.UpdateOne(
