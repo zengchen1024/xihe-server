@@ -86,31 +86,37 @@ func (s *service) DescribePicture(picture io.Reader, contentType string) (string
 
 func (s *service) token() (string, error) {
 	str := `
-"auth":{
-   "identity":{
-      "methods":[
-         "password"
-      ],
-      "password":{
-         "user":{
-            "name":"%v",
-            "password":"%v",
-            "domain":{
-               "name":"%v"
-            }
-         }
-      }
-   },
-   "scope":{
-      "project":{
-         "name":"%s"
-      }
-   }
+{
+    "auth":{
+       "identity":{
+          "methods":[
+             "password"
+          ],
+          "password":{
+             "user":{
+                "name":"%v",
+                "password":"%v",
+                "domain":{
+                   "name":"%v"
+                }
+             }
+          }
+       },
+       "scope":{
+          "project":{
+             "name":"%s"
+          }
+       }
+    }
 }
 	`
 
 	cfg := &s.cfg
-	body := fmt.Sprintf(str, cfg.User, cfg.Password, cfg.User, cfg.Project)
+
+	body := fmt.Sprintf(
+		strings.ReplaceAll(str, "\n", ""),
+		cfg.User, cfg.Password, cfg.User, cfg.Project,
+	)
 
 	resp, err := http.Post(
 		s.cfg.AuthEndpoint, "application/json",
