@@ -113,8 +113,9 @@ func (s *service) token() (string, error) {
 
 	cfg := &s.cfg
 
+	str = strings.ReplaceAll(str, "\n", "")
 	body := fmt.Sprintf(
-		strings.ReplaceAll(str, "\n", ""),
+		strings.ReplaceAll(str, " ", ""),
 		cfg.User, cfg.Password, cfg.User, cfg.Project,
 	)
 
