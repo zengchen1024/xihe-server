@@ -74,7 +74,7 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 func (s projectService) genForkedRepoName(
 	owner domain.Account, srcName domain.ProjName,
 ) (domain.ProjName, error) {
-	items, err := s.repo.List(
+	v, err := s.repo.List(
 		owner,
 		&repository.ResourceListOption{Name: srcName.ProjName()},
 	)
@@ -82,6 +82,7 @@ func (s projectService) genForkedRepoName(
 		return nil, err
 	}
 
+	items := v.Projects
 	names := sets.NewString()
 	for i := range items {
 		names.Insert(items[i].Name.ProjName())

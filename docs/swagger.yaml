@@ -105,6 +105,15 @@ definitions:
       updated_at:
         type: string
     type: object
+  app.ProjectsDTO:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/app.ProjectSummaryDTO'
+        type: array
+      total:
+        type: integer
+    type: object
   app.ResourceDTO:
     properties:
       cover_id:
@@ -873,7 +882,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.ProjectSummaryDTO'
+            $ref: '#/definitions/app.ProjectsDTO'
       summary: List
       tags:
       - Project

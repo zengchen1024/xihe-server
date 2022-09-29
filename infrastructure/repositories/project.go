@@ -12,11 +12,11 @@ type ProjectMapper interface {
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 
-	List(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	List(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
-	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, error)
-	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, error)
-	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 
 	IncreaseFork(string, string) error
 

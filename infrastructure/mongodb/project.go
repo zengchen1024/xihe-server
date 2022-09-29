@@ -190,7 +190,7 @@ func (col project) GetByName(owner, name string) (do repositories.ProjectDO, err
 }
 
 func (col project) List(owner string, do *repositories.ResourceListDO) (
-	[]repositories.ProjectSummaryDO, error,
+	[]repositories.ProjectSummaryDO, int, error,
 ) {
 	return col.listResource(owner, do, nil)
 }
