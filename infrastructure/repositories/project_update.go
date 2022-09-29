@@ -138,7 +138,7 @@ func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO 
 
 func (impl project) List(
 	owner domain.Account, option *repository.ResourceListOption,
-) ([]domain.ProjectSummary, error) {
+) (repository.UserProjectsInfo, error) {
 	return impl.list(
 		owner, option, impl.mapper.List,
 	)
@@ -146,7 +146,7 @@ func (impl project) List(
 
 func (impl project) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
-) ([]domain.ProjectSummary, error) {
+) (repository.UserProjectsInfo, error) {
 	return impl.list(
 		owner, option, impl.mapper.ListAndSortByUpdateTime,
 	)
@@ -154,7 +154,7 @@ func (impl project) ListAndSortByUpdateTime(
 
 func (impl project) ListAndSortByFirstLetter(
 	owner domain.Account, option *repository.ResourceListOption,
-) ([]domain.ProjectSummary, error) {
+) (repository.UserProjectsInfo, error) {
 	return impl.list(
 		owner, option, impl.mapper.ListAndSortByFirstLetter,
 	)
@@ -162,7 +162,7 @@ func (impl project) ListAndSortByFirstLetter(
 
 func (impl project) ListAndSortByDownloadCount(
 	owner domain.Account, option *repository.ResourceListOption,
-) ([]domain.ProjectSummary, error) {
+) (repository.UserProjectsInfo, error) {
 	return impl.list(
 		owner, option, impl.mapper.ListAndSortByDownloadCount,
 	)
@@ -171,13 +171,13 @@ func (impl project) ListAndSortByDownloadCount(
 func (impl project) list(
 	owner domain.Account,
 	option *repository.ResourceListOption,
-	f func(string, *ResourceListDO) ([]ProjectSummaryDO, error),
+	f func(string, *ResourceListDO) ([]ProjectSummaryDO, int, error),
 ) (
-	r []domain.ProjectSummary, err error,
+	info repository.UserProjectsInfo, err error,
 ) {
 	do := toResourceListDO(option)
 
-	v, err := f(owner.Account(), &do)
+	v, total, err := f(owner.Account(), &do)
 	if err != nil {
 		err = convertError(err)
 
@@ -188,7 +188,7 @@ func (impl project) list(
 		return
 	}
 
-	r = make([]domain.ProjectSummary, len(v))
+	r := make([]domain.ProjectSummary, len(v))
 	for i := range v {
 		if err = v[i].toProjectSummary(&r[i]); err != nil {
 			r = nil
@@ -196,6 +196,9 @@ func (impl project) list(
 			return
 		}
 	}
+
+	info.Projects = r
+	info.Total = total
 
 	return
 }

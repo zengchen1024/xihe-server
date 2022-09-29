@@ -62,26 +62,29 @@ func (col project) IncreaseFork(owner, rid string) (err error) {
 
 func (col project) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectSummaryDO, error) {
+) ([]repositories.ProjectSummaryDO, int, error) {
 	return col.listResource(owner, do, sortByUpdateTime())
 }
 
 func (col project) ListAndSortByFirstLetter(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectSummaryDO, error) {
+) ([]repositories.ProjectSummaryDO, int, error) {
 	return col.listResource(owner, do, sortByFirstLetter())
 }
 
 func (col project) ListAndSortByDownloadCount(
 	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectSummaryDO, error) {
+) ([]repositories.ProjectSummaryDO, int, error) {
 	return col.listResource(owner, do, sortByDownloadCount())
 }
 
 func (col project) listResource(
 	owner string, do *repositories.ResourceListDO, sort bson.M,
-) (r []repositories.ProjectSummaryDO, err error) {
-	var v []dProject
+) (r []repositories.ProjectSummaryDO, total int, err error) {
+	var v []struct {
+		Total int         `bson:"total"`
+		Item  projectItem `bson:"items"`
+	}
 
 	err = listResource(
 		col.collectionName, owner, do, sort, col.summaryFields(), &v,
@@ -91,11 +94,11 @@ func (col project) listResource(
 		return
 	}
 
-	items := v[0].Items
-	r = make([]repositories.ProjectSummaryDO, len(items))
+	total = v[0].Total
 
-	for i := range items {
-		col.toProjectSummary(owner, &items[i], &r[i])
+	r = make([]repositories.ProjectSummaryDO, len(v))
+	for i := range v {
+		col.toProjectSummary(owner, &v[i].Item, &r[i])
 	}
 
 	return

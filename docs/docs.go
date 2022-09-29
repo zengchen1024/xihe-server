@@ -676,7 +676,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ProjectSummaryDTO"
+                            "$ref": "#/definitions/app.ProjectsDTO"
                         }
                     }
                 }
@@ -1736,6 +1736,20 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "app.ProjectsDTO": {
+            "type": "object",
+            "properties": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ProjectSummaryDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

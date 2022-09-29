@@ -163,6 +163,13 @@ func listResource(
 	for _, item := range fields {
 		keep[s+item] = 1
 	}
+	keep["total"] = bson.M{
+		"$cond": bson.M{
+			"if":   bson.M{"$isArray": fieldItemsRef},
+			"then": bson.M{"$size": fieldItemsRef},
+			"else": 0,
+		},
+	}
 
 	pipeline := bson.A{
 		bson.M{"$match": resourceOwnerFilter(owner)},
@@ -185,11 +192,6 @@ func listResource(
 
 			pipeline = append(pipeline, bson.M{"$limit": do.CountPerPage})
 		}
-
-		pipeline = append(pipeline, bson.M{"$group": bson.M{
-			"_id":      "$_id",
-			fieldItems: bson.M{"$push": fieldItemsRef},
-		}})
 	}
 
 	return withContext(func(ctx context.Context) error {

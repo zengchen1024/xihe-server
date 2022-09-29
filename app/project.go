@@ -57,6 +57,11 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 	}
 }
 
+type ProjectsDTO struct {
+	Total    int                 `json:"total"`
+	Projects []ProjectSummaryDTO `json:"projects"`
+}
+
 type ProjectSummaryDTO struct {
 	Id            string   `json:"id"`
 	Owner         string   `json:"owner"`
@@ -99,7 +104,7 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ProjName, bool) (ProjectDetailDTO, error)
-	List(domain.Account, *ResourceListCmd) ([]ProjectSummaryDTO, error)
+	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
 
@@ -221,11 +226,11 @@ func (cmd *ResourceListCmd) toResourceListOption() repository.ResourceListOption
 }
 
 func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
-	dtos []ProjectSummaryDTO, err error,
+	dto ProjectsDTO, err error,
 ) {
 	option := cmd.toResourceListOption()
 
-	var v []domain.ProjectSummary
+	var v repository.UserProjectsInfo
 
 	if cmd.SortType == nil {
 		v, err = s.repo.List(owner, &option)
@@ -242,14 +247,19 @@ func (s projectService) List(owner domain.Account, cmd *ResourceListCmd) (
 		}
 	}
 
-	if err != nil || len(v) == 0 {
+	items := v.Projects
+
+	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]ProjectSummaryDTO, len(v))
-	for i := range v {
-		s.toProjectSummaryDTO(&v[i], &dtos[i])
+	dtos := make([]ProjectSummaryDTO, len(items))
+	for i := range items {
+		s.toProjectSummaryDTO(&items[i], &dtos[i])
 	}
+
+	dto.Total = v.Total
+	dto.Projects = dtos
 
 	return
 }

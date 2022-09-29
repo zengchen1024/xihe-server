@@ -38,16 +38,21 @@ type ResourceToUpdate struct {
 	UpdatedAt int64
 }
 
+type UserProjectsInfo struct {
+	Projects []domain.ProjectSummary
+	Total    int
+}
+
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
 
-	List(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	List(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
-	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
-	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
-	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) ([]domain.ProjectSummary, error)
+	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
+	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
+	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
