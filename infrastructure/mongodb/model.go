@@ -213,15 +213,20 @@ func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 
 func (col model) toModelDO(owner string, item *modelItem, do *repositories.ModelDO) {
 	*do = repositories.ModelDO{
-		Id:        item.Id,
-		Owner:     owner,
-		Name:      item.Name,
-		Desc:      item.Desc,
-		Protocol:  item.Protocol,
-		RepoType:  item.RepoType,
-		RepoId:    item.RepoId,
-		Tags:      item.Tags,
-		Version:   item.Version,
-		LikeCount: item.LikeCount,
+		Id:            item.Id,
+		Owner:         owner,
+		Name:          item.Name,
+		Desc:          item.Desc,
+		Protocol:      item.Protocol,
+		RepoType:      item.RepoType,
+		RepoId:        item.RepoId,
+		Tags:          item.Tags,
+		CreatedAt:     item.CreatedAt,
+		UpdatedAt:     item.UpdatedAt,
+		Version:       item.Version,
+		LikeCount:     item.LikeCount,
+		DownloadCount: item.DownloadCount,
+
+		RelatedDatasets: toResourceIndexDO(item.RelatedDatasets),
 	}
 }

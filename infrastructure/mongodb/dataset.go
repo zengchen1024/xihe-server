@@ -210,15 +210,18 @@ func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 
 func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories.DatasetDO) {
 	*do = repositories.DatasetDO{
-		Id:        item.Id,
-		Owner:     owner,
-		Name:      item.Name,
-		Desc:      item.Desc,
-		Protocol:  item.Protocol,
-		RepoType:  item.RepoType,
-		RepoId:    item.RepoId,
-		Tags:      item.Tags,
-		Version:   item.Version,
-		LikeCount: item.LikeCount,
+		Id:            item.Id,
+		Owner:         owner,
+		Name:          item.Name,
+		Desc:          item.Desc,
+		Protocol:      item.Protocol,
+		RepoType:      item.RepoType,
+		RepoId:        item.RepoId,
+		Tags:          item.Tags,
+		CreatedAt:     item.CreatedAt,
+		UpdatedAt:     item.UpdatedAt,
+		Version:       item.Version,
+		LikeCount:     item.LikeCount,
+		DownloadCount: item.DownloadCount,
 	}
 }

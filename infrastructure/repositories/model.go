@@ -187,10 +187,17 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
+	if r.RelatedDatasets, err = convertToResourceIndex(do.RelatedDatasets); err != nil {
+		return
+	}
+
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.CreatedAt = do.CreatedAt
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
+	r.DownloadCount = do.DownloadCount
 
 	return
 }
