@@ -79,27 +79,13 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 	doc[fieldLikeCount] = 0
 	doc[fieldDatasets] = bson.A{}
 
-	docFilter := modelDocFilter(do.Owner)
-
-	appendElemMatchToFilter(
-		fieldItems, false,
-		modelItemFilter(do.Name), docFilter,
-	)
-
-	f := func(ctx context.Context) error {
-		return cli.pushArrayElem(
-			ctx, col.collectionName,
-			fieldItems, docFilter, doc,
-		)
-	}
-
-	err = withContext(f)
+	err = insertResource(col.collectionName, do.Owner, do.Name, doc)
 
 	return
 }
 
 func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
-	p := ModelPropertyItem{
+	p := &ModelPropertyItem{
 		FL:       do.FL,
 		Name:     do.Name,
 		Desc:     do.Desc,
@@ -208,9 +194,11 @@ func (col model) ListUsersModels(opts map[string][]string) (
 
 func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 	docObj := modelItem{
-		Id:       do.Id,
-		RepoId:   do.RepoId,
-		Protocol: do.Protocol,
+		Id:        do.Id,
+		RepoId:    do.RepoId,
+		Protocol:  do.Protocol,
+		CreatedAt: do.CreatedAt,
+		UpdatedAt: do.UpdatedAt,
 		ModelPropertyItem: ModelPropertyItem{
 			FL:       do.FL,
 			Name:     do.Name,

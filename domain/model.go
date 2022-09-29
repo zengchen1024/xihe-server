@@ -12,10 +12,14 @@ type Model struct {
 
 	RelatedDatasets RelatedResources
 
+	CreatedAt int64
+	UpdatedAt int64
+
 	Version int
 
 	// following fileds is not under the controlling of version
-	LikeCount int
+	LikeCount     int
+	DownloadCount int
 }
 
 func (m *Model) MaxRelatedResourceNum() int {

@@ -128,6 +128,22 @@ func sortByDownloadCount() bson.M {
 	return bson.M{fieldItems + "." + fieldDownloadCount: -1}
 }
 
+func insertResource(collection, owner, name string, doc bson.M) error {
+	docFilter := resourceOwnerFilter(owner)
+
+	appendElemMatchToFilter(
+		fieldItems, false, resourceNameFilter(name), docFilter,
+	)
+
+	f := func(ctx context.Context) error {
+		return cli.pushArrayElem(
+			ctx, collection, fieldItems, docFilter, doc,
+		)
+	}
+
+	return withContext(f)
+}
+
 func updateResourceProperty(
 	collection string, obj *repositories.ResourceToUpdateDO,
 	property interface{},

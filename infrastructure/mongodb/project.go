@@ -86,27 +86,13 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	doc[fieldModels] = bson.A{}
 	doc[fieldDatasets] = bson.A{}
 
-	docFilter := projectDocFilter(do.Owner)
-
-	appendElemMatchToFilter(
-		fieldItems, false,
-		projectItemFilter(do.Name), docFilter,
-	)
-
-	f := func(ctx context.Context) error {
-		return cli.pushArrayElem(
-			ctx, col.collectionName,
-			fieldItems, docFilter, doc,
-		)
-	}
-
-	err = withContext(f)
+	err = insertResource(col.collectionName, do.Owner, do.Name, doc)
 
 	return
 }
 
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
-	p := ProjectPropertyItem{
+	p := &ProjectPropertyItem{
 		Name:     do.Name,
 		FL:       do.FL,
 		Desc:     do.Desc,

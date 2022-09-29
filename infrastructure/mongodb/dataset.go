@@ -78,27 +78,13 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 	doc[fieldVersion] = 0
 	doc[fieldLikeCount] = 0
 
-	docFilter := datasetDocFilter(do.Owner)
-
-	appendElemMatchToFilter(
-		fieldItems, false,
-		datasetItemFilter(do.Name), docFilter,
-	)
-
-	f := func(ctx context.Context) error {
-		return cli.pushArrayElem(
-			ctx, col.collectionName,
-			fieldItems, docFilter, doc,
-		)
-	}
-
-	err = withContext(f)
+	err = insertResource(col.collectionName, do.Owner, do.Name, doc)
 
 	return
 }
 
 func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
-	p := DatasetPropertyItem{
+	p := &DatasetPropertyItem{
 		FL:       do.FL,
 		Name:     do.Name,
 		Desc:     do.Desc,
