@@ -11,8 +11,13 @@ type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
-	List(string, ResourceListDO) ([]DatasetDO, error)
+
 	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
+
+	List(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
@@ -65,33 +70,6 @@ func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
 		err = convertError(err)
 	} else {
 		err = v.toDataset(&r)
-	}
-
-	return
-}
-
-func (impl dataset) List(owner domain.Account, option repository.ResourceListOption) (
-	r []domain.Dataset, err error,
-) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Dataset, len(v))
-	for i := range v {
-		if err = v[i].toDataset(&r[i]); err != nil {
-			return
-		}
 	}
 
 	return

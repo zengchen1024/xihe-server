@@ -23,8 +23,8 @@ type ResourceDTO struct {
 	UpdateAt string `json:"update_at"`
 
 	LikeCount     int `json:"like_count"`
-	DownloadCount int `json:"download_count"`
 	ForkCount     int `json:"fork_count"`
+	DownloadCount int `json:"download_count"`
 }
 
 func (r *ResourceDTO) identity() string {
@@ -220,15 +220,15 @@ func (s resourceService) projectToResourceDTO(
 		p := &projects[i]
 
 		v := ResourceDTO{
-			Id:        p.Id,
-			Name:      p.Name.ProjName(),
-			Type:      domain.ResourceProject,
-			Desc:      p.Desc.ResourceDesc(),
-			CoverId:   p.CoverId.CoverId(),
-			UpdateAt:  utils.ToDate(p.UpdatedAt),
-			LikeCount: p.LikeCount,
-			//DownloadCount
-			ForkCount: p.ForkCount,
+			Id:            p.Id,
+			Name:          p.Name.ProjName(),
+			Type:          domain.ResourceProject,
+			Desc:          p.Desc.ResourceDesc(),
+			CoverId:       p.CoverId.CoverId(),
+			UpdateAt:      utils.ToDate(p.UpdatedAt),
+			LikeCount:     p.LikeCount,
+			ForkCount:     p.ForkCount,
+			DownloadCount: p.DownloadCount,
 		}
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
@@ -248,17 +248,13 @@ func (s resourceService) modelToResourceDTO(
 		d := &data[i]
 
 		v := ResourceDTO{
-			Id:   d.Id,
-			Name: d.Name.ModelName(),
-			Type: domain.ResourceModel,
-			Desc: d.Desc.ResourceDesc(),
-			/*
-				UpdateAt
-
-				LikeCount
-				DownloadCount
-				ForkCount
-			*/
+			Id:            d.Id,
+			Name:          d.Name.ModelName(),
+			Type:          domain.ResourceModel,
+			Desc:          d.Desc.ResourceDesc(),
+			UpdateAt:      utils.ToDate(d.UpdatedAt),
+			LikeCount:     d.LikeCount,
+			DownloadCount: d.DownloadCount,
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
@@ -278,17 +274,13 @@ func (s resourceService) datasetToResourceDTO(
 		d := &data[i]
 
 		v := ResourceDTO{
-			Id:   d.Id,
-			Name: d.Name.DatasetName(),
-			Type: domain.ResourceDataset,
-			Desc: d.Desc.ResourceDesc(),
-			/*
-				UpdateAt
-
-				LikeCount
-				DownloadCount
-				ForkCount
-			*/
+			Id:            d.Id,
+			Name:          d.Name.DatasetName(),
+			Type:          domain.ResourceDataset,
+			Desc:          d.Desc.ResourceDesc(),
+			UpdateAt:      utils.ToDate(d.UpdatedAt),
+			LikeCount:     d.LikeCount,
+			DownloadCount: d.DownloadCount,
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {

@@ -47,6 +47,22 @@ func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
 	}
 }
 
+type DatasetsDTO struct {
+	Total    int                 `json:"total"`
+	Datasets []DatasetSummaryDTO `json:"models"`
+}
+
+type DatasetSummaryDTO struct {
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	Tags          []string `json:"tags"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
 type DatasetDTO struct {
 	Id            string   `json:"id"`
 	Owner         string   `json:"owner"`
@@ -70,7 +86,7 @@ type DatasetService interface {
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName, bool) (DatasetDetailDTO, error)
-	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
+	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
@@ -155,17 +171,40 @@ func (s datasetService) GetByName(
 }
 
 func (s datasetService) List(owner domain.Account, cmd *ResourceListCmd) (
-	dtos []DatasetDTO, err error,
+	dto DatasetsDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toResourceListOption())
-	if err != nil || len(v) == 0 {
+	option := cmd.toResourceListOption()
+
+	var v repository.UserDatasetsInfo
+
+	if cmd.SortType == nil {
+		v, err = s.repo.List(owner, &option)
+	} else {
+		switch cmd.SortType.SortType() {
+		case domain.SortTypeUpdateTime:
+			v, err = s.repo.ListAndSortByUpdateTime(owner, &option)
+
+		case domain.SortTypeFirstLetter:
+			v, err = s.repo.ListAndSortByFirstLetter(owner, &option)
+
+		case domain.SortTypeDownloadCount:
+			v, err = s.repo.ListAndSortByDownloadCount(owner, &option)
+		}
+	}
+
+	items := v.Datasets
+
+	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]DatasetDTO, len(v))
-	for i := range v {
-		s.toDatasetDTO(&v[i], &dtos[i])
+	dtos := make([]DatasetSummaryDTO, len(items))
+	for i := range items {
+		s.toDatasetSummaryDTO(&items[i], &dtos[i])
 	}
+
+	dto.Total = v.Total
+	dto.Datasets = dtos
 
 	return
 }
@@ -185,5 +224,18 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		UpdatedAt:     utils.ToDate(d.UpdatedAt),
 		LikeCount:     d.LikeCount,
 		DownloadCount: d.DownloadCount,
+	}
+}
+
+func (s datasetService) toDatasetSummaryDTO(p *domain.DatasetSummary, dto *DatasetSummaryDTO) {
+	*dto = DatasetSummaryDTO{
+		Id:            p.Id,
+		Owner:         p.Owner.Account(),
+		Name:          p.Name.DatasetName(),
+		Desc:          p.Desc.ResourceDesc(),
+		Tags:          p.Tags,
+		UpdatedAt:     utils.ToDate(p.UpdatedAt),
+		LikeCount:     p.LikeCount,
+		DownloadCount: p.DownloadCount,
 	}
 }

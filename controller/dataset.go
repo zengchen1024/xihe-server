@@ -252,7 +252,14 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 // @Summary List
 // @Description list dataset
 // @Tags  Dataset
+// @Param	owner		path	string	true	"owner of dataset"
+// @Param	name		query	string	false	"name of dataset"
+// @Param	repo_type	query	string	false	"repo type of dataset, value can be public or private"
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
+// @Success 200 {object} app.DatasetsDTO
 // @Produce json
 // @Router /v1/dataset/{owner} [get]
 func (ctl *DatasetController) List(ctx *gin.Context) {
@@ -270,7 +277,7 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := ctl.getListParameter(ctx)
+	cmd, err := ctl.getListResourceParameter(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -299,22 +306,6 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(data))
-}
-
-func (ctl *DatasetController) getListParameter(
-	ctx *gin.Context,
-) (cmd app.ResourceListCmd, err error) {
-	if v := ctl.getQueryParameter(ctx, "name"); v != "" {
-		cmd.Name = v
-	}
-
-	if v := ctl.getQueryParameter(ctx, "repo_type"); v != "" {
-		if cmd.RepoType, err = domain.NewRepoType(v); err != nil {
-			return
-		}
-	}
-
-	return
 }
 
 // @Summary SetTags

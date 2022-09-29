@@ -139,29 +139,10 @@ func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err
 	return
 }
 
-func (col dataset) List(owner string, do repositories.ResourceListDO) (
-	r []repositories.DatasetDO, err error,
+func (col dataset) List(owner string, do *repositories.ResourceListDO) (
+	[]repositories.DatasetSummaryDO, int, error,
 ) {
-	var v []dDataset
-
-	err = listResource(
-		col.collectionName, owner, &do, nil, col.summaryFields(), &v,
-	)
-	if err != nil {
-		return
-	}
-
-	if len(v) == 0 {
-		return
-	}
-
-	items := v[0].Items
-	r = make([]repositories.DatasetDO, len(items))
-	for i := range items {
-		col.toDatasetDO(owner, &items[i], &r[i])
-	}
-
-	return
+	return col.listResource(owner, do, nil)
 }
 
 func (col dataset) ListUsersDatasets(opts map[string][]string) (
