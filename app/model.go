@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type ModelCreateCmd struct {
@@ -31,9 +32,13 @@ func (cmd *ModelCreateCmd) Validate() error {
 }
 
 func (cmd *ModelCreateCmd) toModel() domain.Model {
+	now := utils.Now()
+
 	return domain.Model{
-		Owner:    cmd.Owner,
-		Protocol: cmd.Protocol,
+		Owner:     cmd.Owner,
+		Protocol:  cmd.Protocol,
+		CreatedAt: now,
+		UpdatedAt: now,
 		ModelModifiableProperty: domain.ModelModifiableProperty{
 			Name:     cmd.Name,
 			Desc:     cmd.Desc,
@@ -43,20 +48,30 @@ func (cmd *ModelCreateCmd) toModel() domain.Model {
 }
 
 type ModelDTO struct {
-	Id       string   `json:"id"`
-	Owner    string   `json:"owner"`
-	Name     string   `json:"name"`
-	Desc     string   `json:"desc"`
-	Protocol string   `json:"protocol"`
-	RepoType string   `json:"repo_type"`
-	RepoId   string   `json:"repo_id"`
-	Tags     []string `json:"tags"`
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	Protocol      string   `json:"protocol"`
+	RepoType      string   `json:"repo_type"`
+	RepoId        string   `json:"repo_id"`
+	Tags          []string `json:"tags"`
+	CreatedAt     string   `json:"created_at"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
+type ModelDetailDTO struct {
+	ModelDTO
+
+	RelatedDatasets []ResourceDTO `json:"related_datasets"`
 }
 
 type ModelService interface {
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
-	GetByName(domain.Account, domain.ModelName) (ModelDTO, error)
+	GetByName(domain.Account, domain.ModelName, bool) (ModelDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]ModelDTO, error)
 
 	AddLike(domain.Account, string) error
@@ -69,15 +84,31 @@ type ModelService interface {
 }
 
 func NewModelService(
-	repo repository.Model, activity repository.Activity, pr platform.Repository,
+	user repository.User,
+	repo repository.Model,
+	proj repository.Project,
+	dataset repository.Dataset,
+	activity repository.Activity,
+	pr platform.Repository,
+
 ) ModelService {
-	return modelService{repo: repo, activity: activity}
+	return modelService{
+		repo:     repo,
+		activity: activity,
+		rs: resourceService{
+			user:    user,
+			model:   repo,
+			project: proj,
+			dataset: dataset,
+		},
+	}
 }
 
 type modelService struct {
 	repo repository.Model
 	//pr       platform.Repository
 	activity repository.Activity
+	rs       resourceService
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto ModelDTO, err error) {
@@ -111,13 +142,26 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 
 func (s modelService) GetByName(
 	owner domain.Account, name domain.ModelName,
-) (dto ModelDTO, err error) {
+	allowPrivacy bool,
+) (dto ModelDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
 	if err != nil {
 		return
 	}
 
-	s.toModelDTO(&v, &dto)
+	if !allowPrivacy && v.IsPrivate() {
+		err = ErrorPrivateRepo{errors.New("private repo")}
+
+		return
+	}
+
+	d, err := s.rs.listDatasets(v.RelatedDatasets)
+	if err != nil {
+		return
+	}
+	dto.RelatedDatasets = d
+
+	s.toModelDTO(&v, &dto.ModelDTO)
 
 	return
 }
@@ -140,13 +184,17 @@ func (s modelService) List(owner domain.Account, cmd *ResourceListCmd) (
 
 func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 	*dto = ModelDTO{
-		Id:       m.Id,
-		Owner:    m.Owner.Account(),
-		Name:     m.Name.ModelName(),
-		Desc:     m.Desc.ResourceDesc(),
-		Protocol: m.Protocol.ProtocolName(),
-		RepoType: m.RepoType.RepoType(),
-		RepoId:   m.RepoId,
-		Tags:     m.Tags,
+		Id:            m.Id,
+		Owner:         m.Owner.Account(),
+		Name:          m.Name.ModelName(),
+		Desc:          m.Desc.ResourceDesc(),
+		Protocol:      m.Protocol.ProtocolName(),
+		RepoType:      m.RepoType.RepoType(),
+		RepoId:        m.RepoId,
+		Tags:          m.Tags,
+		CreatedAt:     utils.ToDate(m.CreatedAt),
+		UpdatedAt:     utils.ToDate(m.UpdatedAt),
+		LikeCount:     m.LikeCount,
+		DownloadCount: m.DownloadCount,
 	}
 }

@@ -66,3 +66,9 @@ func (p *modelUpdateRequest) toCmd() (cmd app.ModelUpdateCmd, err error) {
 
 	return
 }
+
+type modelDetail struct {
+	Liked bool `json:"liked"`
+
+	*app.ModelDetailDTO
+}

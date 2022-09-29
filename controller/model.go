@@ -12,17 +12,21 @@ import (
 
 func AddRouterForModelController(
 	rg *gin.RouterGroup,
+	user repository.User,
 	repo repository.Model,
+	proj repository.Project,
 	dataset repository.Dataset,
 	activity repository.Activity,
 	tags repository.Tags,
+	like repository.Like,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ModelController{
 		repo:    repo,
 		dataset: dataset,
 		tags:    tags,
-		s:       app.NewModelService(repo, activity, nil),
+		like:    like,
+		s:       app.NewModelService(user, repo, proj, dataset, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -44,6 +48,7 @@ type ModelController struct {
 	repo    repository.Model
 	dataset repository.Dataset
 	tags    repository.Tags
+	like    repository.Like
 	s       app.ModelService
 
 	newPlatformRepository func(string, string) platform.Repository
@@ -187,7 +192,8 @@ func (ctl *ModelController) Update(ctx *gin.Context) {
 // @Param	owner	path	string	true	"owner of model"
 // @Param	name	path	string	true	"name of model"
 // @Accept json
-// @Success 200 {object} app.ModelDTO
+// @Success 200 {object} modelDetail
+// @Produce json
 // @Router /v1/model/{owner}/{name} [get]
 func (ctl *ModelController) Get(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
@@ -213,21 +219,39 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	m, err := ctl.s.GetByName(owner, name)
+	m, err := ctl.s.GetByName(owner, name, !visitor && pl.isMyself(owner))
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		if isErrorOfAccessingPrivateRepo(err) {
+			ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+				errorResourceNotExists,
+				"can't access private project",
+			))
+		} else {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		}
 
 		return
 	}
 
-	if (visitor || pl.isNotMe(owner)) && m.RepoType != domain.RepoTypePublic {
-		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
-			errorResourceNotExists,
-			"can't access private model",
-		))
-	} else {
-		ctx.JSON(http.StatusOK, newResponseData(m))
+	liked := true
+	if !visitor && pl.isNotMe(owner) {
+		obj := &domain.ResourceObject{Type: domain.ResourceTypeProject}
+		obj.Owner = owner
+		obj.Id = m.Id
+
+		liked, err = ctl.like.HasLike(pl.DomainAccount(), obj)
+
+		if err != nil {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+			return
+		}
 	}
+
+	ctx.JSON(http.StatusOK, newResponseData(modelDetail{
+		Liked:          liked,
+		ModelDetailDTO: &m,
+	}))
 }
 
 // @Summary List
