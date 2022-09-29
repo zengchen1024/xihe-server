@@ -128,6 +128,7 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		Id:       m.Id,
 		Owner:    m.Owner.Account(),
 		Name:     m.Name.ModelName(),
+		FL:       m.Name.FirstLetterOfName(),
 		Desc:     m.Desc.ResourceDesc(),
 		RepoType: m.RepoType.RepoType(),
 		Protocol: m.Protocol.ProtocolName(),
@@ -146,6 +147,7 @@ type ModelDO struct {
 	Id        string
 	Owner     string
 	Name      string
+	FL        byte
 	Desc      string
 	Protocol  string
 	RepoType  string

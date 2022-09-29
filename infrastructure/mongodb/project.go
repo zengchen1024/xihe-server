@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -107,7 +106,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 }
 
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
-	docObj := ProjectPropertyItem{
+	p := ProjectPropertyItem{
 		Name:     do.Name,
 		FL:       do.FL,
 		Desc:     do.Desc,
@@ -116,32 +115,7 @@ func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 		Tags:     do.Tags,
 	}
 
-	doc, err := genDoc(docObj)
-	if err != nil {
-		return err
-	}
-
-	updated := false
-
-	f := func(ctx context.Context) error {
-		updated, err = cli.updateArrayElem(
-			ctx, col.collectionName, fieldItems,
-			projectDocFilter(do.Owner), arrayFilterById(do.Id),
-			doc, do.Version, do.UpdatedAt,
-		)
-
-		return err
-	}
-
-	if withContext(f); err != nil {
-		return err
-	}
-
-	if !updated {
-		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
-	}
-
-	return nil
+	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
 func (col project) Get(owner, identity string) (do repositories.ProjectDO, err error) {

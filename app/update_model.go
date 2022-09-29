@@ -52,7 +52,6 @@ func (s modelService) Update(
 		s.toModelDTO(m, &dto)
 
 		return
-
 	}
 
 	if opt.IsNotEmpty() {

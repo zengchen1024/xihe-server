@@ -79,15 +79,13 @@ type dModel struct {
 }
 
 type modelItem struct {
-	Id        string   `bson:"id"         json:"id"`
-	Name      string   `bson:"name"       json:"name"`
-	Desc      string   `bson:"desc"       json:"desc"`
-	Protocol  string   `bson:"protocol"   json:"protocol"`
-	RepoType  string   `bson:"repo_type"  json:"repo_type"`
-	RepoId    string   `bson:"repo_id"    json:"repo_id"`
-	Tags      []string `bson:"tags"       json:"tags"`
-	CreatedAt int64    `bson:"created_at" json:"created_at"`
-	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
+	Id        string `bson:"id"         json:"id"`
+	Protocol  string `bson:"protocol"   json:"protocol"`
+	RepoId    string `bson:"repo_id"    json:"repo_id"`
+	CreatedAt int64  `bson:"created_at" json:"created_at"`
+	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
+
+	ModelPropertyItem `bson:",inline"`
 
 	// RelatedDatasets is not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
@@ -99,26 +97,40 @@ type modelItem struct {
 	LikeCount int `bson:"like_count"    json:"-"`
 }
 
+type ModelPropertyItem struct {
+	FL       byte     `bson:"fl"         json:"fl"`
+	Name     string   `bson:"name"       json:"name"`
+	Desc     string   `bson:"desc"       json:"desc"`
+	RepoType string   `bson:"repo_type"  json:"repo_type"`
+	Tags     []string `bson:"tags"       json:"tags"`
+}
+
 type dDataset struct {
 	Owner string        `bson:"owner" json:"owner"`
 	Items []datasetItem `bson:"items" json:"-"`
 }
 
 type datasetItem struct {
-	Id        string   `bson:"id"         json:"id"`
-	Name      string   `bson:"name"       json:"name"`
-	Desc      string   `bson:"desc"       json:"desc"`
-	Protocol  string   `bson:"protocol"   json:"protocol"`
-	RepoType  string   `bson:"repo_type"  json:"repo_type"`
-	RepoId    string   `bson:"repo_id"    json:"repo_id"`
-	Tags      []string `bson:"tags"       json:"tags"`
-	CreatedAt int64    `bson:"created_at" json:"created_at"`
-	UpdatedAt int64    `bson:"updated_at" json:"updated_at"`
+	Id        string `bson:"id"         json:"id"`
+	Protocol  string `bson:"protocol"   json:"protocol"`
+	RepoId    string `bson:"repo_id"    json:"repo_id"`
+	CreatedAt int64  `bson:"created_at" json:"created_at"`
+	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
+
+	DatasetPropertyItem `bson:",inline"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
 	Version   int `bson:"version"       json:"-"`
 	LikeCount int `bson:"like_count"    json:"-"`
+}
+
+type DatasetPropertyItem struct {
+	FL       byte     `bson:"fl"         json:"fl"`
+	Name     string   `bson:"name"       json:"name"`
+	Desc     string   `bson:"desc"       json:"desc"`
+	RepoType string   `bson:"repo_type"  json:"repo_type"`
+	Tags     []string `bson:"tags"       json:"tags"`
 }
 
 type DUser struct {

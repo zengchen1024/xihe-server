@@ -128,6 +128,41 @@ func sortByDownloadCount() bson.M {
 	return bson.M{fieldItems + "." + fieldDownloadCount: -1}
 }
 
+func updateResourceProperty(
+	collection string, obj *repositories.ResourceToUpdateDO,
+	property interface{},
+) error {
+	doc, err := genDoc(property)
+	if err != nil {
+		return err
+	}
+
+	updated := false
+
+	f := func(ctx context.Context) error {
+		updated, err = cli.updateArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(obj.Owner),
+			arrayFilterById(obj.Id),
+			doc, obj.Version, obj.UpdatedAt,
+		)
+
+		return err
+	}
+
+	if withContext(f); err != nil {
+		return err
+	}
+
+	if !updated {
+		return repositories.NewErrorConcurrentUpdating(
+			errors.New("no update"),
+		)
+	}
+
+	return nil
+}
+
 func listResource(
 	collection, owner string,
 	do *repositories.ResourceListDO,
