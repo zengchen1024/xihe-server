@@ -310,6 +310,9 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Dataset"
                 ],
@@ -334,7 +337,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.DatasetDTO"
+                            "$ref": "#/definitions/controller.datasetDetail"
                         }
                     }
                 }
@@ -566,6 +569,9 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Model"
                 ],
@@ -590,7 +596,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ModelDTO"
+                            "$ref": "#/definitions/controller.modelDetail"
                         }
                     }
                 }
@@ -1593,11 +1599,20 @@ const docTemplate = `{
         "app.DatasetDTO": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "desc": {
                     "type": "string"
                 },
+                "download_count": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -1619,6 +1634,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -1672,11 +1690,20 @@ const docTemplate = `{
         "app.ModelDTO": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "desc": {
                     "type": "string"
                 },
+                "download_count": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -1698,6 +1725,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -1842,6 +1872,53 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.datasetDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
+                },
+                "liked": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "repo_id": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.datasetUpdateRequest": {
             "type": "object",
             "properties": {
@@ -1910,6 +1987,59 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.modelDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "download_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "like_count": {
+                    "type": "integer"
+                },
+                "liked": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "related_datasets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
+                "repo_id": {
+                    "type": "string"
+                },
+                "repo_type": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
