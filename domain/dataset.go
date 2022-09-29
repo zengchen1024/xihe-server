@@ -10,10 +10,14 @@ type Dataset struct {
 
 	RepoId string
 
+	CreatedAt int64
+	UpdatedAt int64
+
 	Version int
 
 	// following fileds is not under the controlling of version
-	LikeCount int
+	LikeCount     int
+	DownloadCount int
 }
 
 func (d *Dataset) IsPrivate() bool {

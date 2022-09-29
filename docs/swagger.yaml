@@ -10,10 +10,16 @@ definitions:
     type: object
   app.DatasetDTO:
     properties:
+      created_at:
+        type: string
       desc:
         type: string
+      download_count:
+        type: integer
       id:
         type: string
+      like_count:
+        type: integer
       name:
         type: string
       owner:
@@ -28,6 +34,8 @@ definitions:
         items:
           type: string
         type: array
+      updated_at:
+        type: string
     type: object
   app.DomainTagsDTO:
     properties:
@@ -61,10 +69,16 @@ definitions:
     type: object
   app.ModelDTO:
     properties:
+      created_at:
+        type: string
       desc:
         type: string
+      download_count:
+        type: integer
       id:
         type: string
+      like_count:
+        type: integer
       name:
         type: string
       owner:
@@ -79,6 +93,8 @@ definitions:
         items:
           type: string
         type: array
+      updated_at:
+        type: string
     type: object
   app.ProjectSummaryDTO:
     properties:
@@ -172,6 +188,37 @@ definitions:
       repo_type:
         type: string
     type: object
+  controller.datasetDetail:
+    properties:
+      created_at:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      liked:
+        type: boolean
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      repo_id:
+        type: string
+      repo_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
   controller.datasetUpdateRequest:
     properties:
       desc:
@@ -216,6 +263,41 @@ definitions:
       protocol:
         type: string
       repo_type:
+        type: string
+    type: object
+  controller.modelDetail:
+    properties:
+      created_at:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      liked:
+        type: boolean
+      name:
+        type: string
+      owner:
+        type: string
+      protocol:
+        type: string
+      related_datasets:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
+      repo_id:
+        type: string
+      repo_type:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
         type: string
     type: object
   controller.modelUpdateRequest:
@@ -650,11 +732,13 @@ paths:
         name: name
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.DatasetDTO'
+            $ref: '#/definitions/controller.datasetDetail'
       summary: Get
       tags:
       - Dataset
@@ -821,11 +905,13 @@ paths:
         name: name
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.ModelDTO'
+            $ref: '#/definitions/controller.modelDetail'
       summary: Get
       tags:
       - Model

@@ -122,16 +122,18 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 
 func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 	return DatasetDO{
-		Id:       d.Id,
-		Owner:    d.Owner.Account(),
-		Name:     d.Name.DatasetName(),
-		FL:       d.Name.FirstLetterOfName(),
-		Desc:     d.Desc.ResourceDesc(),
-		RepoType: d.RepoType.RepoType(),
-		Protocol: d.Protocol.ProtocolName(),
-		Tags:     d.Tags,
-		RepoId:   d.RepoId,
-		Version:  d.Version,
+		Id:        d.Id,
+		Owner:     d.Owner.Account(),
+		Name:      d.Name.DatasetName(),
+		FL:        d.Name.FirstLetterOfName(),
+		Desc:      d.Desc.ResourceDesc(),
+		RepoType:  d.RepoType.RepoType(),
+		Protocol:  d.Protocol.ProtocolName(),
+		Tags:      d.Tags,
+		RepoId:    d.RepoId,
+		CreatedAt: d.CreatedAt,
+		UpdatedAt: d.UpdatedAt,
+		Version:   d.Version,
 	}
 }
 
@@ -141,17 +143,20 @@ type DatasetListDO struct {
 }
 
 type DatasetDO struct {
-	Id        string
-	Owner     string
-	Name      string
-	FL        byte
-	Desc      string
-	Protocol  string
-	RepoType  string
-	RepoId    string
-	Tags      []string
-	Version   int
-	LikeCount int
+	Id            string
+	Owner         string
+	Name          string
+	FL            byte
+	Desc          string
+	Protocol      string
+	RepoType      string
+	RepoId        string
+	Tags          []string
+	CreatedAt     int64
+	UpdatedAt     int64
+	Version       int
+	LikeCount     int
+	DownloadCount int
 }
 
 func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
@@ -180,7 +185,10 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.CreatedAt = do.CreatedAt
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
+	r.DownloadCount = do.DownloadCount
 
 	return
 }

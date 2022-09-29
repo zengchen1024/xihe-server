@@ -80,8 +80,8 @@ type dModel struct {
 
 type modelItem struct {
 	Id        string `bson:"id"         json:"id"`
-	Protocol  string `bson:"protocol"   json:"protocol"`
 	RepoId    string `bson:"repo_id"    json:"repo_id"`
+	Protocol  string `bson:"protocol"   json:"protocol"`
 	CreatedAt int64  `bson:"created_at" json:"created_at"`
 	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
 
@@ -93,8 +93,9 @@ type modelItem struct {
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
-	Version   int `bson:"version"       json:"-"`
-	LikeCount int `bson:"like_count"    json:"-"`
+	Version       int `bson:"version"           json:"-"`
+	LikeCount     int `bson:"like_count"        json:"-"`
+	DownloadCount int `bson:"download_count"    json:"-"`
 }
 
 type ModelPropertyItem struct {
@@ -112,8 +113,8 @@ type dDataset struct {
 
 type datasetItem struct {
 	Id        string `bson:"id"         json:"id"`
-	Protocol  string `bson:"protocol"   json:"protocol"`
 	RepoId    string `bson:"repo_id"    json:"repo_id"`
+	Protocol  string `bson:"protocol"   json:"protocol"`
 	CreatedAt int64  `bson:"created_at" json:"created_at"`
 	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
 
@@ -121,8 +122,9 @@ type datasetItem struct {
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
-	Version   int `bson:"version"       json:"-"`
-	LikeCount int `bson:"like_count"    json:"-"`
+	Version       int `bson:"version"               json:"-"`
+	LikeCount     int `bson:"like_count"            json:"-"`
+	DownloadCount int `bson:"download_count"    json:"-"`
 }
 
 type DatasetPropertyItem struct {

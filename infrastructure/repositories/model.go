@@ -125,16 +125,18 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 
 func (impl model) toModelDO(m *domain.Model) ModelDO {
 	return ModelDO{
-		Id:       m.Id,
-		Owner:    m.Owner.Account(),
-		Name:     m.Name.ModelName(),
-		FL:       m.Name.FirstLetterOfName(),
-		Desc:     m.Desc.ResourceDesc(),
-		RepoType: m.RepoType.RepoType(),
-		Protocol: m.Protocol.ProtocolName(),
-		Tags:     m.Tags,
-		RepoId:   m.RepoId,
-		Version:  m.Version,
+		Id:        m.Id,
+		Owner:     m.Owner.Account(),
+		Name:      m.Name.ModelName(),
+		FL:        m.Name.FirstLetterOfName(),
+		Desc:      m.Desc.ResourceDesc(),
+		RepoType:  m.RepoType.RepoType(),
+		Protocol:  m.Protocol.ProtocolName(),
+		Tags:      m.Tags,
+		RepoId:    m.RepoId,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+		Version:   m.Version,
 	}
 }
 
@@ -144,17 +146,22 @@ type ModelListDO struct {
 }
 
 type ModelDO struct {
-	Id        string
-	Owner     string
-	Name      string
-	FL        byte
-	Desc      string
-	Protocol  string
-	RepoType  string
-	RepoId    string
-	Tags      []string
-	Version   int
-	LikeCount int
+	Id            string
+	Owner         string
+	Name          string
+	FL            byte
+	Desc          string
+	Protocol      string
+	RepoType      string
+	RepoId        string
+	Tags          []string
+	CreatedAt     int64
+	UpdatedAt     int64
+	Version       int
+	LikeCount     int
+	DownloadCount int
+
+	RelatedDatasets []ResourceIndexDO
 }
 
 func (do *ModelDO) toModel(r *domain.Model) (err error) {
@@ -180,10 +187,17 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
+	if r.RelatedDatasets, err = convertToResourceIndex(do.RelatedDatasets); err != nil {
+		return
+	}
+
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version
+	r.CreatedAt = do.CreatedAt
+	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount
+	r.DownloadCount = do.DownloadCount
 
 	return
 }
