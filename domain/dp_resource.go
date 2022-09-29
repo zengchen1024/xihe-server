@@ -30,6 +30,7 @@ var (
 type ResourceName interface {
 	ResourceName() string
 	ResourceType() ResourceType
+	FirstLetterOfName() byte
 }
 
 // ProjName
@@ -40,7 +41,7 @@ type ProjName interface {
 }
 
 func GenProjName(v string) (ProjName, error) {
-	name, err := genResourceName(v, ResourceProject)
+	name, err := genResourceName(v, ResourceTypeProject)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +50,7 @@ func GenProjName(v string) (ProjName, error) {
 }
 
 func NewProjName(v string) (ProjName, error) {
-	if err := checkResourceName(v, ResourceProject); err != nil {
+	if err := checkResourceName(v, ResourceTypeProject); err != nil {
 		return nil, err
 	}
 
@@ -70,6 +71,12 @@ func (r projName) ResourceType() ResourceType {
 	return ResourceTypeProject
 }
 
+func (r projName) FirstLetterOfName() byte {
+	s := strings.TrimPrefix(string(r), ResourceTypeProject.PrefixToName())
+
+	return s[0]
+}
+
 // ModelName
 type ModelName interface {
 	ModelName() string
@@ -78,7 +85,7 @@ type ModelName interface {
 }
 
 func GenModelName(v string) (ModelName, error) {
-	name, err := genResourceName(v, ResourceModel)
+	name, err := genResourceName(v, ResourceTypeModel)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +94,7 @@ func GenModelName(v string) (ModelName, error) {
 }
 
 func NewModelName(v string) (ModelName, error) {
-	if err := checkResourceName(v, ResourceModel); err != nil {
+	if err := checkResourceName(v, ResourceTypeModel); err != nil {
 		return nil, err
 	}
 
@@ -108,6 +115,12 @@ func (r modelName) ResourceType() ResourceType {
 	return ResourceTypeModel
 }
 
+func (r modelName) FirstLetterOfName() byte {
+	s := strings.TrimPrefix(string(r), ResourceTypeModel.PrefixToName())
+
+	return s[0]
+}
+
 // DatasetName
 type DatasetName interface {
 	DatasetName() string
@@ -116,7 +129,7 @@ type DatasetName interface {
 }
 
 func GenDatasetName(v string) (DatasetName, error) {
-	name, err := genResourceName(v, ResourceDataset)
+	name, err := genResourceName(v, ResourceTypeDataset)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +138,7 @@ func GenDatasetName(v string) (DatasetName, error) {
 }
 
 func NewDatasetName(v string) (DatasetName, error) {
-	if err := checkResourceName(v, ResourceDataset); err != nil {
+	if err := checkResourceName(v, ResourceTypeDataset); err != nil {
 		return nil, err
 	}
 
@@ -146,7 +159,15 @@ func (r datasetName) ResourceType() ResourceType {
 	return ResourceTypeDataset
 }
 
-func genResourceName(v, prefix string) (string, error) {
+func (r datasetName) FirstLetterOfName() byte {
+	s := strings.TrimPrefix(string(r), ResourceTypeDataset.PrefixToName())
+
+	return s[0]
+}
+
+func genResourceName(v string, t ResourceType) (string, error) {
+	prefix := t.PrefixToName()
+
 	max := config.MaxNameLength - len(prefix)
 	min := config.MinNameLength
 
@@ -154,18 +175,20 @@ func genResourceName(v, prefix string) (string, error) {
 		return "", fmt.Errorf("name's length should be between %d to %d", min, max)
 	}
 
-	if strings.HasPrefix(strings.ToLower(v), prefix) {
-		return "", fmt.Errorf("the name should not start with %s as prefix", prefix)
+	if strings.HasPrefix(strings.ToLower(v), t.ResourceType()) {
+		return "", fmt.Errorf(
+			"the name should not start with %s as prefix", t.ResourceType(),
+		)
 	}
 
 	if !reResourceName.MatchString(v) {
 		return "", errors.New("invalid name")
 	}
 
-	return prefix + "-" + v, nil
+	return prefix + v, nil
 }
 
-func checkResourceName(v, prefix string) error {
+func checkResourceName(v string, t ResourceType) error {
 	max := config.MaxNameLength
 	min := config.MinNameLength
 
@@ -173,8 +196,10 @@ func checkResourceName(v, prefix string) error {
 		return fmt.Errorf("name's length should be between %d to %d", min, max)
 	}
 
-	if prefix += "-"; !strings.HasPrefix(strings.ToLower(v), prefix) {
-		return fmt.Errorf("the name should start with %s as prefix", prefix)
+	if !strings.HasPrefix(strings.ToLower(v), t.PrefixToName()) {
+		return fmt.Errorf(
+			"the name should start with %s as prefix", t.PrefixToName(),
+		)
 	}
 
 	if !reResourceName.MatchString(v) {
@@ -187,6 +212,7 @@ func checkResourceName(v, prefix string) error {
 // ResourceType
 type ResourceType interface {
 	ResourceType() string
+	PrefixToName() string
 }
 
 func NewResourceType(v string) (ResourceType, error) {
@@ -204,6 +230,10 @@ type resourceType string
 
 func (r resourceType) ResourceType() string {
 	return string(r)
+}
+
+func (r resourceType) PrefixToName() string {
+	return string(r) + "-"
 }
 
 // ResourceDesc

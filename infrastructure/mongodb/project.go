@@ -86,7 +86,6 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	doc[fieldLikeCount] = 0
 	doc[fieldModels] = bson.A{}
 	doc[fieldDatasets] = bson.A{}
-	doc[fieldFirstLetter] = do.Name[0]
 
 	docFilter := projectDocFilter(do.Owner)
 
@@ -110,7 +109,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 	docObj := ProjectPropertyItem{
 		Name:     do.Name,
-		FL:       do.Name[0],
+		FL:       do.FL,
 		Desc:     do.Desc,
 		CoverId:  do.CoverId,
 		RepoType: do.RepoType,
@@ -232,7 +231,7 @@ func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 		CreatedAt: do.CreatedAt,
 		UpdatedAt: do.UpdatedAt,
 		ProjectPropertyItem: ProjectPropertyItem{
-			FL:       do.Name[0],
+			FL:       do.FL,
 			Name:     do.Name,
 			Desc:     do.Desc,
 			CoverId:  do.CoverId,
