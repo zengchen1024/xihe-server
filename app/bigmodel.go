@@ -8,7 +8,7 @@ import (
 )
 
 type BigModelService interface {
-	DescribePicture(io.Reader, string) (string, error)
+	DescribePicture(io.Reader, string, int64) (string, error)
 	GenPicture(domain.Account, string) (string, error)
 	GenPictures(domain.Account, string) ([]string, error)
 }
@@ -22,9 +22,9 @@ type bigModelService struct {
 }
 
 func (s bigModelService) DescribePicture(
-	picture io.Reader, contentType string,
+	picture io.Reader, name string, length int64,
 ) (string, error) {
-	return s.fm.DescribePicture(picture, contentType)
+	return s.fm.DescribePicture(picture, name, length)
 }
 
 func (s bigModelService) GenPicture(

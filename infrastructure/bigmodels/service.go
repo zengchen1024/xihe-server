@@ -1,10 +1,12 @@
 package bigmodels
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
@@ -55,9 +57,26 @@ type service struct {
 	multiplePictures chan string
 }
 
-func (s *service) DescribePicture(picture io.Reader, contentType string) (string, error) {
+func (s *service) DescribePicture(picture io.Reader, name string, length int64) (string, error) {
+	buf := new(bytes.Buffer)
+	writer := multipart.NewWriter(buf)
+	file, err := writer.CreateFormFile("file", name)
+	if err != nil {
+		return "", err
+	}
+
+	n, err := io.Copy(file, picture)
+	if err != nil {
+		return "", err
+	}
+	if n != length {
+		return "", errors.New("copy file failed")
+	}
+
+	writer.Close()
+
 	req, err := http.NewRequest(
-		http.MethodPost, s.cfg.EndpointOfDescribingPicture, picture,
+		http.MethodPost, s.cfg.EndpointOfDescribingPicture, buf,
 	)
 	if err != nil {
 		return "", err
@@ -68,7 +87,7 @@ func (s *service) DescribePicture(picture io.Reader, contentType string) (string
 		return "", err
 	}
 
-	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("X-Auth-Token", t)
 
 	desc := new(descOfPicture)
@@ -113,10 +132,8 @@ func (s *service) token() (string, error) {
 
 	cfg := &s.cfg
 
-	str = strings.ReplaceAll(str, "\n", "")
 	body := fmt.Sprintf(
-		strings.ReplaceAll(str, " ", ""),
-		cfg.User, cfg.Password, cfg.User, cfg.Project,
+		str, cfg.User, cfg.Password, cfg.User, cfg.Project,
 	)
 
 	resp, err := http.Post(
