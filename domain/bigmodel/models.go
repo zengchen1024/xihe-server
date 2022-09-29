@@ -7,7 +7,7 @@ import (
 )
 
 type BigModel interface {
-	DescribePicture(io.Reader, string) (string, error)
+	DescribePicture(io.Reader, string, int64) (string, error)
 	GenPicture(domain.Account, string) (string, error)
 	GenPictures(domain.Account, string) ([]string, error)
 }

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -71,20 +70,7 @@ func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
 
 	defer p.Close()
 
-	content := make([]byte, 512)
-	n, err := p.Read(content)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorBadRequestParam, "can't get picture",
-		))
-
-		return
-	}
-
-	ct := http.DetectContentType(content[:n])
-	p.Seek(0, io.SeekStart)
-
-	if v, err := ctl.s.DescribePicture(p, ct); err != nil {
+	if v, err := ctl.s.DescribePicture(p, f.Filename, f.Size); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(describePictureResp{v}))
