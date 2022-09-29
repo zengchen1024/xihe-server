@@ -12,15 +12,20 @@ import (
 
 func AddRouterForDatasetController(
 	rg *gin.RouterGroup,
+	user repository.User,
 	repo repository.Dataset,
+	model repository.Model,
+	proj repository.Project,
 	activity repository.Activity,
 	tags repository.Tags,
+	like repository.Like,
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := DatasetController{
 		repo: repo,
 		tags: tags,
-		s:    app.NewDatasetService(repo, activity, nil),
+		like: like,
+		s:    app.NewDatasetService(user, repo, proj, model, activity, nil),
 
 		newPlatformRepository: newPlatformRepository,
 	}
@@ -38,6 +43,7 @@ type DatasetController struct {
 
 	repo repository.Dataset
 	tags repository.Tags
+	like repository.Like
 	s    app.DatasetService
 
 	newPlatformRepository func(string, string) platform.Repository
@@ -181,7 +187,8 @@ func (ctl *DatasetController) Update(ctx *gin.Context) {
 // @Param	owner	path	string	true	"owner of dataset"
 // @Param	name	path	string	true	"name of dataset"
 // @Accept json
-// @Success 200 {object} app.DatasetDTO
+// @Success 200 {object} datasetDetail
+// @Produce json
 // @Router /v1/dataset/{owner}/{name} [get]
 func (ctl *DatasetController) Get(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
@@ -207,21 +214,39 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		return
 	}
 
-	m, err := ctl.s.GetByName(owner, name)
+	d, err := ctl.s.GetByName(owner, name, !visitor && pl.isMyself(owner))
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		if isErrorOfAccessingPrivateRepo(err) {
+			ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+				errorResourceNotExists,
+				"can't access private dataset",
+			))
+		} else {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		}
 
 		return
 	}
 
-	if (visitor || pl.isNotMe(owner)) && m.RepoType != domain.RepoTypePublic {
-		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
-			errorResourceNotExists,
-			"can't access private dataset",
-		))
-	} else {
-		ctx.JSON(http.StatusOK, newResponseData(m))
+	liked := true
+	if !visitor && pl.isNotMe(owner) {
+		obj := &domain.ResourceObject{Type: domain.ResourceTypeDataset}
+		obj.Owner = owner
+		obj.Id = d.Id
+
+		liked, err = ctl.like.HasLike(pl.DomainAccount(), obj)
+
+		if err != nil {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+			return
+		}
 	}
+
+	ctx.JSON(http.StatusOK, newResponseData(datasetDetail{
+		Liked:            liked,
+		DatasetDetailDTO: &d,
+	}))
 }
 
 // @Summary List

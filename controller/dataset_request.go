@@ -66,3 +66,9 @@ func (p *datasetUpdateRequest) toCmd() (cmd app.DatasetUpdateCmd, err error) {
 
 	return
 }
+
+type datasetDetail struct {
+	Liked bool `json:"liked"`
+
+	*app.DatasetDetailDTO
+}

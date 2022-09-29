@@ -224,7 +224,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		if isErrorOfAccessingPrivateRepo(err) {
 			ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 				errorResourceNotExists,
-				"can't access private project",
+				"can't access private model",
 			))
 		} else {
 			ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -235,7 +235,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 
 	liked := true
 	if !visitor && pl.isNotMe(owner) {
-		obj := &domain.ResourceObject{Type: domain.ResourceTypeProject}
+		obj := &domain.ResourceObject{Type: domain.ResourceTypeModel}
 		obj.Owner = owner
 		obj.Id = m.Id
 

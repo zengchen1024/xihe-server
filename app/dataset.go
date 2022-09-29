@@ -6,6 +6,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type DatasetCreateCmd struct {
@@ -31,9 +32,13 @@ func (cmd *DatasetCreateCmd) Validate() error {
 }
 
 func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
+	now := utils.Now()
+
 	return domain.Dataset{
-		Owner:    cmd.Owner,
-		Protocol: cmd.Protocol,
+		Owner:     cmd.Owner,
+		Protocol:  cmd.Protocol,
+		CreatedAt: now,
+		UpdatedAt: now,
 		DatasetModifiableProperty: domain.DatasetModifiableProperty{
 			Name:     cmd.Name,
 			Desc:     cmd.Desc,
@@ -43,20 +48,28 @@ func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
 }
 
 type DatasetDTO struct {
-	Id       string   `json:"id"`
-	Owner    string   `json:"owner"`
-	Name     string   `json:"name"`
-	Desc     string   `json:"desc"`
-	Protocol string   `json:"protocol"`
-	RepoType string   `json:"repo_type"`
-	RepoId   string   `json:"repo_id"`
-	Tags     []string `json:"tags"`
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	Protocol      string   `json:"protocol"`
+	RepoType      string   `json:"repo_type"`
+	RepoId        string   `json:"repo_id"`
+	Tags          []string `json:"tags"`
+	CreatedAt     string   `json:"created_at"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
+type DatasetDetailDTO struct {
+	DatasetDTO
 }
 
 type DatasetService interface {
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
-	GetByName(domain.Account, domain.DatasetName) (DatasetDTO, error)
+	GetByName(domain.Account, domain.DatasetName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) ([]DatasetDTO, error)
 
 	AddLike(domain.Account, string) error
@@ -66,15 +79,30 @@ type DatasetService interface {
 }
 
 func NewDatasetService(
-	repo repository.Dataset, activity repository.Activity, pr platform.Repository,
+	user repository.User,
+	repo repository.Dataset,
+	proj repository.Project,
+	model repository.Model,
+	activity repository.Activity,
+	pr platform.Repository,
 ) DatasetService {
-	return datasetService{repo: repo, activity: activity}
+	return datasetService{
+		repo:     repo,
+		activity: activity,
+		rs: resourceService{
+			user:    user,
+			model:   model,
+			project: proj,
+			dataset: repo,
+		},
+	}
 }
 
 type datasetService struct {
 	repo repository.Dataset
 	//pr       platform.Repository
 	activity repository.Activity
+	rs       resourceService
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (dto DatasetDTO, err error) {
@@ -108,13 +136,20 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 
 func (s datasetService) GetByName(
 	owner domain.Account, name domain.DatasetName,
-) (dto DatasetDTO, err error) {
+	allowPrivacy bool,
+) (dto DatasetDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
 	if err != nil {
 		return
 	}
 
-	s.toDatasetDTO(&v, &dto)
+	if !allowPrivacy && v.IsPrivate() {
+		err = ErrorPrivateRepo{errors.New("private repo")}
+
+		return
+	}
+
+	s.toDatasetDTO(&v, &dto.DatasetDTO)
 
 	return
 }
@@ -145,5 +180,10 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		RepoType: d.RepoType.RepoType(),
 		RepoId:   d.RepoId,
 		Tags:     d.Tags,
+
+		CreatedAt:     utils.ToDate(d.CreatedAt),
+		UpdatedAt:     utils.ToDate(d.UpdatedAt),
+		LikeCount:     d.LikeCount,
+		DownloadCount: d.DownloadCount,
 	}
 }
