@@ -29,7 +29,7 @@ func Init(cfg *Config) {
 	fm = &service{
 		cfg:              *cfg,
 		hc:               utils.HttpClient{MaxRetries: 3},
-		singlePictures:   make(chan string, len(cfg.EndpointsOfSinglePicture)),
+		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
 		multiplePictures: make(chan string, 1),
 	}
 
@@ -37,7 +37,7 @@ func Init(cfg *Config) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	for _, e := range cfg.EndpointsOfSinglePicture {
+	for _, e := range cfg.endpointsOfSinglePicture {
 		fm.singlePictures <- e
 	}
 
