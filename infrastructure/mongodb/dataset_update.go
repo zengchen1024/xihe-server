@@ -59,13 +59,13 @@ func (col dataset) listResource(
 
 	r = make([]repositories.DatasetSummaryDO, len(v))
 	for i := range v {
-		col.toDatasetSummary(owner, &v[i].Item, &r[i])
+		col.toDatasetSummaryDO(owner, &v[i].Item, &r[i])
 	}
 
 	return
 }
 
-func (col dataset) toDatasetSummary(owner string, item *datasetItem, do *repositories.DatasetSummaryDO) {
+func (col dataset) toDatasetSummaryDO(owner string, item *datasetItem, do *repositories.DatasetSummaryDO) {
 	*do = repositories.DatasetSummaryDO{
 		Id:            item.Id,
 		Owner:         owner,

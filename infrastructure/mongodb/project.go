@@ -172,7 +172,7 @@ func (col project) ListUsersProjects(opts map[string][]string) (
 
 		dos := make([]repositories.ProjectSummaryDO, len(items))
 		for j := range items {
-			col.toProjectSummary(owner, &items[j], &dos[j])
+			col.toProjectSummaryDO(owner, &items[j], &dos[j])
 		}
 
 		r = append(r, dos...)

@@ -147,7 +147,7 @@ func (col model) List(owner string, do *repositories.ResourceListDO) (
 }
 
 func (col model) ListUsersModels(opts map[string][]string) (
-	r []repositories.ModelDO, err error,
+	r []repositories.ModelSummaryDO, err error,
 ) {
 	var v []dModel
 
@@ -156,15 +156,15 @@ func (col model) ListUsersModels(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.ModelDO, 0, len(v))
+	r = make([]repositories.ModelSummaryDO, 0, len(v))
 
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
 
-		dos := make([]repositories.ModelDO, len(items))
+		dos := make([]repositories.ModelSummaryDO, len(items))
 		for j := range items {
-			col.toModelDO(owner, &items[j], &dos[j])
+			col.toModelSummaryDO(owner, &items[j], &dos[j])
 		}
 
 		r = append(r, dos...)

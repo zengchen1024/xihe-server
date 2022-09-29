@@ -242,7 +242,7 @@ func (s resourceService) projectToResourceDTO(
 
 func (s resourceService) modelToResourceDTO(
 	userInfos map[string]*domain.UserInfo,
-	data []domain.Model, dtos []ResourceDTO,
+	data []domain.ModelSummary, dtos []ResourceDTO,
 ) {
 	for i := range data {
 		d := &data[i]
@@ -268,7 +268,7 @@ func (s resourceService) modelToResourceDTO(
 
 func (s resourceService) datasetToResourceDTO(
 	userInfos map[string]*domain.UserInfo,
-	data []domain.Dataset, dtos []ResourceDTO,
+	data []domain.DatasetSummary, dtos []ResourceDTO,
 ) {
 	for i := range data {
 		d := &data[i]

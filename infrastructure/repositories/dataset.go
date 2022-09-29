@@ -12,7 +12,7 @@ type DatasetMapper interface {
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
 
-	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
+	ListUsersDatasets(map[string][]string) ([]DatasetSummaryDO, error)
 
 	List(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
@@ -76,7 +76,7 @@ func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
 }
 
 func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
-	[]domain.Dataset, error,
+	[]domain.DatasetSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -88,9 +88,9 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Dataset, len(v))
+	r := make([]domain.DatasetSummary, len(v))
 	for i := range v {
-		if err = v[i].toDataset(&r[i]); err != nil {
+		if err = v[i].toDatasetSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -113,11 +113,6 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		UpdatedAt: d.UpdatedAt,
 		Version:   d.Version,
 	}
-}
-
-type DatasetListDO struct {
-	Name     string
-	RepoType string
 }
 
 type DatasetDO struct {

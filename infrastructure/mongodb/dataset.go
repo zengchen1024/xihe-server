@@ -146,7 +146,7 @@ func (col dataset) List(owner string, do *repositories.ResourceListDO) (
 }
 
 func (col dataset) ListUsersDatasets(opts map[string][]string) (
-	r []repositories.DatasetDO, err error,
+	r []repositories.DatasetSummaryDO, err error,
 ) {
 	var v []dDataset
 
@@ -155,15 +155,15 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 		return
 	}
 
-	r = make([]repositories.DatasetDO, 0, len(v))
+	r = make([]repositories.DatasetSummaryDO, 0, len(v))
 
 	for i := range v {
 		owner := v[i].Owner
 		items := v[i].Items
 
-		dos := make([]repositories.DatasetDO, len(items))
+		dos := make([]repositories.DatasetSummaryDO, len(items))
 		for j := range items {
-			col.toDatasetDO(owner, &items[j], &dos[j])
+			col.toDatasetSummaryDO(owner, &items[j], &dos[j])
 		}
 
 		r = append(r, dos...)

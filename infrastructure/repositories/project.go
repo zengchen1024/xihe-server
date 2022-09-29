@@ -126,11 +126,6 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 	}
 }
 
-type ProjectListDO struct {
-	Name     string
-	RepoType string
-}
-
 type ProjectDO struct {
 	Id            string
 	Owner         string

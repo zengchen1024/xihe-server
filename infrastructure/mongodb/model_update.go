@@ -60,7 +60,7 @@ func (col model) listResource(
 
 	r = make([]repositories.ModelSummaryDO, len(v))
 	for i := range v {
-		col.toModelSummary(owner, &v[i].Item, &r[i])
+		col.toModelSummaryDO(owner, &v[i].Item, &r[i])
 	}
 
 	return
@@ -73,7 +73,7 @@ func (col model) summaryFields() []string {
 	}
 }
 
-func (col model) toModelSummary(owner string, item *modelItem, do *repositories.ModelSummaryDO) {
+func (col model) toModelSummaryDO(owner string, item *modelItem, do *repositories.ModelSummaryDO) {
 	*do = repositories.ModelSummaryDO{
 		Id:            item.Id,
 		Owner:         owner,

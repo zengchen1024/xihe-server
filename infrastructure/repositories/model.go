@@ -12,7 +12,7 @@ type ModelMapper interface {
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
 
-	ListUsersModels(map[string][]string) ([]ModelDO, error)
+	ListUsersModels(map[string][]string) ([]ModelSummaryDO, error)
 
 	List(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
@@ -79,7 +79,7 @@ func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
 }
 
 func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
-	[]domain.Model, error,
+	[]domain.ModelSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -91,9 +91,9 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Model, len(v))
+	r := make([]domain.ModelSummary, len(v))
 	for i := range v {
-		if err = v[i].toModel(&r[i]); err != nil {
+		if err = v[i].toModelSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -116,11 +116,6 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		UpdatedAt: m.UpdatedAt,
 		Version:   m.Version,
 	}
-}
-
-type ModelListDO struct {
-	Name     string
-	RepoType string
 }
 
 type ModelDO struct {

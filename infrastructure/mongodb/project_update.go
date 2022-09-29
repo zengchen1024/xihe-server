@@ -98,7 +98,7 @@ func (col project) listResource(
 
 	r = make([]repositories.ProjectSummaryDO, len(v))
 	for i := range v {
-		col.toProjectSummary(owner, &v[i].Item, &r[i])
+		col.toProjectSummaryDO(owner, &v[i].Item, &r[i])
 	}
 
 	return
@@ -111,7 +111,7 @@ func (col project) summaryFields() []string {
 	}
 }
 
-func (col project) toProjectSummary(owner string, item *projectItem, do *repositories.ProjectSummaryDO) {
+func (col project) toProjectSummaryDO(owner string, item *projectItem, do *repositories.ProjectSummaryDO) {
 	*do = repositories.ProjectSummaryDO{
 		Id:            item.Id,
 		Owner:         owner,

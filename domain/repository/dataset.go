@@ -20,7 +20,7 @@ type Dataset interface {
 	Get(domain.Account, string) (domain.Dataset, error)
 	GetByName(domain.Account, domain.DatasetName) (domain.Dataset, error)
 
-	FindUserDatasets([]UserResourceListOption) ([]domain.Dataset, error)
+	FindUserDatasets([]UserResourceListOption) ([]domain.DatasetSummary, error)
 
 	List(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
