@@ -140,29 +140,10 @@ func (col model) GetByName(owner, name string) (do repositories.ModelDO, err err
 	return
 }
 
-func (col model) List(owner string, do repositories.ResourceListDO) (
-	r []repositories.ModelDO, err error,
+func (col model) List(owner string, do *repositories.ResourceListDO) (
+	[]repositories.ModelSummaryDO, int, error,
 ) {
-	var v []dModel
-
-	err = listResource(
-		col.collectionName, owner, &do, nil, col.summaryFields(), &v,
-	)
-	if err != nil {
-		return
-	}
-
-	if len(v) == 0 {
-		return
-	}
-
-	items := v[0].Items
-	r = make([]repositories.ModelDO, len(items))
-	for i := range items {
-		col.toModelDO(owner, &items[i], &r[i])
-	}
-
-	return
+	return col.listResource(owner, do, nil)
 }
 
 func (col model) ListUsersModels(opts map[string][]string) (

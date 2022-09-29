@@ -36,3 +36,14 @@ type ModelModifiableProperty struct {
 	RepoType RepoType
 	Tags     []string
 }
+
+type ModelSummary struct {
+	Id            string
+	Owner         Account
+	Name          ModelName
+	Desc          ResourceDesc
+	Tags          []string
+	UpdatedAt     int64
+	LikeCount     int
+	DownloadCount int
+}
