@@ -50,7 +50,6 @@ func (s datasetService) Update(
 		s.toDatasetDTO(d, &dto)
 
 		return
-
 	}
 
 	if opt.IsNotEmpty() {

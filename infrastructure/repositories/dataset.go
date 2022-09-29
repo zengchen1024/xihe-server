@@ -125,6 +125,7 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		Id:       d.Id,
 		Owner:    d.Owner.Account(),
 		Name:     d.Name.DatasetName(),
+		FL:       d.Name.FirstLetterOfName(),
 		Desc:     d.Desc.ResourceDesc(),
 		RepoType: d.RepoType.RepoType(),
 		Protocol: d.Protocol.ProtocolName(),
@@ -143,6 +144,7 @@ type DatasetDO struct {
 	Id        string
 	Owner     string
 	Name      string
+	FL        byte
 	Desc      string
 	Protocol  string
 	RepoType  string

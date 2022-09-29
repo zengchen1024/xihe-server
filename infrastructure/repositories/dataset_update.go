@@ -29,6 +29,7 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 	do := DatasetPropertyDO{
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
+		FL:       p.Name.FirstLetterOfName(),
 		Name:     p.Name.DatasetName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
@@ -45,6 +46,7 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 type DatasetPropertyDO struct {
 	ResourceToUpdateDO
 
+	FL       byte
 	Name     string
 	Desc     string
 	RepoType string

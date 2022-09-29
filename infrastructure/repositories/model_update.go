@@ -49,6 +49,7 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 	do := ModelPropertyDO{
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
+		FL:       p.Name.FirstLetterOfName(),
 		Name:     p.Name.ModelName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
@@ -65,6 +66,7 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 type ModelPropertyDO struct {
 	ResourceToUpdateDO
 
+	FL       byte
 	Name     string
 	Desc     string
 	RepoType string

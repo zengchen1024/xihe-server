@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -100,39 +99,15 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 }
 
 func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
-	docObj := modelItem{
+	p := ModelPropertyItem{
+		FL:       do.FL,
 		Name:     do.Name,
 		Desc:     do.Desc,
 		RepoType: do.RepoType,
 		Tags:     do.Tags,
 	}
 
-	doc, err := genDoc(docObj)
-	if err != nil {
-		return err
-	}
-
-	updated := false
-
-	f := func(ctx context.Context) error {
-		updated, err = cli.updateArrayElem(
-			ctx, col.collectionName, fieldItems,
-			modelDocFilter(do.Owner), arrayFilterById(do.Id),
-			doc, do.Version, do.UpdatedAt,
-		)
-
-		return err
-	}
-
-	if withContext(f); err != nil {
-		return err
-	}
-
-	if !updated {
-		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
-	}
-
-	return nil
+	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
 func (col model) Get(owner, identity string) (do repositories.ModelDO, err error) {
@@ -234,12 +209,15 @@ func (col model) ListUsersModels(opts map[string][]string) (
 func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 	docObj := modelItem{
 		Id:       do.Id,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Protocol: do.Protocol,
-		RepoType: do.RepoType,
 		RepoId:   do.RepoId,
-		Tags:     do.Tags,
+		Protocol: do.Protocol,
+		ModelPropertyItem: ModelPropertyItem{
+			FL:       do.FL,
+			Name:     do.Name,
+			Desc:     do.Desc,
+			RepoType: do.RepoType,
+			Tags:     do.Tags,
+		},
 	}
 
 	return genDoc(docObj)

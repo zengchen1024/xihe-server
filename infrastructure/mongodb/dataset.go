@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -99,39 +98,15 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 }
 
 func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
-	docObj := datasetItem{
+	p := DatasetPropertyItem{
+		FL:       do.FL,
 		Name:     do.Name,
 		Desc:     do.Desc,
 		RepoType: do.RepoType,
 		Tags:     do.Tags,
 	}
 
-	doc, err := genDoc(docObj)
-	if err != nil {
-		return err
-	}
-
-	updated := false
-
-	f := func(ctx context.Context) error {
-		updated, err = cli.updateArrayElem(
-			ctx, col.collectionName, fieldItems,
-			datasetDocFilter(do.Owner), arrayFilterById(do.Id),
-			doc, do.Version, do.UpdatedAt,
-		)
-
-		return err
-	}
-
-	if withContext(f); err != nil {
-		return err
-	}
-
-	if !updated {
-		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
-	}
-
-	return nil
+	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
 func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err error) {
@@ -233,12 +208,15 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 	docObj := datasetItem{
 		Id:       do.Id,
-		Name:     do.Name,
-		Desc:     do.Desc,
-		Protocol: do.Protocol,
-		RepoType: do.RepoType,
 		RepoId:   do.RepoId,
-		Tags:     do.Tags,
+		Protocol: do.Protocol,
+		DatasetPropertyItem: DatasetPropertyItem{
+			FL:       do.FL,
+			Name:     do.Name,
+			Desc:     do.Desc,
+			RepoType: do.RepoType,
+			Tags:     do.Tags,
+		},
 	}
 
 	return genDoc(docObj)
