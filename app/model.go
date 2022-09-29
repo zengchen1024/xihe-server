@@ -47,6 +47,22 @@ func (cmd *ModelCreateCmd) toModel() domain.Model {
 	}
 }
 
+type ModelsDTO struct {
+	Total  int               `json:"total"`
+	Models []ModelSummaryDTO `json:"models"`
+}
+
+type ModelSummaryDTO struct {
+	Id            string   `json:"id"`
+	Owner         string   `json:"owner"`
+	Name          string   `json:"name"`
+	Desc          string   `json:"desc"`
+	Tags          []string `json:"tags"`
+	UpdatedAt     string   `json:"updated_at"`
+	LikeCount     int      `json:"like_count"`
+	DownloadCount int      `json:"download_count"`
+}
+
 type ModelDTO struct {
 	Id            string   `json:"id"`
 	Owner         string   `json:"owner"`
@@ -72,7 +88,7 @@ type ModelService interface {
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
 	GetByName(domain.Account, domain.ModelName, bool) (ModelDetailDTO, error)
-	List(domain.Account, *ResourceListCmd) ([]ModelDTO, error)
+	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
 
 	AddLike(domain.Account, string) error
 	RemoveLike(domain.Account, string) error
@@ -167,17 +183,40 @@ func (s modelService) GetByName(
 }
 
 func (s modelService) List(owner domain.Account, cmd *ResourceListCmd) (
-	dtos []ModelDTO, err error,
+	dto ModelsDTO, err error,
 ) {
-	v, err := s.repo.List(owner, cmd.toResourceListOption())
-	if err != nil || len(v) == 0 {
+	option := cmd.toResourceListOption()
+
+	var v repository.UserModelsInfo
+
+	if cmd.SortType == nil {
+		v, err = s.repo.List(owner, &option)
+	} else {
+		switch cmd.SortType.SortType() {
+		case domain.SortTypeUpdateTime:
+			v, err = s.repo.ListAndSortByUpdateTime(owner, &option)
+
+		case domain.SortTypeFirstLetter:
+			v, err = s.repo.ListAndSortByFirstLetter(owner, &option)
+
+		case domain.SortTypeDownloadCount:
+			v, err = s.repo.ListAndSortByDownloadCount(owner, &option)
+		}
+	}
+
+	items := v.Models
+
+	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]ModelDTO, len(v))
-	for i := range v {
-		s.toModelDTO(&v[i], &dtos[i])
+	dtos := make([]ModelSummaryDTO, len(items))
+	for i := range items {
+		s.toModelSummaryDTO(&items[i], &dtos[i])
 	}
+
+	dto.Total = v.Total
+	dto.Models = dtos
 
 	return
 }
@@ -196,5 +235,18 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 		UpdatedAt:     utils.ToDate(m.UpdatedAt),
 		LikeCount:     m.LikeCount,
 		DownloadCount: m.DownloadCount,
+	}
+}
+
+func (s modelService) toModelSummaryDTO(p *domain.ModelSummary, dto *ModelSummaryDTO) {
+	*dto = ModelSummaryDTO{
+		Id:            p.Id,
+		Owner:         p.Owner.Account(),
+		Name:          p.Name.ModelName(),
+		Desc:          p.Desc.ResourceDesc(),
+		Tags:          p.Tags,
+		UpdatedAt:     utils.ToDate(p.UpdatedAt),
+		LikeCount:     p.LikeCount,
+		DownloadCount: p.DownloadCount,
 	}
 }

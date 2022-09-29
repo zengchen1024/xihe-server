@@ -37,6 +37,36 @@ definitions:
       updated_at:
         type: string
     type: object
+  app.DatasetSummaryDTO:
+    properties:
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  app.DatasetsDTO:
+    properties:
+      models:
+        items:
+          $ref: '#/definitions/app.DatasetSummaryDTO'
+        type: array
+      total:
+        type: integer
+    type: object
   app.DomainTagsDTO:
     properties:
       domain:
@@ -95,6 +125,36 @@ definitions:
         type: array
       updated_at:
         type: string
+    type: object
+  app.ModelSummaryDTO:
+    properties:
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  app.ModelsDTO:
+    properties:
+      models:
+        items:
+          $ref: '#/definitions/app.ModelSummaryDTO'
+        type: array
+      total:
+        type: integer
     type: object
   app.ProjectSummaryDTO:
     properties:
@@ -659,9 +719,39 @@ paths:
       consumes:
       - application/json
       description: list dataset
+      parameters:
+      - description: owner of dataset
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of dataset
+        in: query
+        name: name
+        type: string
+      - description: repo type of dataset, value can be public or private
+        in: query
+        name: repo_type
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.DatasetsDTO'
       summary: List
       tags:
       - Dataset
@@ -775,9 +865,39 @@ paths:
       consumes:
       - application/json
       description: list model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: query
+        name: name
+        type: string
+      - description: repo type of model, value can be public or private
+        in: query
+        name: repo_type
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ModelsDTO'
       summary: List
       tags:
       - Model
@@ -964,6 +1084,8 @@ paths:
         in: query
         name: sort_by
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK

@@ -12,8 +12,9 @@ type ProjectMapper interface {
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 
-	List(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
+
+	List(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
@@ -123,11 +124,6 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		UpdatedAt: p.UpdatedAt,
 		Version:   p.Version,
 	}
-}
-
-type ProjectListDO struct {
-	Name     string
-	RepoType string
 }
 
 type ProjectDO struct {

@@ -11,8 +11,13 @@ type ModelMapper interface {
 	Insert(ModelDO) (string, error)
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
-	List(string, ResourceListDO) ([]ModelDO, error)
-	ListUsersModels(map[string][]string) ([]ModelDO, error)
+
+	ListUsersModels(map[string][]string) ([]ModelSummaryDO, error)
+
+	List(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
@@ -73,35 +78,8 @@ func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
 	return
 }
 
-func (impl model) List(owner domain.Account, option repository.ResourceListOption) (
-	r []domain.Model, err error,
-) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Model, len(v))
-	for i := range v {
-		if err = v[i].toModel(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
-	[]domain.Model, error,
+	[]domain.ModelSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -113,9 +91,9 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Model, len(v))
+	r := make([]domain.ModelSummary, len(v))
 	for i := range v {
-		if err = v[i].toModel(&r[i]); err != nil {
+		if err = v[i].toModelSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -138,11 +116,6 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		UpdatedAt: m.UpdatedAt,
 		Version:   m.Version,
 	}
-}
-
-type ModelListDO struct {
-	Name     string
-	RepoType string
 }
 
 type ModelDO struct {

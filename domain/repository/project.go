@@ -48,8 +48,9 @@ type Project interface {
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
 
-	List(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
+
+	List(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)

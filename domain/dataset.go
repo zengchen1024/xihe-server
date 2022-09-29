@@ -30,3 +30,14 @@ type DatasetModifiableProperty struct {
 	RepoType RepoType
 	Tags     []string
 }
+
+type DatasetSummary struct {
+	Id            string
+	Owner         Account
+	Name          DatasetName
+	Desc          ResourceDesc
+	Tags          []string
+	UpdatedAt     int64
+	LikeCount     int
+	DownloadCount int
+}

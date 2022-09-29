@@ -11,8 +11,13 @@ type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
-	List(string, ResourceListDO) ([]DatasetDO, error)
-	ListUsersDatasets(map[string][]string) ([]DatasetDO, error)
+
+	ListUsersDatasets(map[string][]string) ([]DatasetSummaryDO, error)
+
+	List(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByUpdateTime(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByFirstLetter(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListAndSortByDownloadCount(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 
 	AddLike(string, string) error
 	RemoveLike(string, string) error
@@ -70,35 +75,8 @@ func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
 	return
 }
 
-func (impl dataset) List(owner domain.Account, option repository.ResourceListOption) (
-	r []domain.Dataset, err error,
-) {
-	do := ResourceListDO{
-		Name: option.Name,
-	}
-	if option.RepoType != nil {
-		do.RepoType = option.RepoType.RepoType()
-	}
-
-	v, err := impl.mapper.List(owner.Account(), do)
-	if err != nil {
-		err = convertError(err)
-
-		return
-	}
-
-	r = make([]domain.Dataset, len(v))
-	for i := range v {
-		if err = v[i].toDataset(&r[i]); err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
-	[]domain.Dataset, error,
+	[]domain.DatasetSummary, error,
 ) {
 	do := make(map[string][]string)
 	for i := range opts {
@@ -110,9 +88,9 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 		return nil, convertError(err)
 	}
 
-	r := make([]domain.Dataset, len(v))
+	r := make([]domain.DatasetSummary, len(v))
 	for i := range v {
-		if err = v[i].toDataset(&r[i]); err != nil {
+		if err = v[i].toDatasetSummary(&r[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -135,11 +113,6 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		UpdatedAt: d.UpdatedAt,
 		Version:   d.Version,
 	}
-}
-
-type DatasetListDO struct {
-	Name     string
-	RepoType string
 }
 
 type DatasetDO struct {
