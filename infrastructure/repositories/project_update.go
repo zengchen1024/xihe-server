@@ -81,6 +81,7 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 	do := ProjectPropertyDO{
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
+		FL:       p.Name.FirstLetterOfName(),
 		Name:     p.Name.ProjName(),
 		Desc:     p.Desc.ResourceDesc(),
 		CoverId:  p.CoverId.CoverId(),
@@ -98,6 +99,7 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 type ProjectPropertyDO struct {
 	ResourceToUpdateDO
 
+	FL       byte
 	Name     string
 	Desc     string
 	CoverId  string

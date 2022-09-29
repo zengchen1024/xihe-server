@@ -110,6 +110,7 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		Id:        p.Id,
 		Owner:     p.Owner.Account(),
 		Name:      p.Name.ProjName(),
+		FL:        p.Name.FirstLetterOfName(),
 		Desc:      p.Desc.ResourceDesc(),
 		Type:      p.Type.ProjType(),
 		CoverId:   p.CoverId.CoverId(),
@@ -133,6 +134,7 @@ type ProjectDO struct {
 	Id            string
 	Owner         string
 	Name          string
+	FL            byte
 	Desc          string
 	Type          string
 	CoverId       string
