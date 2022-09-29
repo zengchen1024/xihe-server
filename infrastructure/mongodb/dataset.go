@@ -174,9 +174,11 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 
 func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 	docObj := datasetItem{
-		Id:       do.Id,
-		RepoId:   do.RepoId,
-		Protocol: do.Protocol,
+		Id:        do.Id,
+		RepoId:    do.RepoId,
+		Protocol:  do.Protocol,
+		CreatedAt: do.CreatedAt,
+		UpdatedAt: do.UpdatedAt,
 		DatasetPropertyItem: DatasetPropertyItem{
 			FL:       do.FL,
 			Name:     do.Name,

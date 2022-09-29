@@ -352,8 +352,17 @@ func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	m, ok := ctl.checkPermission(ctx)
+	pl, m, ok := ctl.checkPermission(ctx)
 	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) && data.IsPrivate() {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private dataset",
+		))
+
 		return
 	}
 
@@ -400,7 +409,7 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	m, ok := ctl.checkPermission(ctx)
+	_, m, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -455,7 +464,7 @@ func (ctl *ModelController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	m, ok := ctl.checkPermission(ctx)
+	_, m, ok := ctl.checkPermission(ctx)
 	if !ok {
 		return
 	}
@@ -469,7 +478,9 @@ func (ctl *ModelController) SetTags(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
-func (ctl *ModelController) checkPermission(ctx *gin.Context) (m domain.Model, ok bool) {
+func (ctl *ModelController) checkPermission(ctx *gin.Context) (
+	info oldUserTokenPayload, m domain.Model, ok bool,
+) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -486,8 +497,7 @@ func (ctl *ModelController) checkPermission(ctx *gin.Context) (m domain.Model, o
 
 	if pl.isNotMe(owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"can't update model for other user",
+			errorNotAllowed, "not allowed",
 		))
 
 		return
@@ -500,6 +510,7 @@ func (ctl *ModelController) checkPermission(ctx *gin.Context) (m domain.Model, o
 		return
 	}
 
+	info = pl
 	ok = true
 
 	return

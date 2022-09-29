@@ -14,13 +14,6 @@ func (col dataset) RemoveLike(owner, rid string) error {
 	return updateResourceLike(col.collectionName, owner, rid, -1)
 }
 
-func (col dataset) summaryFields() []string {
-	return []string{
-		fieldId, fieldName, fieldDesc, fieldTags,
-		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
-	}
-}
-
 func (col dataset) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.DatasetSummaryDO, int, error) {
@@ -63,6 +56,13 @@ func (col dataset) listResource(
 	}
 
 	return
+}
+
+func (col dataset) summaryFields() []string {
+	return []string{
+		fieldId, fieldName, fieldDesc, fieldTags,
+		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
+	}
 }
 
 func (col dataset) toDatasetSummaryDO(owner string, item *datasetItem, do *repositories.DatasetSummaryDO) {
