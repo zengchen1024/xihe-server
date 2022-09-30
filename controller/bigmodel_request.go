@@ -36,17 +36,27 @@ type questionAskRequest struct {
 }
 
 func (req *questionAskRequest) toCmd() (
-	q domain.Question, f domain.OBSFile, err error,
+	q domain.Question, p string, err error,
 ) {
 	if q, err = domain.NewQuestion(req.Question); err != nil {
 		return
 	}
 
-	f, err = domain.NewOBSFile(req.Picture)
+	if req.Picture == "" {
+		err = errors.New("missing picture")
+
+		return
+	}
+
+	p = req.Picture
 
 	return
 }
 
 type questionAskResp struct {
 	Answer string `json:"answer"`
+}
+
+type pictureUploadResp struct {
+	Path string `json:"path"`
 }

@@ -62,7 +62,11 @@ func main() {
 	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
 	// controller
-	if err := controller.Init(&cfg.API, log); err != nil {
+	api := &cfg.API
+	api.MaxPictureSizeToVQA = cfg.BigModel.MaxPictureSizeToVQA
+	api.MaxPictureSizeToDescribe = cfg.BigModel.MaxPictureSizeToDescribe
+
+	if err := controller.Init(api, log); err != nil {
 		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
 	}
 

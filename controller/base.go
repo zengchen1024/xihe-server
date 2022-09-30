@@ -43,23 +43,18 @@ func Init(cfg *APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
-	TokenKey        string `json:"token_key"            required:"true"`
-	TokenExpiry     int64  `json:"token_expiry"         required:"true"`
-	EncryptionKey   string `json:"encryption_key"       required:"true"`
-	DefaultPassword string `json:"default_password"     required:"true"`
-	MaxPictureSize  int64  `json:"max_picture_size"`
+	TokenKey                 string `json:"token_key"            required:"true"`
+	TokenExpiry              int64  `json:"token_expiry"         required:"true"`
+	EncryptionKey            string `json:"encryption_key"       required:"true"`
+	DefaultPassword          string `json:"default_password"     required:"true"`
+	MaxPictureSizeToDescribe int64  `json:"-"`
+	MaxPictureSizeToVQA      int64  `json:"-"`
 }
 
 func (cfg *APIConfig) Validate() error {
 	_, err := domain.NewPassword(cfg.DefaultPassword)
 
 	return err
-}
-
-func (cfg *APIConfig) SetDefault() {
-	if cfg.MaxPictureSize <= 0 {
-		cfg.MaxPictureSize = 200 << 10
-	}
 }
 
 type baseController struct {

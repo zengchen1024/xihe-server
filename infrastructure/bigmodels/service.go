@@ -26,9 +26,16 @@ type descOfPicture struct {
 
 var fm *service
 
-func Init(cfg *Config) {
+func Init(cfg *Config) error {
+
+	obs, err := initOBS(&cfg.OBS)
+	if err != nil {
+		return err
+	}
+
 	fm = &service{
 		cfg:              *cfg,
+		obs:              obs,
 		hc:               utils.HttpClient{MaxRetries: 3},
 		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
 		multiplePictures: make(chan string, 1),
@@ -43,6 +50,8 @@ func Init(cfg *Config) {
 	}
 
 	fm.multiplePictures <- cfg.EndpointOfMultiplePictures
+
+	return nil
 }
 
 func NewBigModelService() bigmodel.BigModel {
@@ -51,6 +60,7 @@ func NewBigModelService() bigmodel.BigModel {
 
 type service struct {
 	cfg Config
+	obs obsService
 
 	hc utils.HttpClient
 
@@ -132,9 +142,9 @@ func (q *questionResp) answer() (string, error) {
 	return "", errors.New(q.Msg)
 }
 
-func (s *service) Ask(q domain.Question, f domain.OBSFile) (string, error) {
+func (s *service) Ask(q domain.Question, f string) (string, error) {
 	opt := questionOpt{
-		Picture:  f.OBSFile(),
+		Picture:  f,
 		Question: q.Question(),
 	}
 

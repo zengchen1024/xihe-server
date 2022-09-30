@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,6 +21,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
 	rg.POST("/v1/bigmodel/single_picture", ctl.GenSinglePicture)
 	rg.POST("/v1/bigmodel/multiple_pictures", ctl.GenMultiplePictures)
+	rg.POST("/v1/bigmodel/upload_picture", ctl.UploadPicture)
 	rg.POST("/v1/bigmodel/ask", ctl.Ask)
 }
 
@@ -52,7 +54,7 @@ func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
 		return
 	}
 
-	if f.Size > apiConfig.MaxPictureSize {
+	if f.Size > apiConfig.MaxPictureSizeToDescribe {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestParam, "too big picture",
 		))
@@ -159,7 +161,7 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/ask [post]
 func (ctl *BigModelController) Ask(ctx *gin.Context) {
-	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
@@ -180,9 +182,58 @@ func (ctl *BigModelController) Ask(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.Ask(q, f); err != nil {
+	if v, err := ctl.s.Ask(q, filepath.Join(pl.Account, f)); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(questionAskResp{v}))
+	}
+}
+
+// @Title UploadPicture
+// @Description upload a picture
+// @Tags  BigModel
+// @Param	picture		formData 	file	true	"picture"
+// @Accept json
+// @Success 201 {object} pictureUploadResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/upload_picture [post]
+func (ctl *BigModelController) UploadPicture(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	f, err := ctx.FormFile("picture")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody, err.Error(),
+		))
+
+		return
+	}
+
+	if f.Size > apiConfig.MaxPictureSizeToVQA {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "too big picture",
+		))
+
+		return
+	}
+
+	p, err := f.Open()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "can't get picture",
+		))
+
+		return
+	}
+
+	defer p.Close()
+
+	if err := ctl.s.UploadFile(p, filepath.Join(pl.Account, f.Filename)); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(pictureUploadResp{f.Filename}))
 	}
 }
