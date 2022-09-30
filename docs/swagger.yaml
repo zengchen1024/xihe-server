@@ -468,6 +468,18 @@ definitions:
       type:
         type: string
     type: object
+  controller.questionAskRequest:
+    properties:
+      picture:
+        type: string
+      question:
+        type: string
+    type: object
+  controller.questionAskResp:
+    properties:
+      answer:
+        type: string
+    type: object
   controller.relatedResourceAddRequest:
     properties:
       name:
@@ -618,6 +630,29 @@ paths:
             type: not_allowed
       tags:
       - User
+  /v1/bigmodel/ask:
+    post:
+      consumes:
+      - application/json
+      description: ask question based on a picture
+      parameters:
+      - description: body of ask question
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.questionAskRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.questionAskResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
   /v1/bigmodel/describe_picture:
     post:
       consumes:
@@ -1273,7 +1308,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: body of updating project
+      - description: body of tags
         in: body
         name: body
         required: true

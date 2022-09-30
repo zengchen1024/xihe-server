@@ -20,6 +20,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
 	rg.POST("/v1/bigmodel/single_picture", ctl.GenSinglePicture)
 	rg.POST("/v1/bigmodel/multiple_pictures", ctl.GenMultiplePictures)
+	rg.POST("/v1/bigmodel/ask", ctl.Ask)
 }
 
 type BigModelController struct {
@@ -146,5 +147,42 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(multiplePicturesGenerateResp{v}))
+	}
+}
+
+// @Title Ask
+// @Description ask question based on a picture
+// @Tags  BigModel
+// @Param	body	body 	questionAskRequest	true	"body of ask question"
+// @Accept json
+// @Success 201 {object} questionAskResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/ask [post]
+func (ctl *BigModelController) Ask(ctx *gin.Context) {
+	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := questionAskRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	q, f, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.Ask(q, f); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(questionAskResp{v}))
 	}
 }

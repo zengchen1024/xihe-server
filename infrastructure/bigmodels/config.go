@@ -12,9 +12,10 @@ type Config struct {
 	Project      string `json:"project"         required:"true"`
 	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
 
-	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
 	EndpointsOfSinglePicture    string `json:"endpoints_of_signle_picture"    required:"true"`
-	EndpointOfMultiplePictures  string `json:"endpoints_of_multiple_pictures" required:"true"`
+	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
+	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures" required:"true"`
+	EndpointOfVQA               string `json:"endpoint_of_vqa" required:"true"`
 
 	endpointsOfSinglePicture []string
 }
@@ -26,6 +27,10 @@ func (cfg *Config) Validate() error {
 
 	if _, err := url.Parse(cfg.EndpointOfMultiplePictures); err != nil {
 		return errors.New("invalid url for generating multiple pictures")
+	}
+
+	if _, err := url.Parse(cfg.EndpointOfVQA); err != nil {
+		return errors.New("invalid url for vqa")
 	}
 
 	v := strings.Split(

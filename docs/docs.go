@@ -63,6 +63,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/ask": {
+            "post": {
+                "description": "ask question based on a picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of ask question",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.questionAskRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.questionAskResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/describe_picture": {
             "post": {
                 "description": "describe a picture",
@@ -1050,7 +1086,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "body of updating project",
+                        "description": "body of tags",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -2393,6 +2429,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.questionAskRequest": {
+            "type": "object",
+            "properties": {
+                "picture": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.questionAskResp": {
+            "type": "object",
+            "properties": {
+                "answer": {
                     "type": "string"
                 }
             }
