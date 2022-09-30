@@ -166,7 +166,7 @@ func (ctl *LikeController) getResourceId(
 	owner domain.Account, rt domain.ResourceType, name domain.ResourceName,
 ) (string, error) {
 	switch rt.ResourceType() {
-	case domain.ResourceProject:
+	case domain.ResourceTypeProject.ResourceType():
 		v, err := ctl.proj.GetByName(owner, name.(domain.ProjName))
 		if err != nil {
 			return "", err
@@ -174,7 +174,7 @@ func (ctl *LikeController) getResourceId(
 
 		return v.Id, nil
 
-	case domain.ResourceDataset:
+	case domain.ResourceTypeDataset.ResourceType():
 		v, err := ctl.dataset.GetByName(owner, name.(domain.DatasetName))
 		if err != nil {
 			return "", err
@@ -182,7 +182,7 @@ func (ctl *LikeController) getResourceId(
 
 		return v.Id, nil
 
-	case domain.ResourceModel:
+	case domain.ResourceTypeModel.ResourceType():
 		v, err := ctl.model.GetByName(owner, name.(domain.ModelName))
 		if err != nil {
 			return "", err

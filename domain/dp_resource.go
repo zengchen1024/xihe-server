@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	ResourceProject = "project"
-	ResourceDataset = "dataset"
-	ResourceModel   = "model"
+	resourceProject = "project"
+	resourceDataset = "dataset"
+	resourceModel   = "model"
 
 	SortTypeUpdateTime    = "update_time"
 	SortTypeFirstLetter   = "first_letter"
@@ -21,9 +21,9 @@ var (
 	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 	reResourceName = reName
 
-	ResourceTypeProject = resourceType(ResourceProject)
-	ResourceTypeModel   = resourceType(ResourceModel)
-	ResourceTypeDataset = resourceType(ResourceDataset)
+	ResourceTypeProject = resourceType(resourceProject)
+	ResourceTypeModel   = resourceType(resourceModel)
+	ResourceTypeDataset = resourceType(resourceDataset)
 )
 
 // Name
@@ -216,9 +216,9 @@ type ResourceType interface {
 }
 
 func NewResourceType(v string) (ResourceType, error) {
-	b := v == ResourceProject ||
-		v == ResourceModel ||
-		v == ResourceDataset
+	b := v == resourceProject ||
+		v == resourceModel ||
+		v == resourceDataset
 	if b {
 		return resourceType(v), nil
 	}

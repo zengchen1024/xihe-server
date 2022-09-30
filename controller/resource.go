@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type relatedResourceAddRequest struct {
@@ -66,10 +67,10 @@ func convertToRelatedResource(data interface{}) (r app.ResourceDTO) {
 		//r.Owner.AvatarId =
 
 		r.Name = v.Name.ResourceName()
-		r.Type = domain.ResourceModel
-		//r.UpdateAt
+		r.Type = domain.ResourceTypeModel.ResourceType()
+		r.UpdateAt = utils.ToDate(v.UpdatedAt)
 		r.LikeCount = v.LikeCount
-		//r.DownloadCount =
+		r.DownloadCount = v.DownloadCount
 
 	case domain.Dataset:
 		v := data.(domain.Dataset)
@@ -78,10 +79,10 @@ func convertToRelatedResource(data interface{}) (r app.ResourceDTO) {
 		//r.Owner.AvatarId =
 
 		r.Name = v.Name.ResourceName()
-		r.Type = domain.ResourceDataset
-		//r.UpdateAt
+		r.Type = domain.ResourceTypeDataset.ResourceType()
+		r.UpdateAt = utils.ToDate(v.UpdatedAt)
 		r.LikeCount = v.LikeCount
-		//r.DownloadCount =
+		r.DownloadCount = v.DownloadCount
 	}
 
 	return

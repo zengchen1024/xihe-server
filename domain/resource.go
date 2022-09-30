@@ -9,15 +9,15 @@ import (
 )
 
 func ResourceTypeByName(n string) (ResourceType, error) {
-	if strings.HasPrefix(n, ResourceProject) {
+	if strings.HasPrefix(n, resourceProject) {
 		return ResourceTypeProject, nil
 	}
 
-	if strings.HasPrefix(n, ResourceDataset) {
+	if strings.HasPrefix(n, resourceDataset) {
 		return ResourceTypeDataset, nil
 	}
 
-	if strings.HasPrefix(n, ResourceModel) {
+	if strings.HasPrefix(n, resourceModel) {
 		return ResourceTypeModel, nil
 	}
 

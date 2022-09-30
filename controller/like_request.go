@@ -45,7 +45,7 @@ func (req *likeCreateRequest) toCmd(
 	var name domain.ResourceName
 
 	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceProject:
+	case domain.ResourceTypeProject.ResourceType():
 		name, err = domain.NewProjName(req.Name)
 		if err != nil {
 			bad()
@@ -53,7 +53,7 @@ func (req *likeCreateRequest) toCmd(
 			return
 		}
 
-	case domain.ResourceDataset:
+	case domain.ResourceTypeDataset.ResourceType():
 		name, err = domain.NewDatasetName(req.Name)
 		if err != nil {
 			bad()
@@ -61,7 +61,7 @@ func (req *likeCreateRequest) toCmd(
 			return
 		}
 
-	case domain.ResourceModel:
+	case domain.ResourceTypeModel.ResourceType():
 		name, err = domain.NewModelName(req.Name)
 		if err != nil {
 			bad()
