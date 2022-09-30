@@ -55,6 +55,8 @@ func (req *relatedResourceRemoveRequest) toCmd() (
 		err = errors.New("missing id")
 	}
 
+	cmd.Id = req.Id
+
 	return
 }
 
