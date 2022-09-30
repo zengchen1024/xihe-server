@@ -621,7 +621,7 @@ func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 // @Tags  Project
 // @Param	owner	path	string				true	"owner of project"
 // @Param	id	path	string				true	"id of project"
-// @Param	body	body 	resourceTagsUpdateRequest	true	"body of updating project"
+// @Param	body	body 	resourceTagsUpdateRequest	true	"body of tags"
 // @Accept json
 // @Success 202
 // @Router /v1/project/{owner}/{id}/tags [put]

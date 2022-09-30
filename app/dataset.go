@@ -211,15 +211,14 @@ func (s datasetService) List(owner domain.Account, cmd *ResourceListCmd) (
 
 func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 	*dto = DatasetDTO{
-		Id:       d.Id,
-		Owner:    d.Owner.Account(),
-		Name:     d.Name.DatasetName(),
-		Desc:     d.Desc.ResourceDesc(),
-		Protocol: d.Protocol.ProtocolName(),
-		RepoType: d.RepoType.RepoType(),
-		RepoId:   d.RepoId,
-		Tags:     d.Tags,
-
+		Id:            d.Id,
+		Owner:         d.Owner.Account(),
+		Name:          d.Name.DatasetName(),
+		Desc:          d.Desc.ResourceDesc(),
+		Protocol:      d.Protocol.ProtocolName(),
+		RepoType:      d.RepoType.RepoType(),
+		RepoId:        d.RepoId,
+		Tags:          d.Tags,
 		CreatedAt:     utils.ToDate(d.CreatedAt),
 		UpdatedAt:     utils.ToDate(d.UpdatedAt),
 		LikeCount:     d.LikeCount,

@@ -39,7 +39,7 @@ func (col project) IncreaseFork(owner, rid string) (err error) {
 	f := func(ctx context.Context) error {
 		updated, err = cli.updateArrayElemCount(
 			ctx, col.collectionName, fieldItems, fieldForkCount, 1,
-			resourceOwnerFilter(owner), arrayFilterById(rid),
+			resourceOwnerFilter(owner), resourceIdFilter(rid),
 		)
 
 		return nil

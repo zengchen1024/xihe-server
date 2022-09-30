@@ -114,13 +114,13 @@ func (s resourceService) toOptions(resources []*domain.ResourceObject) (
 		}
 
 		switch item.Type.ResourceType() {
-		case domain.ResourceProject:
+		case domain.ResourceTypeProject.ResourceType():
 			s.store(&item.ResourceIndex, po)
 
-		case domain.ResourceModel:
+		case domain.ResourceTypeModel.ResourceType():
 			s.store(&item.ResourceIndex, mo)
 
-		case domain.ResourceDataset:
+		case domain.ResourceTypeDataset.ResourceType():
 			s.store(&item.ResourceIndex, do)
 		}
 	}
@@ -222,7 +222,7 @@ func (s resourceService) projectToResourceDTO(
 		v := ResourceDTO{
 			Id:            p.Id,
 			Name:          p.Name.ProjName(),
-			Type:          domain.ResourceProject,
+			Type:          domain.ResourceTypeProject.ResourceType(),
 			Desc:          p.Desc.ResourceDesc(),
 			CoverId:       p.CoverId.CoverId(),
 			UpdateAt:      utils.ToDate(p.UpdatedAt),
@@ -250,7 +250,7 @@ func (s resourceService) modelToResourceDTO(
 		v := ResourceDTO{
 			Id:            d.Id,
 			Name:          d.Name.ModelName(),
-			Type:          domain.ResourceModel,
+			Type:          domain.ResourceTypeModel.ResourceType(),
 			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),
 			LikeCount:     d.LikeCount,
@@ -276,7 +276,7 @@ func (s resourceService) datasetToResourceDTO(
 		v := ResourceDTO{
 			Id:            d.Id,
 			Name:          d.Name.DatasetName(),
-			Type:          domain.ResourceDataset,
+			Type:          domain.ResourceTypeDataset.ResourceType(),
 			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),
 			LikeCount:     d.LikeCount,

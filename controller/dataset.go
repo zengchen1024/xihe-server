@@ -376,8 +376,7 @@ func (ctl *DatasetController) checkPermission(ctx *gin.Context) (d domain.Datase
 
 	if pl.isNotMe(owner) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"can't update dataset for other user",
+			errorNotAllowed, "not allowed",
 		))
 
 		return

@@ -21,6 +21,12 @@ func resourceNameFilter(name string) bson.M {
 	}
 }
 
+func resourceIdFilter(identity string) bson.M {
+	return bson.M{
+		fieldId: identity,
+	}
+}
+
 func toResourceObject(do *repositories.ResourceObjectDO) ResourceObject {
 	return ResourceObject{
 		Id:    do.Id,
@@ -81,7 +87,7 @@ func updateResourceLike(collection, owner, rid string, num int) error {
 	f := func(ctx context.Context) error {
 		b, err := cli.updateArrayElemCount(
 			ctx, collection, fieldItems, fieldLikeCount, num,
-			resourceOwnerFilter(owner), arrayFilterById(rid),
+			resourceOwnerFilter(owner), resourceIdFilter(rid),
 		)
 
 		updated = b
@@ -104,12 +110,24 @@ func updateResourceLike(collection, owner, rid string, num int) error {
 	return nil
 }
 
+func getResourceById(collection, owner, rid string, result interface{}) error {
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(owner), resourceIdFilter(rid),
+			nil, result,
+		)
+	}
+
+	return withContext(f)
+}
+
 func getResourceByName(collection, owner, name string, result interface{}) error {
 	f := func(ctx context.Context) error {
 		return cli.getArrayElem(
 			ctx, collection, fieldItems,
 			resourceOwnerFilter(owner), resourceNameFilter(name),
-			bson.M{fieldItems: 1}, result,
+			nil, result,
 		)
 	}
 
@@ -159,7 +177,7 @@ func updateResourceProperty(
 		updated, err = cli.updateArrayElem(
 			ctx, collection, fieldItems,
 			resourceOwnerFilter(obj.Owner),
-			arrayFilterById(obj.Id),
+			resourceIdFilter(obj.Id),
 			doc, obj.Version, obj.UpdatedAt,
 		)
 
@@ -295,7 +313,7 @@ func updateRelatedResource(
 	}
 
 	docFilter := resourceOwnerFilter(do.Owner)
-	arrayFilter := arrayFilterById(do.Id)
+	arrayFilter := resourceIdFilter(do.Id)
 
 	updated := false
 	var err error
