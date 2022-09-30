@@ -499,7 +499,7 @@ func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+	ctx.JSON(http.StatusNoContent, newResponseData("success"))
 }
 
 // @Summary AddRelatedDataset
@@ -613,7 +613,7 @@ func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+	ctx.JSON(http.StatusNoContent, newResponseData("success"))
 }
 
 // @Summary SetTags

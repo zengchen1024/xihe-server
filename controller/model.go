@@ -424,7 +424,7 @@ func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, newResponseData("success"))
+	ctx.JSON(http.StatusNoContent, newResponseData("success"))
 }
 
 // @Summary SetTags
