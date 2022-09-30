@@ -8,18 +8,6 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func modelDocFilter(owner string) bson.M {
-	return bson.M{
-		fieldOwner: owner,
-	}
-}
-
-func modelItemFilter(name string) bson.M {
-	return bson.M{
-		fieldName: name,
-	}
-}
-
 func NewModelMapper(name string) repositories.ModelMapper {
 	return model{name}
 }
@@ -29,7 +17,7 @@ type model struct {
 }
 
 func (col model) newDoc(owner string) error {
-	docFilter := modelDocFilter(owner)
+	docFilter := resourceOwnerFilter(owner)
 
 	doc := bson.M{
 		fieldOwner: owner,
@@ -99,15 +87,7 @@ func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
 func (col model) Get(owner, identity string) (do repositories.ModelDO, err error) {
 	var v []dModel
 
-	f := func(ctx context.Context) error {
-		return cli.getArrayElem(
-			ctx, col.collectionName, fieldItems,
-			modelDocFilter(owner), arrayFilterById(identity),
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	if err = getResourceById(col.collectionName, owner, identity, &v); err != nil {
 		return
 	}
 

@@ -8,24 +8,6 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func projectDocFilter(owner string) bson.M {
-	return bson.M{
-		fieldOwner: owner,
-	}
-}
-
-func projectItemFilter(name string) bson.M {
-	return bson.M{
-		fieldName: name,
-	}
-}
-
-func arrayFilterById(identity string) bson.M {
-	return bson.M{
-		fieldId: identity,
-	}
-}
-
 func NewProjectMapper(name string) repositories.ProjectMapper {
 	return project{name}
 }
@@ -35,7 +17,7 @@ type project struct {
 }
 
 func (col project) newDoc(owner string) error {
-	docFilter := projectDocFilter(owner)
+	docFilter := resourceOwnerFilter(owner)
 
 	doc := bson.M{
 		fieldOwner: owner,
@@ -107,15 +89,7 @@ func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 func (col project) Get(owner, identity string) (do repositories.ProjectDO, err error) {
 	var v []dProject
 
-	f := func(ctx context.Context) error {
-		return cli.getArrayElem(
-			ctx, col.collectionName, fieldItems,
-			projectDocFilter(owner), arrayFilterById(identity),
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	if err = getResourceById(col.collectionName, owner, identity, &v); err != nil {
 		return
 	}
 

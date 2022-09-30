@@ -8,18 +8,6 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func datasetDocFilter(owner string) bson.M {
-	return bson.M{
-		fieldOwner: owner,
-	}
-}
-
-func datasetItemFilter(name string) bson.M {
-	return bson.M{
-		fieldName: name,
-	}
-}
-
 func NewDatasetMapper(name string) repositories.DatasetMapper {
 	return dataset{name}
 }
@@ -29,7 +17,7 @@ type dataset struct {
 }
 
 func (col dataset) newDoc(owner string) error {
-	docFilter := datasetDocFilter(owner)
+	docFilter := resourceOwnerFilter(owner)
 
 	doc := bson.M{
 		fieldOwner: owner,
@@ -98,15 +86,7 @@ func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
 func (col dataset) Get(owner, identity string) (do repositories.DatasetDO, err error) {
 	var v []dDataset
 
-	f := func(ctx context.Context) error {
-		return cli.getArrayElem(
-			ctx, col.collectionName, fieldItems,
-			datasetDocFilter(owner), arrayFilterById(identity),
-			bson.M{fieldItems: 1}, &v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	if err = getResourceById(col.collectionName, owner, identity, &v); err != nil {
 		return
 	}
 
