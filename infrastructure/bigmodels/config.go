@@ -67,7 +67,7 @@ func (cfg *Config) Validate() error {
 }
 
 type OBSConfig struct {
-	Endpoint  string `json:"Endpoint"   required:"true"`
+	Endpoint  string `json:"endpoint"   required:"true"`
 	AccessKey string `json:"access_key" required:"true"`
 	SecretKey string `json:"secret_key" required:"true"`
 	Bucket    string `json:"bucket"     required:"true"`
