@@ -53,6 +53,11 @@ func main() {
 		logrus.Fatalf("load config, err:%s", err.Error())
 	}
 
+	// bigmodel
+	if err := bigmodels.Init(&cfg.BigModel); err != nil {
+		logrus.Fatalf("initialize big model failed, err:%s", err.Error())
+	}
+
 	// gitlab
 	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
@@ -62,7 +67,11 @@ func main() {
 	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
 
 	// controller
-	if err := controller.Init(&cfg.API, log); err != nil {
+	api := &cfg.API
+	api.MaxPictureSizeToVQA = cfg.BigModel.MaxPictureSizeToVQA
+	api.MaxPictureSizeToDescribe = cfg.BigModel.MaxPictureSizeToDescribe
+
+	if err := controller.Init(api, log); err != nil {
 		logrus.Fatalf("initialize api controller failed, err:%s", err.Error())
 	}
 
@@ -83,9 +92,6 @@ func main() {
 
 	// cfg
 	cfg.InitDomainConfig()
-
-	// bigmodel
-	bigmodels.Init(&cfg.BigModel)
 
 	// run
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)
