@@ -72,3 +72,10 @@ type modelDetail struct {
 
 	*app.ModelDetailDTO
 }
+
+type modelsInfo struct {
+	Owner    string `json:"owner"`
+	AvatarId string `json:"avatar_id"`
+
+	*app.ModelsDTO
+}

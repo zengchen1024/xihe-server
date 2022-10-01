@@ -58,15 +58,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  app.DatasetsDTO:
-    properties:
-      models:
-        items:
-          $ref: '#/definitions/app.DatasetSummaryDTO'
-        type: array
-      total:
-        type: integer
-    type: object
   app.DomainTagsDTO:
     properties:
       domain:
@@ -147,15 +138,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  app.ModelsDTO:
-    properties:
-      models:
-        items:
-          $ref: '#/definitions/app.ModelSummaryDTO'
-        type: array
-      total:
-        type: integer
-    type: object
   app.ProjectSummaryDTO:
     properties:
       cover_id:
@@ -180,15 +162,6 @@ definitions:
         type: array
       updated_at:
         type: string
-    type: object
-  app.ProjectsDTO:
-    properties:
-      projects:
-        items:
-          $ref: '#/definitions/app.ProjectSummaryDTO'
-        type: array
-      total:
-        type: integer
     type: object
   app.ResourceDTO:
     properties:
@@ -288,6 +261,19 @@ definitions:
       type:
         type: string
     type: object
+  controller.datasetsInfo:
+    properties:
+      avatar_id:
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/app.DatasetSummaryDTO'
+        type: array
+      owner:
+        type: string
+      total:
+        type: integer
+    type: object
   controller.describePictureResp:
     properties:
       desc:
@@ -368,6 +354,19 @@ definitions:
         type: string
       type:
         type: string
+    type: object
+  controller.modelsInfo:
+    properties:
+      avatar_id:
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/app.ModelSummaryDTO'
+        type: array
+      owner:
+        type: string
+      total:
+        type: integer
     type: object
   controller.multiplePicturesGenerateResp:
     properties:
@@ -472,6 +471,19 @@ definitions:
         type: string
       type:
         type: string
+    type: object
+  controller.projectsInfo:
+    properties:
+      avatar_id:
+        type: string
+      owner:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/app.ProjectSummaryDTO'
+        type: array
+      total:
+        type: integer
     type: object
   controller.questionAskRequest:
     properties:
@@ -813,7 +825,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.DatasetsDTO'
+            $ref: '#/definitions/controller.datasetsInfo'
       summary: List
       tags:
       - Dataset
@@ -959,7 +971,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.ModelsDTO'
+            $ref: '#/definitions/controller.modelsInfo'
       summary: List
       tags:
       - Model
@@ -1152,7 +1164,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.ProjectsDTO'
+            $ref: '#/definitions/controller.projectsInfo'
       summary: List
       tags:
       - Project

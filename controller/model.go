@@ -22,6 +22,7 @@ func AddRouterForModelController(
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ModelController{
+		user:    user,
 		repo:    repo,
 		dataset: dataset,
 		tags:    tags,
@@ -45,6 +46,7 @@ func AddRouterForModelController(
 type ModelController struct {
 	baseController
 
+	user    repository.User
 	repo    repository.Model
 	dataset repository.Dataset
 	tags    repository.Tags
@@ -264,7 +266,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 // @Param	page_num	query	int	false	"page num which starts from 1"
 // @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
-// @Success 200 {object} app.ModelsDTO
+// @Success 200 {object} modelsInfo
 // @Produce json
 // @Router /v1/model/{owner} [get]
 func (ctl *ModelController) List(ctx *gin.Context) {
@@ -310,7 +312,20 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(data))
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	result := modelsInfo{
+		Owner:     owner.Account(),
+		AvatarId:  avatar.AvatarId(),
+		ModelsDTO: &data,
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(&result))
 }
 
 // @Summary AddRelatedDataset
