@@ -15,6 +15,8 @@ type pictureGenerateRequest struct {
 }
 
 func (req *pictureGenerateRequest) validate() error {
+	// TODO check if desc is legal
+
 	if req.Desc == "" {
 		return errors.New("missing desc")
 	}
@@ -44,6 +46,8 @@ func (req *questionAskRequest) toCmd() (
 
 	if req.Picture == "" {
 		err = errors.New("missing picture")
+
+		// TODO doesnot allow chinese name for picture
 
 		return
 	}

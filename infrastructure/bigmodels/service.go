@@ -27,7 +27,6 @@ type descOfPicture struct {
 var fm *service
 
 func Init(cfg *Config) error {
-
 	obs, err := initOBS(&cfg.OBS)
 	if err != nil {
 		return err
