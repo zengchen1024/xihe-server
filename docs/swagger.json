@@ -326,7 +326,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.DatasetsDTO"
+                            "$ref": "#/definitions/controller.datasetsInfo"
                         }
                     }
                 }
@@ -546,7 +546,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ModelsDTO"
+                            "$ref": "#/definitions/controller.modelsInfo"
                         }
                     }
                 }
@@ -835,7 +835,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ProjectsDTO"
+                            "$ref": "#/definitions/controller.projectsInfo"
                         }
                     }
                 }
@@ -1825,20 +1825,6 @@
                 }
             }
         },
-        "app.DatasetsDTO": {
-            "type": "object",
-            "properties": {
-                "models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.DatasetSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "app.DomainTagsDTO": {
             "type": "object",
             "properties": {
@@ -1962,20 +1948,6 @@
                 }
             }
         },
-        "app.ModelsDTO": {
-            "type": "object",
-            "properties": {
-                "models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.ModelSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "app.ProjectSummaryDTO": {
             "type": "object",
             "properties": {
@@ -2011,20 +1983,6 @@
                 },
                 "updated_at": {
                     "type": "string"
-                }
-            }
-        },
-        "app.ProjectsDTO": {
-            "type": "object",
-            "properties": {
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.ProjectSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
                 }
             }
         },
@@ -2178,6 +2136,26 @@
                 }
             }
         },
+        "controller.datasetsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.DatasetSummaryDTO"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.describePictureResp": {
             "type": "object",
             "properties": {
@@ -2300,6 +2278,26 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.modelsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ModelSummaryDTO"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -2460,6 +2458,26 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.projectsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ProjectSummaryDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

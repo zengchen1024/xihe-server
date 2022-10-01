@@ -244,11 +244,10 @@ func listResource(
 		bson.M{"$match": resourceOwnerFilter(owner)},
 		bson.M{"$project": project},
 		bson.M{"$project": keep},
+		bson.M{"$unwind": fieldItemsRef},
 	}
 
 	if sort != nil || do.CountPerPage > 0 {
-		pipeline = append(pipeline, bson.M{"$unwind": fieldItemsRef})
-
 		if sort != nil {
 			pipeline = append(pipeline, bson.M{"$sort": sort})
 		}

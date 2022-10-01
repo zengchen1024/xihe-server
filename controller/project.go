@@ -25,6 +25,7 @@ func AddRouterForProjectController(
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := ProjectController{
+		user:    user,
 		repo:    repo,
 		model:   model,
 		dataset: dataset,
@@ -56,6 +57,7 @@ func AddRouterForProjectController(
 type ProjectController struct {
 	baseController
 
+	user repository.User
 	repo repository.Project
 	s    app.ProjectService
 
@@ -274,7 +276,7 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 // @Param	page_num	query	int	false	"page num which starts from 1"
 // @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
-// @Success 200 {object} app.ProjectsDTO
+// @Success 200 {object} projectsInfo
 // @Produce json
 // @Router /v1/project/{owner} [get]
 func (ctl *ProjectController) List(ctx *gin.Context) {
@@ -320,7 +322,20 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(projs))
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	result := projectsInfo{
+		Owner:       owner.Account(),
+		AvatarId:    avatar.AvatarId(),
+		ProjectsDTO: &projs,
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(&result))
 }
 
 // @Summary Fork

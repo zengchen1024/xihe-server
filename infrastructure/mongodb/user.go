@@ -151,6 +151,23 @@ func (col user) GetByFollower(account, follower string) (
 	return
 }
 
+func (col user) GetUserAvatarId(account string) (string, error) {
+	var v DUser
+
+	f := func(ctx context.Context) error {
+		return cli.getDoc(
+			ctx, col.collectionName, bson.M{fieldName: account},
+			bson.M{fieldAvatarId: 1}, &v,
+		)
+	}
+
+	if err := withContext(f); err != nil {
+		return "", err
+	}
+
+	return v.AvatarId, nil
+}
+
 func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, error) {
 	var v []DUser
 

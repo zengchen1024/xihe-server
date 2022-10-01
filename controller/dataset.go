@@ -22,6 +22,7 @@ func AddRouterForDatasetController(
 	newPlatformRepository func(token, namespace string) platform.Repository,
 ) {
 	ctl := DatasetController{
+		user: user,
 		repo: repo,
 		tags: tags,
 		like: like,
@@ -41,6 +42,7 @@ func AddRouterForDatasetController(
 type DatasetController struct {
 	baseController
 
+	user repository.User
 	repo repository.Dataset
 	tags repository.Tags
 	like repository.Like
@@ -259,7 +261,7 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 // @Param	page_num	query	int	false	"page num which starts from 1"
 // @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
 // @Accept json
-// @Success 200 {object} app.DatasetsDTO
+// @Success 200 {object} datasetsInfo
 // @Produce json
 // @Router /v1/dataset/{owner} [get]
 func (ctl *DatasetController) List(ctx *gin.Context) {
@@ -305,7 +307,20 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(data))
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	result := datasetsInfo{
+		Owner:       owner.Account(),
+		AvatarId:    avatar.AvatarId(),
+		DatasetsDTO: &data,
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(&result))
 }
 
 // @Summary SetTags

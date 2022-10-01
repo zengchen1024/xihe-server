@@ -13,6 +13,7 @@ type UserMapper interface {
 	GetByAccount(string) (UserDO, error)
 	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
 	ListUsersInfo([]string) ([]UserInfoDO, error)
+	GetUserAvatarId(string) (string, error)
 
 	AddFollowing(owner, account string) error
 	RemoveFollowing(owner, account string) error
@@ -66,6 +67,15 @@ func (impl user) Save(u *domain.User) (r domain.User, err error) {
 	}
 
 	return
+}
+
+func (impl user) GetUserAvatarId(account domain.Account) (domain.AvatarId, error) {
+	d, err := impl.mapper.GetUserAvatarId(account.Account())
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	return domain.NewAvatarId(d)
 }
 
 func (impl user) FindUsersInfo(accounts []domain.Account) (r []domain.UserInfo, err error) {

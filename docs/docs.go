@@ -338,7 +338,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.DatasetsDTO"
+                            "$ref": "#/definitions/controller.datasetsInfo"
                         }
                     }
                 }
@@ -558,7 +558,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ModelsDTO"
+                            "$ref": "#/definitions/controller.modelsInfo"
                         }
                     }
                 }
@@ -847,7 +847,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ProjectsDTO"
+                            "$ref": "#/definitions/controller.projectsInfo"
                         }
                     }
                 }
@@ -1837,20 +1837,6 @@ const docTemplate = `{
                 }
             }
         },
-        "app.DatasetsDTO": {
-            "type": "object",
-            "properties": {
-                "models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.DatasetSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "app.DomainTagsDTO": {
             "type": "object",
             "properties": {
@@ -1974,20 +1960,6 @@ const docTemplate = `{
                 }
             }
         },
-        "app.ModelsDTO": {
-            "type": "object",
-            "properties": {
-                "models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.ModelSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "app.ProjectSummaryDTO": {
             "type": "object",
             "properties": {
@@ -2023,20 +1995,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                }
-            }
-        },
-        "app.ProjectsDTO": {
-            "type": "object",
-            "properties": {
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.ProjectSummaryDTO"
-                    }
-                },
-                "total": {
-                    "type": "integer"
                 }
             }
         },
@@ -2190,6 +2148,26 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.datasetsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.DatasetSummaryDTO"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.describePictureResp": {
             "type": "object",
             "properties": {
@@ -2312,6 +2290,26 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.modelsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ModelSummaryDTO"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -2472,6 +2470,26 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.projectsInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ProjectSummaryDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
