@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.swp
 xihe-server
 message-server/message-server
 test

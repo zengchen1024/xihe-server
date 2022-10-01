@@ -94,3 +94,10 @@ type projectDetail struct {
 
 	*app.ProjectDetailDTO
 }
+
+type projectsInfo struct {
+	Owner    string `json:"owner"`
+	AvatarId string `json:"avatar_id"`
+
+	*app.ProjectsDTO
+}
