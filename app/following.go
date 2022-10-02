@@ -11,10 +11,10 @@ type FollowDTO struct {
 	Bio      string `json:"bio"`
 }
 
-func (s userService) AddFollowing(owner, following domain.Account) error {
-	f := domain.Following{
-		Owner:   owner,
-		Account: following,
+func (s userService) AddFollowing(user, follower domain.Account) error {
+	f := domain.FollowerInfo{
+		User:     user,
+		Follower: follower,
 	}
 	err := s.repo.AddFollowing(&f)
 	if err != nil {
@@ -29,10 +29,10 @@ func (s userService) AddFollowing(owner, following domain.Account) error {
 	return nil
 }
 
-func (s userService) RemoveFollowing(owner, following domain.Account) error {
-	f := domain.Following{
-		Owner:   owner,
-		Account: following,
+func (s userService) RemoveFollowing(user, follower domain.Account) error {
+	f := domain.FollowerInfo{
+		User:     user,
+		Follower: follower,
 	}
 	err := s.repo.RemoveFollowing(&f)
 	if err != nil {

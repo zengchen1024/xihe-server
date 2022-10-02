@@ -15,12 +15,12 @@ type UserMapper interface {
 	ListUsersInfo([]string) ([]UserInfoDO, error)
 	GetUserAvatarId(string) (string, error)
 
-	AddFollowing(owner, account string) error
-	RemoveFollowing(owner, account string) error
+	AddFollowing(user, follower string) error
+	RemoveFollowing(user, follower string) error
 	ListFollowing(string) ([]FollowUserInfoDO, error)
 
-	AddFollower(owner, account string) error
-	RemoveFollower(owner, account string) error
+	AddFollower(user, follower string) error
+	RemoveFollower(user, follower string) error
 	ListFollower(string) ([]FollowUserInfoDO, error)
 }
 

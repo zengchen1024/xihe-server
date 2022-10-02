@@ -43,6 +43,7 @@ func (cmd *ModelCreateCmd) toModel() domain.Model {
 			Name:     cmd.Name,
 			Desc:     cmd.Desc,
 			RepoType: cmd.RepoType,
+			Tags:     []string{cmd.Protocol.ProtocolName()},
 		},
 	}
 }

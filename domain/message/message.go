@@ -5,8 +5,8 @@ import (
 )
 
 type Sender interface {
-	AddFollowing(msg domain.Following) error
-	RemoveFollowing(msg domain.Following) error
+	AddFollowing(msg domain.FollowerInfo) error
+	RemoveFollowing(msg domain.FollowerInfo) error
 
 	AddLike(msg domain.Like) error
 	RemoveLike(msg domain.Like) error
@@ -21,8 +21,8 @@ type EventHandler interface {
 }
 
 type FollowingHandler interface {
-	HandleEventAddFollowing(domain.Following) error
-	HandleEventRemoveFollowing(msg domain.Following) error
+	HandleEventAddFollowing(domain.FollowerInfo) error
+	HandleEventRemoveFollowing(domain.FollowerInfo) error
 }
 
 type LikeHandler interface {

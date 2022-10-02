@@ -96,17 +96,19 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		),
 
 		dataset: app.NewDatasetService(
+			nil,
 			repositories.NewDatasetRepository(
 				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
 			),
-			nil, nil,
+			nil, nil, nil, nil,
 		),
 
 		model: app.NewModelService(
+			nil,
 			repositories.NewModelRepository(
 				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
 			),
-			nil, nil,
+			nil, nil, nil, nil,
 		),
 	}
 }

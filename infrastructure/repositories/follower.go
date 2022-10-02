@@ -23,11 +23,8 @@ func (impl user) GetByFollower(owner, follower domain.Account) (
 	return
 }
 
-func (impl user) AddFollower(v *domain.Follower) error {
-	err := impl.mapper.AddFollower(
-		v.Owner.Account(),
-		v.Account.Account(),
-	)
+func (impl user) AddFollower(v *domain.FollowerInfo) error {
+	err := impl.mapper.AddFollower(v.User.Account(), v.Follower.Account())
 	if err != nil {
 		return convertError(err)
 	}
@@ -35,11 +32,8 @@ func (impl user) AddFollower(v *domain.Follower) error {
 	return nil
 }
 
-func (impl user) RemoveFollower(v *domain.Follower) error {
-	err := impl.mapper.RemoveFollower(
-		v.Owner.Account(),
-		v.Account.Account(),
-	)
+func (impl user) RemoveFollower(v *domain.FollowerInfo) error {
+	err := impl.mapper.RemoveFollower(v.User.Account(), v.Follower.Account())
 	if err != nil {
 		return convertError(err)
 	}

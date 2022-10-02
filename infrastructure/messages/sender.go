@@ -25,19 +25,19 @@ func NewMessageSender() message.Sender {
 type sender struct{}
 
 // Following
-func (s sender) AddFollowing(msg domain.Following) error {
+func (s sender) AddFollowing(msg domain.FollowerInfo) error {
 	return s.sendFollowing(msg, actionAdd)
 }
 
-func (s sender) RemoveFollowing(msg domain.Following) error {
+func (s sender) RemoveFollowing(msg domain.FollowerInfo) error {
 	return s.sendFollowing(msg, actionRemove)
 }
 
-func (s sender) sendFollowing(msg domain.Following, action string) error {
-	v := msgFollowing{
-		Action:    action,
-		Owner:     msg.Owner.Account(),
-		Following: msg.Account.Account(),
+func (s sender) sendFollowing(msg domain.FollowerInfo, action string) error {
+	v := msgFollower{
+		Action:   action,
+		User:     msg.User.Account(),
+		Follower: msg.Follower.Account(),
 	}
 
 	return s.send(topics.Following, &v)

@@ -53,6 +53,7 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 			Desc:     cmd.Desc,
 			CoverId:  cmd.CoverId,
 			RepoType: cmd.RepoType,
+			Tags:     []string{cmd.Protocol.ProtocolName()},
 		},
 	}
 }

@@ -23,14 +23,9 @@ type PlatformUser struct {
 	NamespaceId string
 }
 
-type Following struct {
-	Owner   Account
-	Account Account
-}
-
-type Follower struct {
-	Owner   Account
-	Account Account
+type FollowerInfo struct {
+	User     Account
+	Follower Account
 }
 
 type FollowUserInfo struct {

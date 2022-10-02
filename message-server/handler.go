@@ -26,9 +26,9 @@ type handler struct {
 	project  app.ProjectService
 }
 
-func (h *handler) HandleEventAddFollowing(f domain.Following) error {
+func (h *handler) HandleEventAddFollowing(f domain.FollowerInfo) error {
 	return h.do(func() (err error) {
-		if err = h.user.AddFollower(f.Account, f.Owner); err == nil {
+		if err = h.user.AddFollower(f.User, f.Follower); err == nil {
 			return
 		}
 
@@ -40,9 +40,9 @@ func (h *handler) HandleEventAddFollowing(f domain.Following) error {
 	})
 }
 
-func (h *handler) HandleEventRemoveFollowing(f domain.Following) (err error) {
+func (h *handler) HandleEventRemoveFollowing(f domain.FollowerInfo) (err error) {
 	return h.do(func() error {
-		return h.user.RemoveFollower(f.Account, f.Owner)
+		return h.user.RemoveFollower(f.User, f.Follower)
 	})
 }
 
@@ -50,13 +50,13 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 	return h.do(func() (err error) {
 		switch like.Type.ResourceType() {
 
-		case domain.ResourceProject:
+		case domain.ResourceTypeProject.ResourceType():
 			err = h.project.AddLike(like.Owner, like.Id)
 
-		case domain.ResourceDataset:
+		case domain.ResourceTypeDataset.ResourceType():
 			err = h.dataset.AddLike(like.Owner, like.Id)
 
-		case domain.ResourceModel:
+		case domain.ResourceTypeModel.ResourceType():
 			err = h.model.AddLike(like.Owner, like.Id)
 		}
 
@@ -78,13 +78,13 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
 	return h.do(func() (err error) {
 		switch like.Type.ResourceType() {
-		case domain.ResourceProject:
+		case domain.ResourceTypeProject.ResourceType():
 			err = h.project.RemoveLike(like.Owner, like.Id)
 
-		case domain.ResourceDataset:
+		case domain.ResourceTypeDataset.ResourceType():
 			err = h.dataset.RemoveLike(like.Owner, like.Id)
 
-		case domain.ResourceModel:
+		case domain.ResourceTypeModel.ResourceType():
 			err = h.model.RemoveLike(like.Owner, like.Id)
 		}
 
