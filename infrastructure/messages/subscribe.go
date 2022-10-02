@@ -72,17 +72,17 @@ func registerFollowingHandler(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		body := msgFollowing{}
+		body := msgFollower{}
 		if err = json.Unmarshal(msg.Body, &body); err != nil {
 			return
 		}
 
-		f := domain.Following{}
-		if f.Owner, err = domain.NewAccount(body.Owner); err != nil {
+		f := domain.FollowerInfo{}
+		if f.User, err = domain.NewAccount(body.User); err != nil {
 			return
 		}
 
-		if f.Account, err = domain.NewAccount(body.Following); err != nil {
+		if f.Follower, err = domain.NewAccount(body.Follower); err != nil {
 			return
 		}
 

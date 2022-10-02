@@ -15,12 +15,12 @@ func userDocFilterByAccount(account string) bson.M {
 }
 
 // following
-func (col user) AddFollowing(owner, account string) error {
-	return col.addFollow(owner, account, fieldFollowing)
+func (col user) AddFollowing(user, follower string) error {
+	return col.addFollow(follower, user, fieldFollowing)
 }
 
-func (col user) RemoveFollowing(owner, account string) error {
-	return col.removeFollow(owner, account, fieldFollowing)
+func (col user) RemoveFollowing(user, follower string) error {
+	return col.removeFollow(follower, user, fieldFollowing)
 }
 
 func (col user) ListFollowing(owner string) ([]repositories.FollowUserInfoDO, error) {
@@ -28,12 +28,12 @@ func (col user) ListFollowing(owner string) ([]repositories.FollowUserInfoDO, er
 }
 
 // follower
-func (col user) AddFollower(owner, account string) error {
-	return col.addFollow(owner, account, fieldFollower)
+func (col user) AddFollower(user, follower string) error {
+	return col.addFollow(user, follower, fieldFollower)
 }
 
-func (col user) RemoveFollower(owner, account string) error {
-	return col.removeFollow(owner, account, fieldFollower)
+func (col user) RemoveFollower(user, follower string) error {
+	return col.removeFollow(user, follower, fieldFollower)
 }
 
 func (col user) ListFollower(owner string) ([]repositories.FollowUserInfoDO, error) {
@@ -41,11 +41,11 @@ func (col user) ListFollower(owner string) ([]repositories.FollowUserInfoDO, err
 }
 
 // helper
-func (col user) addFollow(owner, account, field string) error {
+func (col user) addFollow(user, account, field string) error {
 	f := func(ctx context.Context) error {
 		return cli.addToSimpleArray(
 			ctx, col.collectionName, field,
-			userDocFilterByAccount(owner), account,
+			userDocFilterByAccount(user), account,
 		)
 	}
 
@@ -60,11 +60,11 @@ func (col user) addFollow(owner, account, field string) error {
 	return nil
 }
 
-func (col user) removeFollow(owner, account, field string) error {
+func (col user) removeFollow(user, account, field string) error {
 	f := func(ctx context.Context) error {
 		return cli.removeFromSimpleArray(
 			ctx, col.collectionName, field,
-			userDocFilterByAccount(owner), account,
+			userDocFilterByAccount(user), account,
 		)
 	}
 

@@ -29,7 +29,7 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 		return
 	}
 
-	following, err := domain.NewAccount(req.Account)
+	user, err := domain.NewAccount(req.Account)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -42,7 +42,7 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	if !pl.isNotMe(following) {
+	if pl.isMyself(user) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed, "can't add yourself as your following",
 		))
@@ -50,13 +50,13 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 		return
 	}
 
-	if _, err = ctl.repo.GetByAccount(following); err != nil {
+	if _, err = ctl.repo.GetByAccount(user); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
 
-	if err := ctl.s.AddFollowing(pl.DomainAccount(), following); err != nil {
+	if err := ctl.s.AddFollowing(user, pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData("success"))
@@ -74,7 +74,7 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/user/following/{account} [delete]
 func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
-	following, err := domain.NewAccount(ctx.Param("account"))
+	user, err := domain.NewAccount(ctx.Param("account"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -87,7 +87,7 @@ func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	if !pl.isNotMe(following) {
+	if pl.isMyself(user) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorNotAllowed, "invalid operation",
 		))
@@ -95,7 +95,7 @@ func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctl.s.RemoveFollowing(pl.DomainAccount(), following); err != nil {
+	if err := ctl.s.RemoveFollowing(user, pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusNoContent, newResponseData("success"))

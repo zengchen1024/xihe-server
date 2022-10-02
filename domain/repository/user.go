@@ -14,11 +14,11 @@ type User interface {
 	FindUsersInfo([]domain.Account) ([]domain.UserInfo, error)
 	GetUserAvatarId(domain.Account) (domain.AvatarId, error)
 
-	AddFollowing(*domain.Following) error
-	RemoveFollowing(*domain.Following) error
+	AddFollowing(*domain.FollowerInfo) error
+	RemoveFollowing(*domain.FollowerInfo) error
 	FindFollowing(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 
-	AddFollower(*domain.Follower) error
-	RemoveFollower(*domain.Follower) error
+	AddFollower(*domain.FollowerInfo) error
+	RemoveFollower(*domain.FollowerInfo) error
 	FindFollower(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
 }

@@ -5,10 +5,10 @@ const (
 	actionRemove = "remove"
 )
 
-type msgFollowing struct {
-	Action    string `json:"action"`
-	Owner     string `json:"owner"`
-	Following string `json:"following"`
+type msgFollower struct {
+	Action   string `json:"action"`
+	User     string `json:"user"`
+	Follower string `json:"follower"`
 }
 
 type msgLike struct {

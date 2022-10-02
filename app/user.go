@@ -65,12 +65,12 @@ type UserService interface {
 	GetByAccount(domain.Account) (UserDTO, error)
 	GetByFollower(owner, follower domain.Account) (UserDTO, bool, error)
 
-	AddFollowing(owner, following domain.Account) error
-	RemoveFollowing(owner, following domain.Account) error
+	AddFollowing(user, follower domain.Account) error
+	RemoveFollowing(user, follower domain.Account) error
 	ListFollowing(owner domain.Account) (dtos []FollowDTO, err error)
 
-	AddFollower(owner, following domain.Account) error
-	RemoveFollower(owner, following domain.Account) error
+	AddFollower(user, follower domain.Account) error
+	RemoveFollower(user, follower domain.Account) error
 	ListFollower(owner domain.Account) (dtos []FollowDTO, err error)
 }
 

@@ -5,11 +5,8 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (impl user) AddFollowing(v *domain.Following) error {
-	err := impl.mapper.AddFollowing(
-		v.Owner.Account(),
-		v.Account.Account(),
-	)
+func (impl user) AddFollowing(v *domain.FollowerInfo) error {
+	err := impl.mapper.AddFollowing(v.User.Account(), v.Follower.Account())
 	if err != nil {
 		return convertError(err)
 	}
@@ -17,11 +14,8 @@ func (impl user) AddFollowing(v *domain.Following) error {
 	return nil
 }
 
-func (impl user) RemoveFollowing(v *domain.Following) error {
-	err := impl.mapper.RemoveFollowing(
-		v.Owner.Account(),
-		v.Account.Account(),
-	)
+func (impl user) RemoveFollowing(v *domain.FollowerInfo) error {
+	err := impl.mapper.RemoveFollowing(v.User.Account(), v.Follower.Account())
 	if err != nil {
 		return convertError(err)
 	}
