@@ -23,7 +23,7 @@ func (col user) RemoveFollowing(user, follower string) error {
 	return col.removeFollow(follower, user, fieldFollowing)
 }
 
-func (col user) ListFollowing(do *repositories.FollowerUsersInfoListDO) (
+func (col user) ListFollowing(do *repositories.FollowerUserInfoListDO) (
 	r []repositories.FollowerUserInfoDO, total int, err error,
 ) {
 	v, err := col.getFollows(do.User, fieldFollowing)
@@ -60,7 +60,7 @@ func (col user) RemoveFollower(user, follower string) error {
 	return col.removeFollow(user, follower, fieldFollower)
 }
 
-func (col user) ListFollower(do *repositories.FollowerUsersInfoListDO) (
+func (col user) ListFollower(do *repositories.FollowerUserInfoListDO) (
 	r []repositories.FollowerUserInfoDO, total int, err error,
 ) {
 	v, err := col.getFollows(do.User, fieldFollower)
@@ -136,7 +136,7 @@ func (col user) getFollows(user, field string) (v DUser, err error) {
 	return
 }
 
-func (col user) getPageItems(items []string, do *repositories.FollowerUsersInfoListDO) []string {
+func (col user) getPageItems(items []string, do *repositories.FollowerUserInfoListDO) []string {
 	if do.CountPerPage <= 0 {
 		return items
 	}

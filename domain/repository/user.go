@@ -11,7 +11,7 @@ type FollowFindOption struct {
 	PageNum      int
 }
 
-type FollowerUsersInfo struct {
+type FollowerUserInfos struct {
 	Users []domain.FollowerUserInfo
 	Total int
 }
@@ -25,9 +25,9 @@ type User interface {
 
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
-	FindFollowing(domain.Account, *FollowFindOption) (FollowerUsersInfo, error)
+	FindFollowing(domain.Account, *FollowFindOption) (FollowerUserInfos, error)
 
 	AddFollower(*domain.FollowerInfo) error
 	RemoveFollower(*domain.FollowerInfo) error
-	FindFollower(domain.Account, *FollowFindOption) (FollowerUsersInfo, error)
+	FindFollower(domain.Account, *FollowFindOption) (FollowerUserInfos, error)
 }

@@ -17,11 +17,11 @@ type UserMapper interface {
 
 	AddFollowing(user, follower string) error
 	RemoveFollowing(user, follower string) error
-	ListFollowing(*FollowerUsersInfoListDO) ([]FollowerUserInfoDO, int, error)
+	ListFollowing(*FollowerUserInfoListDO) ([]FollowerUserInfoDO, int, error)
 
 	AddFollower(user, follower string) error
 	RemoveFollower(user, follower string) error
-	ListFollower(*FollowerUsersInfoListDO) ([]FollowerUserInfoDO, int, error)
+	ListFollower(*FollowerUserInfoListDO) ([]FollowerUserInfoDO, int, error)
 }
 
 // TODO: mapper can be mysql

@@ -24,7 +24,7 @@ func (impl user) RemoveFollowing(v *domain.FollowerInfo) error {
 }
 
 func (impl user) FindFollowing(owner domain.Account, option *repository.FollowFindOption) (
-	info repository.FollowerUsersInfo, err error,
+	info repository.FollowerUserInfos, err error,
 ) {
 	opt := toFollowerUsersInfoListDO(owner, option)
 
@@ -52,7 +52,7 @@ func (impl user) FindFollowing(owner domain.Account, option *repository.FollowFi
 	return
 }
 
-type FollowerUsersInfoListDO struct {
+type FollowerUserInfoListDO struct {
 	User         string
 	Follower     string
 	PageNum      int
@@ -61,8 +61,8 @@ type FollowerUsersInfoListDO struct {
 
 func toFollowerUsersInfoListDO(
 	owner domain.Account, option *repository.FollowFindOption,
-) FollowerUsersInfoListDO {
-	return FollowerUsersInfoListDO{
+) FollowerUserInfoListDO {
+	return FollowerUserInfoListDO{
 		User:         owner.Account(),
 		Follower:     option.Follower.Account(),
 		PageNum:      option.PageNum,

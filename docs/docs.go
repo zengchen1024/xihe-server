@@ -1357,7 +1357,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.FollowDTO"
+                            "$ref": "#/definitions/app.FollowsDTO"
                         }
                     },
                     "500": {
@@ -1454,7 +1454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.FollowDTO"
+                            "$ref": "#/definitions/app.FollowsDTO"
                         }
                     },
                     "500": {
@@ -1862,6 +1862,23 @@ const docTemplate = `{
                 },
                 "bio": {
                     "type": "string"
+                },
+                "is_follower": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "app.FollowsDTO": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.FollowDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

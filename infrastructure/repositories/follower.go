@@ -42,7 +42,7 @@ func (impl user) RemoveFollower(v *domain.FollowerInfo) error {
 }
 
 func (impl user) FindFollower(owner domain.Account, option *repository.FollowFindOption) (
-	info repository.FollowerUsersInfo, err error,
+	info repository.FollowerUserInfos, err error,
 ) {
 	opt := toFollowerUsersInfoListDO(owner, option)
 

@@ -13,7 +13,7 @@ import (
 // @Tags  Follower
 // @Param	account	path	string	true	"the account the followers belong to"
 // @Accept json
-// @Success 200 {object} app.FollowDTO
+// @Success 200 {object} app.FollowsDTO
 // @Failure 500 system_error        system error
 // @Router /v1/user/follower/{account} [get]
 func (ctl *UserController) ListFollower(ctx *gin.Context) {
