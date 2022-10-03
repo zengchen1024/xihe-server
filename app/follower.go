@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func (s userService) AddFollower(user, follower domain.Account) error {
@@ -19,21 +18,22 @@ func (s userService) RemoveFollower(user, follower domain.Account) error {
 	})
 }
 
-func (s userService) ListFollower(owner domain.Account) (
-	dtos []FollowDTO, err error,
+func (s userService) ListFollower(cmd *FollowsListCmd) (
+	dto FollowsDTO, err error,
 ) {
-	opt := repository.FollowFindOption{Follower: owner}
-
-	v, err := s.repo.FindFollower(owner, &opt)
+	v, err := s.repo.FindFollower(cmd.User, &cmd.FollowFindOption)
 	items := v.Users
 	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]FollowDTO, len(items))
+	dtos := make([]FollowDTO, len(items))
 	for i := range items {
 		s.toFollowDTO(&items[i], &dtos[i])
 	}
+
+	dto.Total = v.Total
+	dto.Data = dtos
 
 	return
 }

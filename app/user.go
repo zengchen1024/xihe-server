@@ -67,11 +67,11 @@ type UserService interface {
 
 	AddFollowing(user, follower domain.Account) error
 	RemoveFollowing(user, follower domain.Account) error
-	ListFollowing(owner domain.Account) (dtos []FollowDTO, err error)
+	ListFollowing(*FollowsListCmd) (FollowsDTO, error)
 
 	AddFollower(user, follower domain.Account) error
 	RemoveFollower(user, follower domain.Account) error
-	ListFollower(owner domain.Account) (dtos []FollowDTO, err error)
+	ListFollower(*FollowsListCmd) (FollowsDTO, error)
 }
 
 // ps: platform user service
