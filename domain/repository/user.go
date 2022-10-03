@@ -5,6 +5,15 @@ import (
 )
 
 type FollowFindOption struct {
+	Follower domain.Account
+
+	CountPerPage int
+	PageNum      int
+}
+
+type FollowerUsersInfo struct {
+	Users []domain.FollowerUserInfo
+	Total int
 }
 
 type User interface {
@@ -16,9 +25,9 @@ type User interface {
 
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
-	FindFollowing(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
+	FindFollowing(domain.Account, *FollowFindOption) (FollowerUsersInfo, error)
 
 	AddFollower(*domain.FollowerInfo) error
 	RemoveFollower(*domain.FollowerInfo) error
-	FindFollower(domain.Account, FollowFindOption) ([]domain.FollowUserInfo, error)
+	FindFollower(domain.Account, *FollowFindOption) (FollowerUsersInfo, error)
 }

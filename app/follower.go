@@ -22,14 +22,17 @@ func (s userService) RemoveFollower(user, follower domain.Account) error {
 func (s userService) ListFollower(owner domain.Account) (
 	dtos []FollowDTO, err error,
 ) {
-	v, err := s.repo.FindFollower(owner, repository.FollowFindOption{})
-	if err != nil || len(v) == 0 {
+	opt := repository.FollowFindOption{Follower: owner}
+
+	v, err := s.repo.FindFollower(owner, &opt)
+	items := v.Users
+	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]FollowDTO, len(v))
-	for i := range v {
-		s.toFollowDTO(&v[i], &dtos[i])
+	dtos = make([]FollowDTO, len(items))
+	for i := range items {
+		s.toFollowDTO(&items[i], &dtos[i])
 	}
 
 	return

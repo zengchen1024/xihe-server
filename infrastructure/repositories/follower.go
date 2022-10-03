@@ -41,24 +41,31 @@ func (impl user) RemoveFollower(v *domain.FollowerInfo) error {
 	return nil
 }
 
-func (impl user) FindFollower(owner domain.Account, option repository.FollowFindOption) (
-	[]domain.FollowUserInfo, error,
+func (impl user) FindFollower(owner domain.Account, option *repository.FollowFindOption) (
+	info repository.FollowerUsersInfo, err error,
 ) {
-	v, err := impl.mapper.ListFollower(owner.Account())
+	opt := toFollowerUsersInfoListDO(owner, option)
+
+	v, total, err := impl.mapper.ListFollower(&opt)
 	if err != nil {
-		return nil, convertError(err)
+		err = convertError(err)
+
+		return
 	}
 
 	if len(v) == 0 {
-		return nil, nil
+		return
 	}
 
-	r := make([]domain.FollowUserInfo, len(v))
+	r := make([]domain.FollowerUserInfo, len(v))
 	for i := range v {
-		if err := v[i].toFollowUserInfo(&r[i]); err != nil {
-			return nil, err
+		if err = v[i].toFollowUserInfo(&r[i]); err != nil {
+			return
 		}
 	}
 
-	return r, nil
+	info.Users = r
+	info.Total = total
+
+	return
 }
