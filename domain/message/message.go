@@ -12,9 +12,13 @@ type Sender interface {
 	RemoveLike(*domain.ResourceObject) error
 
 	IncreaseFork(*domain.ResourceIndex) error
+
+	AddRelatedResource(*RelatedResource) error
+	RemoveRelatedResource(*RelatedResource) error
 }
 
 type EventHandler interface {
+	RelatedResourceHandler
 	FollowingHandler
 	LikeHandler
 	ForkHandler
@@ -32,4 +36,14 @@ type LikeHandler interface {
 
 type ForkHandler interface {
 	HandleEventFork(*domain.ResourceIndex) error
+}
+
+type RelatedResourceHandler interface {
+	HandleEventAddRelatedResource(*RelatedResource) error
+	HandleEventRemoveRelatedResource(*RelatedResource) error
+}
+
+type RelatedResource struct {
+	Promoter *domain.ResourceObject
+	Resource *domain.ResourceObject
 }

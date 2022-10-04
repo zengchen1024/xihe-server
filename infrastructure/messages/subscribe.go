@@ -24,7 +24,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	}()
 
 	// register following
-	s, err := registerFollowingHandler(handler)
+	s, err := registerHandlerForFollowing(handler)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	}
 
 	// register like
-	s, err = registerLikeHandler(handler)
+	s, err = registerHandlerForLike(handler)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,16 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	}
 
 	// register fork
-	s, err = registerForkHandler(handler)
+	s, err = registerHandlerForFork(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
+	// register related resource
+	s, err = registerHandlerForRelatedResource(handler)
 	if err != nil {
 		return err
 	}
@@ -60,7 +69,7 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	return nil
 }
 
-func registerFollowingHandler(handler interface{}) (mq.Subscriber, error) {
+func registerHandlerForFollowing(handler interface{}) (mq.Subscriber, error) {
 	h, ok := handler.(message.FollowingHandler)
 	if !ok {
 		return nil, nil
@@ -98,7 +107,7 @@ func registerFollowingHandler(handler interface{}) (mq.Subscriber, error) {
 	})
 }
 
-func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
+func registerHandlerForLike(handler interface{}) (mq.Subscriber, error) {
 	h, ok := handler.(message.LikeHandler)
 	if !ok {
 		return nil, nil
@@ -116,15 +125,9 @@ func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		like := &domain.ResourceObject{}
-		if like.Owner, err = domain.NewAccount(body.Owner); err != nil {
+		if err = body.Resource.toResourceObject(like); err != nil {
 			return
 		}
-
-		if like.Type, err = domain.NewResourceType(body.Type); err != nil {
-			return
-		}
-
-		like.Id = body.Id
 
 		switch body.Action {
 		case actionAdd:
@@ -138,7 +141,7 @@ func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 	})
 }
 
-func registerForkHandler(handler interface{}) (mq.Subscriber, error) {
+func registerHandlerForFork(handler interface{}) (mq.Subscriber, error) {
 	h, ok := handler.(message.ForkHandler)
 	if !ok {
 		return nil, nil
@@ -163,5 +166,44 @@ func registerForkHandler(handler interface{}) (mq.Subscriber, error) {
 		index.Id = body.Id
 
 		return h.HandleEventFork(&index)
+	})
+}
+
+func registerHandlerForRelatedResource(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.RelatedResourceHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.RelatedResource, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgRelatedResource{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		promoter, resource := &domain.ResourceObject{}, &domain.ResourceObject{}
+		if err = body.toResources(promoter, resource); err != nil {
+			return
+		}
+
+		v := &message.RelatedResource{
+			Promoter: promoter,
+			Resource: resource,
+		}
+
+		switch body.Action {
+		case actionAdd:
+			return h.HandleEventAddRelatedResource(v)
+
+		case actionRemove:
+			return h.HandleEventRemoveRelatedResource(v)
+		}
+
+		return nil
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -115,7 +116,25 @@ func (s modelService) AddRelatedDataset(
 		RelatedResource:  *index,
 	}
 
-	return s.repo.AddRelatedDataset(&info)
+	if err := s.repo.AddRelatedDataset(&info); err != nil {
+		return err
+	}
+
+	_ = s.sender.AddRelatedResource(&message.RelatedResource{
+		Promoter: &domain.ResourceObject{
+			ResourceIndex: domain.ResourceIndex{
+				Owner: m.Owner,
+				Id:    m.Id,
+			},
+			Type: domain.ResourceTypeModel,
+		},
+		Resource: &domain.ResourceObject{
+			ResourceIndex: *index,
+			Type:          domain.ResourceTypeDataset,
+		},
+	})
+
+	return nil
 }
 
 func (s modelService) RemoveRelatedDataset(
@@ -130,7 +149,25 @@ func (s modelService) RemoveRelatedDataset(
 		RelatedResource:  *index,
 	}
 
-	return s.repo.RemoveRelatedDataset(&info)
+	if err := s.repo.RemoveRelatedDataset(&info); err != nil {
+		return err
+	}
+
+	_ = s.sender.RemoveRelatedResource(&message.RelatedResource{
+		Promoter: &domain.ResourceObject{
+			ResourceIndex: domain.ResourceIndex{
+				Owner: m.Owner,
+				Id:    m.Id,
+			},
+			Type: domain.ResourceTypeModel,
+		},
+		Resource: &domain.ResourceObject{
+			ResourceIndex: *index,
+			Type:          domain.ResourceTypeDataset,
+		},
+	})
+
+	return nil
 }
 
 func (s modelService) toResourceToUpdate(m *domain.Model) repository.ResourceToUpdate {

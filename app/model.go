@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -126,6 +127,7 @@ type modelService struct {
 	//pr       platform.Repository
 	activity repository.Activity
 	rs       resourceService
+	sender   message.Sender
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto ModelDTO, err error) {
