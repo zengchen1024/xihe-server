@@ -42,8 +42,10 @@ func (col user) ListFollowing(do *repositories.FollowerUserInfoListDO) (
 		return
 	}
 
-	if b := do.User == do.Follower; b || do.Follower == "" {
-		r, err = col.listFollowsDirectly(items, b)
+	if do.Follower == "" {
+		r, err = col.listFollowsDirectly(items, false)
+	} else if do.User == do.Follower {
+		r, err = col.listFollowsDirectly(items, true)
 	} else {
 		r, err = col.listFollows(do.Follower, items)
 	}

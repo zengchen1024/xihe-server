@@ -62,12 +62,17 @@ type FollowerUserInfoListDO struct {
 func toFollowerUsersInfoListDO(
 	owner domain.Account, option *repository.FollowFindOption,
 ) FollowerUserInfoListDO {
-	return FollowerUserInfoListDO{
+	v := FollowerUserInfoListDO{
 		User:         owner.Account(),
-		Follower:     option.Follower.Account(),
 		PageNum:      option.PageNum,
 		CountPerPage: option.CountPerPage,
 	}
+
+	if option.Follower != nil {
+		v.Follower = option.Follower.Account()
+	}
+
+	return v
 }
 
 type FollowerUserInfoDO struct {
