@@ -109,9 +109,8 @@ func (col like) HasLike(owner string, do *repositories.ResourceObjectDO) (b bool
 	}
 
 	f := func(ctx context.Context) error {
-		b, err = cli.isArrayElemExists(
-			ctx, col.collectionName, fieldItems,
-			likeDocFilter(owner), doc,
+		b, err = cli.isArrayDocExists(
+			ctx, col.collectionName, likeDocFilter(owner), fieldItems, doc,
 		)
 
 		return nil

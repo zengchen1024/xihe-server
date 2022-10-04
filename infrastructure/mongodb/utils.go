@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	mongoCmdAll         = "$all"
 	mongoCmdSet         = "$set"
 	mongoCmdInc         = "$inc"
 	mongoCmdPush        = "$push"
@@ -424,24 +425,40 @@ func (cli *client) updateArrayElemCount(
 }
 
 func (cli *client) isArrayElemExists(
-	ctx context.Context, collection, array string,
-	filterOfDoc, filterOfArray bson.M,
+	ctx context.Context, collection string, filterOfDoc bson.M,
+	array string, value interface{},
 ) (bool, error) {
-	query := bson.M{array: bson.M{mongoCmdElemMatch: filterOfArray}}
-	for k, v := range filterOfDoc {
-		query[k] = v
-	}
+	filterOfDoc[array] = bson.M{mongoCmdAll: bson.A{value}}
 
-	var v []struct {
+	return cli.containsArrayElem(ctx, collection, filterOfDoc)
+}
+
+func (cli *client) isArrayDocExists(
+	ctx context.Context, collection string,
+	filterOfDoc bson.M, array string, filterOfArray bson.M,
+) (bool, error) {
+	filterOfDoc[array] = bson.M{mongoCmdElemMatch: filterOfArray}
+
+	return cli.containsArrayElem(ctx, collection, filterOfDoc)
+}
+
+func (cli *client) containsArrayElem(
+	ctx context.Context, collection string, filterOfDoc bson.M,
+) (bool, error) {
+	var v struct {
 		ID primitive.ObjectID `bson:"_id"`
 	}
 
-	err := cli.getDocs(ctx, collection, query, bson.M{"_id": 1}, &v)
+	err := cli.getDoc(ctx, collection, filterOfDoc, bson.M{"_id": 1}, &v)
 	if err != nil {
+		if isDocNotExists(err) {
+			return false, nil
+		}
+
 		return false, err
 	}
 
-	return len(v) > 0, nil
+	return true, nil
 }
 
 func (cli *client) getArrayElem(

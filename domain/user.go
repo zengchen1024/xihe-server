@@ -28,10 +28,11 @@ type FollowerInfo struct {
 	Follower Account
 }
 
-type FollowUserInfo struct {
-	Account  Account
-	AvatarId AvatarId
-	Bio      Bio
+type FollowerUserInfo struct {
+	Account    Account
+	AvatarId   AvatarId
+	Bio        Bio
+	IsFollower bool
 }
 
 type UserInfo struct {

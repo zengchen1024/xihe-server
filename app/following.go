@@ -5,10 +5,22 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+type FollowsListCmd struct {
+	User domain.Account
+
+	repository.FollowFindOption
+}
+
+type FollowsDTO struct {
+	Total int         `json:"total"`
+	Data  []FollowDTO `json:"data"`
+}
+
 type FollowDTO struct {
-	Account  string `json:"account"`
-	AvatarId string `json:"avatar_id"`
-	Bio      string `json:"bio"`
+	Account    string `json:"account"`
+	AvatarId   string `json:"avatar_id"`
+	Bio        string `json:"bio"`
+	IsFollower bool   `json:"is_follower"`
 }
 
 func (s userService) AddFollowing(user, follower domain.Account) error {
@@ -45,26 +57,31 @@ func (s userService) RemoveFollowing(user, follower domain.Account) error {
 	return nil
 }
 
-func (s userService) ListFollowing(owner domain.Account) (
-	dtos []FollowDTO, err error,
+func (s userService) ListFollowing(cmd *FollowsListCmd) (
+	dto FollowsDTO, err error,
 ) {
-	v, err := s.repo.FindFollowing(owner, repository.FollowFindOption{})
-	if err != nil || len(v) == 0 {
+	v, err := s.repo.FindFollowing(cmd.User, &cmd.FollowFindOption)
+	items := v.Users
+	if err != nil || len(items) == 0 {
 		return
 	}
 
-	dtos = make([]FollowDTO, len(v))
-	for i := range v {
-		s.toFollowDTO(&v[i], &dtos[i])
+	dtos := make([]FollowDTO, len(items))
+	for i := range items {
+		s.toFollowDTO(&items[i], &dtos[i])
 	}
+
+	dto.Total = v.Total
+	dto.Data = dtos
 
 	return
 }
 
-func (s userService) toFollowDTO(f *domain.FollowUserInfo, dto *FollowDTO) {
+func (s userService) toFollowDTO(f *domain.FollowerUserInfo, dto *FollowDTO) {
 	*dto = FollowDTO{
-		Account:  f.Account.Account(),
-		AvatarId: f.AvatarId.AvatarId(),
+		Account:    f.Account.Account(),
+		AvatarId:   f.AvatarId.AvatarId(),
+		IsFollower: f.IsFollower,
 	}
 
 	if f.Bio != nil {

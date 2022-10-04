@@ -23,35 +23,66 @@ func (impl user) RemoveFollowing(v *domain.FollowerInfo) error {
 	return nil
 }
 
-func (impl user) FindFollowing(owner domain.Account, option repository.FollowFindOption) (
-	[]domain.FollowUserInfo, error,
+func (impl user) FindFollowing(owner domain.Account, option *repository.FollowFindOption) (
+	info repository.FollowerUserInfos, err error,
 ) {
-	v, err := impl.mapper.ListFollowing(owner.Account())
+	opt := toFollowerUsersInfoListDO(owner, option)
+
+	v, total, err := impl.mapper.ListFollowing(&opt)
 	if err != nil {
-		return nil, convertError(err)
+		err = convertError(err)
+
+		return
 	}
 
 	if len(v) == 0 {
-		return nil, nil
+		return
 	}
 
-	r := make([]domain.FollowUserInfo, len(v))
+	r := make([]domain.FollowerUserInfo, len(v))
 	for i := range v {
-		if err := v[i].toFollowUserInfo(&r[i]); err != nil {
-			return nil, err
+		if err = v[i].toFollowUserInfo(&r[i]); err != nil {
+			return
 		}
 	}
 
-	return r, nil
+	info.Users = r
+	info.Total = total
+
+	return
 }
 
-type FollowUserInfoDO struct {
-	Account  string
-	AvatarId string
-	Bio      string
+type FollowerUserInfoListDO struct {
+	User         string
+	Follower     string
+	PageNum      int
+	CountPerPage int
 }
 
-func (do *FollowUserInfoDO) toFollowUserInfo(r *domain.FollowUserInfo) (err error) {
+func toFollowerUsersInfoListDO(
+	owner domain.Account, option *repository.FollowFindOption,
+) FollowerUserInfoListDO {
+	v := FollowerUserInfoListDO{
+		User:         owner.Account(),
+		PageNum:      option.PageNum,
+		CountPerPage: option.CountPerPage,
+	}
+
+	if option.Follower != nil {
+		v.Follower = option.Follower.Account()
+	}
+
+	return v
+}
+
+type FollowerUserInfoDO struct {
+	Account    string
+	AvatarId   string
+	Bio        string
+	IsFollower bool
+}
+
+func (do *FollowerUserInfoDO) toFollowUserInfo(r *domain.FollowerUserInfo) (err error) {
 	if r.Bio, err = domain.NewBio(do.Bio); err != nil {
 		return
 	}
@@ -63,6 +94,8 @@ func (do *FollowUserInfoDO) toFollowUserInfo(r *domain.FollowUserInfo) (err erro
 	if r.AvatarId, err = domain.NewAvatarId(do.AvatarId); err != nil {
 		return
 	}
+
+	r.IsFollower = do.IsFollower
 
 	return
 }

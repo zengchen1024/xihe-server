@@ -23,8 +23,34 @@ func (col user) RemoveFollowing(user, follower string) error {
 	return col.removeFollow(follower, user, fieldFollowing)
 }
 
-func (col user) ListFollowing(owner string) ([]repositories.FollowUserInfoDO, error) {
-	return col.listFollow(owner, fieldFollowing)
+func (col user) ListFollowing(do *repositories.FollowerUserInfoListDO) (
+	r []repositories.FollowerUserInfoDO, total int, err error,
+) {
+	v, err := col.getFollows(do.User, fieldFollowing)
+	if err != nil {
+		return
+	}
+
+	items := v.Following
+	total = len(items)
+	if total == 0 {
+		return
+	}
+
+	items = col.getPageItems(items, do)
+	if len(items) == 0 {
+		return
+	}
+
+	if do.Follower == "" {
+		r, err = col.listFollowsDirectly(items, false)
+	} else if do.User == do.Follower {
+		r, err = col.listFollowsDirectly(items, true)
+	} else {
+		r, err = col.listFollows(do.Follower, items)
+	}
+
+	return r, total, err
 }
 
 // follower
@@ -36,8 +62,32 @@ func (col user) RemoveFollower(user, follower string) error {
 	return col.removeFollow(user, follower, fieldFollower)
 }
 
-func (col user) ListFollower(owner string) ([]repositories.FollowUserInfoDO, error) {
-	return col.listFollow(owner, fieldFollower)
+func (col user) ListFollower(do *repositories.FollowerUserInfoListDO) (
+	r []repositories.FollowerUserInfoDO, total int, err error,
+) {
+	v, err := col.getFollows(do.User, fieldFollower)
+	if err != nil {
+		return
+	}
+
+	items := v.Follower
+	total = len(items)
+	if total == 0 {
+		return
+	}
+
+	items = col.getPageItems(items, do)
+	if len(items) == 0 {
+		return
+	}
+
+	if do.Follower == "" {
+		r, err = col.listFollowsDirectly(items, false)
+	} else {
+		r, err = col.listFollows(do.Follower, items)
+	}
+
+	return r, total, err
 }
 
 // helper
@@ -71,36 +121,53 @@ func (col user) removeFollow(user, account, field string) error {
 	return withContext(f)
 }
 
-func (col user) listFollow(owner, field string) ([]repositories.FollowUserInfoDO, error) {
-	var u DUser
-
+func (col user) getFollows(user, field string) (v DUser, err error) {
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
-			ctx, col.collectionName, userDocFilterByAccount(owner),
-			bson.M{field: 1}, &u,
+			ctx, col.collectionName, userDocFilterByAccount(user),
+			bson.M{field: 1}, &v,
 		)
 	}
 
-	if err := withContext(f); err != nil {
+	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
 			err = repositories.NewErrorDataNotExists(err)
 		}
-
-		return nil, err
 	}
 
-	var v []string
-	switch field {
-	case fieldFollower:
-		v = u.Follower
-	case fieldFollowing:
-		v = u.Following
-	}
-
-	return col.listFollows(v)
+	return
 }
 
-func (col user) listFollows(accounts []string) ([]repositories.FollowUserInfoDO, error) {
+func (col user) getPageItems(items []string, do *repositories.FollowerUserInfoListDO) []string {
+	if do.CountPerPage <= 0 {
+		return items
+	}
+
+	total := len(items)
+
+	if do.PageNum <= 1 {
+		if total > do.CountPerPage {
+			return items[:do.CountPerPage]
+		}
+
+		return items
+	}
+
+	skip := do.CountPerPage * (do.PageNum - 1)
+	if skip >= total {
+		return nil
+	}
+
+	if n := total - skip; n > do.CountPerPage {
+		return items[skip : skip+do.CountPerPage]
+	}
+
+	return items[skip:]
+}
+
+func (col user) listFollowsDirectly(accounts []string, isFollower bool) (
+	[]repositories.FollowerUserInfoDO, error,
+) {
 	var v []DUser
 
 	f := func(ctx context.Context) error {
@@ -120,22 +187,71 @@ func (col user) listFollows(accounts []string) ([]repositories.FollowUserInfoDO,
 		)
 	}
 
-	if err := withContext(f); err != nil {
+	if err := withContext(f); err != nil || len(v) == 0 {
 		return nil, err
 	}
 
-	if len(v) == 0 {
-		return nil, nil
-	}
-
-	r := make([]repositories.FollowUserInfoDO, len(v))
+	r := make([]repositories.FollowerUserInfoDO, len(v))
 	for i := range v {
 		item := &v[i]
 
-		r[i] = repositories.FollowUserInfoDO{
-			Bio:      item.Bio,
-			Account:  item.Name,
-			AvatarId: item.AvatarId,
+		r[i] = repositories.FollowerUserInfoDO{
+			Bio:        item.Bio,
+			Account:    item.Name,
+			AvatarId:   item.AvatarId,
+			IsFollower: isFollower,
+		}
+	}
+
+	return r, nil
+}
+
+func (col user) listFollows(follower string, accounts []string) (
+	[]repositories.FollowerUserInfoDO, error,
+) {
+	var v []struct {
+		DUser `bson:",inline"`
+
+		IsFollower bool `bson:"is_follower"`
+	}
+
+	pipeline := bson.A{
+		bson.M{"$match": bson.M{
+			"$expr": bson.M{"$in": bson.A{"$" + fieldName, accounts}},
+		}},
+		bson.M{"$project": bson.M{
+			fieldIsFollower: bson.M{
+				"$in": bson.A{follower, "$" + fieldFollower},
+			},
+			fieldBio:      1,
+			fieldName:     1,
+			fieldAvatarId: 1,
+		}},
+	}
+
+	err := withContext(func(ctx context.Context) error {
+		col := cli.collection(col.collectionName)
+		cursor, err := col.Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
+	})
+
+	if err != nil || len(v) == 0 {
+		return nil, err
+	}
+
+	r := make([]repositories.FollowerUserInfoDO, len(v))
+	for i := range v {
+		item := &v[i]
+
+		r[i] = repositories.FollowerUserInfoDO{
+			Bio:        item.Bio,
+			Account:    item.Name,
+			AvatarId:   item.AvatarId,
+			IsFollower: item.IsFollower,
 		}
 	}
 
