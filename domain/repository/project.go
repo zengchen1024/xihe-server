@@ -55,8 +55,8 @@ type Project interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	AddRelatedModel(*RelatedResourceInfo) error
 	RemoveRelatedModel(*RelatedResourceInfo) error

@@ -15,12 +15,12 @@ func userDocFilterByAccount(account string) bson.M {
 }
 
 // following
-func (col user) AddFollowing(user, follower string) error {
-	return col.addFollow(follower, user, fieldFollowing)
+func (col user) AddFollowing(f repositories.FollowerInfoDO) error {
+	return col.addFollow(f.Follower, f.User, fieldFollowing)
 }
 
-func (col user) RemoveFollowing(user, follower string) error {
-	return col.removeFollow(follower, user, fieldFollowing)
+func (col user) RemoveFollowing(f repositories.FollowerInfoDO) error {
+	return col.removeFollow(f.Follower, f.User, fieldFollowing)
 }
 
 func (col user) ListFollowing(do *repositories.FollowerUserInfoListDO) (
@@ -54,12 +54,12 @@ func (col user) ListFollowing(do *repositories.FollowerUserInfoListDO) (
 }
 
 // follower
-func (col user) AddFollower(user, follower string) error {
-	return col.addFollow(user, follower, fieldFollower)
+func (col user) AddFollower(do repositories.FollowerInfoDO) error {
+	return col.addFollow(do.User, do.Follower, fieldFollower)
 }
 
-func (col user) RemoveFollower(user, follower string) error {
-	return col.removeFollow(user, follower, fieldFollower)
+func (col user) RemoveFollower(do repositories.FollowerInfoDO) error {
+	return col.removeFollow(do.User, do.Follower, fieldFollower)
 }
 
 func (col user) ListFollower(do *repositories.FollowerUserInfoListDO) (

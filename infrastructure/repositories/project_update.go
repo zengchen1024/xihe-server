@@ -5,11 +5,8 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (impl project) IncreaseFork(index *domain.ResourceIndex) error {
-	err := impl.mapper.IncreaseFork(
-		index.Owner.Account(),
-		index.Id,
-	)
+func (impl project) IncreaseFork(p *domain.ResourceIndex) error {
+	err := impl.mapper.IncreaseFork(toResourceIndexDO(p))
 	if err != nil {
 		err = convertError(err)
 	}
@@ -17,8 +14,8 @@ func (impl project) IncreaseFork(index *domain.ResourceIndex) error {
 	return err
 }
 
-func (impl project) AddLike(owner domain.Account, pid string) error {
-	err := impl.mapper.AddLike(owner.Account(), pid)
+func (impl project) AddLike(p *domain.ResourceIndex) error {
+	err := impl.mapper.AddLike(toResourceIndexDO(p))
 	if err != nil {
 		err = convertError(err)
 	}
@@ -26,8 +23,8 @@ func (impl project) AddLike(owner domain.Account, pid string) error {
 	return err
 }
 
-func (impl project) RemoveLike(owner domain.Account, pid string) error {
-	err := impl.mapper.RemoveLike(owner.Account(), pid)
+func (impl project) RemoveLike(p *domain.ResourceIndex) error {
+	err := impl.mapper.RemoveLike(toResourceIndexDO(p))
 	if err != nil {
 		err = convertError(err)
 	}

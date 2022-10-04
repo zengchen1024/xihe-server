@@ -91,8 +91,8 @@ type ModelService interface {
 	GetByName(domain.Account, domain.ModelName, bool) (ModelDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error

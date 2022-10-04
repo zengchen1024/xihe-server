@@ -89,12 +89,12 @@ func (s modelService) SetTags(m *domain.Model, cmd *ResourceTagsUpdateCmd) error
 	return s.repo.UpdateProperty(&info)
 }
 
-func (s modelService) AddLike(owner domain.Account, rid string) error {
-	return s.repo.AddLike(owner, rid)
+func (s modelService) AddLike(r *domain.ResourceIndex) error {
+	return s.repo.AddLike(r)
 }
 
-func (s modelService) RemoveLike(owner domain.Account, rid string) error {
-	return s.repo.RemoveLike(owner, rid)
+func (s modelService) RemoveLike(r *domain.ResourceIndex) error {
+	return s.repo.RemoveLike(r)
 }
 
 func (s modelService) AddRelatedDataset(

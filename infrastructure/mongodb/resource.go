@@ -82,12 +82,12 @@ func newResourceDoc(collection, owner string) error {
 	return nil
 }
 
-func updateResourceLike(collection, owner, rid string, num int) error {
+func updateResourceLike(collection string, r *repositories.ResourceIndexDO, num int) error {
 	updated := false
 	f := func(ctx context.Context) error {
 		b, err := cli.updateArrayElemCount(
 			ctx, collection, fieldItems, fieldLikeCount, num,
-			resourceOwnerFilter(owner), resourceIdFilter(rid),
+			resourceOwnerFilter(r.Owner), resourceIdFilter(r.Id),
 		)
 
 		updated = b

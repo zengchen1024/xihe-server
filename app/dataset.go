@@ -89,8 +89,8 @@ type DatasetService interface {
 	GetByName(domain.Account, domain.DatasetName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	SetTags(*domain.Dataset, *ResourceTagsUpdateCmd) error
 }

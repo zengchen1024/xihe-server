@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"fmt"
-
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -10,17 +8,16 @@ import (
 type UserMapper interface {
 	Insert(UserDO) (string, error)
 	Update(UserDO) error
-	GetByAccount(string) (UserDO, error)
-	GetByFollower(account, follower string) (do UserDO, isFollower bool, err error)
+	GetByFollower(FollowerInfoDO) (do UserDO, isFollower bool, err error)
 	ListUsersInfo([]string) ([]UserInfoDO, error)
 	GetUserAvatarId(string) (string, error)
 
-	AddFollowing(user, follower string) error
-	RemoveFollowing(user, follower string) error
+	AddFollowing(FollowerInfoDO) error
+	RemoveFollowing(FollowerInfoDO) error
 	ListFollowing(*FollowerUserInfoListDO) ([]FollowerUserInfoDO, int, error)
 
-	AddFollower(user, follower string) error
-	RemoveFollower(user, follower string) error
+	AddFollower(FollowerInfoDO) error
+	RemoveFollower(FollowerInfoDO) error
 	ListFollower(*FollowerUserInfoListDO) ([]FollowerUserInfoDO, int, error)
 }
 
@@ -34,12 +31,12 @@ type user struct {
 }
 
 func (impl user) GetByAccount(account domain.Account) (r domain.User, err error) {
-	do, err := impl.mapper.GetByAccount(account.Account())
+	do, _, err := impl.mapper.GetByFollower(
+		FollowerInfoDO{User: account.Account()},
+	)
 	if err != nil {
 		err = convertError(err)
 	} else {
-		// TODO: delete
-		fmt.Printf("GetByAccount, do = %v\n", do)
 		err = do.toUser(&r)
 	}
 

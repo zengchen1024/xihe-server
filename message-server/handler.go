@@ -16,6 +16,11 @@ var _ message.EventHandler = (*handler)(nil)
 
 const sleepTime = 100 * time.Millisecond
 
+type likeHanler interface {
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
+}
+
 type handler struct {
 	log *logrus.Entry
 
@@ -26,9 +31,9 @@ type handler struct {
 	project  app.ProjectService
 }
 
-func (h *handler) HandleEventAddFollowing(f domain.FollowerInfo) error {
+func (h *handler) HandleEventAddFollowing(f *domain.FollowerInfo) error {
 	return h.do(func() (err error) {
-		if err = h.user.AddFollower(f.User, f.Follower); err == nil {
+		if err = h.user.AddFollower(f); err == nil {
 			return
 		}
 
@@ -40,31 +45,34 @@ func (h *handler) HandleEventAddFollowing(f domain.FollowerInfo) error {
 	})
 }
 
-func (h *handler) HandleEventRemoveFollowing(f domain.FollowerInfo) (err error) {
+func (h *handler) HandleEventRemoveFollowing(f *domain.FollowerInfo) (err error) {
 	return h.do(func() error {
-		return h.user.RemoveFollower(f.User, f.Follower)
+		return h.user.RemoveFollower(f)
 	})
 }
 
-func (h *handler) HandleEventAddLike(like domain.Like) error {
+func (h *handler) HandleEventAddLike(obj *domain.ResourceObject) error {
+	lh := h.getHandlerForEventLike(obj.Type)
+
+	return h.handleEventLike(obj, "adding", lh.AddLike)
+}
+
+func (h *handler) HandleEventRemoveLike(obj *domain.ResourceObject) (err error) {
+	lh := h.getHandlerForEventLike(obj.Type)
+
+	return h.handleEventLike(obj, "removing", lh.RemoveLike)
+}
+
+func (h *handler) handleEventLike(
+	obj *domain.ResourceObject, op string,
+	f func(*domain.ResourceIndex) error,
+) (err error) {
 	return h.do(func() (err error) {
-		switch like.Type.ResourceType() {
-
-		case domain.ResourceTypeProject.ResourceType():
-			err = h.project.AddLike(like.Owner, like.Id)
-
-		case domain.ResourceTypeDataset.ResourceType():
-			err = h.dataset.AddLike(like.Owner, like.Id)
-
-		case domain.ResourceTypeModel.ResourceType():
-			err = h.model.AddLike(like.Owner, like.Id)
-		}
-
-		if err != nil {
+		if err = f(&obj.ResourceIndex); err != nil {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
-					"handle event of adding like for owner:%s, rid:%s, err:%v",
-					like.Owner.Account(), like.Id, err,
+					"handle event of %s like for owner:%s, rid:%s, err:%v",
+					op, obj.Owner.Account(), obj.Id, err,
 				)
 
 				err = nil
@@ -75,35 +83,22 @@ func (h *handler) HandleEventAddLike(like domain.Like) error {
 	})
 }
 
-func (h *handler) HandleEventRemoveLike(like domain.Like) (err error) {
-	return h.do(func() (err error) {
-		switch like.Type.ResourceType() {
-		case domain.ResourceTypeProject.ResourceType():
-			err = h.project.RemoveLike(like.Owner, like.Id)
+func (h *handler) getHandlerForEventLike(t domain.ResourceType) likeHanler {
+	switch t.ResourceType() {
+	case domain.ResourceTypeProject.ResourceType():
+		return h.project
 
-		case domain.ResourceTypeDataset.ResourceType():
-			err = h.dataset.RemoveLike(like.Owner, like.Id)
+	case domain.ResourceTypeDataset.ResourceType():
+		return h.dataset
 
-		case domain.ResourceTypeModel.ResourceType():
-			err = h.model.RemoveLike(like.Owner, like.Id)
-		}
+	case domain.ResourceTypeModel.ResourceType():
+		return h.model
+	}
 
-		if err != nil {
-			if isResourceNotExists(err) {
-				h.log.Errorf(
-					"handle event of removing like for owner:%s, rid:%s, err:%v",
-					like.Owner.Account(), like.Id, err,
-				)
-
-				err = nil
-			}
-		}
-
-		return
-	})
+	return nil
 }
 
-func (h *handler) HandleEventFork(index domain.ResourceIndex) error {
+func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 	return h.do(func() (err error) {
 		if err = h.project.IncreaseFork(index); err != nil {
 			if isResourceNotExists(err) {

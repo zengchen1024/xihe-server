@@ -6,12 +6,12 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func (col dataset) AddLike(owner, rid string) error {
-	return updateResourceLike(col.collectionName, owner, rid, 1)
+func (col dataset) AddLike(r repositories.ResourceIndexDO) error {
+	return updateResourceLike(col.collectionName, &r, 1)
 }
 
-func (col dataset) RemoveLike(owner, rid string) error {
-	return updateResourceLike(col.collectionName, owner, rid, -1)
+func (col dataset) RemoveLike(r repositories.ResourceIndexDO) error {
+	return updateResourceLike(col.collectionName, &r, -1)
 }
 
 func (col dataset) ListAndSortByUpdateTime(
