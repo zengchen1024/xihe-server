@@ -27,8 +27,8 @@ type Model interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	AddRelatedDataset(*RelatedResourceInfo) error
 	RemoveRelatedDataset(*RelatedResourceInfo) error

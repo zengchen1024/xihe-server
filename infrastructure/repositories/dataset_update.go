@@ -5,8 +5,8 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (impl dataset) AddLike(owner domain.Account, rid string) error {
-	err := impl.mapper.AddLike(owner.Account(), rid)
+func (impl dataset) AddLike(d *domain.ResourceIndex) error {
+	err := impl.mapper.AddLike(toResourceIndexDO(d))
 	if err != nil {
 		err = convertError(err)
 	}
@@ -14,8 +14,8 @@ func (impl dataset) AddLike(owner domain.Account, rid string) error {
 	return err
 }
 
-func (impl dataset) RemoveLike(owner domain.Account, rid string) error {
-	err := impl.mapper.RemoveLike(owner.Account(), rid)
+func (impl dataset) RemoveLike(d *domain.ResourceIndex) error {
+	err := impl.mapper.RemoveLike(toResourceIndexDO(d))
 	if err != nil {
 		err = convertError(err)
 	}

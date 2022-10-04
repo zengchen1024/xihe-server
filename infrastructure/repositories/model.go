@@ -19,8 +19,8 @@ type ModelMapper interface {
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 
-	AddLike(string, string) error
-	RemoveLike(string, string) error
+	AddLike(ResourceIndexDO) error
+	RemoveLike(ResourceIndexDO) error
 
 	AddRelatedDataset(*RelatedResourceDO) error
 	RemoveRelatedDataset(*RelatedResourceDO) error

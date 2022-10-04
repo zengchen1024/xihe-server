@@ -44,15 +44,15 @@ func (s sender) sendFollowing(msg domain.FollowerInfo, action string) error {
 }
 
 // Like
-func (s sender) AddLike(msg domain.Like) error {
+func (s sender) AddLike(msg *domain.ResourceObject) error {
 	return s.sendLike(msg, actionAdd)
 }
 
-func (s sender) RemoveLike(msg domain.Like) error {
+func (s sender) RemoveLike(msg *domain.ResourceObject) error {
 	return s.sendLike(msg, actionRemove)
 }
 
-func (s sender) sendLike(msg domain.Like, action string) error {
+func (s sender) sendLike(msg *domain.ResourceObject, action string) error {
 	v := msgLike{
 		Action: action,
 		Owner:  msg.Owner.Account(),
@@ -64,7 +64,7 @@ func (s sender) sendLike(msg domain.Like, action string) error {
 }
 
 // Fork
-func (s sender) IncreaseFork(msg domain.ResourceIndex) error {
+func (s sender) IncreaseFork(msg *domain.ResourceIndex) error {
 	v := msgFork{
 		Owner: msg.Owner.Account(),
 		Id:    msg.Id,

@@ -27,8 +27,8 @@ type Dataset interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	UpdateProperty(*DatasetPropertyUpdateInfo) error
 }

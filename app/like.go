@@ -103,7 +103,7 @@ func (s likeService) Create(owner domain.Account, cmd LikeCreateCmd) error {
 	}
 
 	// send event
-	_ = s.sender.AddLike(v.Like)
+	_ = s.sender.AddLike(&v.Like.ResourceObject)
 
 	return nil
 }
@@ -123,7 +123,7 @@ func (s likeService) Delete(owner domain.Account, cmd LikeRemoveCmd) error {
 	}
 
 	// send event
-	_ = s.sender.RemoveLike(v.Like)
+	_ = s.sender.RemoveLike(&v.Like.ResourceObject)
 
 	return nil
 }

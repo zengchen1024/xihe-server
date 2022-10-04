@@ -87,12 +87,12 @@ func (s datasetService) SetTags(d *domain.Dataset, cmd *ResourceTagsUpdateCmd) e
 	return s.repo.UpdateProperty(&info)
 }
 
-func (s datasetService) AddLike(owner domain.Account, rid string) error {
-	return s.repo.AddLike(owner, rid)
+func (s datasetService) AddLike(r *domain.ResourceIndex) error {
+	return s.repo.AddLike(r)
 }
 
-func (s datasetService) RemoveLike(owner domain.Account, rid string) error {
-	return s.repo.RemoveLike(owner, rid)
+func (s datasetService) RemoveLike(r *domain.ResourceIndex) error {
+	return s.repo.RemoveLike(r)
 }
 
 func (s datasetService) toResourceToUpdate(d *domain.Dataset) repository.ResourceToUpdate {

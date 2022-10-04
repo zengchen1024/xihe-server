@@ -109,10 +109,10 @@ type ProjectService interface {
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
 
-	IncreaseFork(index domain.ResourceIndex) error
+	IncreaseFork(*domain.ResourceIndex) error
 
-	AddLike(domain.Account, string) error
-	RemoveLike(domain.Account, string) error
+	AddLike(*domain.ResourceIndex) error
+	RemoveLike(*domain.ResourceIndex) error
 
 	AddRelatedModel(*domain.Project, *domain.ResourceIndex) error
 	RemoveRelatedModel(*domain.Project, *domain.ResourceIndex) error

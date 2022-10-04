@@ -9,12 +9,12 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func (col project) AddLike(owner, pid string) error {
-	return updateResourceLike(col.collectionName, owner, pid, 1)
+func (col project) AddLike(p repositories.ResourceIndexDO) error {
+	return updateResourceLike(col.collectionName, &p, 1)
 }
 
-func (col project) RemoveLike(owner, pid string) error {
-	return updateResourceLike(col.collectionName, owner, pid, -1)
+func (col project) RemoveLike(p repositories.ResourceIndexDO) error {
+	return updateResourceLike(col.collectionName, &p, -1)
 }
 
 func (col project) AddRelatedModel(do *repositories.RelatedResourceDO) error {
@@ -33,13 +33,13 @@ func (col project) RemoveRelatedDataset(do *repositories.RelatedResourceDO) erro
 	return updateRelatedResource(col.collectionName, fieldDatasets, false, do)
 }
 
-func (col project) IncreaseFork(owner, rid string) (err error) {
+func (col project) IncreaseFork(r repositories.ResourceIndexDO) (err error) {
 	updated := false
 
 	f := func(ctx context.Context) error {
 		updated, err = cli.updateArrayElemCount(
 			ctx, col.collectionName, fieldItems, fieldForkCount, 1,
-			resourceOwnerFilter(owner), resourceIdFilter(rid),
+			resourceOwnerFilter(r.Owner), resourceIdFilter(r.Id),
 		)
 
 		return nil

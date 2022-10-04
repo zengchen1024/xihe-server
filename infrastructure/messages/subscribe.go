@@ -115,7 +115,7 @@ func registerLikeHandler(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		like := domain.Like{}
+		like := &domain.ResourceObject{}
 		if like.Owner, err = domain.NewAccount(body.Owner); err != nil {
 			return
 		}
@@ -162,6 +162,6 @@ func registerForkHandler(handler interface{}) (mq.Subscriber, error) {
 
 		index.Id = body.Id
 
-		return h.HandleEventFork(index)
+		return h.HandleEventFork(&index)
 	})
 }

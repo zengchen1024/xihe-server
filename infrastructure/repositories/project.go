@@ -19,10 +19,10 @@ type ProjectMapper interface {
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 
-	IncreaseFork(string, string) error
+	IncreaseFork(ResourceIndexDO) error
 
-	AddLike(string, string) error
-	RemoveLike(string, string) error
+	AddLike(ResourceIndexDO) error
+	RemoveLike(ResourceIndexDO) error
 
 	AddRelatedModel(*RelatedResourceDO) error
 	RemoveRelatedModel(*RelatedResourceDO) error
