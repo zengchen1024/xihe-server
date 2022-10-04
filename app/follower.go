@@ -4,18 +4,12 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
-func (s userService) AddFollower(user, follower domain.Account) error {
-	return s.repo.AddFollower(&domain.FollowerInfo{
-		User:     user,
-		Follower: follower,
-	})
+func (s userService) AddFollower(f *domain.FollowerInfo) error {
+	return s.repo.AddFollower(f)
 }
 
-func (s userService) RemoveFollower(user, follower domain.Account) error {
-	return s.repo.RemoveFollower(&domain.FollowerInfo{
-		User:     user,
-		Follower: follower,
-	})
+func (s userService) RemoveFollower(f *domain.FollowerInfo) error {
+	return s.repo.RemoveFollower(f)
 }
 
 func (s userService) ListFollower(cmd *FollowsListCmd) (

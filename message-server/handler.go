@@ -31,9 +31,9 @@ type handler struct {
 	project  app.ProjectService
 }
 
-func (h *handler) HandleEventAddFollowing(f domain.FollowerInfo) error {
+func (h *handler) HandleEventAddFollowing(f *domain.FollowerInfo) error {
 	return h.do(func() (err error) {
-		if err = h.user.AddFollower(f.User, f.Follower); err == nil {
+		if err = h.user.AddFollower(f); err == nil {
 			return
 		}
 
@@ -45,9 +45,9 @@ func (h *handler) HandleEventAddFollowing(f domain.FollowerInfo) error {
 	})
 }
 
-func (h *handler) HandleEventRemoveFollowing(f domain.FollowerInfo) (err error) {
+func (h *handler) HandleEventRemoveFollowing(f *domain.FollowerInfo) (err error) {
 	return h.do(func() error {
-		return h.user.RemoveFollower(f.User, f.Follower)
+		return h.user.RemoveFollower(f)
 	})
 }
 

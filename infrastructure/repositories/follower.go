@@ -8,12 +8,15 @@ import (
 func (impl user) GetByFollower(owner, follower domain.Account) (
 	u domain.User, isFollower bool, err error,
 ) {
-	account := ""
-	if follower != nil {
-		account = follower.Account()
+	f := FollowerInfoDO{
+		User: owner.Account(),
 	}
 
-	do, isFollower, err := impl.mapper.GetByFollower(owner.Account(), account)
+	if follower != nil {
+		f.Follower = follower.Account()
+	}
+
+	do, isFollower, err := impl.mapper.GetByFollower(f)
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -24,7 +27,7 @@ func (impl user) GetByFollower(owner, follower domain.Account) (
 }
 
 func (impl user) AddFollower(v *domain.FollowerInfo) error {
-	err := impl.mapper.AddFollower(v.User.Account(), v.Follower.Account())
+	err := impl.mapper.AddFollower(toFollowerInfoDO(v))
 	if err != nil {
 		return convertError(err)
 	}
@@ -33,7 +36,7 @@ func (impl user) AddFollower(v *domain.FollowerInfo) error {
 }
 
 func (impl user) RemoveFollower(v *domain.FollowerInfo) error {
-	err := impl.mapper.RemoveFollower(v.User.Account(), v.Follower.Account())
+	err := impl.mapper.RemoveFollower(toFollowerInfoDO(v))
 	if err != nil {
 		return convertError(err)
 	}

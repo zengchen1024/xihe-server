@@ -58,7 +58,12 @@ func (ctl *UserController) AddFollowing(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctl.s.AddFollowing(user, pl.DomainAccount()); err != nil {
+	f := &domain.FollowerInfo{
+		User:     user,
+		Follower: pl.DomainAccount(),
+	}
+
+	if err := ctl.s.AddFollowing(f); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData("success"))
@@ -97,7 +102,12 @@ func (ctl *UserController) RemoveFollowing(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctl.s.RemoveFollowing(user, pl.DomainAccount()); err != nil {
+	f := &domain.FollowerInfo{
+		User:     user,
+		Follower: pl.DomainAccount(),
+	}
+
+	if err := ctl.s.RemoveFollowing(f); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusNoContent, newResponseData("success"))

@@ -82,13 +82,7 @@ func (col user) Update(do repositories.UserDO) (err error) {
 	return
 }
 
-func (col user) GetByAccount(account string) (do repositories.UserDO, err error) {
-	do, _, err = col.GetByFollower(account, "")
-
-	return
-}
-
-func (col user) GetByFollower(account, follower string) (
+func (col user) GetByFollower(info repositories.FollowerInfoDO) (
 	do repositories.UserDO, isFollower bool, err error,
 ) {
 	var v []struct {
@@ -105,14 +99,14 @@ func (col user) GetByFollower(account, follower string) (
 			fieldFollowingCount: bson.M{"$size": "$" + fieldFollowing},
 		}
 
-		if follower != "" {
+		if info.Follower != "" {
 			fields[fieldIsFollower] = bson.M{
-				"$in": bson.A{follower, "$" + fieldFollower},
+				"$in": bson.A{info.Follower, "$" + fieldFollower},
 			}
 		}
 
 		pipeline := bson.A{
-			bson.M{"$match": userDocFilterByAccount(account)},
+			bson.M{"$match": userDocFilterByAccount(info.User)},
 			bson.M{"$addFields": fields},
 			bson.M{"$project": bson.M{
 				fieldFollowing: 0,
@@ -144,7 +138,7 @@ func (col user) GetByFollower(account, follower string) (
 	do.FollowerCount = item.FollowerCount
 	do.FollowingCount = item.FollowingCount
 
-	if follower != "" {
+	if info.Follower != "" {
 		isFollower = item.IsFollower
 	}
 

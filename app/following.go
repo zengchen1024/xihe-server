@@ -23,12 +23,8 @@ type FollowDTO struct {
 	IsFollower bool   `json:"is_follower"`
 }
 
-func (s userService) AddFollowing(user, follower domain.Account) error {
-	f := domain.FollowerInfo{
-		User:     user,
-		Follower: follower,
-	}
-	err := s.repo.AddFollowing(&f)
+func (s userService) AddFollowing(f *domain.FollowerInfo) error {
+	err := s.repo.AddFollowing(f)
 	if err != nil {
 		return err
 	}
@@ -41,12 +37,8 @@ func (s userService) AddFollowing(user, follower domain.Account) error {
 	return nil
 }
 
-func (s userService) RemoveFollowing(user, follower domain.Account) error {
-	f := domain.FollowerInfo{
-		User:     user,
-		Follower: follower,
-	}
-	err := s.repo.RemoveFollowing(&f)
+func (s userService) RemoveFollowing(f *domain.FollowerInfo) error {
+	err := s.repo.RemoveFollowing(f)
 	if err != nil {
 		return err
 	}

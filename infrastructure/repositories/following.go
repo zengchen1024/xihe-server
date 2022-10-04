@@ -6,7 +6,7 @@ import (
 )
 
 func (impl user) AddFollowing(v *domain.FollowerInfo) error {
-	err := impl.mapper.AddFollowing(v.User.Account(), v.Follower.Account())
+	err := impl.mapper.AddFollowing(toFollowerInfoDO(v))
 	if err != nil {
 		return convertError(err)
 	}
@@ -15,7 +15,7 @@ func (impl user) AddFollowing(v *domain.FollowerInfo) error {
 }
 
 func (impl user) RemoveFollowing(v *domain.FollowerInfo) error {
-	err := impl.mapper.RemoveFollowing(v.User.Account(), v.Follower.Account())
+	err := impl.mapper.RemoveFollowing(toFollowerInfoDO(v))
 	if err != nil {
 		return convertError(err)
 	}
@@ -50,6 +50,18 @@ func (impl user) FindFollowing(owner domain.Account, option *repository.FollowFi
 	info.Total = total
 
 	return
+}
+
+type FollowerInfoDO struct {
+	User     string
+	Follower string
+}
+
+func toFollowerInfoDO(f *domain.FollowerInfo) FollowerInfoDO {
+	return FollowerInfoDO{
+		User:     f.User.Account(),
+		Follower: f.Follower.Account(),
+	}
 }
 
 type FollowerUserInfoListDO struct {

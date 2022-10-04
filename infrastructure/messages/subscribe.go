@@ -77,7 +77,7 @@ func registerFollowingHandler(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		f := domain.FollowerInfo{}
+		f := &domain.FollowerInfo{}
 		if f.User, err = domain.NewAccount(body.User); err != nil {
 			return
 		}
