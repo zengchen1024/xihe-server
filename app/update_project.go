@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -116,7 +117,8 @@ func (s projectService) AddRelatedModel(
 	p *domain.Project, index *domain.ResourceIndex,
 ) error {
 	return s.addRelatedResource(
-		p, index, p.RelatedModels, s.repo.AddRelatedModel,
+		p, p.RelatedModels, index, domain.ResourceTypeModel,
+		s.repo.AddRelatedModel,
 	)
 }
 
@@ -124,15 +126,15 @@ func (s projectService) AddRelatedDataset(
 	p *domain.Project, index *domain.ResourceIndex,
 ) error {
 	return s.addRelatedResource(
-		p, index, p.RelatedDatasets, s.repo.AddRelatedDataset,
+		p, p.RelatedDatasets, index, domain.ResourceTypeDataset,
+		s.repo.AddRelatedDataset,
 	)
 }
 
 func (s projectService) addRelatedResource(
-	p *domain.Project, index *domain.ResourceIndex,
-	v domain.RelatedResources,
+	p *domain.Project, v domain.RelatedResources,
+	index *domain.ResourceIndex, t domain.ResourceType,
 	f func(*repository.RelatedResourceInfo) error,
-
 ) error {
 	if v.Has(index) {
 		return nil
@@ -149,14 +151,33 @@ func (s projectService) addRelatedResource(
 		RelatedResource:  *index,
 	}
 
-	return f(&info)
+	if err := f(&info); err != nil {
+		return err
+	}
+
+	_ = s.sender.AddRelatedResource(&message.RelatedResource{
+		Promoter: &domain.ResourceObject{
+			ResourceIndex: domain.ResourceIndex{
+				Owner: p.Owner,
+				Id:    p.Id,
+			},
+			Type: domain.ResourceTypeProject,
+		},
+		Resource: &domain.ResourceObject{
+			ResourceIndex: *index,
+			Type:          t,
+		},
+	})
+
+	return nil
 }
 
 func (s projectService) RemoveRelatedModel(
 	p *domain.Project, index *domain.ResourceIndex,
 ) error {
 	return s.removeRelatedResource(
-		p, index, p.RelatedModels, s.repo.RemoveRelatedModel,
+		p, p.RelatedModels, index, domain.ResourceTypeModel,
+		s.repo.RemoveRelatedModel,
 	)
 }
 
@@ -164,13 +185,14 @@ func (s projectService) RemoveRelatedDataset(
 	p *domain.Project, index *domain.ResourceIndex,
 ) error {
 	return s.removeRelatedResource(
-		p, index, p.RelatedDatasets, s.repo.RemoveRelatedDataset,
+		p, p.RelatedDatasets, index, domain.ResourceTypeDataset,
+		s.repo.RemoveRelatedDataset,
 	)
 }
 
 func (s projectService) removeRelatedResource(
-	p *domain.Project, index *domain.ResourceIndex,
-	v domain.RelatedResources,
+	p *domain.Project, v domain.RelatedResources,
+	index *domain.ResourceIndex, t domain.ResourceType,
 	f func(*repository.RelatedResourceInfo) error,
 ) error {
 	if !v.Has(index) {
@@ -182,7 +204,25 @@ func (s projectService) removeRelatedResource(
 		RelatedResource:  *index,
 	}
 
-	return f(&info)
+	if err := f(&info); err != nil {
+		return err
+	}
+
+	_ = s.sender.RemoveRelatedResource(&message.RelatedResource{
+		Promoter: &domain.ResourceObject{
+			ResourceIndex: domain.ResourceIndex{
+				Owner: p.Owner,
+				Id:    p.Id,
+			},
+			Type: domain.ResourceTypeProject,
+		},
+		Resource: &domain.ResourceObject{
+			ResourceIndex: *index,
+			Type:          t,
+		},
+	})
+
+	return nil
 }
 
 func (s projectService) toResourceToUpdate(p *domain.Project) repository.ResourceToUpdate {

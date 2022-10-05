@@ -108,7 +108,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			repositories.NewModelRepository(
 				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
 			),
-			nil, nil, nil, nil,
+			nil, nil, nil, nil, nil,
 		),
 	}
 }

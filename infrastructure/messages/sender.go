@@ -13,9 +13,10 @@ import (
 var topics Topics
 
 type Topics struct {
-	Like      string `json:"like"      required:"true"`
-	Fork      string `json:"fork"      required:"true"`
-	Following string `json:"following" required:"true"`
+	Like            string `json:"like"      required:"true"`
+	Fork            string `json:"fork"      required:"true"`
+	Following       string `json:"following" required:"true"`
+	RelatedResource string `json:"related_resource" required:"true"`
 }
 
 func NewMessageSender() message.Sender {
@@ -54,10 +55,8 @@ func (s sender) RemoveLike(msg *domain.ResourceObject) error {
 
 func (s sender) sendLike(msg *domain.ResourceObject, action string) error {
 	v := msgLike{
-		Action: action,
-		Owner:  msg.Owner.Account(),
-		Type:   msg.Type.ResourceType(),
-		Id:     msg.Id,
+		Action:   action,
+		Resource: toMsgResourceObject(msg),
 	}
 
 	return s.send(topics.Like, &v)
@@ -82,4 +81,23 @@ func (s sender) send(topic string, v interface{}) error {
 	return kafka.Publish(topic, &mq.Message{
 		Body: body,
 	})
+}
+
+// RelatedResource
+func (s sender) AddRelatedResource(msg *message.RelatedResource) error {
+	return s.sendRelatedResource(msg, actionAdd)
+}
+
+func (s sender) RemoveRelatedResource(msg *message.RelatedResource) error {
+	return s.sendRelatedResource(msg, actionRemove)
+}
+
+func (s sender) sendRelatedResource(msg *message.RelatedResource, action string) error {
+	v := msgRelatedResource{
+		Action:   action,
+		Promoter: toMsgResourceObject(msg.Promoter),
+		Resource: toMsgResourceObject(msg.Resource),
+	}
+
+	return s.send(topics.RelatedResource, &v)
 }

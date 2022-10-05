@@ -344,3 +344,36 @@ func updateRelatedResource(
 
 	return nil
 }
+
+func updateReverselyRelatedResource(
+	collection, field string, add bool,
+	do *repositories.ReverselyRelatedResourceInfoDO,
+) error {
+	doc := bson.M{
+		field: bson.M{
+			fieldRId:    do.Promoter.Id,
+			fieldROwner: do.Promoter.Owner,
+		},
+	}
+
+	docFilter := resourceOwnerFilter(do.Resource.Owner)
+	arrayFilter := resourceIdFilter(do.Resource.Id)
+
+	f := func(ctx context.Context) error {
+		op := ""
+		if add {
+			op = mongoCmdPush
+		} else {
+			op = mongoCmdPull
+		}
+
+		_, err := cli.modifyArrayElemWithoutVersion(
+			ctx, collection, fieldItems,
+			docFilter, arrayFilter, doc, op,
+		)
+
+		return err
+	}
+
+	return withContext(f)
+}

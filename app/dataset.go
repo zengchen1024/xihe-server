@@ -92,6 +92,12 @@ type DatasetService interface {
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 
+	AddRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+
+	AddRelatedModel(*domain.ReverselyRelatedResourceInfo) error
+	RemoveRelatedModel(*domain.ReverselyRelatedResourceInfo) error
+
 	SetTags(*domain.Dataset, *ResourceTagsUpdateCmd) error
 }
 

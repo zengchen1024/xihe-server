@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -97,6 +98,9 @@ type ModelService interface {
 	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 
+	AddRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+
 	SetTags(*domain.Model, *ResourceTagsUpdateCmd) error
 }
 
@@ -107,11 +111,12 @@ func NewModelService(
 	dataset repository.Dataset,
 	activity repository.Activity,
 	pr platform.Repository,
-
+	sender message.Sender,
 ) ModelService {
 	return modelService{
 		repo:     repo,
 		activity: activity,
+		sender:   sender,
 		rs: resourceService{
 			user:    user,
 			model:   repo,
@@ -126,6 +131,7 @@ type modelService struct {
 	//pr       platform.Repository
 	activity repository.Activity
 	rs       resourceService
+	sender   message.Sender
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto ModelDTO, err error) {
