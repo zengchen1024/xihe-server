@@ -33,5 +33,8 @@ type Model interface {
 	AddRelatedDataset(*RelatedResourceInfo) error
 	RemoveRelatedDataset(*RelatedResourceInfo) error
 
+	AddRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+
 	UpdateProperty(*ModelPropertyUpdateInfo) error
 }

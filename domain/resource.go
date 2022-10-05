@@ -62,3 +62,8 @@ func (r RelatedResources) Has(index *ResourceIndex) bool {
 func (r RelatedResources) Count() int {
 	return len(r)
 }
+
+type ReverselyRelatedResourceInfo struct {
+	Promoter *ResourceIndex
+	Resource *ResourceIndex
+}

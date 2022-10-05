@@ -43,6 +43,26 @@ func (impl model) RemoveRelatedDataset(info *repository.RelatedResourceInfo) err
 	return nil
 }
 
+func (impl model) AddRelatedProject(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.AddRelatedProject(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+func (impl model) RemoveRelatedProject(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.RemoveRelatedProject(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
 func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error {
 	p := &info.Property
 

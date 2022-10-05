@@ -25,6 +25,9 @@ type ModelMapper interface {
 	AddRelatedDataset(*RelatedResourceDO) error
 	RemoveRelatedDataset(*RelatedResourceDO) error
 
+	AddRelatedProject(*ReverselyRelatedResourceInfoDO) error
+	RemoveRelatedProject(*ReverselyRelatedResourceInfoDO) error
+
 	UpdateProperty(*ModelPropertyDO) error
 }
 

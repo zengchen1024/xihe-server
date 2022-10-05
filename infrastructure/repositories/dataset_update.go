@@ -120,6 +120,45 @@ func (impl dataset) list(
 	return
 }
 
+func (impl dataset) AddRelatedProject(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.AddRelatedProject(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+func (impl dataset) RemoveRelatedProject(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.RemoveRelatedProject(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+func (impl dataset) AddRelatedModel(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.AddRelatedModel(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+func (impl dataset) RemoveRelatedModel(info *domain.ReverselyRelatedResourceInfo) error {
+	do := toReverselyRelatedResourceInfoDO(info)
+
+	if err := impl.mapper.RemoveRelatedModel(&do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
 type DatasetSummaryDO struct {
 	Id            string
 	Owner         string

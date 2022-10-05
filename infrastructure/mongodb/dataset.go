@@ -65,6 +65,8 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 	}
 	doc[fieldVersion] = 0
 	doc[fieldLikeCount] = 0
+	doc[fieldModels] = bson.A{}
+	doc[fieldProjects] = bson.A{}
 
 	err = insertResource(col.collectionName, do.Owner, do.Name, doc)
 

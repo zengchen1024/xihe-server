@@ -95,6 +95,30 @@ func (s datasetService) RemoveLike(r *domain.ResourceIndex) error {
 	return s.repo.RemoveLike(r)
 }
 
+func (s datasetService) AddRelatedProject(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.AddRelatedProject(info)
+}
+
+func (s datasetService) RemoveRelatedProject(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.RemoveRelatedProject(info)
+}
+
+func (s datasetService) AddRelatedModel(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.AddRelatedModel(info)
+}
+
+func (s datasetService) RemoveRelatedModel(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.RemoveRelatedModel(info)
+}
+
 func (s datasetService) toResourceToUpdate(d *domain.Dataset) repository.ResourceToUpdate {
 	return repository.ResourceToUpdate{
 		Owner:     d.Owner,

@@ -91,3 +91,17 @@ func convertToResourceIndex(v []ResourceIndexDO) (r []domain.ResourceIndex, err 
 
 	return
 }
+
+func toReverselyRelatedResourceInfoDO(
+	info *domain.ReverselyRelatedResourceInfo,
+) ReverselyRelatedResourceInfoDO {
+	return ReverselyRelatedResourceInfoDO{
+		Promoter: toResourceIndexDO(info.Promoter),
+		Resource: toResourceIndexDO(info.Resource),
+	}
+}
+
+type ReverselyRelatedResourceInfoDO struct {
+	Promoter ResourceIndexDO
+	Resource ResourceIndexDO
+}

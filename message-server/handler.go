@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -21,6 +22,11 @@ type likeHanler interface {
 	RemoveLike(*domain.ResourceIndex) error
 }
 
+type relatedResourceHanler struct {
+	Add    func(*domain.ReverselyRelatedResourceInfo) error
+	Remove func(*domain.ReverselyRelatedResourceInfo) error
+}
+
 type handler struct {
 	log *logrus.Entry
 
@@ -29,6 +35,68 @@ type handler struct {
 	model    app.ModelService
 	dataset  app.DatasetService
 	project  app.ProjectService
+}
+
+func (h *handler) HandleEventAddRelatedResource(info *message.RelatedResource) error {
+	rh := h.getHandlerForEventRelatedResource(info)
+	if rh.Add == nil {
+		return errors.New("unknown Reversely Related Resource")
+	}
+
+	data := h.getParameterForEventRelatedResource(info)
+
+	return h.do(func() (err error) {
+		return rh.Add(&data)
+	})
+}
+
+func (h *handler) HandleEventRemoveRelatedResource(info *message.RelatedResource) error {
+	rh := h.getHandlerForEventRelatedResource(info)
+	if rh.Remove == nil {
+		return errors.New("unknown Reversely Related Resource")
+	}
+
+	data := h.getParameterForEventRelatedResource(info)
+
+	return h.do(func() (err error) {
+		return rh.Remove(&data)
+	})
+}
+
+func (h *handler) getParameterForEventRelatedResource(
+	info *message.RelatedResource,
+) domain.ReverselyRelatedResourceInfo {
+	return domain.ReverselyRelatedResourceInfo{
+		Promoter: &info.Promoter.ResourceIndex,
+		Resource: &info.Resource.ResourceIndex,
+	}
+}
+
+func (h *handler) getHandlerForEventRelatedResource(
+	info *message.RelatedResource,
+) (v relatedResourceHanler) {
+	pt := info.Promoter.Type.ResourceType()
+
+	switch info.Resource.Type.ResourceType() {
+	case domain.ResourceTypeDataset.ResourceType():
+		switch pt {
+		case domain.ResourceTypeModel.ResourceType():
+			v.Add = h.dataset.AddRelatedModel
+			v.Remove = h.dataset.RemoveRelatedModel
+
+		case domain.ResourceTypeProject.ResourceType():
+			v.Add = h.dataset.AddRelatedProject
+			v.Remove = h.dataset.RemoveRelatedProject
+		}
+
+	case domain.ResourceTypeModel.ResourceType():
+		if pt == domain.ResourceTypeProject.ResourceType() {
+			v.Add = h.model.AddRelatedProject
+			v.Remove = h.model.RemoveRelatedProject
+		}
+	}
+
+	return
 }
 
 func (h *handler) HandleEventAddFollowing(f *domain.FollowerInfo) error {

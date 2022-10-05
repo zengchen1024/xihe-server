@@ -22,6 +22,12 @@ type DatasetMapper interface {
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 
+	AddRelatedProject(*ReverselyRelatedResourceInfoDO) error
+	RemoveRelatedProject(*ReverselyRelatedResourceInfoDO) error
+
+	AddRelatedModel(*ReverselyRelatedResourceInfoDO) error
+	RemoveRelatedModel(*ReverselyRelatedResourceInfoDO) error
+
 	UpdateProperty(*DatasetPropertyDO) error
 }
 

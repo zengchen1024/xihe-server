@@ -389,6 +389,49 @@ func (cli *client) modifyArrayElem(
 	return r.ModifiedCount > 0, nil
 }
 
+func (cli *client) modifyArrayElemWithoutVersion(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray, updateCmd bson.M,
+	op string,
+) (bool, error) {
+	key := func(k string) string {
+		return fmt.Sprintf("%s.$[i].%s", array, k)
+	}
+
+	cmd := bson.M{}
+	for k, v := range updateCmd {
+		cmd[key(k)] = v
+	}
+
+	arrayFilter := bson.M{}
+	for k, v := range filterOfArray {
+		arrayFilter["i."+k] = v
+	}
+
+	updates := bson.M{op: cmd}
+
+	col := cli.collection(collection)
+	r, err := col.UpdateOne(
+		ctx, filterOfDoc, updates,
+		&options.UpdateOptions{
+			ArrayFilters: &options.ArrayFilters{
+				Filters: bson.A{
+					arrayFilter,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if r.MatchedCount == 0 {
+		return false, errDocNotExists
+	}
+
+	return r.ModifiedCount > 0, nil
+}
+
 func (cli *client) updateArrayElemCount(
 	ctx context.Context,
 	collection, array, field string, num int,

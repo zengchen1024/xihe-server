@@ -155,7 +155,7 @@ func (s projectService) addRelatedResource(
 		return err
 	}
 
-	_ = s.sender.RemoveRelatedResource(&message.RelatedResource{
+	_ = s.sender.AddRelatedResource(&message.RelatedResource{
 		Promoter: &domain.ResourceObject{
 			ResourceIndex: domain.ResourceIndex{
 				Owner: p.Owner,

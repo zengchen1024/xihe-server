@@ -27,6 +27,7 @@ const (
 	fieldType           = "type"
 	fieldModels         = "models"
 	fieldDatasets       = "datasets"
+	fieldProjects       = "projects"
 	fieldRId            = "rid"
 	fieldROwner         = "rowner"
 	fieldRType          = "rtype"
@@ -90,6 +91,7 @@ type modelItem struct {
 	// RelatedDatasets is not allowd to be set,
 	// So, don't marshal it to avoid setting it occasionally.
 	RelatedDatasets []ResourceIndex `bson:"datasets" json:"-"`
+	RelatedProjects []ResourceIndex `bson:"projects" json:"-"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.
@@ -119,6 +121,9 @@ type datasetItem struct {
 	UpdatedAt int64  `bson:"updated_at" json:"updated_at"`
 
 	DatasetPropertyItem `bson:",inline"`
+
+	RelatedModels   []ResourceIndex `bson:"models"   json:"-"`
+	RelatedProjects []ResourceIndex `bson:"projects" json:"-"`
 
 	// Version, LikeCount will be increased by 1 automatically.
 	// So, don't marshal it to avoid setting it occasionally.

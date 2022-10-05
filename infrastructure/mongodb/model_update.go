@@ -22,6 +22,14 @@ func (col model) RemoveRelatedDataset(do *repositories.RelatedResourceDO) error 
 	return updateRelatedResource(col.collectionName, fieldDatasets, false, do)
 }
 
+func (col model) AddRelatedProject(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldProjects, true, do)
+}
+
+func (col model) RemoveRelatedProject(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldProjects, false, do)
+}
+
 func (col model) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.ModelSummaryDO, int, error) {

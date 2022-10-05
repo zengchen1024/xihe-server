@@ -14,6 +14,22 @@ func (col dataset) RemoveLike(r repositories.ResourceIndexDO) error {
 	return updateResourceLike(col.collectionName, &r, -1)
 }
 
+func (col dataset) AddRelatedProject(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldProjects, true, do)
+}
+
+func (col dataset) RemoveRelatedProject(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldProjects, false, do)
+}
+
+func (col dataset) AddRelatedModel(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldModels, true, do)
+}
+
+func (col dataset) RemoveRelatedModel(do *repositories.ReverselyRelatedResourceInfoDO) error {
+	return updateReverselyRelatedResource(col.collectionName, fieldModels, false, do)
+}
+
 func (col dataset) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.DatasetSummaryDO, int, error) {

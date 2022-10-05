@@ -170,6 +170,18 @@ func (s modelService) RemoveRelatedDataset(
 	return nil
 }
 
+func (s modelService) AddRelatedProject(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.AddRelatedProject(info)
+}
+
+func (s modelService) RemoveRelatedProject(
+	info *domain.ReverselyRelatedResourceInfo,
+) error {
+	return s.repo.RemoveRelatedProject(info)
+}
+
 func (s modelService) toResourceToUpdate(m *domain.Model) repository.ResourceToUpdate {
 	return repository.ResourceToUpdate{
 		Owner:     m.Owner,

@@ -98,6 +98,9 @@ type ModelService interface {
 	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 
+	AddRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
+
 	SetTags(*domain.Model, *ResourceTagsUpdateCmd) error
 }
 
@@ -108,11 +111,12 @@ func NewModelService(
 	dataset repository.Dataset,
 	activity repository.Activity,
 	pr platform.Repository,
-
+	sender message.Sender,
 ) ModelService {
 	return modelService{
 		repo:     repo,
 		activity: activity,
+		sender:   sender,
 		rs: resourceService{
 			user:    user,
 			model:   repo,
