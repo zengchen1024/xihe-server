@@ -252,6 +252,14 @@ definitions:
         type: string
       protocol:
         type: string
+      related_models:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
+      related_projects:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
       repo_id:
         type: string
       repo_type:
@@ -343,6 +351,10 @@ definitions:
       protocol:
         type: string
       related_datasets:
+        items:
+          $ref: '#/definitions/app.ResourceDTO'
+        type: array
+      related_projects:
         items:
           $ref: '#/definitions/app.ResourceDTO'
         type: array

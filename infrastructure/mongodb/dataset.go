@@ -188,5 +188,8 @@ func (col dataset) toDatasetDO(owner string, item *datasetItem, do *repositories
 		Version:       item.Version,
 		LikeCount:     item.LikeCount,
 		DownloadCount: item.DownloadCount,
+
+		RelatedModels:   toResourceIndexDO(item.RelatedModels),
+		RelatedProjects: toResourceIndexDO(item.RelatedProjects),
 	}
 }

@@ -138,6 +138,7 @@ type ModelDO struct {
 	DownloadCount int
 
 	RelatedDatasets []ResourceIndexDO
+	RelatedProjects []ResourceIndexDO
 }
 
 func (do *ModelDO) toModel(r *domain.Model) (err error) {
@@ -164,6 +165,10 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 	}
 
 	if r.RelatedDatasets, err = convertToResourceIndex(do.RelatedDatasets); err != nil {
+		return
+	}
+
+	if r.RelatedProjects, err = convertToResourceIndex(do.RelatedProjects); err != nil {
 		return
 	}
 

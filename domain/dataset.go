@@ -18,6 +18,9 @@ type Dataset struct {
 	// following fileds is not under the controlling of version
 	LikeCount     int
 	DownloadCount int
+
+	RelatedModels   RelatedResources
+	RelatedProjects RelatedResources
 }
 
 func (d *Dataset) IsPrivate() bool {

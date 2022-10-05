@@ -190,5 +190,6 @@ func (col model) toModelDO(owner string, item *modelItem, do *repositories.Model
 		DownloadCount: item.DownloadCount,
 
 		RelatedDatasets: toResourceIndexDO(item.RelatedDatasets),
+		RelatedProjects: toResourceIndexDO(item.RelatedProjects),
 	}
 }

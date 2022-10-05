@@ -136,6 +136,9 @@ type DatasetDO struct {
 	Version       int
 	LikeCount     int
 	DownloadCount int
+
+	RelatedModels   []ResourceIndexDO
+	RelatedProjects []ResourceIndexDO
 }
 
 func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
@@ -158,6 +161,14 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 	}
 
 	if r.Protocol, err = domain.NewProtocolName(do.Protocol); err != nil {
+		return
+	}
+
+	if r.RelatedModels, err = convertToResourceIndex(do.RelatedModels); err != nil {
+		return
+	}
+
+	if r.RelatedProjects, err = convertToResourceIndex(do.RelatedProjects); err != nil {
 		return
 	}
 

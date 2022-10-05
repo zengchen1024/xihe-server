@@ -84,6 +84,7 @@ type ModelDetailDTO struct {
 	ModelDTO
 
 	RelatedDatasets []ResourceDTO `json:"related_datasets"`
+	RelatedProjects []ResourceDTO `json:"related_projects"`
 }
 
 type ModelService interface {
@@ -183,6 +184,12 @@ func (s modelService) GetByName(
 		return
 	}
 	dto.RelatedDatasets = d
+
+	d, err = s.rs.listProjects(v.RelatedProjects)
+	if err != nil {
+		return
+	}
+	dto.RelatedProjects = d
 
 	s.toModelDTO(&v, &dto.ModelDTO)
 
