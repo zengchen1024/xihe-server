@@ -81,6 +81,9 @@ type DatasetDTO struct {
 
 type DatasetDetailDTO struct {
 	DatasetDTO
+
+	RelatedModels   []ResourceDTO `json:"related_models"`
+	RelatedProjects []ResourceDTO `json:"related_projects"`
 }
 
 type DatasetService interface {
@@ -171,6 +174,18 @@ func (s datasetService) GetByName(
 
 		return
 	}
+
+	d, err := s.rs.listModels(v.RelatedModels)
+	if err != nil {
+		return
+	}
+	dto.RelatedModels = d
+
+	d, err = s.rs.listProjects(v.RelatedProjects)
+	if err != nil {
+		return
+	}
+	dto.RelatedProjects = d
 
 	s.toDatasetDTO(&v, &dto.DatasetDTO)
 

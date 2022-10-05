@@ -2134,6 +2134,18 @@ const docTemplate = `{
                 "protocol": {
                     "type": "string"
                 },
+                "related_models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
+                "related_projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
                 "repo_id": {
                     "type": "string"
                 },
@@ -2274,6 +2286,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "related_datasets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceDTO"
+                    }
+                },
+                "related_projects": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/app.ResourceDTO"

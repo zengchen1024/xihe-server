@@ -46,6 +46,18 @@ func (s resourceService) list(resources []*domain.ResourceObject) (
 	return s.listResources(users, projects, datasets, models, len(resources))
 }
 
+func (s resourceService) listProjects(resources []domain.ResourceIndex) (
+	dtos []ResourceDTO, err error,
+) {
+	if len(resources) == 0 {
+		return
+	}
+
+	users, options := s.singleResourceOptions(resources)
+
+	return s.listResources(users, options, nil, nil, len(resources))
+}
+
 func (s resourceService) listModels(resources []domain.ResourceIndex) (
 	dtos []ResourceDTO, err error,
 ) {
