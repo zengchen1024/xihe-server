@@ -359,8 +359,6 @@ func updateReverselyRelatedResource(
 	docFilter := resourceOwnerFilter(do.Resource.Owner)
 	arrayFilter := resourceIdFilter(do.Resource.Id)
 
-	updated := false
-	var err error
 	f := func(ctx context.Context) error {
 		op := ""
 		if add {
@@ -369,21 +367,13 @@ func updateReverselyRelatedResource(
 			op = mongoCmdPull
 		}
 
-		updated, err = cli.modifyArrayElemWithoutVersion(
+		_, err := cli.modifyArrayElemWithoutVersion(
 			ctx, collection, fieldItems,
 			docFilter, arrayFilter, doc, op,
 		)
 
-		return nil
-	}
-
-	if withContext(f); err != nil {
 		return err
 	}
 
-	if !updated {
-		return repositories.NewErrorConcurrentUpdating(errors.New("no update"))
-	}
-
-	return nil
+	return withContext(f)
 }

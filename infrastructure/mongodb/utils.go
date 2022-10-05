@@ -408,11 +408,9 @@ func (cli *client) modifyArrayElemWithoutVersion(
 		arrayFilter["i."+k] = v
 	}
 
-	updates := bson.M{op: cmd}
-
 	col := cli.collection(collection)
 	r, err := col.UpdateOne(
-		ctx, filterOfDoc, updates,
+		ctx, filterOfDoc, bson.M{op: cmd},
 		&options.UpdateOptions{
 			ArrayFilters: &options.ArrayFilters{
 				Filters: bson.A{
