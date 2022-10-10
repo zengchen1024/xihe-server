@@ -11,20 +11,14 @@ var (
 	reFilePath  = regexp.MustCompile("^[a-zA-Z0-9_-/.]+$")
 )
 
-type TrainingConfig struct {
-	MaxNameLength int
-	MinNameLength int
-	MaxDescLength int
-}
-
 // TrainingName
 type TrainingName interface {
 	TrainingName() string
 }
 
 func NewTrainingName(v string) (TrainingName, error) {
-	max := config.Training.MaxNameLength
-	min := config.Training.MinNameLength
+	max := config.MaxTrainingNameLength
+	min := config.MinTrainingNameLength
 
 	if n := len(v); n > max || n < min {
 		return nil, fmt.Errorf("name's length should be between %d to %d", min, max)
@@ -49,7 +43,7 @@ type TrainingDesc interface {
 }
 
 func NewTrainingDesc(v string) (TrainingDesc, error) {
-	max := config.Training.MaxDescLength
+	max := config.MaxTrainingDescLength
 	if len(v) > max {
 		return nil, fmt.Errorf("the length of desc should be less than %d", max)
 	}

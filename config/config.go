@@ -46,14 +46,13 @@ type Config struct {
 	MaxRetry        int `json:"max_retry"`
 	ActivityKeepNum int `json:"activity_keep_num"`
 
-	Authing  AuthingService        `json:"authing_service" required:"true"`
-	Resource domain.ResourceConfig `json:"resource"        required:"true"`
-	BigModel bigmodels.Config      `json:"bigmodel"        required:"true"`
-	Mongodb  Mongodb               `json:"mongodb"         required:"true"`
-	Gitlab   Gitlab                `json:"gitlab"          required:"true"`
-	API      controller.APIConfig  `json:"api"             required:"true"`
-	User     domain.UserConfig     `json:"user"`
-	MQ       MQ                    `json:"mq"              required:"true"`
+	Authing  AuthingService       `json:"authing_service" required:"true"`
+	BigModel bigmodels.Config     `json:"bigmodel"        required:"true"`
+	Mongodb  Mongodb              `json:"mongodb"         required:"true"`
+	Gitlab   Gitlab               `json:"gitlab"          required:"true"`
+	Domain   domain.Config        `json:"domain"          required:"true"`
+	API      controller.APIConfig `json:"api"             required:"true"`
+	MQ       MQ                   `json:"mq"              required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
@@ -65,11 +64,10 @@ func (cfg *Config) GetMQConfig() mq.MQConfig {
 func (cfg *Config) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Authing,
-		&cfg.Resource,
+		&cfg.Domain,
 		&cfg.Mongodb,
 		&cfg.Gitlab,
 		&cfg.API,
-		&cfg.User,
 		&cfg.MQ,
 		&cfg.BigModel,
 	}
@@ -158,5 +156,5 @@ func (cfg *MQ) ParseAddress() []string {
 }
 
 func (cfg *Config) InitDomainConfig() {
-	domain.Init(&cfg.Resource, &cfg.User)
+	domain.Init(&cfg.Domain)
 }

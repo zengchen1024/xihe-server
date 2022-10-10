@@ -2,38 +2,13 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 )
 
 const (
 	RepoTypePublic  = "public"
 	RepoTypePrivate = "private"
 )
-
-func Init(cfg Config) {
-	config = cfg
-}
-
-type Config struct {
-	Resource ResourceConfig
-	User     UserConfig
-	Training TrainingConfig
-}
-
-type ResourceConfig struct {
-	MaxNameLength int
-	MinNameLength int
-	MaxDescLength int
-
-	Covers           sets.String
-	Protocols        sets.String
-	ProjectType      sets.String
-	TrainingPlatform sets.String
-}
-
-type UserConfig struct {
-	MaxNicknameLength int
-	MaxBioLength      int
-}
 
 // RepoType
 type RepoType interface {
@@ -60,7 +35,7 @@ type ProjDesc interface {
 }
 
 func NewProjDesc(v string) (ProjDesc, error) {
-	max := config.Resource.MaxDescLength
+	max := config.MaxDescLength
 	if len(v) > max {
 		return nil, fmt.Errorf("the length of desc should be less than %d", max)
 	}
