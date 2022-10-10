@@ -13,9 +13,9 @@ import (
 var topics Topics
 
 type Topics struct {
-	Like            string `json:"like"      required:"true"`
-	Fork            string `json:"fork"      required:"true"`
-	Following       string `json:"following" required:"true"`
+	Like            string `json:"like"             required:"true"`
+	Fork            string `json:"fork"             required:"true"`
+	Following       string `json:"following"        required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
 

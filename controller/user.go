@@ -207,8 +207,8 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 			return
 		}
 
-		// get by empty follower
-		if u, _, err := ctl.s.GetByFollower(target, nil); err != nil {
+		// get by visitor
+		if u, err := ctl.s.GetByAccount(target); err != nil {
 			ctl.sendRespWithInternalError(ctx, newResponseError(err))
 		} else {
 			u.Email = ""
@@ -230,11 +230,11 @@ func (ctl *UserController) Get(ctx *gin.Context) {
 		return
 	}
 
-	// get mine info
+	// get user own info
 	if u, err := ctl.s.GetByAccount(pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		resp(&u, false)
+		resp(&u, true)
 	}
 }
 
