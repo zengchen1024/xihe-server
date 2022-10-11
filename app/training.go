@@ -71,12 +71,10 @@ func (s trainingService) Get(info *TrainingInfo) error {
 }
 
 func (s trainingService) Delete(info *TrainingInfo) error {
-	data, err := s.repo.Get(info)
+	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
 	}
-
-	job := &data.Job
 
 	if job.JobId != "" {
 		err = s.train.DeleteJob(job.Endpoint, job.JobId)
@@ -90,12 +88,10 @@ func (s trainingService) Delete(info *TrainingInfo) error {
 }
 
 func (s trainingService) Terminate(info *TrainingInfo) error {
-	data, err := s.repo.Get(info)
+	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
 	}
-
-	job := &data.Job
 
 	if job.JobId != "" {
 		err = s.train.TerminateJob(job.Endpoint, job.JobId)
@@ -108,12 +104,12 @@ func (s trainingService) Terminate(info *TrainingInfo) error {
 }
 
 func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
-	data, err := s.repo.Get(info)
+	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return "", err
 	}
 
-	if job := &data.Job; job.JobId != "" {
+	if job.JobId != "" {
 		return s.train.GetLogDownloadURL(job.Endpoint, job.JobId)
 	}
 

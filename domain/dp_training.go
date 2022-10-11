@@ -43,6 +43,10 @@ type TrainingDesc interface {
 }
 
 func NewTrainingDesc(v string) (TrainingDesc, error) {
+	if v == "" {
+		return nil, nil
+	}
+
 	max := config.MaxTrainingDescLength
 	if len(v) > max {
 		return nil, fmt.Errorf("the length of desc should be less than %d", max)
@@ -63,6 +67,10 @@ type Directory interface {
 }
 
 func NewDirectory(v string) (Directory, error) {
+	if v == "" {
+		return nil, nil
+	}
+
 	if !reDirectory.MatchString(v) {
 		return nil, errors.New("invalid directory")
 	}
@@ -82,6 +90,10 @@ type FilePath interface {
 }
 
 func NewFilePath(v string) (FilePath, error) {
+	if v == "" {
+		return nil, nil
+	}
+
 	if !reFilePath.MatchString(v) {
 		return nil, errors.New("invalid filePath")
 	}
@@ -102,7 +114,7 @@ type ComputeType interface {
 
 func NewComputeType(v string) (ComputeType, error) {
 	if v == "" {
-		return nil, errors.New("invalid compute type")
+		return nil, nil
 	}
 
 	return computeType(v), nil
@@ -121,7 +133,7 @@ type ComputeVersion interface {
 
 func NewComputeVersion(v string) (ComputeVersion, error) {
 	if v == "" {
-		return nil, errors.New("invalid compute version")
+		return nil, nil
 	}
 
 	return computeVersion(v), nil
@@ -140,7 +152,7 @@ type ComputeFlavor interface {
 
 func NewComputeFlavor(v string) (ComputeFlavor, error) {
 	if v == "" {
-		return nil, errors.New("invalid compute flavor")
+		return nil, nil
 	}
 
 	return computeFlavor(v), nil
@@ -159,7 +171,7 @@ type CustomizedKey interface {
 
 func NewCustomizedKey(v string) (CustomizedKey, error) {
 	if v == "" {
-		return nil, errors.New("invalid key")
+		return nil, nil
 	}
 
 	return customizedKey(v), nil
@@ -178,7 +190,7 @@ type CustomizedValue interface {
 
 func NewCustomizedValue(v string) (CustomizedValue, error) {
 	if v == "" {
-		return nil, errors.New("invalid key")
+		return nil, nil
 	}
 
 	return customizedValue(v), nil
@@ -187,24 +199,5 @@ func NewCustomizedValue(v string) (CustomizedValue, error) {
 type customizedValue string
 
 func (r customizedValue) CustomizedValue() string {
-	return string(r)
-}
-
-// TrainingRegion
-type TrainingRegion interface {
-	TrainingRegion() string
-}
-
-func NewTrainingRegion(v string) (TrainingRegion, error) {
-	if v == "" {
-		return nil, errors.New("invalid key")
-	}
-
-	return trainingRegion(v), nil
-}
-
-type trainingRegion string
-
-func (r trainingRegion) TrainingRegion() string {
 	return string(r)
 }

@@ -2,14 +2,27 @@ package trainingimpl
 
 import (
 	"github.com/opensourceways/xihe-training-center/sdk"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/training"
 )
 
-type trainingImpl struct {
+func NewTraining(cfg *Config) training.Training {
+	return &trainingImpl{
+		doneStatus: sets.NewString(cfg.JobDoneStatus...),
+	}
 }
 
-func (impl trainingImpl) CreateJob(endpoint string, user domain.Account, t *domain.Training) (
+type trainingImpl struct {
+	doneStatus sets.String
+}
+
+func (impl *trainingImpl) IsJobDone(status string) bool {
+	return impl.doneStatus.Has(status)
+}
+
+func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *domain.Training) (
 	job domain.JobInfo, err error,
 ) {
 	opt := sdk.TrainingCreateOption{
@@ -44,19 +57,19 @@ func (impl trainingImpl) CreateJob(endpoint string, user domain.Account, t *doma
 	return
 }
 
-func (t trainingImpl) DeleteJob(endpoint, jobId string) error {
+func (impl *trainingImpl) DeleteJob(endpoint, jobId string) error {
 	cli := sdk.NewTrainingCenter(endpoint)
 
 	return cli.DeleteTraining(jobId)
 }
 
-func (t trainingImpl) TerminateJob(endpoint, jobId string) error {
+func (impl *trainingImpl) TerminateJob(endpoint, jobId string) error {
 	cli := sdk.NewTrainingCenter(endpoint)
 
 	return cli.TerminateTraining(jobId)
 }
 
-func (t trainingImpl) GetLogURL(endpoint, jobId string) (string, error) {
+func (impl *trainingImpl) GetLogDownloadURL(endpoint, jobId string) (string, error) {
 	cli := sdk.NewTrainingCenter(endpoint)
 
 	v, err := cli.GetLog(jobId)
@@ -67,7 +80,7 @@ func (t trainingImpl) GetLogURL(endpoint, jobId string) (string, error) {
 	return v.LogURL, nil
 }
 
-func (t trainingImpl) GetJob(endpoint, jobId string) (r domain.JobDetail, err error) {
+func (impl *trainingImpl) GetJob(endpoint, jobId string) (r domain.JobDetail, err error) {
 	cli := sdk.NewTrainingCenter(endpoint)
 
 	v, err := cli.GetTraining(jobId)
@@ -81,7 +94,7 @@ func (t trainingImpl) GetJob(endpoint, jobId string) (r domain.JobDetail, err er
 	return
 }
 
-func (t trainingImpl) toCompute(c *domain.Compute) sdk.Compute {
+func (impl *trainingImpl) toCompute(c *domain.Compute) sdk.Compute {
 	return sdk.Compute{
 		Type:    c.Type.ComputeType(),
 		Version: c.Version.ComputeVersion(),
@@ -89,7 +102,7 @@ func (t trainingImpl) toCompute(c *domain.Compute) sdk.Compute {
 	}
 }
 
-func (t trainingImpl) toKeyValue(kv []domain.KeyValue) []sdk.KeyValue {
+func (impl *trainingImpl) toKeyValue(kv []domain.KeyValue) []sdk.KeyValue {
 	if len(kv) == 0 {
 		return nil
 	}
@@ -111,7 +124,7 @@ func (t trainingImpl) toKeyValue(kv []domain.KeyValue) []sdk.KeyValue {
 	return r
 }
 
-func (t trainingImpl) toInput(v []domain.Input) []sdk.Input {
+func (impl *trainingImpl) toInput(v []domain.Input) []sdk.Input {
 	r := make([]sdk.Input, len(v))
 
 	for i := range v {

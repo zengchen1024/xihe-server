@@ -7,6 +7,8 @@ type UserTraining struct {
 
 	Training
 
+	CreatedAt int64
+
 	// following fileds is not under the controlling of version
 	Job       JobInfo
 	JobDetail JobDetail
@@ -62,4 +64,11 @@ type JobInfo struct {
 type JobDetail struct {
 	Status   string
 	Duration int
+}
+
+type TrainingSummary struct {
+	Name      TrainingName
+	Desc      TrainingDesc
+	JobDetail JobDetail
+	CreatedAt int64
 }
