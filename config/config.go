@@ -46,13 +46,13 @@ type Config struct {
 	MaxRetry        int `json:"max_retry"`
 	ActivityKeepNum int `json:"activity_keep_num"`
 
-	Authing  AuthingService       `json:"authing_service" required:"true"`
-	BigModel bigmodels.Config     `json:"bigmodel"        required:"true"`
-	Mongodb  Mongodb              `json:"mongodb"         required:"true"`
-	Gitlab   Gitlab               `json:"gitlab"          required:"true"`
-	Domain   domain.Config        `json:"domain"          required:"true"`
-	API      controller.APIConfig `json:"api"             required:"true"`
-	MQ       MQ                   `json:"mq"              required:"true"`
+	BigModel bigmodels.Config     `json:"bigmodel"  required:"true"`
+	Authing  AuthingService       `json:"authing"   required:"true"`
+	Mongodb  Mongodb              `json:"mongodb"   required:"true"`
+	Gitlab   Gitlab               `json:"gitlab"    required:"true"`
+	Domain   domain.Config        `json:"domain"    required:"true"`
+	API      controller.APIConfig `json:"api"       required:"true"`
+	MQ       MQ                   `json:"mq"        required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {

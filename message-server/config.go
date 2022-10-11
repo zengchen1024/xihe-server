@@ -11,10 +11,9 @@ import (
 type configuration struct {
 	MaxRetry int `json:"max_retry"`
 
-	Resource domain.ResourceConfig `json:"resource" required:"true"`
-	Mongodb  config.Mongodb        `json:"mongodb"  required:"true"`
-	User     domain.UserConfig     `json:"user"`
-	MQ       config.MQ             `json:"mq"       required:"true"`
+	Mongodb config.Mongodb `json:"mongodb"  required:"true"`
+	Domain  domain.Config  `json:"domain"   required:"true"`
+	MQ      config.MQ      `json:"mq"       required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -25,9 +24,8 @@ func (cfg *configuration) getMQConfig() mq.MQConfig {
 
 func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
-		&cfg.Resource,
 		&cfg.Mongodb,
-		&cfg.User,
+		&cfg.Domain,
 		&cfg.MQ,
 	}
 }
@@ -63,5 +61,5 @@ func (cfg *configuration) Validate() error {
 }
 
 func (cfg *configuration) initDomainConfig() {
-	domain.Init(&cfg.Resource, &cfg.User)
+	domain.Init(&cfg.Domain)
 }

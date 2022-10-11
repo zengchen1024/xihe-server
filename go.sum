@@ -372,8 +372,8 @@ github.com/opensourceways/community-robot-lib v0.0.0-20220914071039-19b5510b1482
 github.com/opensourceways/community-robot-lib v0.0.0-20220928120519-b3196c107697 h1:zWJnrwU/vFQ3gRduk0x0epbS/mD2ktZzAn4JaCO5bPc=
 github.com/opensourceways/community-robot-lib v0.0.0-20220928120519-b3196c107697/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
 github.com/opensourceways/go-gitee v0.0.0-20220714075315-cb246f1dfb96/go.mod h1:yvVsEMhp7frMblzN1sco4C7cRlnlpqkkn3O2JQNdRu0=
-github.com/opensourceways/xihe-training-center v0.0.0-20221010073547-a795052b34c0 h1:JV8CgxPBUbe6lKZY4PDSFS7o5TM5RLwILyHgERCMIVU=
-github.com/opensourceways/xihe-training-center v0.0.0-20221010073547-a795052b34c0/go.mod h1:j187gVTiQ/ahAhEca8fcP6AotnFDdpdnzzse8jGUPLs=
+github.com/opensourceways/xihe-training-center v0.0.0-20221011025806-185214357459 h1:4nmUVCKeCatDJ7wRCohcjsN28kOLsTysNCge7dGk6Dk=
+github.com/opensourceways/xihe-training-center v0.0.0-20221011025806-185214357459/go.mod h1:j187gVTiQ/ahAhEca8fcP6AotnFDdpdnzzse8jGUPLs=
 github.com/otiai10/copy v1.7.0/go.mod h1:rmRl6QPdJj6EiUqXQ/4Nn2lLXoNQjFCQbbNrxgc/t3U=
 github.com/otiai10/curr v0.0.0-20150429015615-9b4961190c95/go.mod h1:9qAhocn7zKJG+0mI8eUu6xqkFDYS2kb2saOteoSB3cE=
 github.com/otiai10/curr v1.0.0/go.mod h1:LskTG5wDwr8Rs+nNQ+1LlxRjAtTZZjtJW4rMXl6j4vs=

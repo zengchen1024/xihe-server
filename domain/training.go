@@ -1,34 +1,65 @@
 package domain
 
-import (
-	td "github.com/opensourceways/xihe-training-center/domain"
-)
-
-type TrainingParam = td.Training
-type KeyValue = td.KeyValue
-type Compute = td.Compute
-
 type UserTraining struct {
-	Owner Account
+	Id        string
+	Owner     Account
+	ProjectId string
 
 	Training
+
+	// following fileds is not under the controlling of version
+	Job       JobInfo
+	JobDetail JobDetail
 }
 
 type Training struct {
-	Id string
+	ProjectName   ProjName
+	ProjectRepoId string
 
-	TrainingParam
+	Name TrainingName
+	Desc TrainingDesc
 
-	// following fileds is not under the controlling of version
-	Job Job
+	CodeDir  Directory
+	BootFile FilePath
+
+	Hypeparameters []KeyValue
+	Env            []KeyValue
+	Inputs         []Input
+
+	Compute Compute
 }
 
-type Job struct {
-	Endpoint string
-	Id       string
+type Compute struct {
+	Type    ComputeType
+	Version ComputeVersion
+	Flavor  ComputeFlavor
 }
 
-type TrainingInfo struct {
+type KeyValue struct {
+	Key   CustomizedKey
+	Value CustomizedValue
+}
+
+type Input struct {
+	Key   CustomizedKey
+	Value ResourceInput
+}
+
+type ResourceInput struct {
+	User   Account
+	Type   ResourceType
+	RepoId string
+	File   string
+}
+
+type JobInfo struct {
+	Endpoint  string
+	JobId     string
+	LogDir    string
+	OutputDir string
+}
+
+type JobDetail struct {
 	Status   string
 	Duration int
 }

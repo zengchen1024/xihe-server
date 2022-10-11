@@ -1,9 +1,6 @@
 package domain
 
-import (
-	"errors"
-	"fmt"
-)
+import "errors"
 
 const (
 	RepoTypePublic  = "public"
@@ -26,26 +23,6 @@ func NewRepoType(v string) (RepoType, error) {
 type repoType string
 
 func (r repoType) RepoType() string {
-	return string(r)
-}
-
-// ProjDesc
-type ProjDesc interface {
-	ProjDesc() string
-}
-
-func NewProjDesc(v string) (ProjDesc, error) {
-	max := config.MaxDescLength
-	if len(v) > max {
-		return nil, fmt.Errorf("the length of desc should be less than %d", max)
-	}
-
-	return projDesc(v), nil
-}
-
-type projDesc string
-
-func (r projDesc) ProjDesc() string {
 	return string(r)
 }
 

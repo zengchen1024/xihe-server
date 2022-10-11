@@ -5,9 +5,10 @@ import (
 )
 
 type Training interface {
-	CreateJob(endpoint string, t *domain.UserTraining) (string, error)
+	CreateJob(endpoint string, user domain.Account, t *domain.Training) (domain.JobInfo, error)
 	DeleteJob(endpoint, jobId string) error
-	GetJob(endpoint, jobId string) (domain.TrainingInfo, error)
+	GetJob(endpoint, jobId string) (domain.JobDetail, error)
 	TerminateJob(endpoint, jobId string) error
-	GetLogURL(endpoint, jobId string) (string, error)
+	GetLogDownloadURL(endpoint, jobId string) (string, error)
+	IsJobDone(status string) bool
 }

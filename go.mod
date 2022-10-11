@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/opensourceways/community-robot-lib v0.0.0-20220928120519-b3196c107697
-	github.com/opensourceways/xihe-training-center v0.0.0-20221010073547-a795052b34c0
+	github.com/opensourceways/xihe-training-center v0.0.0-20221011025806-185214357459
 	github.com/sirupsen/logrus v1.9.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.3
