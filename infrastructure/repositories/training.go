@@ -9,6 +9,8 @@ import (
 type TrainingMapper interface {
 	Insert(*UserTrainingDO) (string, error)
 	List(user, projectId string) ([]TrainingSummaryDO, int, error)
+	UpdateJobInfo(*TrainingInfoDO, *TrainingJobInfoDO) error
+	UpdateJobDetail(*TrainingInfoDO, *TrainingJobDetailDO) error
 }
 
 type training struct {
@@ -52,4 +54,24 @@ func (impl training) List(user domain.Account, projectId string) (
 	}
 
 	return
+}
+
+func (impl training) SaveJob(info *domain.TrainingInfo, job *domain.JobInfo) error {
+	do := impl.toTrainingInfoDo(info)
+
+	if err := impl.mapper.UpdateJobInfo(&do, job); err != nil {
+		return convertError(err)
+	}
+
+	return nil
+}
+
+func (impl training) UpdateJobDetail(info *domain.TrainingInfo, detail *domain.JobDetail) error {
+	do := impl.toTrainingInfoDo(info)
+
+	if err := impl.mapper.UpdateJobDetail(&do, detail); err != nil {
+		return convertError(err)
+	}
+
+	return nil
 }

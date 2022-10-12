@@ -15,6 +15,7 @@ var topics Topics
 type Topics struct {
 	Like            string `json:"like"             required:"true"`
 	Fork            string `json:"fork"             required:"true"`
+	Training        string `json:"training"         required:"true"`
 	Following       string `json:"following"        required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
@@ -70,6 +71,17 @@ func (s sender) IncreaseFork(msg *domain.ResourceIndex) error {
 	}
 
 	return s.send(topics.Fork, &v)
+}
+
+// Training
+func (s sender) CreateTraining(info *domain.TrainingInfo) error {
+	v := msgTraining{
+		User:       info.User.Account(),
+		ProjectId:  info.ProjectId,
+		TrainingId: info.TrainingId,
+	}
+
+	return s.send(topics.Training, &v)
 }
 
 func (s sender) send(topic string, v interface{}) error {

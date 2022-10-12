@@ -75,3 +75,9 @@ type TrainingSummary struct {
 	JobDetail JobDetail
 	CreatedAt int64
 }
+
+type TrainingInfo struct {
+	User       Account
+	ProjectId  string
+	TrainingId string
+}

@@ -4,14 +4,14 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/domain/training"
 	"github.com/opensourceways/xihe-server/utils"
+	"github.com/sirupsen/logrus"
 )
 
 const trainingCreatedFailed = "create_failed"
-
-type TrainingInfo = repository.TrainingInfo
 
 type TrainingCreateCmd struct {
 	User      domain.Account
@@ -82,9 +82,15 @@ func (cmd *TrainingCreateCmd) toTraining(t *domain.UserTraining) {
 	t.CreatedAt = utils.Now()
 }
 
+type TrainingService interface {
+	CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error
+}
+
 type trainingService struct {
-	train training.Training
-	repo  repository.Training
+	log    *logrus.Entry
+	train  training.Training
+	repo   repository.Training
+	sender message.Sender
 
 	maxTrainingRecordNum int
 }
@@ -122,7 +128,15 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 		return "", err
 	}
 
-	// send mq
+	// send message
+	err = s.sender.CreateTraining(&domain.TrainingInfo{
+		User:       cmd.User,
+		ProjectId:  cmd.ProjectId,
+		TrainingId: r.Id,
+	})
+	if err != nil {
+		s.log.Errorf("send message of creating training failed, err:%s", err.Error())
+	}
 
 	return r.Id, nil
 }
@@ -140,7 +154,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 
 		if !s.isJobDone(item.JobDetail.Status) {
 			detail, err := s.updateJobDetail(
-				&TrainingInfo{
+				&domain.TrainingInfo{
 					User:       user,
 					ProjectId:  projectId,
 					TrainingId: item.Id,
@@ -160,7 +174,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	return r, nil
 }
 
-func (s trainingService) Get(info *TrainingInfo) error {
+func (s trainingService) Get(info *domain.TrainingInfo) error {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		return err
@@ -186,7 +200,7 @@ func (s trainingService) Get(info *TrainingInfo) error {
 }
 
 func (s trainingService) updateJobDetail(
-	info *repository.TrainingInfo, endpoint, jobId, old string,
+	info *domain.TrainingInfo, endpoint, jobId, old string,
 ) (r domain.JobDetail, err error) {
 	r, err = s.train.GetJob(endpoint, jobId)
 	if err != nil {
@@ -200,7 +214,7 @@ func (s trainingService) updateJobDetail(
 	return
 }
 
-func (s trainingService) Delete(info *TrainingInfo) error {
+func (s trainingService) Delete(info *domain.TrainingInfo) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -217,7 +231,7 @@ func (s trainingService) Delete(info *TrainingInfo) error {
 	return s.repo.Delete(info)
 }
 
-func (s trainingService) Terminate(info *TrainingInfo) error {
+func (s trainingService) Terminate(info *domain.TrainingInfo) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -233,7 +247,7 @@ func (s trainingService) Terminate(info *TrainingInfo) error {
 	return nil
 }
 
-func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
+func (s trainingService) GetLogDownloadURL(info *domain.TrainingInfo) (string, error) {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return "", err
@@ -246,7 +260,7 @@ func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
 	return "", nil
 }
 
-func (s trainingService) CreateTrainingJob(info *TrainingInfo, endpoint string) error {
+func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		return err

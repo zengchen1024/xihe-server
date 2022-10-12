@@ -30,11 +30,14 @@ type relatedResourceHanler struct {
 type handler struct {
 	log *logrus.Entry
 
-	maxRetry int
+	maxRetry         int
+	trainingEndpoint string
+
 	user     app.UserService
 	model    app.ModelService
 	dataset  app.DatasetService
 	project  app.ProjectService
+	training app.TrainingService
 }
 
 func (h *handler) HandleEventAddRelatedResource(info *message.RelatedResource) error {
@@ -180,6 +183,12 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 		}
 
 		return
+	})
+}
+
+func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
+	return h.do(func() error {
+		return h.training.CreateTrainingJob(info, h.trainingEndpoint)
 	})
 }
 

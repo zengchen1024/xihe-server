@@ -128,6 +128,58 @@ func (col training) List(user, projectId string) ([]repositories.TrainingSummary
 	return r, v.Version, nil
 }
 
+func (col training) UpdateJobInfo(info *repositories.TrainingInfoDO, job *repositories.TrainingJobInfoDO) error {
+	v := dJobInfo{
+		Endpoint:  job.Endpoint,
+		JobId:     job.JobId,
+		LogDir:    job.LogDir,
+		OutputDir: job.OutputDir,
+	}
+
+	doc, err := genDoc(v)
+	if err != nil {
+		return err
+	}
+
+	f := func(ctx context.Context) error {
+		_, err := cli.modifyArrayElemWithoutVersion(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			bson.M{fieldId: info.TrainingId},
+			bson.M{fieldJob: doc}, mongoCmdSet,
+		)
+
+		return err
+	}
+
+	return withContext(f)
+}
+
+func (col training) UpdateJobDetail(info *repositories.TrainingInfoDO, detail *repositories.TrainingJobDetailDO) error {
+	v := dJobDetail{
+		Status:   detail.Status,
+		Duration: detail.Duration,
+	}
+
+	doc, err := genDoc(v)
+	if err != nil {
+		return err
+	}
+
+	f := func(ctx context.Context) error {
+		_, err := cli.modifyArrayElemWithoutVersion(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			bson.M{fieldId: info.TrainingId},
+			bson.M{fieldDetail: doc}, mongoCmdSet,
+		)
+
+		return err
+	}
+
+	return withContext(f)
+}
+
 func (col training) toTrainingSummary(t *trainingItem, s *repositories.TrainingSummaryDO) {
 	*s = repositories.TrainingSummaryDO{
 		Name:      t.Name,
