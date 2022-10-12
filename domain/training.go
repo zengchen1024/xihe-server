@@ -67,8 +67,11 @@ type JobDetail struct {
 }
 
 type TrainingSummary struct {
+	Id        string
 	Name      TrainingName
 	Desc      TrainingDesc
+	JobId     string
+	Endpoint  string
 	JobDetail JobDetail
 	CreatedAt int64
 }

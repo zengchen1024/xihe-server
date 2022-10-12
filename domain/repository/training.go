@@ -11,7 +11,7 @@ type TrainingInfo struct {
 }
 
 type Training interface {
-	Save(*domain.UserTraining) (domain.UserTraining, error)
+	Save(*domain.UserTraining, int) (domain.UserTraining, error)
 	Get(*TrainingInfo) (domain.UserTraining, error)
 	Delete(*TrainingInfo) error
 	List(user domain.Account, projectId string) ([]domain.TrainingSummary, int, error)

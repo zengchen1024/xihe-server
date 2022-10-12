@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type TrainingMapper interface {
