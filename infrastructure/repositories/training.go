@@ -35,7 +35,20 @@ func (impl training) List(user domain.Account, projectId string) (
 ) {
 	v, version, err := impl.mapper.List(user.Account(), projectId)
 	if err != nil {
+		err = convertError(err)
+
 		return
+	}
+
+	if len(v) == 0 {
+		return
+	}
+
+	r = make([]domain.TrainingSummary, len(v))
+	for i := range v {
+		if err = impl.toTrainingSummary(&v[i], &r[i]); err != nil {
+			return
+		}
 	}
 
 	return

@@ -127,10 +127,32 @@ func (impl training) toInputDOs(v []domain.Input) []InputDO {
 	return r
 }
 
+func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.TrainingSummary) (
+	err error,
+) {
+	if t.Name, err = domain.NewTrainingName(do.Name); err != nil {
+		return
+	}
+
+	if t.Desc, err = domain.NewTrainingDesc(do.Desc); err != nil {
+		return
+	}
+
+	t.JobId = do.JobId
+	t.Endpoint = do.Endpoint
+	t.CreatedAt = do.CreatedAt
+	t.JobDetail.Status = do.Status
+	t.JobDetail.Duration = do.Duration
+
+	return
+}
+
 type TrainingSummaryDO struct {
 	Name      string
 	Desc      string
+	JobId     string
 	Status    string
+	Endpoint  string
 	Duration  int
 	CreatedAt int64
 }

@@ -85,6 +85,8 @@ func (cmd *TrainingCreateCmd) toTraining(t *domain.UserTraining) {
 type trainingService struct {
 	train training.Training
 	repo  repository.Training
+
+	maxTrainingRecordNum int
 }
 
 func (s trainingService) isJobDone(status string) bool {
@@ -98,13 +100,17 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 		return "", err
 	}
 
-	if len(v) >= 5 {
-		return "", errors.New("exceed max training num")
+	if len(v) >= s.maxTrainingRecordNum {
+		return "", ErrorExccedMaxTrainingRecord{
+			errors.New("exceed max training num"),
+		}
 	}
 
 	for i := range v {
 		if !s.isJobDone(v[i].JobDetail.Status) {
-			return "", errors.New("a training is running")
+			return "", ErrorOnlyOneRunningTraining{
+				errors.New("a training is running"),
+			}
 		}
 	}
 

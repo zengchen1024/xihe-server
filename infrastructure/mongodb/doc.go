@@ -6,6 +6,7 @@ const (
 	fieldId             = "id"
 	fieldPId            = "pid"
 	fieldBio            = "bio"
+	fieldJob            = "job"
 	fieldDesc           = "desc"
 	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"

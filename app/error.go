@@ -7,3 +7,11 @@ type ErrorExceedMaxRelatedResourceNum struct {
 type ErrorPrivateRepo struct {
 	error
 }
+
+type ErrorExccedMaxTrainingRecord struct {
+	error
+}
+
+type ErrorOnlyOneRunningTraining struct {
+	error
+}
