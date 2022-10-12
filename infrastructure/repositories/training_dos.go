@@ -29,9 +29,92 @@ type TrainingDO struct {
 	Compute ComputeDO
 }
 
+func (do *TrainingDO) toTraining() (t domain.Training, err error) {
+	if t.ProjectName, err = domain.NewProjName(do.ProjectName); err != nil {
+		return
+	}
+
+	t.ProjectRepoId = do.ProjectRepoId
+
+	if t.Name, err = domain.NewTrainingName(do.Name); err != nil {
+		return
+	}
+
+	if t.Desc, err = domain.NewTrainingDesc(do.Desc); err != nil {
+		return
+	}
+
+	if t.CodeDir, err = domain.NewDirectory(do.CodeDir); err != nil {
+		return
+	}
+
+	if t.BootFile, err = domain.NewFilePath(do.BootFile); err != nil {
+		return
+	}
+
+	if t.Compute, err = do.Compute.toCompute(); err != nil {
+		return
+	}
+
+	if t.Hypeparameters, err = do.toKeyValues(do.Hypeparameters); err != nil {
+		return
+	}
+
+	if t.Env, err = do.toKeyValues(do.Env); err != nil {
+		return
+	}
+
+	t.Inputs, err = do.toInputs()
+
+	return
+}
+
+func (do *TrainingDO) toKeyValues(kv []KeyValueDO) (r []domain.KeyValue, err error) {
+	if len(kv) == 0 {
+		return
+	}
+
+	r = make([]domain.KeyValue, len(kv))
+
+	for i := range kv {
+		if r[i], err = kv[i].toKeyValue(); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func (do *TrainingDO) toInputs() (r []domain.Input, err error) {
+	v := do.Inputs
+	if len(v) == 0 {
+		return
+	}
+
+	r = make([]domain.Input, len(v))
+
+	for i := range v {
+		if r[i], err = v[i].toInput(); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 type KeyValueDO struct {
 	Key   string
 	Value string
+}
+
+func (kv *KeyValueDO) toKeyValue() (r domain.KeyValue, err error) {
+	if r.Key, err = domain.NewCustomizedKey(kv.Key); err != nil {
+		return
+	}
+
+	r.Value, err = domain.NewCustomizedValue(kv.Value)
+
+	return
 }
 
 type ComputeDO struct {
@@ -40,12 +123,47 @@ type ComputeDO struct {
 	Flavor  string
 }
 
+func (do *ComputeDO) toCompute() (r domain.Compute, err error) {
+	if r.Type, err = domain.NewComputeType(do.Type); err != nil {
+		return
+	}
+
+	if r.Version, err = domain.NewComputeVersion(do.Version); err != nil {
+		return
+	}
+
+	r.Flavor, err = domain.NewComputeFlavor(do.Flavor)
+
+	return
+}
+
 type InputDO struct {
 	Key    string
 	User   string
 	Type   string
 	RepoId string
 	File   string
+}
+
+func (do *InputDO) toInput() (r domain.Input, err error) {
+	if r.Key, err = domain.NewCustomizedKey(do.Key); err != nil {
+		return
+	}
+
+	v := &r.Value
+
+	if v.User, err = domain.NewAccount(do.User); err != nil {
+		return
+	}
+
+	if v.Type, err = domain.NewResourceType(do.Type); err != nil {
+		return
+	}
+
+	v.RepoId = do.RepoId
+	v.File = do.File
+
+	return
 }
 
 func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
@@ -173,3 +291,23 @@ type TrainingInfoDO struct {
 
 type TrainingJobInfoDO = domain.JobInfo
 type TrainingJobDetailDO = domain.JobDetail
+
+type TrainingDetailDO struct {
+	TrainingDO
+
+	Job       TrainingJobInfoDO
+	JobDetail TrainingJobDetailDO
+	CreatedAt int64
+}
+
+func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error) {
+	if ut.Training, err = do.TrainingDO.toTraining(); err != nil {
+		return
+	}
+
+	ut.Job = do.Job
+	ut.JobDetail = do.JobDetail
+	ut.CreatedAt = do.CreatedAt
+
+	return
+}

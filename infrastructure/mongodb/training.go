@@ -8,6 +8,10 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
+func NewTraningMapper(name string) repositories.TrainingMapper {
+	return training{name}
+}
+
 func trainingDocFilter(owner, projectId string) bson.M {
 	return bson.M{
 		fieldOwner: owner,
@@ -128,6 +132,76 @@ func (col training) List(user, projectId string) ([]repositories.TrainingSummary
 	return r, v.Version, nil
 }
 
+func (col training) Delete(info *repositories.TrainingInfoDO) error {
+	f := func(ctx context.Context) error {
+		return cli.pullArrayElem(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			resourceIdFilter(info.TrainingId),
+		)
+	}
+
+	return withContext(f)
+}
+
+func (col training) Get(info *repositories.TrainingInfoDO) (repositories.TrainingDetailDO, error) {
+	var v []dTraining
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			resourceIdFilter(info.TrainingId),
+			bson.M{
+				fieldName:  1,
+				fieldRId:   1,
+				fieldItems: 1,
+			},
+			&v,
+		)
+	}
+
+	if err := withContext(f); err != nil {
+		return repositories.TrainingDetailDO{}, err
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err := repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return repositories.TrainingDetailDO{}, err
+	}
+
+	return col.toTrainingDetailDO(&v[0]), nil
+}
+
+func (col training) GetJobInfo(info *repositories.TrainingInfoDO) (repositories.TrainingJobInfoDO, error) {
+	var v []dTraining
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			resourceIdFilter(info.TrainingId),
+			bson.M{
+				fieldItems + "." + fieldJob: 1,
+			},
+			&v,
+		)
+	}
+
+	if err := withContext(f); err != nil {
+		return repositories.TrainingJobInfoDO{}, err
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err := repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return repositories.TrainingJobInfoDO{}, err
+	}
+
+	return col.toTrainingJobInfoDO(&v[0].Items[0].Job), nil
+}
+
 func (col training) UpdateJobInfo(info *repositories.TrainingInfoDO, job *repositories.TrainingJobInfoDO) error {
 	v := dJobInfo{
 		Endpoint:  job.Endpoint,
@@ -145,7 +219,7 @@ func (col training) UpdateJobInfo(info *repositories.TrainingInfoDO, job *reposi
 		_, err := cli.modifyArrayElemWithoutVersion(
 			ctx, col.collectionName, fieldItems,
 			trainingDocFilter(info.User, info.ProjectId),
-			bson.M{fieldId: info.TrainingId},
+			resourceIdFilter(info.TrainingId),
 			bson.M{fieldJob: doc}, mongoCmdSet,
 		)
 
@@ -170,7 +244,7 @@ func (col training) UpdateJobDetail(info *repositories.TrainingInfoDO, detail *r
 		_, err := cli.modifyArrayElemWithoutVersion(
 			ctx, col.collectionName, fieldItems,
 			trainingDocFilter(info.User, info.ProjectId),
-			bson.M{fieldId: info.TrainingId},
+			resourceIdFilter(info.TrainingId),
 			bson.M{fieldDetail: doc}, mongoCmdSet,
 		)
 

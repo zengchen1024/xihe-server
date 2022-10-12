@@ -45,7 +45,7 @@ func (col training) toKeyValueDoc(kv []repositories.KeyValueDO) []dKeyValue {
 	return r
 }
 
-func (impl training) toInputDoc(v []repositories.InputDO) []dInput {
+func (col training) toInputDoc(v []repositories.InputDO) []dInput {
 	n := len(v)
 	if n == 0 {
 		return nil
@@ -66,4 +66,86 @@ func (impl training) toInputDoc(v []repositories.InputDO) []dInput {
 	}
 
 	return r
+}
+
+func (col training) toTrainingDetailDO(doc *dTraining) repositories.TrainingDetailDO {
+	item := &doc.Items[0]
+	c := &item.Compute
+
+	return repositories.TrainingDetailDO{
+		CreatedAt: item.CreatedAt,
+		TrainingDO: repositories.TrainingDO{
+			ProjectName:    doc.ProjectName,
+			ProjectRepoId:  doc.ProjectRepoId,
+			Name:           item.Name,
+			Desc:           item.Desc,
+			CodeDir:        item.CodeDir,
+			BootFile:       item.BootFile,
+			Inputs:         col.toInputs(item.Inputs),
+			Env:            col.toKeyValues(item.Env),
+			Hypeparameters: col.toKeyValues(item.Hypeparameters),
+			Compute: repositories.ComputeDO{
+				Type:    c.Type,
+				Flavor:  c.Flavor,
+				Version: c.Version,
+			},
+		},
+		Job:       col.toTrainingJobInfoDO(&item.Job),
+		JobDetail: col.toTrainingJobDetailDO(&item.JobDetail),
+	}
+}
+
+func (col training) toKeyValues(kv []dKeyValue) []repositories.KeyValueDO {
+	n := len(kv)
+	if n == 0 {
+		return nil
+	}
+
+	r := make([]repositories.KeyValueDO, n)
+
+	for i := range kv {
+		r[i].Key = kv[i].Key
+		r[i].Value = kv[i].Value
+	}
+
+	return r
+}
+
+func (col training) toInputs(v []dInput) []repositories.InputDO {
+	n := len(v)
+	if n == 0 {
+		return nil
+	}
+
+	r := make([]repositories.InputDO, n)
+
+	for i := range v {
+		item := &v[i]
+
+		r[i] = repositories.InputDO{
+			Key:    item.Key,
+			User:   item.User,
+			Type:   item.Type,
+			File:   item.File,
+			RepoId: item.RepoId,
+		}
+	}
+
+	return r
+}
+
+func (col training) toTrainingJobInfoDO(doc *dJobInfo) repositories.TrainingJobInfoDO {
+	return repositories.TrainingJobInfoDO{
+		Endpoint:  doc.Endpoint,
+		JobId:     doc.JobId,
+		LogDir:    doc.LogDir,
+		OutputDir: doc.OutputDir,
+	}
+}
+
+func (col training) toTrainingJobDetailDO(doc *dJobDetail) repositories.TrainingJobDetailDO {
+	return repositories.TrainingJobDetailDO{
+		Status:   doc.Status,
+		Duration: doc.Duration,
+	}
 }

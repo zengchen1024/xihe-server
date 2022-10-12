@@ -504,6 +504,21 @@ func (cli *client) containsArrayElem(
 	return true, nil
 }
 
+func (cli *client) pullArrayElem(
+	ctx context.Context, collection, array string,
+	filterOfDoc, filterOfArray bson.M,
+) error {
+	update := bson.M{mongoCmdPull: bson.M{array: filterOfArray}}
+
+	col := cli.collection(collection)
+
+	if _, err := col.UpdateOne(ctx, filterOfDoc, update); err != nil {
+		return dbError{err}
+	}
+
+	return nil
+}
+
 func (cli *client) getArrayElem(
 	ctx context.Context, collection, array string,
 	filterOfDoc, filterOfArray bson.M,

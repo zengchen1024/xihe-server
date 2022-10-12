@@ -132,13 +132,13 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 	err = s.sender.CreateTraining(&domain.TrainingInfo{
 		User:       cmd.User,
 		ProjectId:  cmd.ProjectId,
-		TrainingId: r.Id,
+		TrainingId: r,
 	})
 	if err != nil {
 		s.log.Errorf("send message of creating training failed, err:%s", err.Error())
 	}
 
-	return r.Id, nil
+	return r, nil
 }
 
 func (s trainingService) List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error) {
