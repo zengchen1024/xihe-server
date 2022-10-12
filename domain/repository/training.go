@@ -14,7 +14,7 @@ type Training interface {
 	Save(*domain.UserTraining) (domain.UserTraining, error)
 	Get(*TrainingInfo) (domain.UserTraining, error)
 	Delete(*TrainingInfo) error
-	List(user domain.Account, projectId string) ([]domain.TrainingSummary, error)
+	List(user domain.Account, projectId string) ([]domain.TrainingSummary, int, error)
 
 	SaveJob(*TrainingInfo, *domain.JobInfo) error
 	GetJob(*TrainingInfo) (domain.JobInfo, error)

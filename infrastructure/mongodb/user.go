@@ -71,7 +71,7 @@ func (col user) Update(do repositories.UserDO) (err error) {
 	f := func(ctx context.Context) error {
 		return cli.updateDoc(
 			ctx, col.collectionName,
-			filter, doc, do.Version,
+			filter, doc, mongoCmdSet, do.Version,
 		)
 	}
 

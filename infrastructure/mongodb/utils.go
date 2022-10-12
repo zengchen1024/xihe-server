@@ -145,13 +145,13 @@ func (cli *client) replaceDoc(
 
 func (cli *client) updateDoc(
 	ctx context.Context, collection string,
-	filterOfDoc, update bson.M, version int,
+	filterOfDoc, update bson.M, op string, version int,
 ) error {
 	filterOfDoc[fieldVersion] = version
 	r, err := cli.collection(collection).UpdateOne(
 		ctx, filterOfDoc,
 		bson.M{
-			mongoCmdSet: update,
+			op:          update,
 			mongoCmdInc: bson.M{fieldVersion: 1},
 		},
 	)
@@ -358,13 +358,15 @@ func (cli *client) modifyArrayElem(
 	arrayFilter["i."+fieldVersion] = version
 
 	updates := bson.M{
-		mongoCmdSet: bson.M{key(fieldUpdatedAt): t},
 		mongoCmdInc: bson.M{key(fieldVersion): 1},
 	}
 
 	if op == mongoCmdSet {
 		cmd[key(fieldUpdatedAt)] = t
+	} else {
+		updates[mongoCmdSet] = bson.M{key(fieldUpdatedAt): t}
 	}
+
 	updates[op] = cmd
 
 	col := cli.collection(collection)
