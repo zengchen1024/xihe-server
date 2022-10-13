@@ -246,11 +246,20 @@ func (ctl *TrainingController) setModelsInput(
 
 	}
 
-	v, err := ctl.model.GetSummaryOfModels(p)
+	v, err := ctl.model.ListSummary(p)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
+	}
+	if len(v) != len(p) {
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
+				errors.New("some models does not exist"),
+			))
+
+			return
+		}
 	}
 
 	ids := map[string]string{}
@@ -310,11 +319,20 @@ func (ctl *TrainingController) setDatasetsInput(
 
 	}
 
-	v, err := ctl.dataset.GetSummaryOfDatasets(p)
+	v, err := ctl.dataset.ListSummary(p)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
+	}
+	if len(v) != len(p) {
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
+				errors.New("some datasets does not exist"),
+			))
+
+			return
+		}
 	}
 
 	ids := map[string]string{}

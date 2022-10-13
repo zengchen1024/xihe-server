@@ -3,6 +3,8 @@ package repositories
 import (
 	"errors"
 
+	"k8s.io/apimachinery/pkg/util/sets"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -13,6 +15,7 @@ type ModelMapper interface {
 	GetByName(string, string) (ModelDO, error)
 
 	ListUsersModels(map[string][]string) ([]ModelSummaryDO, error)
+	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
 
 	List(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
@@ -98,6 +101,46 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 	for i := range v {
 		if err = v[i].toModelSummary(&r[i]); err != nil {
 			return nil, err
+		}
+	}
+
+	return r, nil
+}
+
+func (impl model) ListSummary(opts []repository.ModelSummaryListOption) (
+	[]domain.ResourceSummary, error,
+) {
+	m := map[string][]string{}
+	all := sets.NewString()
+
+	for i := range opts {
+		owner := opts[i].Owner.Account()
+		name := opts[i].Name.ModelName()
+
+		all.Insert(owner + name)
+
+		if v, ok := m[owner]; ok {
+			m[owner] = append(v, name)
+		} else {
+			m[owner] = []string{name}
+		}
+	}
+
+	v, err := impl.mapper.ListSummary(m)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.ResourceSummary, 0, len(opts))
+
+	for i := range v {
+		if all.Has(v[i].Owner + v[i].Name) {
+			s, err := v[i].toModel()
+			if err != nil {
+				return nil, err
+			}
+
+			r = append(r, s)
 		}
 	}
 

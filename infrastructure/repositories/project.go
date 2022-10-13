@@ -11,6 +11,7 @@ type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
+	GetSummary(string, string) (ResourceSummaryDO, error)
 
 	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
 
@@ -104,6 +105,17 @@ func (impl project) FindUserProjects(opts []repository.UserResourceListOption) (
 	}
 
 	return r, nil
+}
+
+func (impl project) GetSummary(owner domain.Account, projectId string) (
+	domain.ResourceSummary, error,
+) {
+	v, err := impl.mapper.GetSummary(owner.Account(), projectId)
+	if err != nil {
+		return domain.ResourceSummary{}, convertError(err)
+	}
+
+	return v.toProject()
 }
 
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {

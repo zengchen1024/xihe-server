@@ -26,7 +26,7 @@ type Model interface {
 	GetByName(domain.Account, domain.ModelName) (domain.Model, error)
 
 	FindUserModels([]UserResourceListOption) ([]domain.ModelSummary, error)
-	GetSummaryOfModels([]ModelSummaryListOption) ([]domain.ResourceSummary, error)
+	ListSummary([]ModelSummaryListOption) ([]domain.ResourceSummary, error)
 
 	List(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserModelsInfo, error)

@@ -10,6 +10,7 @@ const (
 	fieldDesc           = "desc"
 	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"
+	fieldRepoId         = "repo_id"
 	fieldTags           = "tags"
 	fieldName           = "name"
 	fieldItems          = "items"

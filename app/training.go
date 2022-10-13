@@ -13,77 +13,11 @@ import (
 
 const trainingCreatedFailed = "create_failed"
 
-type TrainingCreateCmd struct {
-	User      domain.Account
-	ProjectId string
-	*domain.Training
-}
-
-func (cmd *TrainingCreateCmd) Validate() error {
-	err := errors.New("invalid cmd of creating training")
-
-	b := cmd.User != nil &&
-		cmd.ProjectId != "" &&
-		cmd.ProjectName != nil &&
-		cmd.ProjectRepoId != "" &&
-		cmd.Name != nil &&
-		cmd.CodeDir != nil &&
-		cmd.BootFile != nil
-
-	if !b {
-		return err
-	}
-
-	c := &cmd.Compute
-	if c.Flavor == nil || c.Type == nil || c.Version == nil {
-		return err
-	}
-
-	f := func(kv []domain.KeyValue) error {
-		for i := range kv {
-			if kv[i].Key == nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	if f(cmd.Hypeparameters) != nil {
-		return err
-	}
-
-	if f(cmd.Env) != nil {
-		return err
-	}
-
-	for i := range cmd.Inputs {
-		v := &cmd.Inputs[i]
-		if v.Key == nil || cmd.checkInput(&v.Value) != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (cmd *TrainingCreateCmd) checkInput(i *domain.ResourceInput) error {
-	if i.User == nil || i.Type == nil || i.RepoId == "" {
-		return errors.New("invalide input")
-	}
-
-	return nil
-}
-
-func (cmd *TrainingCreateCmd) toTraining() *domain.Training {
-	return cmd.Training
-}
-
 type TrainingService interface {
 	Create(cmd *TrainingCreateCmd) (string, error)
 	Recreate(info *domain.TrainingInfo) (string, error)
 	List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error)
-	Get(info *domain.TrainingInfo) error
+	Get(info *domain.TrainingInfo) (TrainingDTO, error)
 	Delete(info *domain.TrainingInfo) error
 	Terminate(info *domain.TrainingInfo) error
 	GetLogDownloadURL(info *domain.TrainingInfo) (string, error)
@@ -213,15 +147,14 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	return r, nil
 }
 
-func (s trainingService) Get(info *domain.TrainingInfo) error {
+func (s trainingService) Get(info *domain.TrainingInfo) (TrainingDTO, error) {
 	data, err := s.repo.Get(info)
 	if err != nil {
-		return err
+		return TrainingDTO{}, err
 	}
 
 	if s.isJobDone(data.JobDetail.Status) {
-		// convert data
-		return nil
+		return s.toTrainingDTO(&data), nil
 	}
 
 	detail, err := s.getAndUpdateJobDetail(
@@ -233,9 +166,7 @@ func (s trainingService) Get(info *domain.TrainingInfo) error {
 		data.JobDetail = detail
 	}
 
-	// convert
-
-	return nil
+	return s.toTrainingDTO(&data), nil
 }
 
 func (s trainingService) getAndUpdateJobDetail(
@@ -320,27 +251,4 @@ func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint s
 	}
 
 	return s.repo.SaveJob(info, &v)
-}
-
-type TrainingSummaryDTO struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	Desc      string `json:"desc"`
-	Status    string `json:"status"`
-	Duration  int    `json:"duration"`
-	CreatedAt string `json:"created_at"`
-}
-
-func (s trainingService) toTrainingSummaryDTO(t *domain.TrainingSummary, dto *TrainingSummaryDTO) {
-	*dto = TrainingSummaryDTO{
-		Id:        t.Id,
-		Name:      t.Name.TrainingName(),
-		Status:    t.JobDetail.Status,
-		Duration:  t.JobDetail.Duration,
-		CreatedAt: utils.ToDate(t.CreatedAt),
-	}
-
-	if t.Desc != nil {
-		dto.Desc = t.Desc.TrainingDesc()
-	}
 }
