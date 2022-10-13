@@ -75,15 +75,36 @@ func (cmd *TrainingCreateCmd) checkInput(i *domain.ResourceInput) error {
 	return nil
 }
 
-func (cmd *TrainingCreateCmd) toTraining(t *domain.UserTraining) {
-	t.Owner = cmd.User
-	t.ProjectId = cmd.ProjectId
-	t.Training = *cmd.Training
-	t.CreatedAt = utils.Now()
+func (cmd *TrainingCreateCmd) toTraining() *domain.Training {
+	return cmd.Training
 }
 
 type TrainingService interface {
+	Create(cmd *TrainingCreateCmd) (string, error)
+	Recreate(info *domain.TrainingInfo) (string, error)
+	List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error)
+	Get(info *domain.TrainingInfo) error
+	Delete(info *domain.TrainingInfo) error
+	Terminate(info *domain.TrainingInfo) error
+	GetLogDownloadURL(info *domain.TrainingInfo) (string, error)
 	CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error
+}
+
+func NewTrainingService(
+	log *logrus.Entry,
+	train training.Training,
+	repo repository.Training,
+	sender message.Sender,
+	maxTrainingRecordNum int,
+) TrainingService {
+	return trainingService{
+		log:    log,
+		train:  train,
+		repo:   repo,
+		sender: sender,
+
+		maxTrainingRecordNum: maxTrainingRecordNum,
+	}
 }
 
 type trainingService struct {
@@ -97,11 +118,25 @@ type trainingService struct {
 
 func (s trainingService) isJobDone(status string) bool {
 	return status != "" && (s.train.IsJobDone(status) || status == trainingCreatedFailed)
-
 }
 
 func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
-	v, version, err := s.repo.List(cmd.User, cmd.ProjectId)
+	return s.create(cmd.User, cmd.ProjectId, cmd.toTraining())
+}
+
+func (s trainingService) Recreate(info *domain.TrainingInfo) (string, error) {
+	v, err := s.repo.GetTrainingConfig(info)
+	if err != nil {
+		return "", err
+	}
+
+	return s.create(info.User, info.ProjectId, &v)
+}
+
+func (s trainingService) create(
+	user domain.Account, projectId string, config *domain.Training,
+) (string, error) {
+	v, version, err := s.repo.List(user, projectId)
 	if err != nil {
 		return "", err
 	}
@@ -120,8 +155,12 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 		}
 	}
 
-	var t domain.UserTraining
-	cmd.toTraining(&t)
+	t := domain.UserTraining{
+		Owner:     user,
+		ProjectId: projectId,
+		Training:  *config,
+		CreatedAt: utils.Now(),
+	}
 
 	r, err := s.repo.Save(&t, version)
 	if err != nil {
@@ -130,8 +169,8 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 
 	// send message
 	err = s.sender.CreateTraining(&domain.TrainingInfo{
-		User:       cmd.User,
-		ProjectId:  cmd.ProjectId,
+		User:       user,
+		ProjectId:  projectId,
 		TrainingId: r,
 	})
 	if err != nil {
@@ -153,7 +192,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 		item := &v[i]
 
 		if !s.isJobDone(item.JobDetail.Status) {
-			detail, err := s.updateJobDetail(
+			detail, err := s.getAndUpdateJobDetail(
 				&domain.TrainingInfo{
 					User:       user,
 					ProjectId:  projectId,
@@ -185,7 +224,7 @@ func (s trainingService) Get(info *domain.TrainingInfo) error {
 		return nil
 	}
 
-	detail, err := s.updateJobDetail(
+	detail, err := s.getAndUpdateJobDetail(
 		info,
 		data.Job.Endpoint, data.Job.JobId,
 		data.JobDetail.Status,
@@ -199,7 +238,7 @@ func (s trainingService) Get(info *domain.TrainingInfo) error {
 	return nil
 }
 
-func (s trainingService) updateJobDetail(
+func (s trainingService) getAndUpdateJobDetail(
 	info *domain.TrainingInfo, endpoint, jobId, old string,
 ) (r domain.JobDetail, err error) {
 	r, err = s.train.GetJob(endpoint, jobId)

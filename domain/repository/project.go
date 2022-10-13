@@ -47,6 +47,7 @@ type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
+	GetSummary(domain.Account, string) (domain.ResourceSummary, error)
 
 	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
 

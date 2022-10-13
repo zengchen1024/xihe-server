@@ -11,6 +11,7 @@ type TrainingMapper interface {
 	Insert(*UserTrainingDO, int) (string, error)
 	Delete(*TrainingInfoDO) error
 	Get(*TrainingInfoDO) (TrainingDetailDO, error)
+	GetTrainingConfig(*TrainingInfoDO) (TrainingDO, error)
 	List(user, projectId string) ([]TrainingSummaryDO, int, error)
 	UpdateJobInfo(*TrainingInfoDO, *TrainingJobInfoDO) error
 	GetJobInfo(*TrainingInfoDO) (TrainingJobInfoDO, error)
@@ -59,6 +60,17 @@ func (impl training) Get(info *domain.TrainingInfo) (domain.UserTraining, error)
 	}
 
 	return v.toUserTraining()
+}
+
+func (impl training) GetTrainingConfig(info *domain.TrainingInfo) (domain.Training, error) {
+	do := impl.toTrainingInfoDo(info)
+
+	v, err := impl.mapper.GetTrainingConfig(&do)
+	if err != nil {
+		return domain.Training{}, convertError(err)
+	}
+
+	return v.toTraining()
 }
 
 func (impl training) List(user domain.Account, projectId string) (

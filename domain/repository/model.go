@@ -4,6 +4,11 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type ModelSummaryListOption struct {
+	Owner domain.Account
+	Name  domain.ModelName
+}
+
 type ModelPropertyUpdateInfo struct {
 	ResourceToUpdate
 
@@ -21,6 +26,7 @@ type Model interface {
 	GetByName(domain.Account, domain.ModelName) (domain.Model, error)
 
 	FindUserModels([]UserResourceListOption) ([]domain.ModelSummary, error)
+	GetSummaryOfModels([]ModelSummaryListOption) ([]domain.ResourceSummary, error)
 
 	List(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserModelsInfo, error)

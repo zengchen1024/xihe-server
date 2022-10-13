@@ -1,0 +1,8 @@
+rg.POST("/v1/project/{pid}/training
+rg.POST("/v1/project/{pid}/training/{id} [post]
+/v1/project/{pid}/training/{id} [delete]
+// @Router /v1/project/{pid}/training/{id} [put]
+// @Router /v1/project/{pid}/training/{id} [get]
+// @Router /v1/project/{pid}/training [get]
+// @Router /v1/project/{pid}/training/{id}/log [get]
+

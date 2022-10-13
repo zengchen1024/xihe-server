@@ -174,6 +174,36 @@ func (col training) Get(info *repositories.TrainingInfoDO) (repositories.Trainin
 	return col.toTrainingDetailDO(&v[0]), nil
 }
 
+func (col training) GetTrainingConfig(info *repositories.TrainingInfoDO) (repositories.TrainingDO, error) {
+	var v []dTraining
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldItems,
+			trainingDocFilter(info.User, info.ProjectId),
+			resourceIdFilter(info.TrainingId),
+			bson.M{
+				fieldName:  1,
+				fieldRId:   1,
+				fieldItems: 1,
+			},
+			&v,
+		)
+	}
+
+	if err := withContext(f); err != nil {
+		return repositories.TrainingDO{}, err
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err := repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return repositories.TrainingDO{}, err
+	}
+
+	return col.toTrainingDO(&v[0]), nil
+}
+
 func (col training) GetJobInfo(info *repositories.TrainingInfoDO) (repositories.TrainingJobInfoDO, error) {
 	var v []dTraining
 

@@ -70,28 +70,34 @@ func (col training) toInputDoc(v []repositories.InputDO) []dInput {
 
 func (col training) toTrainingDetailDO(doc *dTraining) repositories.TrainingDetailDO {
 	item := &doc.Items[0]
-	c := &item.Compute
 
 	return repositories.TrainingDetailDO{
-		CreatedAt: item.CreatedAt,
-		TrainingDO: repositories.TrainingDO{
-			ProjectName:    doc.ProjectName,
-			ProjectRepoId:  doc.ProjectRepoId,
-			Name:           item.Name,
-			Desc:           item.Desc,
-			CodeDir:        item.CodeDir,
-			BootFile:       item.BootFile,
-			Inputs:         col.toInputs(item.Inputs),
-			Env:            col.toKeyValues(item.Env),
-			Hypeparameters: col.toKeyValues(item.Hypeparameters),
-			Compute: repositories.ComputeDO{
-				Type:    c.Type,
-				Flavor:  c.Flavor,
-				Version: c.Version,
-			},
+		CreatedAt:  item.CreatedAt,
+		TrainingDO: col.toTrainingDO(doc),
+		Job:        col.toTrainingJobInfoDO(&item.Job),
+		JobDetail:  col.toTrainingJobDetailDO(&item.JobDetail),
+	}
+}
+
+func (col training) toTrainingDO(doc *dTraining) repositories.TrainingDO {
+	item := &doc.Items[0]
+	c := &item.Compute
+
+	return repositories.TrainingDO{
+		ProjectName:    doc.ProjectName,
+		ProjectRepoId:  doc.ProjectRepoId,
+		Name:           item.Name,
+		Desc:           item.Desc,
+		CodeDir:        item.CodeDir,
+		BootFile:       item.BootFile,
+		Inputs:         col.toInputs(item.Inputs),
+		Env:            col.toKeyValues(item.Env),
+		Hypeparameters: col.toKeyValues(item.Hypeparameters),
+		Compute: repositories.ComputeDO{
+			Type:    c.Type,
+			Flavor:  c.Flavor,
+			Version: c.Version,
 		},
-		Job:       col.toTrainingJobInfoDO(&item.Job),
-		JobDetail: col.toTrainingJobDetailDO(&item.JobDetail),
 	}
 }
 
