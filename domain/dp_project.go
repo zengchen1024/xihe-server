@@ -1,8 +1,6 @@
 package domain
 
-import (
-	"errors"
-)
+import "errors"
 
 const (
 	RepoTypePublic  = "public"

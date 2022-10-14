@@ -24,6 +24,12 @@ type msgFork struct {
 	Id    string `json:"id"`
 }
 
+type msgTraining struct {
+	User       string `json:"user"`
+	ProjectId  string `json:"pid"`
+	TrainingId string `json:"rid"`
+}
+
 type msgRelatedResource struct {
 	Action   string         `json:"action"`
 	Promoter resourceObject `json:"promoter"`

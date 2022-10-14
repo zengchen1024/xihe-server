@@ -300,6 +300,38 @@ func listUsersResources(collection string, opts map[string][]string, result inte
 	return withContext(f)
 }
 
+func listUsersResourcesSummary(collection string, opts map[string][]string, result interface{}) error {
+	n := len(opts)
+	users := make([]string, n)
+	names := make([]string, 0, n)
+	n = 0
+	for k, v := range opts {
+		users[n] = k
+		names = append(names, v...)
+		n++
+	}
+
+	f := func(ctx context.Context) error {
+		return cli.getArraysElemsByCustomizedCond(
+			ctx, collection,
+			bson.M{fieldOwner: bson.M{"$in": users}},
+			map[string]func() bson.M{
+				fieldItems: func() bson.M {
+					return inCondForArrayElem(fieldName, names)
+				},
+			},
+			bson.M{
+				fieldOwner:                     1,
+				fieldItems + "." + fieldId:     1,
+				fieldItems + "." + fieldName:   1,
+				fieldItems + "." + fieldRepoId: 1,
+			}, result,
+		)
+	}
+
+	return withContext(f)
+}
+
 func updateRelatedResource(
 	collection, field string, add bool,
 	do *repositories.RelatedResourceDO,

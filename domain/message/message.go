@@ -15,6 +15,8 @@ type Sender interface {
 
 	AddRelatedResource(*RelatedResource) error
 	RemoveRelatedResource(*RelatedResource) error
+
+	CreateTraining(*domain.TrainingInfo) error
 }
 
 type EventHandler interface {
@@ -46,4 +48,8 @@ type RelatedResourceHandler interface {
 type RelatedResource struct {
 	Promoter *domain.ResourceObject
 	Resource *domain.ResourceObject
+}
+
+type TrainingHandler interface {
+	HandleEventCreateTraining(*domain.TrainingInfo) error
 }

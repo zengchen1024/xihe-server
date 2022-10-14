@@ -80,3 +80,9 @@ func newResponseCodeMsg(code, msg string) responseData {
 		Msg:  msg,
 	}
 }
+
+func respBadRequestParam(err error) responseData {
+	return newResponseCodeError(
+		errorBadRequestParam, err,
+	)
+}

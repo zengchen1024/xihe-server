@@ -67,3 +67,10 @@ type ReverselyRelatedResourceInfo struct {
 	Promoter *ResourceIndex
 	Resource *ResourceIndex
 }
+
+type ResourceSummary struct {
+	Owner  Account
+	Name   ResourceName
+	Id     string
+	RepoId string
+}

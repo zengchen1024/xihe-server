@@ -154,6 +154,41 @@ func (col dataset) ListUsersDatasets(opts map[string][]string) (
 	return
 }
 
+func (col dataset) ListSummary(opts map[string][]string) (
+	r []repositories.ResourceSummaryDO, err error,
+) {
+	var v []dDataset
+
+	err = listUsersResourcesSummary(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ResourceSummaryDO, 0, len(v))
+
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		dos := make([]repositories.ResourceSummaryDO, len(items))
+
+		for j := range items {
+			item := &items[j]
+
+			dos[j] = repositories.ResourceSummaryDO{
+				Id:     item.Id,
+				Name:   item.Name,
+				Owner:  owner,
+				RepoId: item.RepoId,
+			}
+		}
+
+		r = append(r, dos...)
+	}
+
+	return
+}
+
 func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 	docObj := datasetItem{
 		Id:        do.Id,

@@ -4,6 +4,11 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type DatasetSummaryListOption struct {
+	Owner domain.Account
+	Name  domain.DatasetName
+}
+
 type DatasetPropertyUpdateInfo struct {
 	ResourceToUpdate
 
@@ -21,6 +26,7 @@ type Dataset interface {
 	GetByName(domain.Account, domain.DatasetName) (domain.Dataset, error)
 
 	FindUserDatasets([]UserResourceListOption) ([]domain.DatasetSummary, error)
+	ListSummary([]DatasetSummaryListOption) ([]domain.ResourceSummary, error)
 
 	List(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)

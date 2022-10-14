@@ -4,9 +4,13 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
 	fieldId             = "id"
+	fieldPId            = "pid"
 	fieldBio            = "bio"
+	fieldJob            = "job"
 	fieldDesc           = "desc"
+	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"
+	fieldRepoId         = "repo_id"
 	fieldTags           = "tags"
 	fieldName           = "name"
 	fieldItems          = "items"
@@ -209,4 +213,61 @@ type dDomainTags struct {
 	Kind   string   `bson:"kind"     json:"kind"`
 	Order  int      `bson:"order"    json:"order"`
 	Tags   []string `bson:"tags"     json:"tags"`
+}
+
+type dTraining struct {
+	Owner         string `bson:"owner"   json:"owner"`
+	ProjectId     string `bson:"pid"     json:"pid"`
+	ProjectName   string `bson:"name"    json:"name"`
+	ProjectRepoId string `bson:"rid"     json:"rid"`
+	Version       int    `bson:"version" json:"-"`
+
+	Items []trainingItem `bson:"items"   json:"-"`
+}
+
+type trainingItem struct {
+	Id             string      `bson:"id"            json:"id"`
+	Name           string      `bson:"name"          json:"name"`
+	Desc           string      `bson:"desc"          json:"desc"`
+	CodeDir        string      `bson:"code_dir"      json:"code_dir"`
+	BootFile       string      `bson:"boot_file"     json:"boot_file"`
+	Compute        dCompute    `bson:"compute"       json:"compute"`
+	Inputs         []dInput    `bson:"inputs"        json:"inputs"`
+	Env            []dKeyValue `bson:"env"           json:"env"`
+	Hypeparameters []dKeyValue `bson:"parameters"    json:"parameters"`
+	CreatedAt      int64       `bson:"created_at"    json:"created_at"`
+
+	Job       dJobInfo   `bson:"job"     json:"job"`
+	JobDetail dJobDetail `bson:"detail"  json:"detail"`
+}
+
+type dCompute struct {
+	Type    string `bson:"type"          json:"type"`
+	Flavor  string `bson:"flavor"        json:"flavor"`
+	Version string `bson:"version"       json:"version"`
+}
+
+type dKeyValue struct {
+	Key   string `bson:"key"             json:"key"`
+	Value string `bson:"value"           json:"value"`
+}
+
+type dInput struct {
+	Key    string `bson:"key"            json:"key"`
+	Type   string `bson:"type"           json:"type"`
+	User   string `bson:"user"           json:"user"`
+	File   string `bson:"file"           json:"file"`
+	RepoId string `bson:"rid"            json:"rid"`
+}
+
+type dJobInfo struct {
+	Endpoint  string `bson:"endpoint"    json:"endpoint"`
+	JobId     string `bson:"job_id"      json:"job_id"`
+	LogDir    string `bson:"log_dir"     json:"log_dir"`
+	OutputDir string `bson:"output_dir"  json:"output_dir"`
+}
+
+type dJobDetail struct {
+	Status   string `bson:"status"       json:"status"`
+	Duration int    `bson:"duration"     json:"duration"`
 }

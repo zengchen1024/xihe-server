@@ -144,8 +144,44 @@ func (col model) ListUsersModels(opts map[string][]string) (
 		items := v[i].Items
 
 		dos := make([]repositories.ModelSummaryDO, len(items))
+
 		for j := range items {
 			col.toModelSummaryDO(owner, &items[j], &dos[j])
+		}
+
+		r = append(r, dos...)
+	}
+
+	return
+}
+
+func (col model) ListSummary(opts map[string][]string) (
+	r []repositories.ResourceSummaryDO, err error,
+) {
+	var v []dModel
+
+	err = listUsersResourcesSummary(col.collectionName, opts, &v)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	r = make([]repositories.ResourceSummaryDO, 0, len(v))
+
+	for i := range v {
+		owner := v[i].Owner
+		items := v[i].Items
+
+		dos := make([]repositories.ResourceSummaryDO, len(items))
+
+		for j := range items {
+			item := &items[j]
+
+			dos[j] = repositories.ResourceSummaryDO{
+				Id:     item.Id,
+				Name:   item.Name,
+				Owner:  owner,
+				RepoId: item.RepoId,
+			}
 		}
 
 		r = append(r, dos...)

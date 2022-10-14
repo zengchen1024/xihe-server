@@ -21,6 +21,7 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
 )
 
 func StartWebServer(port int, timeout time.Duration, cfg *config.Config) {
@@ -44,7 +45,7 @@ func StartWebServer(port int, timeout time.Duration, cfg *config.Config) {
 func setRouter(engine *gin.Engine, cfg *config.Config) {
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Title = "xihe"
-	docs.SwaggerInfo.Description = "set token name: 'Authorization' at header "
+	docs.SwaggerInfo.Description = "set header: 'PRIVATE-TOKEN=xxx'"
 
 	newPlatformRepository := func(token, namespace string) platform.Repository {
 		return gitlab.NewRepositoryService(gitlab.UserInfo{
@@ -84,6 +85,12 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		),
 	)
 
+	training := repositories.NewTraningRepository(
+		mongodb.NewTraningMapper(
+			cfg.Mongodb.TrainingCollection,
+		),
+	)
+
 	tags := repositories.NewTagsRepository(
 		mongodb.NewTagsMapper(cfg.Mongodb.TagCollection),
 	)
@@ -92,6 +99,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	gitlabUser := gitlab.NewUserSerivce()
 	authingUser := authing.NewAuthingUser()
 	sender := messages.NewMessageSender()
+	trainingAdapter := trainingimpl.NewTraining(&cfg.Training)
 
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
@@ -132,6 +140,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForBigModelController(
 			v1, bigmodel,
+		)
+
+		controller.AddRouterForTrainingController(
+			v1, trainingAdapter, training, model, proj, dataset, sender,
 		)
 	}
 

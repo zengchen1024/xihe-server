@@ -3,6 +3,7 @@ package messages
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/opensourceways/community-robot-lib/kafka"
 	"github.com/opensourceways/community-robot-lib/mq"
@@ -52,6 +53,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 
 	// register related resource
 	s, err = registerHandlerForRelatedResource(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
+	// training
+	s, err = registerHandlerForTraining(handler)
 	if err != nil {
 		return err
 	}
@@ -205,5 +215,41 @@ func registerHandlerForRelatedResource(handler interface{}) (mq.Subscriber, erro
 		}
 
 		return nil
+	})
+}
+
+func registerHandlerForTraining(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.TrainingHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Training, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgTraining{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		if body.ProjectId == "" || body.TrainingId == "" {
+			err = errors.New("invalid message of training")
+
+			return
+		}
+
+		v := domain.TrainingInfo{}
+
+		if v.User, err = domain.NewAccount(body.User); err != nil {
+			return
+		}
+
+		v.ProjectId = body.ProjectId
+		v.TrainingId = body.TrainingId
+
+		return h.HandleEventCreateTraining(&v)
 	})
 }

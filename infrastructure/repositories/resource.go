@@ -105,3 +105,51 @@ type ReverselyRelatedResourceInfoDO struct {
 	Promoter ResourceIndexDO
 	Resource ResourceIndexDO
 }
+
+type ResourceSummaryDO struct {
+	Owner  string
+	Name   string
+	Id     string
+	RepoId string
+}
+
+func (do *ResourceSummaryDO) toProject() (s domain.ResourceSummary, err error) {
+	if s.Name, err = domain.NewProjName(do.Name); err != nil {
+		return
+	}
+
+	err = do.convert(&s)
+
+	return
+}
+
+func (do *ResourceSummaryDO) toModel() (s domain.ResourceSummary, err error) {
+	if s.Name, err = domain.NewModelName(do.Name); err != nil {
+		return
+	}
+
+	err = do.convert(&s)
+
+	return
+}
+
+func (do *ResourceSummaryDO) toDataset() (s domain.ResourceSummary, err error) {
+	if s.Name, err = domain.NewDatasetName(do.Name); err != nil {
+		return
+	}
+
+	err = do.convert(&s)
+
+	return
+}
+
+func (do *ResourceSummaryDO) convert(s *domain.ResourceSummary) (err error) {
+	if s.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	s.Id = do.Id
+	s.RepoId = do.RepoId
+
+	return
+}

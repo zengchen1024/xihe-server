@@ -3,6 +3,8 @@ package repositories
 import (
 	"errors"
 
+	"k8s.io/apimachinery/pkg/util/sets"
+
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -13,6 +15,7 @@ type DatasetMapper interface {
 	GetByName(string, string) (DatasetDO, error)
 
 	ListUsersDatasets(map[string][]string) ([]DatasetSummaryDO, error)
+	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
 
 	List(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
@@ -98,6 +101,46 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 	for i := range v {
 		if err = v[i].toDatasetSummary(&r[i]); err != nil {
 			return nil, err
+		}
+	}
+
+	return r, nil
+}
+
+func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
+	[]domain.ResourceSummary, error,
+) {
+	m := map[string][]string{}
+	all := sets.NewString()
+
+	for i := range opts {
+		owner := opts[i].Owner.Account()
+		name := opts[i].Name.DatasetName()
+
+		all.Insert(owner + name)
+
+		if v, ok := m[owner]; ok {
+			m[owner] = append(v, name)
+		} else {
+			m[owner] = []string{name}
+		}
+	}
+
+	v, err := impl.mapper.ListSummary(m)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	r := make([]domain.ResourceSummary, 0, len(opts))
+
+	for i := range v {
+		if all.Has(v[i].Owner + v[i].Name) {
+			s, err := v[i].toDataset()
+			if err != nil {
+				return nil, err
+			}
+
+			r = append(r, s)
 		}
 	}
 
