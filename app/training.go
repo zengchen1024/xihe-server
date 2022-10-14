@@ -55,7 +55,7 @@ func (s trainingService) isJobDone(status string) bool {
 }
 
 func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
-	return s.create(cmd.User, cmd.ProjectId, cmd.toTraining())
+	return s.create(cmd.User, cmd.ProjectId, cmd.toTrainingConfig())
 }
 
 func (s trainingService) Recreate(info *domain.TrainingInfo) (string, error) {
@@ -68,7 +68,7 @@ func (s trainingService) Recreate(info *domain.TrainingInfo) (string, error) {
 }
 
 func (s trainingService) create(
-	user domain.Account, projectId string, config *domain.Training,
+	user domain.Account, projectId string, config *domain.TrainingConfig,
 ) (string, error) {
 	v, version, err := s.repo.List(user, projectId)
 	if err != nil {
@@ -90,10 +90,10 @@ func (s trainingService) create(
 	}
 
 	t := domain.UserTraining{
-		Owner:     user,
-		ProjectId: projectId,
-		Training:  *config,
-		CreatedAt: utils.Now(),
+		Owner:          user,
+		ProjectId:      projectId,
+		CreatedAt:      utils.Now(),
+		TrainingConfig: *config,
 	}
 
 	r, err := s.repo.Save(&t, version)
@@ -241,7 +241,7 @@ func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint s
 		return nil
 	}
 
-	v, err := s.train.CreateJob(endpoint, info.User, &data.Training)
+	v, err := s.train.CreateJob(endpoint, info.User, &data.TrainingConfig)
 	if err != nil {
 		return s.repo.UpdateJobDetail(
 			info,

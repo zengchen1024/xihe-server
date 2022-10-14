@@ -174,7 +174,7 @@ func (col training) Get(info *repositories.TrainingInfoDO) (repositories.Trainin
 	return col.toTrainingDetailDO(&v[0]), nil
 }
 
-func (col training) GetTrainingConfig(info *repositories.TrainingInfoDO) (repositories.TrainingDO, error) {
+func (col training) GetTrainingConfig(info *repositories.TrainingInfoDO) (repositories.TrainingConfigDO, error) {
 	var v []dTraining
 
 	f := func(ctx context.Context) error {
@@ -192,13 +192,13 @@ func (col training) GetTrainingConfig(info *repositories.TrainingInfoDO) (reposi
 	}
 
 	if err := withContext(f); err != nil {
-		return repositories.TrainingDO{}, err
+		return repositories.TrainingConfigDO{}, err
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
 		err := repositories.NewErrorDataNotExists(errDocNotExists)
 
-		return repositories.TrainingDO{}, err
+		return repositories.TrainingConfigDO{}, err
 	}
 
 	return col.toTrainingDO(&v[0]), nil

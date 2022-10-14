@@ -7,12 +7,12 @@ type UserTrainingDO struct {
 	Owner     string
 	ProjectId string
 
-	TrainingDO
+	TrainingConfigDO
 
 	CreatedAt int64
 }
 
-type TrainingDO struct {
+type TrainingConfigDO struct {
 	ProjectName   string
 	ProjectRepoId string
 
@@ -29,7 +29,7 @@ type TrainingDO struct {
 	Compute ComputeDO
 }
 
-func (do *TrainingDO) toTraining() (t domain.Training, err error) {
+func (do *TrainingConfigDO) toTrainingConfig() (t domain.TrainingConfig, err error) {
 	if t.ProjectName, err = domain.NewProjName(do.ProjectName); err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (do *TrainingDO) toTraining() (t domain.Training, err error) {
 	return
 }
 
-func (do *TrainingDO) toKeyValues(kv []KeyValueDO) (r []domain.KeyValue, err error) {
+func (do *TrainingConfigDO) toKeyValues(kv []KeyValueDO) (r []domain.KeyValue, err error) {
 	if len(kv) == 0 {
 		return
 	}
@@ -85,7 +85,7 @@ func (do *TrainingDO) toKeyValues(kv []KeyValueDO) (r []domain.KeyValue, err err
 	return
 }
 
-func (do *TrainingDO) toInputs() (r []domain.Input, err error) {
+func (do *TrainingConfigDO) toInputs() (r []domain.Input, err error) {
 	v := do.Inputs
 	if len(v) == 0 {
 		return
@@ -167,7 +167,7 @@ func (do *InputDO) toInput() (r domain.Input, err error) {
 }
 
 func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
-	t := &ut.Training
+	t := &ut.TrainingConfig
 	c := &t.Compute
 
 	do := UserTrainingDO{
@@ -176,7 +176,7 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 		ProjectId: ut.ProjectId,
 		CreatedAt: ut.CreatedAt,
 
-		TrainingDO: TrainingDO{
+		TrainingConfigDO: TrainingConfigDO{
 			ProjectName:   t.ProjectName.ProjName(),
 			ProjectRepoId: t.ProjectRepoId,
 			Name:          t.Name.TrainingName(),
@@ -197,7 +197,7 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 	}
 
 	if t.Desc != nil {
-		do.TrainingDO.Desc = t.Desc.TrainingDesc()
+		do.TrainingConfigDO.Desc = t.Desc.TrainingDesc()
 	}
 
 	return do
@@ -293,7 +293,7 @@ type TrainingJobInfoDO = domain.JobInfo
 type TrainingJobDetailDO = domain.JobDetail
 
 type TrainingDetailDO struct {
-	TrainingDO
+	TrainingConfigDO
 
 	Job       TrainingJobInfoDO
 	JobDetail TrainingJobDetailDO
@@ -301,7 +301,7 @@ type TrainingDetailDO struct {
 }
 
 func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error) {
-	if ut.Training, err = do.TrainingDO.toTraining(); err != nil {
+	if ut.TrainingConfig, err = do.TrainingConfigDO.toTrainingConfig(); err != nil {
 		return
 	}
 

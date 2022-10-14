@@ -7,7 +7,7 @@ import (
 )
 
 func (col training) toTrainingDoc(do *repositories.UserTrainingDO) (bson.M, error) {
-	tdo := &do.TrainingDO
+	tdo := &do.TrainingConfigDO
 	c := &tdo.Compute
 
 	docObj := trainingItem{
@@ -72,18 +72,18 @@ func (col training) toTrainingDetailDO(doc *dTraining) repositories.TrainingDeta
 	item := &doc.Items[0]
 
 	return repositories.TrainingDetailDO{
-		CreatedAt:  item.CreatedAt,
-		TrainingDO: col.toTrainingDO(doc),
-		Job:        col.toTrainingJobInfoDO(&item.Job),
-		JobDetail:  col.toTrainingJobDetailDO(&item.JobDetail),
+		CreatedAt:        item.CreatedAt,
+		TrainingConfigDO: col.toTrainingDO(doc),
+		Job:              col.toTrainingJobInfoDO(&item.Job),
+		JobDetail:        col.toTrainingJobDetailDO(&item.JobDetail),
 	}
 }
 
-func (col training) toTrainingDO(doc *dTraining) repositories.TrainingDO {
+func (col training) toTrainingDO(doc *dTraining) repositories.TrainingConfigDO {
 	item := &doc.Items[0]
 	c := &item.Compute
 
-	return repositories.TrainingDO{
+	return repositories.TrainingConfigDO{
 		ProjectName:    doc.ProjectName,
 		ProjectRepoId:  doc.ProjectRepoId,
 		Name:           item.Name,

@@ -5,7 +5,7 @@ type UserTraining struct {
 	Owner     Account
 	ProjectId string
 
-	Training
+	TrainingConfig
 
 	CreatedAt int64
 
@@ -14,7 +14,7 @@ type UserTraining struct {
 	JobDetail JobDetail
 }
 
-type Training struct {
+type TrainingConfig struct {
 	ProjectName   ProjName
 	ProjectRepoId string
 

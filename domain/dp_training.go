@@ -68,7 +68,7 @@ type Directory interface {
 
 func NewDirectory(v string) (Directory, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty directory")
 	}
 
 	if !reDirectory.MatchString(v) {
@@ -91,7 +91,7 @@ type FilePath interface {
 
 func NewFilePath(v string) (FilePath, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty file path")
 	}
 
 	if !reFilePath.MatchString(v) {
@@ -114,7 +114,7 @@ type ComputeType interface {
 
 func NewComputeType(v string) (ComputeType, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty compute type")
 	}
 
 	return computeType(v), nil
@@ -133,7 +133,7 @@ type ComputeVersion interface {
 
 func NewComputeVersion(v string) (ComputeVersion, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty compute version")
 	}
 
 	return computeVersion(v), nil
@@ -152,7 +152,7 @@ type ComputeFlavor interface {
 
 func NewComputeFlavor(v string) (ComputeFlavor, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty compute flavor")
 	}
 
 	return computeFlavor(v), nil
@@ -171,7 +171,7 @@ type CustomizedKey interface {
 
 func NewCustomizedKey(v string) (CustomizedKey, error) {
 	if v == "" {
-		return nil, nil
+		return nil, errors.New("empty key")
 	}
 
 	return customizedKey(v), nil
