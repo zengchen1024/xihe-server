@@ -202,6 +202,23 @@ definitions:
       update_at:
         type: string
     type: object
+  app.TrainingSummaryDTO:
+    properties:
+      created_at:
+        type: string
+      desc:
+        type: string
+      duration:
+        type: integer
+      id:
+        type: string
+      is_done:
+        type: boolean
+      name:
+        type: string
+      status:
+        type: string
+    type: object
   app.UserDTO:
     properties:
       account:
@@ -217,6 +234,62 @@ definitions:
       following_count:
         type: integer
       id:
+        type: string
+    type: object
+  controller.Compute:
+    properties:
+      flavor:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    type: object
+  controller.KeyValue:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  controller.TrainingCreateRequest:
+    properties:
+      boot_file:
+        type: string
+      code_dir:
+        type: string
+      compute:
+        $ref: '#/definitions/controller.Compute'
+      datasets:
+        items:
+          $ref: '#/definitions/controller.TrainingInput'
+        type: array
+      desc:
+        type: string
+      evn:
+        items:
+          $ref: '#/definitions/controller.KeyValue'
+        type: array
+      hyperparameter:
+        items:
+          $ref: '#/definitions/controller.KeyValue'
+        type: array
+      models:
+        items:
+          $ref: '#/definitions/controller.TrainingInput'
+        type: array
+      name:
+        type: string
+    type: object
+  controller.TrainingInput:
+    properties:
+      File:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      owner:
         type: string
     type: object
   controller.datasetCreateRequest:
@@ -544,6 +617,16 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  controller.trainingCreateResp:
+    properties:
+      id:
+        type: string
+    type: object
+  controller.trainingLogResp:
+    properties:
+      log_url:
+        type: string
     type: object
   controller.userCreateRequest:
     properties:
@@ -1408,6 +1491,179 @@ paths:
       summary: Get
       tags:
       - Project
+  /v1/project/{pid}/training:
+    get:
+      consumes:
+      - application/json
+      description: get trainings
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.TrainingSummaryDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Training
+    post:
+      consumes:
+      - application/json
+      description: create training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: body of creating training
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TrainingCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.trainingCreateResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Training
+  /v1/project/{pid}/training/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Delete
+      tags:
+      - Training
+    post:
+      consumes:
+      - application/json
+      description: recreate training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.trainingCreateResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Recreate
+      tags:
+      - Training
+    put:
+      consumes:
+      - application/json
+      description: terminate training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Terminate
+      tags:
+      - Training
+  /v1/project/{pid}/training/{id}/log:
+    get:
+      consumes:
+      - application/json
+      description: get log url of training for downloading
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.trainingLogResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetLog
+      tags:
+      - Training
   /v1/tags/{type}:
     get:
       consumes:

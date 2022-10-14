@@ -79,15 +79,19 @@ type TrainingSummaryDTO struct {
 	Name      string `json:"name"`
 	Desc      string `json:"desc"`
 	Status    string `json:"status"`
+	IsDone    bool   `json:"is_done"`
 	Duration  int    `json:"duration"`
 	CreatedAt string `json:"created_at"`
 }
 
-func (s trainingService) toTrainingSummaryDTO(t *domain.TrainingSummary, dto *TrainingSummaryDTO) {
+func (s trainingService) toTrainingSummaryDTO(
+	t *domain.TrainingSummary, dto *TrainingSummaryDTO, done bool,
+) {
 	*dto = TrainingSummaryDTO{
 		Id:        t.Id,
 		Name:      t.Name.TrainingName(),
 		Status:    t.JobDetail.Status,
+		IsDone:    done,
 		Duration:  t.JobDetail.Duration,
 		CreatedAt: utils.ToDate(t.CreatedAt),
 	}

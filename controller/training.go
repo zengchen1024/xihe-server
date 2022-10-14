@@ -34,7 +34,7 @@ func AddRouterForTrainingController(
 	rg.POST("/v1/project/{pid}/training/{id}", ctl.Recreate)
 	rg.DELETE("v1/project/{pid}/training/{id}", ctl.Delete)
 	rg.PUT("/v1/project/{pid}/training/{id}", ctl.Terminate)
-	rg.GET("/v1/project/{pid}/training/{id}", ctl.Get)
+	//rg.GET("/v1/project/{pid}/training/{id}", ctl.Get)
 	rg.GET("/v1/project/{pid}/training", ctl.List)
 	rg.GET("/v1/project/{pid}/training/{id}/log", ctl.GetLogDownloadURL)
 }
@@ -179,6 +179,7 @@ func (ctl *TrainingController) Terminate(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
+/*
 // @Summary Get
 // @Description get training info
 // @Tags  Training
@@ -203,6 +204,7 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusAccepted, newResponseData(v))
 }
+*/
 
 // @Summary List
 // @Description get trainings

@@ -125,7 +125,8 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	for i := range v {
 		item := &v[i]
 
-		if !s.isJobDone(item.JobDetail.Status) {
+		done := s.isJobDone(item.JobDetail.Status)
+		if !done {
 			detail, err := s.getAndUpdateJobDetail(
 				&domain.TrainingInfo{
 					User:       user,
@@ -141,7 +142,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 			}
 		}
 
-		s.toTrainingSummaryDTO(&v[i], &r[i])
+		s.toTrainingSummaryDTO(&v[i], &r[i], done)
 	}
 
 	return r, nil
