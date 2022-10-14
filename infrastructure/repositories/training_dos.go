@@ -150,18 +150,16 @@ func (do *InputDO) toInput() (r domain.Input, err error) {
 		return
 	}
 
-	v := &r.Value
-
-	if v.User, err = domain.NewAccount(do.User); err != nil {
+	if r.User, err = domain.NewAccount(do.User); err != nil {
 		return
 	}
 
-	if v.Type, err = domain.NewResourceType(do.Type); err != nil {
+	if r.Type, err = domain.NewResourceType(do.Type); err != nil {
 		return
 	}
 
-	v.RepoId = do.RepoId
-	v.File = do.File
+	r.RepoId = do.RepoId
+	r.File = do.File
 
 	return
 }
@@ -231,10 +229,10 @@ func (impl training) toInputDOs(v []domain.Input) []InputDO {
 	r := make([]InputDO, n)
 
 	for i := range v {
-		item := &v[i].Value
+		item := &v[i]
 
 		r[i] = InputDO{
-			Key:    v[i].Key.CustomizedKey(),
+			Key:    item.Key.CustomizedKey(),
 			User:   item.User.Account(),
 			Type:   item.Type.ResourceType(),
 			File:   item.File,

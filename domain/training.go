@@ -33,8 +33,8 @@ type TrainingConfig struct {
 
 type Compute struct {
 	Type    ComputeType
-	Version ComputeVersion
 	Flavor  ComputeFlavor
+	Version ComputeVersion
 }
 
 type KeyValue struct {
@@ -43,11 +43,11 @@ type KeyValue struct {
 }
 
 type Input struct {
-	Key   CustomizedKey
-	Value ResourceInput
+	Key CustomizedKey
+	ResourceRef
 }
 
-type ResourceInput struct {
+type ResourceRef struct {
 	User   Account
 	Type   ResourceType
 	RepoId string

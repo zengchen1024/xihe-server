@@ -146,7 +146,7 @@ func (t *TrainingInput) toModelInput() (r domain.Input, name domain.ModelName, e
 		return
 	}
 
-	r.Value.Type = domain.ResourceTypeModel
+	r.Type = domain.ResourceTypeModel
 
 	return
 }
@@ -160,7 +160,7 @@ func (t *TrainingInput) toDatasetInput() (r domain.Input, name domain.DatasetNam
 		return
 	}
 
-	r.Value.Type = domain.ResourceTypeDataset
+	r.Type = domain.ResourceTypeDataset
 
 	return
 }
@@ -170,11 +170,11 @@ func (t *TrainingInput) toInput(r *domain.Input) (err error) {
 		return
 	}
 
-	if r.Value.User, err = domain.NewAccount(t.Owner); err != nil {
+	if r.User, err = domain.NewAccount(t.Owner); err != nil {
 		return
 	}
 
-	r.Value.File = t.File
+	r.File = t.File
 
 	return
 }
@@ -233,14 +233,14 @@ func (ctl *TrainingController) setModelsInput(
 		}
 		tinputs[i] = ti
 
-		s := index(ti.Value.User, v.Name)
+		s := index(ti.User, v.Name)
 		if m.Has(s) {
 			continue
 		}
 		m.Insert(s)
 
 		p = append(p, repository.ModelSummaryListOption{
-			Owner: ti.Value.User,
+			Owner: ti.User,
 			Name:  name,
 		})
 
@@ -270,7 +270,7 @@ func (ctl *TrainingController) setModelsInput(
 	}
 
 	for i := range inputs {
-		v := &tinputs[i].Value
+		v := &tinputs[i]
 
 		v.RepoId = ids[index(v.User, inputs[i].Name)]
 	}
@@ -306,14 +306,14 @@ func (ctl *TrainingController) setDatasetsInput(
 		}
 		tinputs[i] = ti
 
-		s := index(ti.Value.User, v.Name)
+		s := index(ti.User, v.Name)
 		if m.Has(s) {
 			continue
 		}
 		m.Insert(s)
 
 		p = append(p, repository.DatasetSummaryListOption{
-			Owner: ti.Value.User,
+			Owner: ti.User,
 			Name:  name,
 		})
 
@@ -343,7 +343,7 @@ func (ctl *TrainingController) setDatasetsInput(
 	}
 
 	for i := range inputs {
-		v := &tinputs[i].Value
+		v := &tinputs[i]
 
 		v.RepoId = ids[index(v.User, inputs[i].Name)]
 	}
