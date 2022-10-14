@@ -23,3 +23,9 @@ type ErrorConcurrentUpdating struct {
 func NewErrorConcurrentUpdating(err error) ErrorConcurrentUpdating {
 	return ErrorConcurrentUpdating{err}
 }
+
+func IsErrorResourceNotExists(err error) bool {
+	_, ok := err.(ErrorResourceNotExists)
+
+	return ok
+}

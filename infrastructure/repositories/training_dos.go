@@ -119,8 +119,8 @@ func (kv *KeyValueDO) toKeyValue() (r domain.KeyValue, err error) {
 
 type ComputeDO struct {
 	Type    string
-	Version string
 	Flavor  string
+	Version string
 }
 
 func (do *ComputeDO) toCompute() (r domain.Compute, err error) {
@@ -175,9 +175,9 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 		CreatedAt: ut.CreatedAt,
 
 		TrainingConfigDO: TrainingConfigDO{
+			Name:          t.Name.TrainingName(),
 			ProjectName:   t.ProjectName.ProjName(),
 			ProjectRepoId: t.ProjectRepoId,
-			Name:          t.Name.TrainingName(),
 
 			CodeDir:  t.CodeDir.Directory(),
 			BootFile: t.BootFile.FilePath(),
@@ -188,8 +188,8 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 
 			Compute: ComputeDO{
 				Type:    c.Type.ComputeType(),
-				Version: c.Version.ComputeVersion(),
 				Flavor:  c.Flavor.ComputeFlavor(),
+				Version: c.Version.ComputeVersion(),
 			},
 		},
 	}
@@ -254,6 +254,7 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 		return
 	}
 
+	t.Id = do.Id
 	t.JobId = do.JobId
 	t.Endpoint = do.Endpoint
 	t.CreatedAt = do.CreatedAt
@@ -272,6 +273,7 @@ func (impl training) toTrainingInfoDo(info *domain.TrainingInfo) TrainingInfoDO 
 }
 
 type TrainingSummaryDO struct {
+	Id        string
 	Name      string
 	Desc      string
 	JobId     string

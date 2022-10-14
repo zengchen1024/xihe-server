@@ -188,7 +188,14 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 
 func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 	return h.do(func() error {
-		return h.training.CreateTrainingJob(info, h.trainingEndpoint)
+		err := h.training.CreateTrainingJob(info, h.trainingEndpoint)
+		if app.IsErrorUnavailableTraining(err) {
+			h.log.Error(err)
+
+			return nil
+		}
+
+		return err
 	})
 }
 

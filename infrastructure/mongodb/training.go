@@ -19,6 +19,10 @@ func trainingDocFilter(owner, projectId string) bson.M {
 	}
 }
 
+func trainingItemField(k string) string {
+	return fieldItems + "." + k
+}
+
 type training struct {
 	collectionName string
 }
@@ -79,11 +83,10 @@ func (col training) insert(do *repositories.UserTrainingDO, version int) (identi
 		return
 	}
 
-	docFilter := trainingDocFilter(do.Owner, do.ProjectId)
-
 	f := func(ctx context.Context) error {
 		return cli.updateDoc(
-			ctx, col.collectionName, docFilter,
+			ctx, col.collectionName,
+			trainingDocFilter(do.Owner, do.ProjectId),
 			bson.M{fieldItems: doc}, mongoCmdPush, version,
 		)
 	}
@@ -96,21 +99,17 @@ func (col training) insert(do *repositories.UserTrainingDO, version int) (identi
 func (col training) List(user, projectId string) ([]repositories.TrainingSummaryDO, int, error) {
 	var v dTraining
 
-	field := func(k string) string {
-		return fieldItems + k
-	}
-
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
 			ctx, col.collectionName,
 			trainingDocFilter(user, projectId),
 			bson.M{
-				fieldVersion:          1,
-				field(fieldJob):       1,
-				field(fieldName):      1,
-				field(fieldDesc):      1,
-				field(fieldDetail):    1,
-				field(fieldCreatedAt): 1,
+				fieldVersion:                      1,
+				trainingItemField(fieldJob):       1,
+				trainingItemField(fieldName):      1,
+				trainingItemField(fieldDesc):      1,
+				trainingItemField(fieldDetail):    1,
+				trainingItemField(fieldCreatedAt): 1,
 			}, &v)
 	}
 
@@ -153,8 +152,8 @@ func (col training) Get(info *repositories.TrainingInfoDO) (repositories.Trainin
 			trainingDocFilter(info.User, info.ProjectId),
 			resourceIdFilter(info.TrainingId),
 			bson.M{
-				fieldName:  1,
 				fieldRId:   1,
+				fieldName:  1,
 				fieldItems: 1,
 			},
 			&v,
@@ -201,7 +200,7 @@ func (col training) GetTrainingConfig(info *repositories.TrainingInfoDO) (reposi
 		return repositories.TrainingConfigDO{}, err
 	}
 
-	return col.toTrainingDO(&v[0]), nil
+	return col.toTrainingConfigDO(&v[0]), nil
 }
 
 func (col training) GetJobInfo(info *repositories.TrainingInfoDO) (repositories.TrainingJobInfoDO, error) {
@@ -213,7 +212,7 @@ func (col training) GetJobInfo(info *repositories.TrainingInfoDO) (repositories.
 			trainingDocFilter(info.User, info.ProjectId),
 			resourceIdFilter(info.TrainingId),
 			bson.M{
-				fieldItems + "." + fieldJob: 1,
+				trainingItemField(fieldJob): 1,
 			},
 			&v,
 		)

@@ -7,19 +7,19 @@ import (
 )
 
 func (col training) toTrainingDoc(do *repositories.UserTrainingDO) (bson.M, error) {
-	tdo := &do.TrainingConfigDO
-	c := &tdo.Compute
+	cfg := &do.TrainingConfigDO
+	c := &cfg.Compute
 
 	docObj := trainingItem{
 		Id:             do.Id,
-		Name:           tdo.Name,
-		Desc:           tdo.Desc,
-		CodeDir:        tdo.CodeDir,
-		BootFile:       tdo.BootFile,
+		Name:           cfg.Name,
+		Desc:           cfg.Desc,
+		CodeDir:        cfg.CodeDir,
+		BootFile:       cfg.BootFile,
 		CreatedAt:      do.CreatedAt,
-		Inputs:         col.toInputDoc(tdo.Inputs),
-		Env:            col.toKeyValueDoc(tdo.Env),
-		Hypeparameters: col.toKeyValueDoc(tdo.Hypeparameters),
+		Inputs:         col.toInputDoc(cfg.Inputs),
+		Env:            col.toKeyValueDoc(cfg.Env),
+		Hypeparameters: col.toKeyValueDoc(cfg.Hypeparameters),
 		Compute: dCompute{
 			Type:    c.Type,
 			Flavor:  c.Flavor,
@@ -73,13 +73,13 @@ func (col training) toTrainingDetailDO(doc *dTraining) repositories.TrainingDeta
 
 	return repositories.TrainingDetailDO{
 		CreatedAt:        item.CreatedAt,
-		TrainingConfigDO: col.toTrainingDO(doc),
 		Job:              col.toTrainingJobInfoDO(&item.Job),
 		JobDetail:        col.toTrainingJobDetailDO(&item.JobDetail),
+		TrainingConfigDO: col.toTrainingConfigDO(doc),
 	}
 }
 
-func (col training) toTrainingDO(doc *dTraining) repositories.TrainingConfigDO {
+func (col training) toTrainingConfigDO(doc *dTraining) repositories.TrainingConfigDO {
 	item := &doc.Items[0]
 	c := &item.Compute
 

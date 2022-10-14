@@ -27,10 +27,10 @@ type TrainingCreateRequest struct {
 	CodeDir  string `json:"code_dir"`
 	BootFile string `json:"boot_file"`
 
-	Hypeparameters []KeyValue      `json:"hyperparameter"`
-	Env            []KeyValue      `json:"evn"`
-	Models         []TrainingInput `json:"models"`
-	Datasets       []TrainingInput `json:"datasets"`
+	Hypeparameters []KeyValue    `json:"hyperparameter"`
+	Env            []KeyValue    `json:"evn"`
+	Models         []TrainingRef `json:"models"`
+	Datasets       []TrainingRef `json:"datasets"`
 
 	Compute Compute `json:"compute"`
 }
@@ -83,8 +83,8 @@ func (req *TrainingCreateRequest) toKeyValue(kv []KeyValue) (r []domain.KeyValue
 
 type Compute struct {
 	Type    string `json:"type"`
-	Version string `json:"version"`
 	Flavor  string `json:"flavor"`
+	Version string `json:"version"`
 }
 
 func (c *Compute) toCompute() (r domain.Compute, err error) {
@@ -98,13 +98,11 @@ func (c *Compute) toCompute() (r domain.Compute, err error) {
 		return
 	}
 
-	if r.Version, err = domain.NewComputeVersion(c.Version); err != nil {
-		return
-	}
-
 	if r.Flavor, err = domain.NewComputeFlavor(c.Flavor); err != nil {
 		return
 	}
+
+	r.Version, err = domain.NewComputeVersion(c.Version)
 
 	return
 }
@@ -130,14 +128,14 @@ func (kv *KeyValue) toKeyValue() (r domain.KeyValue, err error) {
 	return
 }
 
-type TrainingInput struct {
+type TrainingRef struct {
 	Key   string `json:"key"`
 	Owner string `json:"owner"`
 	Name  string `json:"name"`
 	File  string `json:"File"`
 }
 
-func (t *TrainingInput) toModelInput() (r domain.Input, name domain.ModelName, err error) {
+func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ModelName, err error) {
 	if err = t.toInput(&r); err != nil {
 		return
 	}
@@ -151,7 +149,7 @@ func (t *TrainingInput) toModelInput() (r domain.Input, name domain.ModelName, e
 	return
 }
 
-func (t *TrainingInput) toDatasetInput() (r domain.Input, name domain.DatasetName, err error) {
+func (t *TrainingRef) toDatasetInput() (r domain.Input, name domain.DatasetName, err error) {
 	if err = t.toInput(&r); err != nil {
 		return
 	}
@@ -165,7 +163,7 @@ func (t *TrainingInput) toDatasetInput() (r domain.Input, name domain.DatasetNam
 	return
 }
 
-func (t *TrainingInput) toInput(r *domain.Input) (err error) {
+func (t *TrainingRef) toInput(r *domain.Input) (err error) {
 	if r.Key, err = domain.NewCustomizedKey(t.Key); err != nil {
 		return
 	}
@@ -210,7 +208,7 @@ func (ctl *TrainingController) setProjectInfo(
 
 func (ctl *TrainingController) setModelsInput(
 	ctx *gin.Context, cmd *app.TrainingCreateCmd,
-	inputs []TrainingInput,
+	inputs []TrainingRef,
 ) (ok bool) {
 	p := make([]repository.ModelSummaryListOption, 0, len(inputs))
 	m := sets.NewString()
@@ -283,7 +281,7 @@ func (ctl *TrainingController) setModelsInput(
 
 func (ctl *TrainingController) setDatasetsInput(
 	ctx *gin.Context, cmd *app.TrainingCreateCmd,
-	inputs []TrainingInput,
+	inputs []TrainingRef,
 ) (ok bool) {
 	p := make([]repository.DatasetSummaryListOption, 0, len(inputs))
 	m := sets.NewString()

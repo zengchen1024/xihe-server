@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -11,7 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const trainingCreatedFailed = "create_failed"
+const (
+	trainingStatusScheduling     = "scheduling"
+	trainingStatusScheduleFailed = "schedule_failed"
+)
 
 type TrainingService interface {
 	Create(cmd *TrainingCreateCmd) (string, error)
@@ -51,7 +55,7 @@ type trainingService struct {
 }
 
 func (s trainingService) isJobDone(status string) bool {
-	return status != "" && (s.train.IsJobDone(status) || status == trainingCreatedFailed)
+	return status != "" && (s.train.IsJobDone(status) || status == trainingStatusScheduleFailed)
 }
 
 func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
@@ -126,7 +130,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 		item := &v[i]
 
 		done := s.isJobDone(item.JobDetail.Status)
-		if !done {
+		if !done && item.JobId != "" {
 			detail, err := s.getAndUpdateJobDetail(
 				&domain.TrainingInfo{
 					User:       user,
@@ -154,7 +158,7 @@ func (s trainingService) Get(info *domain.TrainingInfo) (TrainingDTO, error) {
 		return TrainingDTO{}, err
 	}
 
-	if s.isJobDone(data.JobDetail.Status) {
+	if s.isJobDone(data.JobDetail.Status) || data.Job.JobId == "" {
 		return s.toTrainingDTO(&data), nil
 	}
 
@@ -234,6 +238,15 @@ func (s trainingService) GetLogDownloadURL(info *domain.TrainingInfo) (string, e
 func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error {
 	data, err := s.repo.Get(info)
 	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			return errorUnavailableTraining{
+				fmt.Errorf(
+					"training(%s/%s/%s) is not exist.",
+					info.User.Account(), info.ProjectId, info.TrainingId,
+				),
+			}
+		}
+
 		return err
 	}
 
@@ -246,7 +259,7 @@ func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint s
 		return s.repo.UpdateJobDetail(
 			info,
 			&domain.JobDetail{
-				Status: trainingCreatedFailed,
+				Status: trainingStatusScheduleFailed,
 			},
 		)
 	}

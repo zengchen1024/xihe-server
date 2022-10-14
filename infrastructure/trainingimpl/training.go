@@ -97,8 +97,8 @@ func (impl *trainingImpl) GetJob(endpoint, jobId string) (r domain.JobDetail, er
 func (impl *trainingImpl) toCompute(c *domain.Compute) sdk.Compute {
 	return sdk.Compute{
 		Type:    c.Type.ComputeType(),
-		Version: c.Version.ComputeVersion(),
 		Flavor:  c.Flavor.ComputeFlavor(),
+		Version: c.Version.ComputeVersion(),
 	}
 }
 
@@ -128,15 +128,15 @@ func (impl *trainingImpl) toInput(v []domain.Input) []sdk.Input {
 	r := make([]sdk.Input, len(v))
 
 	for i := range v {
-		input := &v[i].Value
+		item := &v[i]
 
 		r[i] = sdk.Input{
-			Key: v[i].Key.CustomizedKey(),
+			Key: item.Key.CustomizedKey(),
 			Value: sdk.ResourceInput{
-				Owner:  input.User.Account(),
-				Type:   input.Type.ResourceType(),
-				RepoId: input.RepoId,
-				File:   input.File,
+				Owner:  item.User.Account(),
+				Type:   item.Type.ResourceType(),
+				RepoId: item.RepoId,
+				File:   item.File,
 			},
 		}
 	}
