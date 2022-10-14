@@ -2409,7 +2409,7 @@ const docTemplate = `{
                 "datasets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.TrainingInput"
+                        "$ref": "#/definitions/controller.TrainingRef"
                     }
                 },
                 "desc": {
@@ -2430,7 +2430,7 @@ const docTemplate = `{
                 "models": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.TrainingInput"
+                        "$ref": "#/definitions/controller.TrainingRef"
                     }
                 },
                 "name": {
@@ -2438,7 +2438,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.TrainingInput": {
+        "controller.TrainingRef": {
             "type": "object",
             "properties": {
                 "File": {

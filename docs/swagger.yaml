@@ -262,7 +262,7 @@ definitions:
         $ref: '#/definitions/controller.Compute'
       datasets:
         items:
-          $ref: '#/definitions/controller.TrainingInput'
+          $ref: '#/definitions/controller.TrainingRef'
         type: array
       desc:
         type: string
@@ -276,12 +276,12 @@ definitions:
         type: array
       models:
         items:
-          $ref: '#/definitions/controller.TrainingInput'
+          $ref: '#/definitions/controller.TrainingRef'
         type: array
       name:
         type: string
     type: object
-  controller.TrainingInput:
+  controller.TrainingRef:
     properties:
       File:
         type: string

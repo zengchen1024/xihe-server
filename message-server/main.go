@@ -78,8 +78,10 @@ func main() {
 
 func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 	return &handler{
-		log:      log,
-		maxRetry: cfg.MaxRetry,
+		log:              log,
+		maxRetry:         cfg.MaxRetry,
+		trainingEndpoint: cfg.TrainingEndpoint,
+
 		user: app.NewUserService(
 			repositories.NewUserRepository(
 				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),

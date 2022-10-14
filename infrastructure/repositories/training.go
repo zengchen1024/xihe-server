@@ -18,8 +18,8 @@ type TrainingMapper interface {
 	UpdateJobDetail(*TrainingInfoDO, *TrainingJobDetailDO) error
 }
 
-func NewTraning() repository.Training {
-	return training{}
+func NewTraningRepository(mapper TrainingMapper) repository.Training {
+	return training{mapper}
 }
 
 type training struct {

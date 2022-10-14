@@ -9,7 +9,8 @@ import (
 )
 
 type configuration struct {
-	MaxRetry int `json:"max_retry"`
+	MaxRetry         int    `json:"max_retry"`
+	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
 
 	Mongodb config.Mongodb `json:"mongodb"  required:"true"`
 	Domain  domain.Config  `json:"domain"   required:"true"`

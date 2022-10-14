@@ -22,7 +22,7 @@ func (impl *trainingImpl) IsJobDone(status string) bool {
 	return impl.doneStatus.Has(status)
 }
 
-func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *domain.Training) (
+func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *domain.TrainingConfig) (
 	job domain.JobInfo, err error,
 ) {
 	opt := sdk.TrainingCreateOption{

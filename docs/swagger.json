@@ -2397,7 +2397,7 @@
                 "datasets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.TrainingInput"
+                        "$ref": "#/definitions/controller.TrainingRef"
                     }
                 },
                 "desc": {
@@ -2418,7 +2418,7 @@
                 "models": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.TrainingInput"
+                        "$ref": "#/definitions/controller.TrainingRef"
                     }
                 },
                 "name": {
@@ -2426,7 +2426,7 @@
                 }
             }
         },
-        "controller.TrainingInput": {
+        "controller.TrainingRef": {
             "type": "object",
             "properties": {
                 "File": {

@@ -12,6 +12,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
+	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
 )
 
 var reIpPort = regexp.MustCompile(`^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}:[1-9][0-9]*$`)
@@ -46,6 +47,7 @@ type Config struct {
 	MaxRetry        int `json:"max_retry"`
 	ActivityKeepNum int `json:"activity_keep_num"`
 
+	Training trainingimpl.Config  `json:"training"  required:"true"`
 	BigModel bigmodels.Config     `json:"bigmodel"  required:"true"`
 	Authing  AuthingService       `json:"authing"   required:"true"`
 	Mongodb  Mongodb              `json:"mongodb"   required:"true"`
@@ -63,13 +65,14 @@ func (cfg *Config) GetMQConfig() mq.MQConfig {
 
 func (cfg *Config) configItems() []interface{} {
 	return []interface{}{
+		&cfg.Training,
+		&cfg.BigModel,
 		&cfg.Authing,
 		&cfg.Domain,
 		&cfg.Mongodb,
 		&cfg.Gitlab,
 		&cfg.API,
 		&cfg.MQ,
-		&cfg.BigModel,
 	}
 }
 
@@ -118,6 +121,7 @@ type Mongodb struct {
 	LikeCollection     string `json:"like_collection" required:"true"`
 	ActivityCollection string `json:"activity_collection" required:"true"`
 	TagCollection      string `json:"tag_collection" required:"true"`
+	TrainingCollection string `json:"training_collection" required:"true"`
 }
 
 type AuthingService struct {
