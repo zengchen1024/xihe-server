@@ -109,5 +109,7 @@ func (s *service) sendReqToGenPicture(
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Auth-Token", t)
 
-	return s.hc.ForwardTo(req, r)
+	_, err = s.hc.ForwardTo(req, r)
+
+	return err
 }

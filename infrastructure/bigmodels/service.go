@@ -35,7 +35,7 @@ func Init(cfg *Config) error {
 	fm = &service{
 		cfg:              *cfg,
 		obs:              obs,
-		hc:               utils.HttpClient{MaxRetries: 3},
+		hc:               utils.NewHttpClient(3),
 		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
 		multiplePictures: make(chan string, 1),
 	}
@@ -103,7 +103,7 @@ func (s *service) DescribePicture(picture io.Reader, name string, length int64) 
 
 	desc := new(descOfPicture)
 
-	if err = s.hc.ForwardTo(req, desc); err != nil {
+	if _, err = s.hc.ForwardTo(req, desc); err != nil {
 		return "", err
 	}
 
@@ -169,7 +169,7 @@ func (s *service) Ask(q domain.Question, f string) (string, error) {
 
 	v := new(questionResp)
 
-	if err = s.hc.ForwardTo(req, v); err != nil {
+	if _, err = s.hc.ForwardTo(req, v); err != nil {
 		return "", err
 	}
 

@@ -130,7 +130,9 @@ func sendHttpRequest(req *http.Request, result interface{}) error {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "xihe-server-authing")
 
-	hc := utils.HttpClient{MaxRetries: 3}
+	hc := utils.NewHttpClient(3)
 
-	return hc.ForwardTo(req, result)
+	_, err := hc.ForwardTo(req, result)
+
+	return err
 }
