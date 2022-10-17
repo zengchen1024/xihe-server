@@ -121,6 +121,31 @@ func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err
 	return
 }
 
+func (col dataset) GetSummary(owner string, datasetId string) (
+	do repositories.ResourceSummaryDO, err error,
+) {
+	var v []dDataset
+
+	err = getResourceSummary(col.collectionName, owner, datasetId, &v)
+	if err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	item := &v[0].Items[0]
+	do.Owner = owner
+	do.Id = datasetId
+	do.Name = item.Name
+	do.RepoId = item.RepoId
+
+	return
+}
+
 func (col dataset) List(owner string, do *repositories.ResourceListDO) (
 	[]repositories.DatasetSummaryDO, int, error,
 ) {

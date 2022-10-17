@@ -13,6 +13,7 @@ type ModelMapper interface {
 	Insert(ModelDO) (string, error)
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
+	GetSummary(string, string) (ResourceSummaryDO, error)
 
 	ListUsersModels(map[string][]string) ([]ModelSummaryDO, error)
 	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
@@ -145,6 +146,17 @@ func (impl model) ListSummary(opts []repository.ModelSummaryListOption) (
 	}
 
 	return r, nil
+}
+
+func (impl model) GetSummary(owner domain.Account, modelId string) (
+	domain.ResourceSummary, error,
+) {
+	v, err := impl.mapper.GetSummary(owner.Account(), modelId)
+	if err != nil {
+		return domain.ResourceSummary{}, convertError(err)
+	}
+
+	return v.toModel()
 }
 
 func (impl model) toModelDO(m *domain.Model) ModelDO {

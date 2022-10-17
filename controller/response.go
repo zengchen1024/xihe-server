@@ -16,6 +16,7 @@ const (
 	errorResourceNotExists  = "resource_not_exists"
 	errorConcurrentUpdating = "concurrent_updateing"
 	errorExccedMaxNum       = "exceed_max_num"
+	errorUpdateLFSFile      = "update_lfs_file"
 )
 
 var (
@@ -52,6 +53,9 @@ func newResponseError(err error) responseData {
 
 	case app.ErrorExceedMaxRelatedResourceNum:
 		code = errorExccedMaxNum
+
+	case app.ErrorUpdateLFSFile:
+		code = errorUpdateLFSFile
 
 	}
 

@@ -27,6 +27,10 @@ func resourceIdFilter(identity string) bson.M {
 	}
 }
 
+func subfieldOfItems(k string) string {
+	return fieldItems + "." + k
+}
+
 func toResourceObject(do *repositories.ResourceObjectDO) ResourceObject {
 	return ResourceObject{
 		Id:    do.Id,
@@ -122,6 +126,23 @@ func getResourceById(collection, owner, rid string, result interface{}) error {
 	return withContext(f)
 }
 
+func getResourceSummary(collection, owner, rId string, result interface{}) error {
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(owner),
+			resourceIdFilter(rId),
+			bson.M{
+				subfieldOfItems(fieldName):   1,
+				subfieldOfItems(fieldRepoId): 1,
+			},
+			result,
+		)
+	}
+
+	return withContext(f)
+}
+
 func getResourceByName(collection, owner, name string, result interface{}) error {
 	f := func(ctx context.Context) error {
 		return cli.getArrayElem(
@@ -135,15 +156,15 @@ func getResourceByName(collection, owner, name string, result interface{}) error
 }
 
 func sortByUpdateTime() bson.M {
-	return bson.M{fieldItems + "." + fieldUpdatedAt: -1}
+	return bson.M{subfieldOfItems(fieldUpdatedAt): -1}
 }
 
 func sortByFirstLetter() bson.M {
-	return bson.M{fieldItems + "." + fieldFirstLetter: 1}
+	return bson.M{subfieldOfItems(fieldFirstLetter): 1}
 }
 
 func sortByDownloadCount() bson.M {
-	return bson.M{fieldItems + "." + fieldDownloadCount: -1}
+	return bson.M{subfieldOfItems(fieldDownloadCount): -1}
 }
 
 func insertResource(collection, owner, name string, doc bson.M) error {
@@ -228,9 +249,8 @@ func listResource(
 	}}}
 
 	keep := bson.M{}
-	s := fieldItems + "."
 	for _, item := range fields {
-		keep[s+item] = 1
+		keep[subfieldOfItems(item)] = 1
 	}
 	keep["total"] = bson.M{
 		"$cond": bson.M{
@@ -321,10 +341,10 @@ func listUsersResourcesSummary(collection string, opts map[string][]string, resu
 				},
 			},
 			bson.M{
-				fieldOwner:                     1,
-				fieldItems + "." + fieldId:     1,
-				fieldItems + "." + fieldName:   1,
-				fieldItems + "." + fieldRepoId: 1,
+				fieldOwner:                   1,
+				subfieldOfItems(fieldId):     1,
+				subfieldOfItems(fieldName):   1,
+				subfieldOfItems(fieldRepoId): 1,
 			}, result,
 		)
 	}

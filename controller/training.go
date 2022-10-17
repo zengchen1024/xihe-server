@@ -30,13 +30,13 @@ func AddRouterForTrainingController(
 		dataset: dataset,
 	}
 
-	rg.POST("/v1/project/{pid}/training", ctl.Create)
-	rg.POST("/v1/project/{pid}/training/{id}", ctl.Recreate)
-	rg.DELETE("v1/project/{pid}/training/{id}", ctl.Delete)
-	rg.PUT("/v1/project/{pid}/training/{id}", ctl.Terminate)
-	//rg.GET("/v1/project/{pid}/training/{id}", ctl.Get)
-	rg.GET("/v1/project/{pid}/training", ctl.List)
-	rg.GET("/v1/project/{pid}/training/{id}/log", ctl.GetLogDownloadURL)
+	rg.POST("/v1/project/:pid/training", ctl.Create)
+	rg.POST("/v1/project/:pid/training/:id", ctl.Recreate)
+	rg.DELETE("v1/project/:pid/training/:id", ctl.Delete)
+	rg.PUT("/v1/project/:pid/training/:id", ctl.Terminate)
+	//rg.GET("/v1/project/:pid/training/:id", ctl.Get)
+	rg.GET("/v1/project/:pid/training", ctl.List)
+	rg.GET("/v1/project/:pid/training/:id/log", ctl.GetLogDownloadURL)
 }
 
 type TrainingController struct {

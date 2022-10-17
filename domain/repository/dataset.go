@@ -24,6 +24,7 @@ type Dataset interface {
 	Save(*domain.Dataset) (domain.Dataset, error)
 	Get(domain.Account, string) (domain.Dataset, error)
 	GetByName(domain.Account, domain.DatasetName) (domain.Dataset, error)
+	GetSummary(domain.Account, string) (domain.ResourceSummary, error)
 
 	FindUserDatasets([]UserResourceListOption) ([]domain.DatasetSummary, error)
 	ListSummary([]DatasetSummaryListOption) ([]domain.ResourceSummary, error)

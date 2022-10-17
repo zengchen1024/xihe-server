@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/base64"
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -100,7 +101,7 @@ func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 
 	isLFS, sha := s.rf.IsLFSFile(data)
 	if !isLFS {
-		dto.Content = data
+		dto.Content = base64.StdEncoding.EncodeToString(data)
 
 		return
 	}
@@ -115,24 +116,34 @@ func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 	return
 }
 
-func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFileDownloadCmd) ([]byte, error) {
+func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+	dto RepoFilePreviewDTO, err error,
+) {
 	data, notFound, err := s.rf.Download(u, &cmd.RepoFileInfo)
 	if err != nil {
 		if notFound {
-			return nil, ErrorUnavailableRepoFile{err}
+			err = ErrorUnavailableRepoFile{err}
 		}
 
-		return nil, err
+		return
 	}
 
 	if isLFS, _ := s.rf.IsLFSFile(data); !isLFS {
-		return data, nil
+		dto.Content = base64.StdEncoding.EncodeToString(data)
+	} else {
+		err = ErrorPreviewLFSFile{
+			errors.New("can't preview the lfs file, download it"),
+		}
 	}
 
-	return nil, errors.New("can't preview the lfs file, download it")
+	return
 }
 
 type RepoFileDownloadDTO struct {
-	Content     []byte `json:"content"`
+	Content     string `json:"content"`
 	DownloadURL string `json:"download_url"`
+}
+
+type RepoFilePreviewDTO struct {
+	Content string `json:"content"`
 }

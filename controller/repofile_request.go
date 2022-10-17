@@ -19,3 +19,5 @@ func (req *RepoFileCreateRequest) toCmd(repoId, path string) (cmd app.RepoFileCr
 
 	return
 }
+
+type RepoFileUpdateRequest = RepoFileCreateRequest
