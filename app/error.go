@@ -16,6 +16,10 @@ type ErrorOnlyOneRunningTraining struct {
 	error
 }
 
+type ErrorUnavailableRepoFile struct {
+	error
+}
+
 type errorUnavailableTraining struct {
 	error
 }

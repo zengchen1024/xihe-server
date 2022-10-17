@@ -11,6 +11,7 @@ import (
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
 )
@@ -51,7 +52,7 @@ type Config struct {
 	BigModel bigmodels.Config     `json:"bigmodel"  required:"true"`
 	Authing  AuthingService       `json:"authing"   required:"true"`
 	Mongodb  Mongodb              `json:"mongodb"   required:"true"`
-	Gitlab   Gitlab               `json:"gitlab"    required:"true"`
+	Gitlab   gitlab.Config        `json:"gitlab"    required:"true"`
 	Domain   domain.Config        `json:"domain"    required:"true"`
 	API      controller.APIConfig `json:"api"       required:"true"`
 	MQ       MQ                   `json:"mq"        required:"true"`
@@ -111,27 +112,22 @@ func (cfg *Config) Validate() error {
 }
 
 type Mongodb struct {
-	MongodbConn        string `json:"mongodb_conn" required:"true"`
-	DBName             string `json:"mongodb_db" required:"true"`
-	ProjectCollection  string `json:"project_collection" required:"true"`
-	ModelCollection    string `json:"model_collection" required:"true"`
-	DatasetCollection  string `json:"dataset_collection" required:"true"`
-	UserCollection     string `json:"user_collection" required:"true"`
-	LoginCollection    string `json:"login_collection" required:"true"`
-	LikeCollection     string `json:"like_collection" required:"true"`
-	ActivityCollection string `json:"activity_collection" required:"true"`
-	TagCollection      string `json:"tag_collection" required:"true"`
-	TrainingCollection string `json:"training_collection" required:"true"`
+	DBName             string `json:"mongodb_db"              required:"true"`
+	MongodbConn        string `json:"mongodb_conn"            required:"true"`
+	TagCollection      string `json:"tag_collection"          required:"true"`
+	UserCollection     string `json:"user_collection"         required:"true"`
+	LikeCollection     string `json:"like_collection"         required:"true"`
+	ModelCollection    string `json:"model_collection"        required:"true"`
+	LoginCollection    string `json:"login_collection"        required:"true"`
+	DatasetCollection  string `json:"dataset_collection"      required:"true"`
+	ProjectCollection  string `json:"project_collection"      required:"true"`
+	ActivityCollection string `json:"activity_collection"     required:"true"`
+	TrainingCollection string `json:"training_collection"     required:"true"`
 }
 
 type AuthingService struct {
 	APPId  string `json:"app_id" required:"true"`
 	Secret string `json:"secret" required:"true"`
-}
-
-type Gitlab struct {
-	Endpoint  string `json:"endpoint" required:"true"`
-	RootToken string `json:"root_token" required:"true"`
 }
 
 type MQ struct {

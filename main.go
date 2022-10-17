@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// gitlab
-	if err := gitlab.Init(cfg.Gitlab.Endpoint, cfg.Gitlab.RootToken); err != nil {
+	if err := gitlab.Init(&cfg.Gitlab); err != nil {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
 	}
 

@@ -109,8 +109,8 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 
 	token, err := ctl.newApiToken(ctx, oldUserTokenPayload{
 		Account:                 d.Account,
+		Email:                   d.Email,
 		PlatformToken:           d.Platform.Token,
-		PlatformUserId:          d.Platform.UserId,
 		PlatformUserNamespaceId: d.Platform.NamespaceId,
 	})
 	if err != nil {
