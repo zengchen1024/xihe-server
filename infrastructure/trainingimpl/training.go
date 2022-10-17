@@ -72,7 +72,7 @@ func (impl *trainingImpl) TerminateJob(endpoint, jobId string) error {
 func (impl *trainingImpl) GetLogDownloadURL(endpoint, jobId string) (string, error) {
 	cli := sdk.NewTrainingCenter(endpoint)
 
-	v, err := cli.GetLog(jobId)
+	v, err := cli.GetLogDownloadURL(jobId)
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +132,7 @@ func (impl *trainingImpl) toInput(v []domain.Input) []sdk.Input {
 
 		r[i] = sdk.Input{
 			Key: item.Key.CustomizedKey(),
-			Value: sdk.ResourceInput{
+			Value: sdk.ResourceRef{
 				Owner:  item.User.Account(),
 				Type:   item.Type.ResourceType(),
 				RepoId: item.RepoId,
