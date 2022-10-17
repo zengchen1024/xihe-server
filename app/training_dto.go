@@ -11,7 +11,8 @@ import (
 type TrainingCreateCmd struct {
 	User      domain.Account
 	ProjectId string
-	*domain.TrainingConfig
+	
+	domain.TrainingConfig
 }
 
 func (cmd *TrainingCreateCmd) Validate() error {
@@ -64,7 +65,7 @@ func (cmd *TrainingCreateCmd) Validate() error {
 }
 
 func (cmd *TrainingCreateCmd) toTrainingConfig() *domain.TrainingConfig {
-	return cmd.TrainingConfig
+	return &cmd.TrainingConfig
 }
 
 type TrainingSummaryDTO struct {
