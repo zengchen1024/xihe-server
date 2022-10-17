@@ -1175,265 +1175,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/project/{pid}/training": {
-            "get": {
-                "description": "get trainings",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "List",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.TrainingSummaryDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "create training",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "Create",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "body of creating training",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.TrainingCreateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/controller.trainingCreateResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "bad_request_body"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "bad_request_param"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/project/{pid}/training/{id}": {
-            "put": {
-                "description": "terminate training",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "Terminate",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "recreate training",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "Recreate",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/controller.trainingCreateResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "bad_request_body"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "bad_request_param"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete training",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "Delete",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/project/{pid}/training/{id}/log": {
-            "get": {
-                "description": "get log url of training for downloading",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Training"
-                ],
-                "summary": "GetLog",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.trainingLogResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/repo/{name}/{id}/file/{path}": {
             "get": {
                 "description": "Download repo file",
@@ -1738,6 +1479,265 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.DomainTagsDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/train/project/{pid}/training": {
+            "get": {
+                "description": "get trainings",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.TrainingSummaryDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create training",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of creating training",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.TrainingCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.trainingCreateResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/train/project/{pid}/training/{id}": {
+            "put": {
+                "description": "terminate training",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Terminate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "recreate training",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Recreate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.trainingCreateResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete training",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/train/project/{pid}/training/{id}/log": {
+            "get": {
+                "description": "get log url of training for downloading",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "GetLog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.trainingLogResp"
                         }
                     },
                     "500": {

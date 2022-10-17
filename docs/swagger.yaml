@@ -1513,179 +1513,6 @@ paths:
       summary: Get
       tags:
       - Project
-  /v1/project/{pid}/training:
-    get:
-      consumes:
-      - application/json
-      description: get trainings
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.TrainingSummaryDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: List
-      tags:
-      - Training
-    post:
-      consumes:
-      - application/json
-      description: create training
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      - description: body of creating training
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.TrainingCreateRequest'
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/controller.trainingCreateResp'
-        "400":
-          description: Bad Request
-          schema:
-            type: bad_request_body
-        "401":
-          description: Unauthorized
-          schema:
-            type: bad_request_param
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Create
-      tags:
-      - Training
-  /v1/project/{pid}/training/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: delete training
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      - description: training id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Delete
-      tags:
-      - Training
-    post:
-      consumes:
-      - application/json
-      description: recreate training
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      - description: training id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/controller.trainingCreateResp'
-        "400":
-          description: Bad Request
-          schema:
-            type: bad_request_body
-        "401":
-          description: Unauthorized
-          schema:
-            type: bad_request_param
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Recreate
-      tags:
-      - Training
-    put:
-      consumes:
-      - application/json
-      description: terminate training
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      - description: training id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "202":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Terminate
-      tags:
-      - Training
-  /v1/project/{pid}/training/{id}/log:
-    get:
-      consumes:
-      - application/json
-      description: get log url of training for downloading
-      parameters:
-      - description: project id
-        in: path
-        name: pid
-        required: true
-        type: string
-      - description: training id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.trainingLogResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: GetLog
-      tags:
-      - Training
   /v1/repo/{name}/{id}/file/{path}:
     delete:
       consumes:
@@ -1898,6 +1725,179 @@ paths:
             type: system_error
       tags:
       - Tags
+  /v1/train/project/{pid}/training:
+    get:
+      consumes:
+      - application/json
+      description: get trainings
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.TrainingSummaryDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Training
+    post:
+      consumes:
+      - application/json
+      description: create training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: body of creating training
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TrainingCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.trainingCreateResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Training
+  /v1/train/project/{pid}/training/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Delete
+      tags:
+      - Training
+    post:
+      consumes:
+      - application/json
+      description: recreate training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.trainingCreateResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Recreate
+      tags:
+      - Training
+    put:
+      consumes:
+      - application/json
+      description: terminate training
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Terminate
+      tags:
+      - Training
+  /v1/train/project/{pid}/training/{id}/log:
+    get:
+      consumes:
+      - application/json
+      description: get log url of training for downloading
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.trainingLogResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetLog
+      tags:
+      - Training
   /v1/user:
     get:
       consumes:
