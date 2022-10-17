@@ -121,6 +121,31 @@ func (col model) GetByName(owner, name string) (do repositories.ModelDO, err err
 	return
 }
 
+func (col model) GetSummary(owner string, modelId string) (
+	do repositories.ResourceSummaryDO, err error,
+) {
+	var v []dModel
+
+	err = getResourceSummary(col.collectionName, owner, modelId, &v)
+	if err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	item := &v[0].Items[0]
+	do.Owner = owner
+	do.Id = modelId
+	do.Name = item.Name
+	do.RepoId = item.RepoId
+
+	return
+}
+
 func (col model) List(owner string, do *repositories.ResourceListDO) (
 	[]repositories.ModelSummaryDO, int, error,
 ) {

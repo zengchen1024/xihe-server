@@ -16,6 +16,18 @@ type ErrorOnlyOneRunningTraining struct {
 	error
 }
 
+type ErrorUnavailableRepoFile struct {
+	error
+}
+
+type ErrorUpdateLFSFile struct {
+	error
+}
+
+type ErrorPreviewLFSFile struct {
+	error
+}
+
 type errorUnavailableTraining struct {
 	error
 }

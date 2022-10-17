@@ -14,8 +14,8 @@ import (
 
 type oldUserTokenPayload struct {
 	Account                 string `json:"account"`
+	Email                   string `json:"email"`
 	PlatformToken           string `json:"token"`
-	PlatformUserId          string `json:"uid"`
 	PlatformUserNamespaceId string `json:"nid"`
 }
 
@@ -23,6 +23,16 @@ func (pl *oldUserTokenPayload) DomainAccount() domain.Account {
 	a, _ := domain.NewAccount(pl.Account)
 
 	return a
+}
+
+func (pl *oldUserTokenPayload) PlatformUserInfo() platform.UserInfo {
+	v, _ := domain.NewEmail(pl.Email)
+
+	return platform.UserInfo{
+		User:  pl.DomainAccount(),
+		Token: pl.PlatformToken,
+		Email: v,
+	}
 }
 
 func (pl *oldUserTokenPayload) isNotMe(a domain.Account) bool {
@@ -107,8 +117,8 @@ func (ctl *LoginController) Login(ctx *gin.Context) {
 
 	payload := oldUserTokenPayload{
 		Account:                 user.Account,
+		Email:                   user.Email,
 		PlatformToken:           user.Platform.Token,
-		PlatformUserId:          user.Platform.UserId,
 		PlatformUserNamespaceId: user.Platform.NamespaceId,
 	}
 

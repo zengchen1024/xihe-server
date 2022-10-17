@@ -29,3 +29,25 @@ type Repository interface {
 	Fork(srcRepoId string, Name domain.ResourceName) (string, error)
 	Update(repoId string, repo *RepoOption) error
 }
+
+type UserInfo struct {
+	User  domain.Account
+	Email domain.Email
+	Token string
+}
+
+type RepoFileInfo struct {
+	//Namespace string
+	RepoId string
+	Path   domain.FilePath
+}
+
+type RepoFile interface {
+	//List(info *RepoFileInfo) error
+	Create(u *UserInfo, f *RepoFileInfo, content *string) error
+	Update(u *UserInfo, f *RepoFileInfo, content *string) error
+	Delete(u *UserInfo, f *RepoFileInfo) error
+	Download(u *UserInfo, f *RepoFileInfo) (data []byte, notFound bool, err error)
+	IsLFSFile(data []byte) (is bool, sha string)
+	GenLFSDownloadURL(sha string) (string, error)
+}

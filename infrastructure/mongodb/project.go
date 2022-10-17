@@ -127,20 +127,8 @@ func (col project) GetSummary(owner string, projectId string) (
 ) {
 	var v []dProject
 
-	f := func(ctx context.Context) error {
-		return cli.getArrayElem(
-			ctx, col.collectionName, fieldItems,
-			resourceOwnerFilter(owner),
-			resourceIdFilter(projectId),
-			bson.M{
-				fieldItems + "." + fieldName:   1,
-				fieldItems + "." + fieldRepoId: 1,
-			},
-			&v,
-		)
-	}
-
-	if err = withContext(f); err != nil {
+	err = getResourceSummary(col.collectionName, owner, projectId, &v)
+	if err != nil {
 		return
 	}
 

@@ -368,14 +368,9 @@ github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1y
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.19.0/go.mod h1:LY+I3pBVzYsTBU1AnDwOSxaYi9WoWiqgwooUqq9yPro=
 github.com/onsi/gomega v1.20.1/go.mod h1:DtrZpjmvpn2mPm4YWQa0/ALMDj9v4YxLgojwPeREyVo=
-github.com/opensourceways/community-robot-lib v0.0.0-20220914071039-19b5510b1482/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
-github.com/opensourceways/community-robot-lib v0.0.0-20220928120519-b3196c107697 h1:zWJnrwU/vFQ3gRduk0x0epbS/mD2ktZzAn4JaCO5bPc=
-github.com/opensourceways/community-robot-lib v0.0.0-20220928120519-b3196c107697/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
 github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95 h1:FpEuPKwG0gDjOuoMIhFWeNRrLokX0DGSCRl2G4Y//jA=
 github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
 github.com/opensourceways/go-gitee v0.0.0-20220714075315-cb246f1dfb96/go.mod h1:yvVsEMhp7frMblzN1sco4C7cRlnlpqkkn3O2JQNdRu0=
-github.com/opensourceways/xihe-training-center v0.0.0-20221011025806-185214357459 h1:4nmUVCKeCatDJ7wRCohcjsN28kOLsTysNCge7dGk6Dk=
-github.com/opensourceways/xihe-training-center v0.0.0-20221011025806-185214357459/go.mod h1:j187gVTiQ/ahAhEca8fcP6AotnFDdpdnzzse8jGUPLs=
 github.com/opensourceways/xihe-training-center v0.0.0-20221017023620-f10de5c0fb43 h1:AnsKvjlcp22jW6a1C8CMfa5zwbjDB2/4U+/XcA3/DN8=
 github.com/opensourceways/xihe-training-center v0.0.0-20221017023620-f10de5c0fb43/go.mod h1:vj4bwEA3b43WzTgCOadrlD6RywkZy1dRuCWP0NsnMJ0=
 github.com/otiai10/copy v1.7.0/go.mod h1:rmRl6QPdJj6EiUqXQ/4Nn2lLXoNQjFCQbbNrxgc/t3U=

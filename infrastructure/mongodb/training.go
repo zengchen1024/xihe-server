@@ -19,10 +19,6 @@ func trainingDocFilter(owner, projectId string) bson.M {
 	}
 }
 
-func trainingItemField(k string) string {
-	return fieldItems + "." + k
-}
-
 type training struct {
 	collectionName string
 }
@@ -104,12 +100,12 @@ func (col training) List(user, projectId string) ([]repositories.TrainingSummary
 			ctx, col.collectionName,
 			trainingDocFilter(user, projectId),
 			bson.M{
-				fieldVersion:                      1,
-				trainingItemField(fieldJob):       1,
-				trainingItemField(fieldName):      1,
-				trainingItemField(fieldDesc):      1,
-				trainingItemField(fieldDetail):    1,
-				trainingItemField(fieldCreatedAt): 1,
+				fieldVersion:                    1,
+				subfieldOfItems(fieldJob):       1,
+				subfieldOfItems(fieldName):      1,
+				subfieldOfItems(fieldDesc):      1,
+				subfieldOfItems(fieldDetail):    1,
+				subfieldOfItems(fieldCreatedAt): 1,
 			}, &v)
 	}
 
@@ -212,7 +208,7 @@ func (col training) GetJobInfo(info *repositories.TrainingInfoDO) (repositories.
 			trainingDocFilter(info.User, info.ProjectId),
 			resourceIdFilter(info.TrainingId),
 			bson.M{
-				trainingItemField(fieldJob): 1,
+				subfieldOfItems(fieldJob): 1,
 			},
 			&v,
 		)

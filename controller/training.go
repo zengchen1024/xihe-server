@@ -30,13 +30,13 @@ func AddRouterForTrainingController(
 		dataset: dataset,
 	}
 
-	rg.POST("/v1/project/{pid}/training", ctl.Create)
-	rg.POST("/v1/project/{pid}/training/{id}", ctl.Recreate)
-	rg.DELETE("v1/project/{pid}/training/{id}", ctl.Delete)
-	rg.PUT("/v1/project/{pid}/training/{id}", ctl.Terminate)
-	//rg.GET("/v1/project/{pid}/training/{id}", ctl.Get)
-	rg.GET("/v1/project/{pid}/training", ctl.List)
-	rg.GET("/v1/project/{pid}/training/{id}/log", ctl.GetLogDownloadURL)
+	rg.POST("/v1/train/project/:pid/training", ctl.Create)
+	rg.POST("/v1/train/project/:pid/training/:id", ctl.Recreate)
+	rg.PUT("/v1/train/project/:pid/training/:id", ctl.Terminate)
+	rg.GET("/v1/train/project/:pid/training", ctl.List)
+	rg.GET("/v1/train/project/:pid/training/:id/log", ctl.GetLogDownloadURL)
+	rg.DELETE("v1/train/project/:pid/training/:id", ctl.Delete)
+	//rg.GET("/v1/project/:pid/training/:id", ctl.Get)
 }
 
 type TrainingController struct {
@@ -59,7 +59,7 @@ type TrainingController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training [post]
+// @Router /v1/train/project/{pid}/training [post]
 func (ctl *TrainingController) Create(ctx *gin.Context) {
 	req := TrainingCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -114,7 +114,7 @@ func (ctl *TrainingController) Create(ctx *gin.Context) {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training/{id} [post]
+// @Router /v1/train/project/{pid}/training/{id} [post]
 func (ctl *TrainingController) Recreate(ctx *gin.Context) {
 	info, ok := ctl.getTrainingInfo(ctx)
 	if !ok {
@@ -139,7 +139,7 @@ func (ctl *TrainingController) Recreate(ctx *gin.Context) {
 // @Accept json
 // @Success 204
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training/{id} [delete]
+// @Router /v1/train/project/{pid}/training/{id} [delete]
 func (ctl *TrainingController) Delete(ctx *gin.Context) {
 	info, ok := ctl.getTrainingInfo(ctx)
 	if !ok {
@@ -163,7 +163,7 @@ func (ctl *TrainingController) Delete(ctx *gin.Context) {
 // @Accept json
 // @Success 202
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training/{id} [put]
+// @Router /v1/train/project/{pid}/training/{id} [put]
 func (ctl *TrainingController) Terminate(ctx *gin.Context) {
 	info, ok := ctl.getTrainingInfo(ctx)
 	if !ok {
@@ -188,7 +188,7 @@ func (ctl *TrainingController) Terminate(ctx *gin.Context) {
 // @Accept json
 // @Success 200 {object} app.TrainingDTO
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training/{id} [get]
+// @Router /v1/train/project/{pid}/training/{id} [get]
 func (ctl *TrainingController) Get(ctx *gin.Context) {
 	info, ok := ctl.getTrainingInfo(ctx)
 	if !ok {
@@ -213,7 +213,7 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 // @Accept json
 // @Success 200 {object} app.TrainingSummaryDTO
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training [get]
+// @Router /v1/train/project/{pid}/training [get]
 func (ctl *TrainingController) List(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -238,7 +238,7 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 // @Accept json
 // @Success 200 {object} trainingLogResp
 // @Failure 500 system_error        system error
-// @Router /v1/project/{pid}/training/{id}/log [get]
+// @Router /v1/train/project/{pid}/training/{id}/log [get]
 func (ctl *TrainingController) GetLogDownloadURL(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {

@@ -6,16 +6,19 @@ import (
 )
 
 const (
-	errorNotAllowed         = "not_allowed"
-	errorInvalidToken       = "invalid_token"
-	errorSystemError        = "system_error"
-	errorBadRequestBody     = "bad_request_body"
-	errorBadRequestHeader   = "bad_request_header"
-	errorBadRequestParam    = "bad_request_param"
-	errorDuplicateCreating  = "duplicate_creating"
-	errorResourceNotExists  = "resource_not_exists"
-	errorConcurrentUpdating = "concurrent_updateing"
-	errorExccedMaxNum       = "exceed_max_num"
+	errorNotAllowed          = "not_allowed"
+	errorInvalidToken        = "invalid_token"
+	errorSystemError         = "system_error"
+	errorBadRequestBody      = "bad_request_body"
+	errorBadRequestHeader    = "bad_request_header"
+	errorBadRequestParam     = "bad_request_param"
+	errorDuplicateCreating   = "duplicate_creating"
+	errorResourceNotExists   = "resource_not_exists"
+	errorConcurrentUpdating  = "concurrent_updateing"
+	errorExccedMaxNum        = "exceed_max_num"
+	errorUpdateLFSFile       = "update_lfs_file"
+	errorPreviewLFSFile      = "preview_lfs_file"
+	errorUnavailableRepoFile = "unavailable_repo_file"
 )
 
 var (
@@ -53,6 +56,14 @@ func newResponseError(err error) responseData {
 	case app.ErrorExceedMaxRelatedResourceNum:
 		code = errorExccedMaxNum
 
+	case app.ErrorUpdateLFSFile:
+		code = errorUpdateLFSFile
+
+	case app.ErrorUnavailableRepoFile:
+		code = errorUnavailableRepoFile
+
+	case app.ErrorPreviewLFSFile:
+		code = errorPreviewLFSFile
 	}
 
 	return responseData{

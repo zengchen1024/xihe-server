@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"strconv"
+	"strings"
 
 	sdk "github.com/xanzy/go-gitlab"
 
@@ -10,22 +11,26 @@ import (
 )
 
 var (
-	admin    *administrator
-	endpoint string
+	admin     *administrator
+	obsHelper *obsService
+
+	endpoint      string
+	defaultBranch string
 )
 
 func NewUserSerivce() platform.User {
 	return admin
 }
 
-func Init(endpointURL, token string) error {
-	v, err := sdk.NewClient(token, sdk.WithBaseURL(endpointURL))
+func Init(cfg *Config) error {
+	v, err := sdk.NewClient(cfg.RootToken, sdk.WithBaseURL(cfg.Endpoint))
 	if err != nil {
 		return err
 	}
 
 	admin = &administrator{v}
-	endpoint = endpointURL
+	endpoint = strings.TrimSuffix(cfg.Endpoint, "/")
+	defaultBranch = cfg.DefaultBranch
 
 	return nil
 }
