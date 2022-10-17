@@ -14,8 +14,8 @@ type RepoFileService interface {
 	Create(*UserInfo, *RepoFileCreateCmd) error
 	Update(*UserInfo, *RepoFileCreateCmd) error
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
-	Download(*UserInfo, *RepoFileDownloadCmd) (dto RepoFileDownloadDTO, err error)
-	Preview(*UserInfo, *RepoFileDownloadCmd) ([]byte, error)
+	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
+	Preview(*UserInfo, *RepoFileDownloadCmd) (RepoFilePreviewDTO, error)
 }
 
 func NewRepoFileService(rf platform.RepoFile, sender message.Sender) RepoFileService {
