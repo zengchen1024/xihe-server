@@ -169,10 +169,9 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.RepoFileDeleteCmd{RepoFileInfo: info}
 	u := pl.PlatformUserInfo()
 
-	if err = ctl.s.Delete(&u, &cmd); err != nil {
+	if err = ctl.s.Delete(&u, &info); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -207,10 +206,9 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.RepoFileDownloadCmd{RepoFileInfo: info}
 	u := pl.PlatformUserInfo()
 
-	v, err := ctl.s.Download(&u, &cmd)
+	v, err := ctl.s.Download(&u, &info)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -246,10 +244,9 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 		return
 	}
 
-	cmd := app.RepoFileDownloadCmd{RepoFileInfo: info}
 	u := pl.PlatformUserInfo()
 
-	v, err := ctl.s.Preview(&u, &cmd)
+	v, err := ctl.s.Preview(&u, &info)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

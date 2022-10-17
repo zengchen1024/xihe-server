@@ -9,13 +9,14 @@ import (
 )
 
 type UserInfo = platform.UserInfo
+type RepoFileInfo = platform.RepoFileInfo
 
 type RepoFileService interface {
 	Create(*UserInfo, *RepoFileCreateCmd) error
-	Update(*UserInfo, *RepoFileCreateCmd) error
+	Update(*UserInfo, *RepoFileUpdateCmd) error
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
+	Preview(*UserInfo, *RepoFilePreviewCmd) (RepoFilePreviewDTO, error)
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
-	Preview(*UserInfo, *RepoFileDownloadCmd) (RepoFilePreviewDTO, error)
 }
 
 func NewRepoFileService(rf platform.RepoFile, sender message.Sender) RepoFileService {
@@ -30,38 +31,14 @@ type repoFileService struct {
 	sender message.Sender
 }
 
-type RepoFileInfo = platform.RepoFileInfo
-
-func isInvalidRepoFileInfo(info *RepoFileInfo) bool {
-	return info.Path == nil && info.RepoId == ""
-}
-
-type RepoFileDeleteCmd struct {
-	RepoFileInfo
-}
-
-func (cmd *RepoFileDeleteCmd) Validate() error {
-	if isInvalidRepoFileInfo(&cmd.RepoFileInfo) {
-		return errors.New("invalid repo file cmd")
-	}
-
-	return nil
-}
-
-type RepoFileDownloadCmd = RepoFileDeleteCmd
+type RepoFileDeleteCmd = RepoFileInfo
+type RepoFilePreviewCmd = RepoFileInfo
+type RepoFileDownloadCmd = RepoFileInfo
 
 type RepoFileCreateCmd struct {
 	RepoFileInfo
 
 	Content *string
-}
-
-func (cmd *RepoFileCreateCmd) Validate() error {
-	if isInvalidRepoFileInfo(&cmd.RepoFileInfo) || cmd.Content == nil {
-		return errors.New("invalid repo file cmd")
-	}
-
-	return nil
 }
 
 type RepoFileUpdateCmd = RepoFileCreateCmd
@@ -70,27 +47,29 @@ func (s *repoFileService) Create(u *platform.UserInfo, cmd *RepoFileCreateCmd) e
 	return s.rf.Create(u, &cmd.RepoFileInfo, cmd.Content)
 }
 
-func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileCreateCmd) error {
+func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) error {
 	data, _, err := s.rf.Download(u, &cmd.RepoFileInfo)
 	if err != nil {
 		return err
 	}
 
 	if b, _ := s.rf.IsLFSFile(data); b {
-		return errors.New("can't update lfs directly")
+		return ErrorUpdateLFSFile{
+			errors.New("can't update lfs directly"),
+		}
 	}
 
 	return s.rf.Update(u, &cmd.RepoFileInfo, cmd.Content)
 }
 
 func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) error {
-	return s.rf.Delete(u, &cmd.RepoFileInfo)
+	return s.rf.Delete(u, cmd)
 }
 
 func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
 	dto RepoFileDownloadDTO, err error,
 ) {
-	data, notFound, err := s.rf.Download(u, &cmd.RepoFileInfo)
+	data, notFound, err := s.rf.Download(u, cmd)
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}
@@ -116,10 +95,10 @@ func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 	return
 }
 
-func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd) (
 	dto RepoFilePreviewDTO, err error,
 ) {
-	data, notFound, err := s.rf.Download(u, &cmd.RepoFileInfo)
+	data, notFound, err := s.rf.Download(u, cmd)
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}

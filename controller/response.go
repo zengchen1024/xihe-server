@@ -17,6 +17,7 @@ const (
 	errorConcurrentUpdating  = "concurrent_updateing"
 	errorExccedMaxNum        = "exceed_max_num"
 	errorUpdateLFSFile       = "update_lfs_file"
+	errorPreviewLFSFile      = "preview_lfs_file"
 	errorUnavailableRepoFile = "unavailable_repo_file"
 )
 
@@ -61,6 +62,8 @@ func newResponseError(err error) responseData {
 	case app.ErrorUnavailableRepoFile:
 		code = errorUnavailableRepoFile
 
+	case app.ErrorPreviewLFSFile:
+		code = errorPreviewLFSFile
 	}
 
 	return responseData{
