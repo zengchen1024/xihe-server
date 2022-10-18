@@ -255,8 +255,6 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 				break
 			}
 
-			data.TrainingDTO = &v
-
 			if log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId); err == nil && len(log) > 0 {
 				data.Log = string(log)
 			}

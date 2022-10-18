@@ -119,14 +119,6 @@ func (s trainingService) create(
 }
 
 func (s trainingService) List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error) {
-	/*
-		dto := TrainingSummaryDTO{
-			Name: "abc",
-		}
-
-		return []TrainingSummaryDTO{dto}, nil
-	*/
-
 	v, _, err := s.repo.List(user, projectId)
 	if err != nil || len(v) == 0 {
 		return nil, err

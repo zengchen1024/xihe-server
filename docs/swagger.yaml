@@ -8,6 +8,15 @@ definitions:
       type:
         type: string
     type: object
+  app.ComputeDTO:
+    properties:
+      flavor:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    type: object
   app.DatasetDTO:
     properties:
       created_at:
@@ -643,6 +652,29 @@ definitions:
   controller.trainingCreateResp:
     properties:
       id:
+        type: string
+    type: object
+  controller.trainingDetail:
+    properties:
+      compute:
+        $ref: '#/definitions/app.ComputeDTO'
+      created_at:
+        type: string
+      desc:
+        type: string
+      duration:
+        type: integer
+      id:
+        type: string
+      is_done:
+        type: boolean
+      log:
+        type: string
+      name:
+        type: string
+      project_id:
+        type: string
+      status:
         type: string
     type: object
   controller.trainingLogResp:
@@ -1808,6 +1840,33 @@ paths:
           schema:
             type: system_error
       summary: Delete
+      tags:
+      - Training
+    get:
+      consumes:
+      - application/json
+      description: get training info
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.trainingDetail'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Get
       tags:
       - Training
     post:
