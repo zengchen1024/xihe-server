@@ -4,9 +4,14 @@ type Config struct {
 	OBS            OBSConfig `json:"obs"              required:"true"`
 	Endpoint       string    `json:"endpoint"         required:"true"`
 	RootToken      string    `json:"root_token"       required:"true"`
-	DefaultBranch  string    `json:"default_branch"   required:"true"`
 	LFSPath        string    `json:"lfs_path"         required:"true"`
+	DefaultBranch  string    `json:"default_branch"`
 	DownloadExpiry int       `json:"download_expiry"`
+}
+
+func (cfg *Config) SetDefault() {
+	cfg.DefaultBranch = "main"
+	cfg.DownloadExpiry = 3600
 }
 
 type OBSConfig struct {

@@ -20,6 +20,11 @@ type trainingLogResp struct {
 	LogURL string `json:"log_url"`
 }
 
+type trainingDetail struct {
+	*app.TrainingDTO
+	Log string `json:"log"`
+}
+
 type TrainingCreateRequest struct {
 	Name string `json:"name"`
 	Desc string `json:"desc"`

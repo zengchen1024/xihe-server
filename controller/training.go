@@ -2,8 +2,11 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -11,6 +14,12 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/domain/training"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return r.Header.Get(headerPrivateToken) != ""
+	},
+}
 
 func AddRouterForTrainingController(
 	rg *gin.RouterGroup,
@@ -25,6 +34,7 @@ func AddRouterForTrainingController(
 		ts: app.NewTrainingService(
 			log, ts, repo, sender, apiConfig.MaxTrainingRecordNum,
 		),
+		train:   ts,
 		model:   model,
 		project: project,
 		dataset: dataset,
@@ -35,8 +45,8 @@ func AddRouterForTrainingController(
 	rg.PUT("/v1/train/project/:pid/training/:id", ctl.Terminate)
 	rg.GET("/v1/train/project/:pid/training", ctl.List)
 	rg.GET("/v1/train/project/:pid/training/:id/log", ctl.GetLogDownloadURL)
+	rg.GET("/v1/train/project/:pid/training/:id", ctl.Get)
 	rg.DELETE("v1/train/project/:pid/training/:id", ctl.Delete)
-	//rg.GET("/v1/project/:pid/training/:id", ctl.Get)
 }
 
 type TrainingController struct {
@@ -44,6 +54,7 @@ type TrainingController struct {
 
 	ts app.TrainingService
 
+	train   training.Training
 	model   repository.Model
 	project repository.Project
 	dataset repository.Dataset
@@ -179,14 +190,13 @@ func (ctl *TrainingController) Terminate(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData("success"))
 }
 
-/*
 // @Summary Get
 // @Description get training info
 // @Tags  Training
 // @Param	pid	path 	string	true	"project id"
 // @Param	id	path	string	true	"training id"
 // @Accept json
-// @Success 200 {object} app.TrainingDTO
+// @Success 200 {object} trainingDetail
 // @Failure 500 system_error        system error
 // @Router /v1/train/project/{pid}/training/{id} [get]
 func (ctl *TrainingController) Get(ctx *gin.Context) {
@@ -202,9 +212,91 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, newResponseData(v))
+	var data trainingDetail
+
+	if v.IsDone {
+		data.TrainingDTO = &v
+
+		ctx.JSON(http.StatusAccepted, newResponseData(data))
+
+		return
+	}
+
+	// setup websocket
+	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	defer ws.Close()
+
+	// send the training
+	data.TrainingDTO = &v
+
+	if log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId); err == nil && len(log) > 0 {
+		data.Log = string(log)
+	}
+
+	if err = ws.WriteJSON(newResponseData(data)); err != nil {
+		return
+	}
+
+	i := 0
+	for {
+		time.Sleep(time.Second)
+
+		if i++; i == 5 {
+			i = 0
+
+			v, err = ctl.ts.Get(&info)
+			if err != nil {
+				break
+			}
+
+			if log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId); err == nil && len(log) > 0 {
+				data.Log = string(log)
+			}
+
+			if err = ws.WriteJSON(newResponseData(data)); err != nil {
+				break
+			}
+
+			if v.IsDone {
+				break
+			}
+		} else {
+			v.Duration++
+
+			if err = ws.WriteJSON(newResponseData(data)); err != nil {
+				break
+			}
+		}
+
+	}
 }
-*/
+
+func (ctl *TrainingController) getTrainingLog(endpoint, jobId string) ([]byte, error) {
+	if endpoint == "" || jobId == "" {
+		return nil, nil
+	}
+
+	s, err := ctl.train.GetLogDownloadURL(endpoint, jobId)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, s, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	cli := utils.NewHttpClient(3)
+	v, _, err := cli.Download(req)
+
+	return v, err
+}
 
 // @Summary List
 // @Description get trainings
@@ -215,19 +307,86 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/train/project/{pid}/training [get]
 func (ctl *TrainingController) List(ctx *gin.Context) {
+
+	finished := func(v []app.TrainingSummaryDTO) (b bool, i int) {
+		for i = range v {
+			if !v[i].IsDone {
+				return
+			}
+		}
+
+		b = true
+
+		return
+	}
+
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	v, err := ctl.ts.List(pl.DomainAccount(), ctx.Param("pid"))
+	pid := ctx.Param("pid")
+
+	// first
+	v, err := ctl.ts.List(pl.DomainAccount(), pid)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(v))
+	done, index := finished(v)
+	if done {
+		ctx.JSON(http.StatusOK, newResponseData(v))
+
+		return
+	}
+	running := &v[index]
+
+	// setup websocket
+	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	defer ws.Close()
+
+	// send the trainings
+	if err = ws.WriteJSON(newResponseData(v)); err != nil {
+		return
+	}
+
+	i := 0
+	for {
+		time.Sleep(time.Second)
+
+		if i++; i == 5 {
+			i = 0
+
+			v, err = ctl.ts.List(pl.DomainAccount(), pid)
+			if err != nil {
+				continue
+			}
+
+			if err = ws.WriteJSON(newResponseData(v)); err != nil {
+				break
+			}
+
+			if done, index := finished(v); done {
+				break
+			} else {
+				running = &v[index]
+			}
+		} else {
+			running.Duration++
+
+			if err = ws.WriteJSON(newResponseData(v)); err != nil {
+				break
+			}
+		}
+	}
 }
 
 // @Summary GetLog
