@@ -6,6 +6,7 @@ require (
 	github.com/Authing/authing-go-sdk v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
+	github.com/gorilla/websocket v1.5.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95
 	github.com/opensourceways/xihe-training-center v0.0.0-20221017023620-f10de5c0fb43
@@ -15,6 +16,6 @@ require (
 	github.com/swaggo/swag v1.8.6
 	github.com/xanzy/go-gitlab v0.73.1
 	go.mongodb.org/mongo-driver v1.10.3
-	k8s.io/apimachinery v0.25.2
+	k8s.io/apimachinery v0.25.3
 	sigs.k8s.io/yaml v1.3.0
 )

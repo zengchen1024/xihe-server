@@ -119,6 +119,14 @@ func (s trainingService) create(
 }
 
 func (s trainingService) List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error) {
+	/*
+		dto := TrainingSummaryDTO{
+			Name: "abc",
+		}
+
+		return []TrainingSummaryDTO{dto}, nil
+	*/
+
 	v, _, err := s.repo.List(user, projectId)
 	if err != nil || len(v) == 0 {
 		return nil, err
@@ -158,17 +166,18 @@ func (s trainingService) Get(info *domain.TrainingInfo) (TrainingDTO, error) {
 		return TrainingDTO{}, err
 	}
 
-	if s.isJobDone(data.JobDetail.Status) || data.Job.JobId == "" {
+	job := &data.Job
+	jd := &data.JobDetail
+
+	if s.isJobDone(jd.Status) || job.JobId == "" {
 		return s.toTrainingDTO(&data), nil
 	}
 
 	detail, err := s.getAndUpdateJobDetail(
-		info,
-		data.Job.Endpoint, data.Job.JobId,
-		data.JobDetail.Status,
+		info, job.Endpoint, job.JobId, jd.Status,
 	)
 	if err == nil {
-		data.JobDetail = detail
+		*jd = detail
 	}
 
 	return s.toTrainingDTO(&data), nil

@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
@@ -11,7 +10,7 @@ import (
 type TrainingCreateCmd struct {
 	User      domain.Account
 	ProjectId string
-	
+
 	domain.TrainingConfig
 }
 
@@ -109,9 +108,12 @@ type TrainingDTO struct {
 
 	IsDone    bool       `json:"is_done"`
 	Status    string     `json:"status"`
-	Duration  string     `json:"duration"`
+	Duration  int        `json:"duration"`
 	CreatedAt string     `json:"created_at"`
 	Compute   ComputeDTO `json:"compute"`
+
+	JobEndpoint string `json:"-"`
+	JobId       string `json:"-"`
 }
 
 type ComputeDTO struct {
@@ -137,13 +139,16 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 		Name:      t.Name.TrainingName(),
 		IsDone:    s.isJobDone(detail.Status),
 		Status:    status,
-		Duration:  strconv.Itoa(detail.Duration),
+		Duration:  detail.Duration,
 		CreatedAt: utils.ToDate(ut.CreatedAt),
 		Compute: ComputeDTO{
 			Type:    c.Type.ComputeType(),
 			Flavor:  c.Flavor.ComputeFlavor(),
 			Version: c.Version.ComputeVersion(),
 		},
+
+		JobEndpoint: ut.Job.Endpoint,
+		JobId:       ut.Job.JobId,
 	}
 
 	if t.Desc != nil {
