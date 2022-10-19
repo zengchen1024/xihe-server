@@ -17,6 +17,7 @@ import (
 
 const (
 	headerPrivateToken = "PRIVATE-TOKEN"
+	headerSecWebsocket = "Sec-Websocket-Protocol"
 
 	roleIndividuals = "individuals"
 )
