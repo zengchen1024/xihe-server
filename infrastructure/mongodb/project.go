@@ -139,10 +139,37 @@ func (col project) GetSummary(owner string, projectId string) (
 	}
 
 	item := &v[0].Items[0]
-	do.Owner = owner
 	do.Id = projectId
 	do.Name = item.Name
+	do.Owner = owner
 	do.RepoId = item.RepoId
+	do.RepoType = item.RepoType
+
+	return
+}
+
+func (col project) GetSummaryByName(owner, name string) (
+	do repositories.ResourceSummaryDO, err error,
+) {
+	var v []dProject
+
+	err = getResourceSummaryByName(col.collectionName, owner, name, &v)
+	if err != nil {
+		return
+	}
+
+	if len(v) == 0 || len(v[0].Items) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
+		return
+	}
+
+	item := &v[0].Items[0]
+	do.Id = item.Id
+	do.Name = name
+	do.Owner = owner
+	do.RepoId = item.RepoId
+	do.RepoType = item.RepoType
 
 	return
 }

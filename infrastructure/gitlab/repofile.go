@@ -58,8 +58,10 @@ func (impl *repoFile) Download(
 		return
 	}
 
-	h := &req.Header
-	h.Add("PRIVATE-TOKEN", u.Token)
+	if u.Token != "" {
+		h := &req.Header
+		h.Add("PRIVATE-TOKEN", u.Token)
+	}
 
 	code := 0
 	data, code, err = impl.cli.Download(req)
@@ -201,7 +203,9 @@ func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []pl
 	}
 
 	h := &req.Header
-	h.Add("Authorization", "Bearer "+u.Token)
+	if u.Token != "" {
+		h.Add("Authorization", "Bearer "+u.Token)
+	}
 	h.Add("Content-Type", "application/json")
 
 	v := graphqlData{}

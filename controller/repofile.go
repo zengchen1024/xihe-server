@@ -55,7 +55,7 @@ type RepoFileController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/file/{path} [post]
+// @Router /v1/repo/{name}/file/{path} [post]
 func (ctl *RepoFileController) Create(ctx *gin.Context) {
 	req := RepoFileCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -105,7 +105,7 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/file/{path} [put]
+// @Router /v1/repo/{name}/file/{path} [put]
 func (ctl *RepoFileController) Update(ctx *gin.Context) {
 	req := RepoFileUpdateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -153,7 +153,7 @@ func (ctl *RepoFileController) Update(ctx *gin.Context) {
 // @Success 204
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/file/{path} [delete]
+// @Router /v1/repo/{name}/file/{path} [delete]
 func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -190,7 +190,7 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 // @Success 200 {object} app.RepoFileDownloadDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/file/{path} [get]
+// @Router /v1/repo/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -228,12 +228,8 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Success 200 {object} app.RepoFilePreviewDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{user}/{name}/{id}/file/{path}/preview [get]
+// @Router /v1/repo/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
-	if !ok {
-		return
-	}
 
 	info, err := ctl.getRepoFileInfo(ctx, pl.DomainAccount())
 	if err != nil {
@@ -319,7 +315,7 @@ func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Acc
 }
 
 func (ctl *RepoFileController) getRepoId(ctx *gin.Context, user domain.Account) (string, error) {
-	name, rid := ctx.Param("name"), ctx.Param("id")
+	name := ctx.Param("name")
 
 	n, err := domain.NewResourceName(name)
 	if err != nil {
@@ -330,13 +326,13 @@ func (ctl *RepoFileController) getRepoId(ctx *gin.Context, user domain.Account) 
 
 	switch n.ResourceType().ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
-		s, err = ctl.model.GetSummary(user, rid)
+		s, err = ctl.model.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeProject.ResourceType():
-		s, err = ctl.project.GetSummary(user, rid)
+		s, err = ctl.project.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeDataset.ResourceType():
-		s, err = ctl.dataset.GetSummary(user, rid)
+		s, err = ctl.dataset.GetSummaryByName(user, name)
 	}
 
 	if err != nil {

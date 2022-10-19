@@ -78,8 +78,9 @@ type ReverselyRelatedResourceInfo struct {
 }
 
 type ResourceSummary struct {
-	Owner  Account
-	Name   ResourceName
-	Id     string
-	RepoId string
+	Owner    Account
+	Name     ResourceName
+	Id       string
+	RepoId   string
+	RepoType RepoType
 }

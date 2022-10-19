@@ -13,7 +13,7 @@ type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
-	GetSummary(string, string) (ResourceSummaryDO, error)
+	GetSummaryByName(string, string) (ResourceSummaryDO, error)
 
 	ListUsersDatasets(map[string][]string) ([]DatasetSummaryDO, error)
 	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
@@ -148,10 +148,10 @@ func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
 	return r, nil
 }
 
-func (impl dataset) GetSummary(owner domain.Account, datasetId string) (
+func (impl dataset) GetSummaryByName(owner domain.Account, name string) (
 	domain.ResourceSummary, error,
 ) {
-	v, err := impl.mapper.GetSummary(owner.Account(), datasetId)
+	v, err := impl.mapper.GetSummaryByName(owner.Account(), name)
 	if err != nil {
 		return domain.ResourceSummary{}, convertError(err)
 	}
