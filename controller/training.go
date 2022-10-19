@@ -416,7 +416,7 @@ func (ctl *TrainingController) checkTokenForWebsocket(ctx *gin.Context) (
 		return
 	}
 
-	ok = ctl.checkApiToken(ctx, token, pl, true)
+	ok = ctl.checkApiToken(ctx, token, &pl, true)
 
 	return
 }
