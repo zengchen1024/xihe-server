@@ -42,8 +42,19 @@ type RepoFileInfo struct {
 	Path   domain.FilePath
 }
 
+type RepoDir struct {
+	RepoName domain.ResourceName
+	Path     domain.Directory
+}
+
+type RepoPathItem struct {
+	Name      string
+	IsDir     bool
+	IsLFSFile bool
+}
+
 type RepoFile interface {
-	List(u *UserInfo, info *RepoFileInfo) error
+	List(u *UserInfo, d *RepoDir) ([]RepoPathItem, error)
 	Create(u *UserInfo, f *RepoFileInfo, content *string) error
 	Update(u *UserInfo, f *RepoFileInfo, content *string) error
 	Delete(u *UserInfo, f *RepoFileInfo) error

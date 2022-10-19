@@ -228,7 +228,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Success 200 {object} app.RepoFilePreviewDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/file/{path}/preview [get]
+// @Router /v1/repo/{user}/{name}/{id}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -253,7 +253,57 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 		return
 	}
 
+	ctx.Data(http.StatusOK, http.DetectContentType(v), v)
+}
+
+// @Summary List
+// @Description list repo file in a path
+// @Tags  RepoFile
+// @Param	name	path 	string			true	"repo name"
+// @Param	id	path 	string			true	"repo id"
+// @Param	path	query 	string			true	"repo file path"
+// @Accept json
+// @Success 200 {object} app.RepoPathItem
+// @Failure 400 bad_request_param   some parameter of body is invalid
+// @Failure 500 system_error        system error
+// @Router /v1/repo/{name}/{id}/files [get]
+func (ctl *RepoFileController) List(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	info, err := ctl.getRepoDir(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	u := pl.PlatformUserInfo()
+
+	v, err := ctl.s.List(&u, &info)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
 	ctx.JSON(http.StatusOK, newResponseData(v))
+}
+
+func (ctl *RepoFileController) getRepoDir(ctx *gin.Context) (
+	info app.RepoDir, err error,
+) {
+	if info.RepoName, err = domain.NewResourceName(ctx.Param("name")); err != nil {
+		return
+	}
+
+	info.Path, err = domain.NewDirectory(ctl.getQueryParameter(ctx, "path"))
+
+	return
 }
 
 func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Account) (
@@ -271,14 +321,14 @@ func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Acc
 func (ctl *RepoFileController) getRepoId(ctx *gin.Context, user domain.Account) (string, error) {
 	name, rid := ctx.Param("name"), ctx.Param("id")
 
-	t, err := domain.ResourceTypeByName(name)
+	n, err := domain.NewResourceName(name)
 	if err != nil {
 		return "", err
 	}
 
 	var s domain.ResourceSummary
 
-	switch t.ResourceType() {
+	switch n.ResourceType().ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
 		s, err = ctl.model.GetSummary(user, rid)
 

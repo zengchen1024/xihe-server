@@ -9,16 +9,25 @@ import (
 )
 
 func ResourceTypeByName(n string) (ResourceType, error) {
+	v, err := NewResourceName(n)
+	if err != nil {
+		return nil, err
+	}
+
+	return v.ResourceType(), err
+}
+
+func NewResourceName(n string) (ResourceName, error) {
 	if strings.HasPrefix(n, resourceProject) {
-		return ResourceTypeProject, nil
+		return NewProjName(n)
 	}
 
 	if strings.HasPrefix(n, resourceDataset) {
-		return ResourceTypeDataset, nil
+		return NewDatasetName(n)
 	}
 
 	if strings.HasPrefix(n, resourceModel) {
-		return ResourceTypeModel, nil
+		return NewModelName(n)
 	}
 
 	return nil, errors.New("unknow resource")

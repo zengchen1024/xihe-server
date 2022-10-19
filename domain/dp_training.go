@@ -6,6 +6,8 @@ import (
 	"regexp"
 )
 
+const rootDirectory = ""
+
 var (
 	reDirectory = regexp.MustCompile("^[a-zA-Z0-9_/-]+$")
 	reFilePath  = regexp.MustCompile("^[a-zA-Z0-9_/.-]+$")
@@ -64,11 +66,12 @@ func (r trainingDesc) TrainingDesc() string {
 // Directory
 type Directory interface {
 	Directory() string
+	IsRootDir() bool
 }
 
 func NewDirectory(v string) (Directory, error) {
 	if v == "" {
-		return nil, errors.New("empty directory")
+		return directory(rootDirectory), nil
 	}
 
 	if !reDirectory.MatchString(v) {
@@ -82,6 +85,10 @@ type directory string
 
 func (r directory) Directory() string {
 	return string(r)
+}
+
+func (r directory) IsRootDir() bool {
+	return string(r) == rootDirectory
 }
 
 // FilePath
