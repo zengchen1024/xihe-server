@@ -119,10 +119,10 @@ func (impl project) GetSummary(owner domain.Account, projectId string) (
 	return v.toProject()
 }
 
-func (impl project) GetSummaryByName(owner domain.Account, name string) (
+func (impl project) GetSummaryByName(owner domain.Account, name domain.ResourceName) (
 	domain.ResourceSummary, error,
 ) {
-	v, err := impl.mapper.GetSummaryByName(owner.Account(), name)
+	v, err := impl.mapper.GetSummaryByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		return domain.ResourceSummary{}, convertError(err)
 	}

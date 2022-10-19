@@ -183,15 +183,10 @@ func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []pl
 	}"
 }
 `
-	dir := ""
-	if !info.Path.IsRootDir() {
-		dir = info.Path.Directory()
-	}
-
 	data := fmt.Sprintf(
 		body,
 		u.User.Account()+"/"+info.RepoName.ResourceName(),
-		defaultBranch, dir,
+		defaultBranch, info.Path.Directory(),
 	)
 
 	data = strings.ReplaceAll(data, "\n", "")

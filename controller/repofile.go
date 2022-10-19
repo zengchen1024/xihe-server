@@ -361,14 +361,12 @@ func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Acc
 func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account) (
 	s domain.ResourceSummary, err error,
 ) {
-	name := ctx.Param("name")
-
-	n, err := domain.NewResourceName(name)
+	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		return
 	}
 
-	switch n.ResourceType().ResourceType() {
+	switch name.ResourceType().ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
 		s, err = ctl.model.GetSummaryByName(user, name)
 

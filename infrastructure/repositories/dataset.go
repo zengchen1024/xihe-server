@@ -148,10 +148,10 @@ func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
 	return r, nil
 }
 
-func (impl dataset) GetSummaryByName(owner domain.Account, name string) (
+func (impl dataset) GetSummaryByName(owner domain.Account, name domain.ResourceName) (
 	domain.ResourceSummary, error,
 ) {
-	v, err := impl.mapper.GetSummaryByName(owner.Account(), name)
+	v, err := impl.mapper.GetSummaryByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		return domain.ResourceSummary{}, convertError(err)
 	}
