@@ -15,12 +15,6 @@ import (
 	"github.com/opensourceways/xihe-server/domain/training"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return r.Header.Get(headerPrivateToken) != ""
-	},
-}
-
 func AddRouterForTrainingController(
 	rg *gin.RouterGroup,
 	ts training.Training,
@@ -200,9 +194,15 @@ func (ctl *TrainingController) Terminate(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/train/project/{pid}/training/{id} [get]
 func (ctl *TrainingController) Get(ctx *gin.Context) {
-	info, ok := ctl.getTrainingInfo(ctx)
+	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
+	}
+
+	info := domain.TrainingInfo{
+		User:       pl.DomainAccount(),
+		ProjectId:  ctx.Param("pid"),
+		TrainingId: ctx.Param("id"),
 	}
 
 	v, err := ctl.ts.Get(&info)
@@ -223,6 +223,13 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 	}
 
 	// setup websocket
+	upgrader := websocket.Upgrader{
+		Subprotocols: []string{token},
+		CheckOrigin: func(r *http.Request) bool {
+			return r.Header.Get(headerSecWebsocket) == token
+		},
+	}
+
 	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -320,7 +327,7 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 		return
 	}
 
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
 	}
@@ -344,6 +351,13 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 	running := &v[index]
 
 	// setup websocket
+	upgrader := websocket.Upgrader{
+		Subprotocols: []string{token},
+		CheckOrigin: func(r *http.Request) bool {
+			return r.Header.Get(headerSecWebsocket) == token
+		},
+	}
+
 	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -387,6 +401,24 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 			}
 		}
 	}
+}
+
+func (ctl *TrainingController) checkTokenForWebsocket(ctx *gin.Context) (
+	pl oldUserTokenPayload, token string, ok bool,
+) {
+	token = ctx.GetHeader(headerSecWebsocket)
+	if token == "" {
+		ctx.JSON(
+			http.StatusBadRequest,
+			newResponseCodeMsg(errorBadRequestHeader, "no token"),
+		)
+
+		return
+	}
+
+	ok = ctl.checkApiToken(ctx, token, pl, true)
+
+	return
 }
 
 // @Summary GetLog
