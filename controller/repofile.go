@@ -27,11 +27,12 @@ func AddRouterForRepoFileController(
 		dataset: dataset,
 	}
 
-	rg.POST("/v1/repo/:name/:id/file/:path", ctl.Create)
-	rg.PUT("/v1/repo/:name/:id/file/:path", ctl.Update)
-	rg.DELETE("/v1/repo/:name/:id/file/:path", ctl.Delete)
-	rg.GET("/v1/repo/:name/:id/file/:path", ctl.Download)
-	rg.GET("/v1/repo/:name/:id/file/:path/preview", ctl.Preview)
+	rg.POST("/v1/repo/:name/file/:path", ctl.Create)
+	rg.PUT("/v1/repo/:name/file/:path", ctl.Update)
+	rg.DELETE("/v1/repo/:name/file/:path", ctl.Delete)
+	rg.GET("/v1/repo/:user/:name/files", ctl.List)
+	rg.GET("/v1/repo/:user/:name/file/:path", ctl.Download)
+	rg.GET("/v1/repo/:user/:name/file/:path/preview", ctl.Preview)
 }
 
 type RepoFileController struct {
@@ -47,7 +48,6 @@ type RepoFileController struct {
 // @Description create repo file
 // @Tags  RepoFile
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	path 	string			true	"repo file path"
 // @Param	body	body 	RepoFileCreateRequest	true	"body of creating repo file"
 // @Accept json
@@ -97,7 +97,6 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 // @Description update repo file
 // @Tags  RepoFile
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	path 	string			true	"repo file path"
 // @Param	body	body 	RepoFileUpdateRequest	true	"body of updating repo file"
 // @Accept json
@@ -147,7 +146,6 @@ func (ctl *RepoFileController) Update(ctx *gin.Context) {
 // @Description Delete repo file
 // @Tags  RepoFile
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	path 	string			true	"repo file path"
 // @Accept json
 // @Success 204
@@ -183,30 +181,32 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 // @Summary Download
 // @Description Download repo file
 // @Tags  RepoFile
+// @Param	user	path 	string			true	"user"
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	path 	string			true	"repo file path"
 // @Accept json
 // @Success 200 {object} app.RepoFileDownloadDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/file/{path} [get]
+// @Router /v1/repo/{user}/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
 
-	info, err := ctl.getRepoFileInfo(ctx, pl.DomainAccount())
-	if err != nil {
+	var err error
+	info := app.RepoFileInfo{
+		RepoId: repoInfo.RepoId,
+	}
+
+	if info.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
 		return
 	}
-
-	u := pl.PlatformUserInfo()
 
 	v, err := ctl.s.Download(&u, &info)
 	if err != nil {
@@ -221,8 +221,8 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Summary Preview
 // @Description preview repo file
 // @Tags  RepoFile
+// @Param	user	path 	string			true	"user"
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	path 	string			true	"repo file path"
 // @Accept json
 // @Success 200 {object} app.RepoFilePreviewDTO
@@ -230,17 +230,23 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
+	u, repoInfo, ok := ctl.checkForView(ctx)
+	if !ok {
+		return
+	}
 
-	info, err := ctl.getRepoFileInfo(ctx, pl.DomainAccount())
-	if err != nil {
+	var err error
+	info := app.RepoFileInfo{
+		RepoId: repoInfo.RepoId,
+	}
+
+	if info.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
 		return
 	}
-
-	u := pl.PlatformUserInfo()
 
 	v, err := ctl.s.Preview(&u, &info)
 	if err != nil {
@@ -255,21 +261,26 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 // @Summary List
 // @Description list repo file in a path
 // @Tags  RepoFile
+// @Param	user	path 	string			true	"user"
 // @Param	name	path 	string			true	"repo name"
-// @Param	id	path 	string			true	"repo id"
 // @Param	path	query 	string			true	"repo file path"
 // @Accept json
 // @Success 200 {object} app.RepoPathItem
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/{id}/files [get]
+// @Router /v1/repo/{user}{name}/files [get]
 func (ctl *RepoFileController) List(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
 
-	info, err := ctl.getRepoDir(ctx)
+	var err error
+	info := app.RepoDir{
+		RepoName: repoInfo.Name,
+	}
+
+	info.Path, err = domain.NewDirectory(ctl.getQueryParameter(ctx, "path"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -277,8 +288,6 @@ func (ctl *RepoFileController) List(ctx *gin.Context) {
 
 		return
 	}
-
-	u := pl.PlatformUserInfo()
 
 	v, err := ctl.s.List(&u, &info)
 	if err != nil {
@@ -290,14 +299,46 @@ func (ctl *RepoFileController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(v))
 }
 
-func (ctl *RepoFileController) getRepoDir(ctx *gin.Context) (
-	info app.RepoDir, err error,
-) {
-	if info.RepoName, err = domain.NewResourceName(ctx.Param("name")); err != nil {
+func (ctl *RepoFileController) checkForView(ctx *gin.Context) (u platform.UserInfo, repoInfo domain.ResourceSummary, ok bool) {
+	user, err := domain.NewAccount(ctx.Param("user"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
 		return
 	}
 
-	info.Path, err = domain.NewDirectory(ctl.getQueryParameter(ctx, "path"))
+	pl, visitor, b := ctl.checkUserApiToken(ctx, true)
+	if !b {
+		return
+	}
+
+	repoInfo, err = ctl.getRepoInfo(ctx, user)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	viewOther := visitor || pl.isNotMe(user)
+
+	if viewOther && repoInfo.IsPrivate() {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access private project",
+		))
+
+		return
+	}
+
+	if viewOther {
+		u.User = user
+	} else {
+		u = pl.PlatformUserInfo()
+	}
+
+	ok = true
 
 	return
 }
@@ -305,24 +346,27 @@ func (ctl *RepoFileController) getRepoDir(ctx *gin.Context) (
 func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Account) (
 	info app.RepoFileInfo, err error,
 ) {
-	if info.RepoId, err = ctl.getRepoId(ctx, user); err != nil {
+	v, err := ctl.getRepoInfo(ctx, user)
+	if err != nil {
 		return
 	}
+
+	info.RepoId = v.RepoId
 
 	info.Path, err = domain.NewFilePath(ctx.Param("path"))
 
 	return
 }
 
-func (ctl *RepoFileController) getRepoId(ctx *gin.Context, user domain.Account) (string, error) {
+func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account) (
+	s domain.ResourceSummary, err error,
+) {
 	name := ctx.Param("name")
 
 	n, err := domain.NewResourceName(name)
 	if err != nil {
-		return "", err
+		return
 	}
-
-	var s domain.ResourceSummary
 
 	switch n.ResourceType().ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
@@ -335,9 +379,5 @@ func (ctl *RepoFileController) getRepoId(ctx *gin.Context, user domain.Account) 
 		s, err = ctl.dataset.GetSummaryByName(user, name)
 	}
 
-	if err != nil {
-		return "", err
-	}
-
-	return s.RepoId, nil
+	return
 }

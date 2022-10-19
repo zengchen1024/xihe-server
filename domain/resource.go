@@ -84,3 +84,7 @@ type ResourceSummary struct {
 	RepoId   string
 	RepoType RepoType
 }
+
+func (s *ResourceSummary) IsPrivate() bool {
+	return s.RepoType.RepoType() == RepoTypePrivate
+}
