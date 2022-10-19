@@ -48,6 +48,7 @@ type Project interface {
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
 	GetSummary(domain.Account, string) (domain.ResourceSummary, error)
+	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)
 
 	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
 

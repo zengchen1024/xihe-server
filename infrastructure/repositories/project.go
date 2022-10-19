@@ -12,6 +12,7 @@ type ProjectMapper interface {
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 	GetSummary(string, string) (ResourceSummaryDO, error)
+	GetSummaryByName(string, string) (ResourceSummaryDO, error)
 
 	ListUsersProjects(map[string][]string) ([]ProjectSummaryDO, error)
 
@@ -111,6 +112,17 @@ func (impl project) GetSummary(owner domain.Account, projectId string) (
 	domain.ResourceSummary, error,
 ) {
 	v, err := impl.mapper.GetSummary(owner.Account(), projectId)
+	if err != nil {
+		return domain.ResourceSummary{}, convertError(err)
+	}
+
+	return v.toProject()
+}
+
+func (impl project) GetSummaryByName(owner domain.Account, name domain.ResourceName) (
+	domain.ResourceSummary, error,
+) {
+	v, err := impl.mapper.GetSummaryByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		return domain.ResourceSummary{}, convertError(err)
 	}

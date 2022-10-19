@@ -14,8 +14,9 @@ var (
 	admin     *administrator
 	obsHelper *obsService
 
-	endpoint      string
-	defaultBranch string
+	endpoint         string
+	defaultBranch    string
+	graphql_endpoint string
 )
 
 func NewUserSerivce() platform.User {
@@ -38,6 +39,7 @@ func Init(cfg *Config) error {
 	admin = &administrator{v}
 	endpoint = strings.TrimSuffix(cfg.Endpoint, "/")
 	defaultBranch = cfg.DefaultBranch
+	graphql_endpoint = strings.TrimSuffix(cfg.GraphqlEndpoint, "/")
 
 	return nil
 }

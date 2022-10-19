@@ -190,9 +190,13 @@ definitions:
       download_url:
         type: string
     type: object
-  app.RepoFilePreviewDTO:
+  app.RepoPathItem:
     properties:
-      content:
+      isDir:
+        type: boolean
+      isLFSFile:
+        type: boolean
+      name:
         type: string
     type: object
   app.ResourceDTO:
@@ -1545,7 +1549,7 @@ paths:
       summary: Get
       tags:
       - Project
-  /v1/repo/{name}/{id}/file/{path}:
+  /v1/repo/{name}/file/{path}:
     delete:
       consumes:
       - application/json
@@ -1554,11 +1558,6 @@ paths:
       - description: repo name
         in: path
         name: name
-        required: true
-        type: string
-      - description: repo id
-        in: path
-        name: id
         required: true
         type: string
       - description: repo file path
@@ -1580,42 +1579,6 @@ paths:
       summary: Delete
       tags:
       - RepoFile
-    get:
-      consumes:
-      - application/json
-      description: Download repo file
-      parameters:
-      - description: repo name
-        in: path
-        name: name
-        required: true
-        type: string
-      - description: repo id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: repo file path
-        in: path
-        name: path
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.RepoFileDownloadDTO'
-        "400":
-          description: Bad Request
-          schema:
-            type: bad_request_param
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Download
-      tags:
-      - RepoFile
     post:
       consumes:
       - application/json
@@ -1624,11 +1587,6 @@ paths:
       - description: repo name
         in: path
         name: name
-        required: true
-        type: string
-      - description: repo id
-        in: path
-        name: id
         required: true
         type: string
       - description: repo file path
@@ -1670,11 +1628,6 @@ paths:
         name: name
         required: true
         type: string
-      - description: repo id
-        in: path
-        name: id
-        required: true
-        type: string
       - description: repo file path
         in: path
         name: path
@@ -1704,20 +1657,20 @@ paths:
       summary: Update
       tags:
       - RepoFile
-  /v1/repo/{name}/{id}/file/{path}/preview:
+  /v1/repo/{user}/{name}/file/{path}:
     get:
       consumes:
       - application/json
-      description: preview repo file
+      description: Download repo file
       parameters:
+      - description: user
+        in: path
+        name: user
+        required: true
+        type: string
       - description: repo name
         in: path
         name: name
-        required: true
-        type: string
-      - description: repo id
-        in: path
-        name: id
         required: true
         type: string
       - description: repo file path
@@ -1729,7 +1682,42 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.RepoFilePreviewDTO'
+            $ref: '#/definitions/app.RepoFileDownloadDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Download
+      tags:
+      - RepoFile
+  /v1/repo/{user}/{name}/file/{path}/preview:
+    get:
+      consumes:
+      - application/json
+      description: preview repo file
+      parameters:
+      - description: user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: repo name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: repo file path
+        in: path
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -1739,6 +1727,43 @@ paths:
           schema:
             type: system_error
       summary: Preview
+      tags:
+      - RepoFile
+  /v1/repo/{user}{name}/files:
+    get:
+      consumes:
+      - application/json
+      description: list repo file in a path
+      parameters:
+      - description: user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: repo name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: repo file path
+        in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.RepoPathItem'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
       tags:
       - RepoFile
   /v1/tags/{type}:

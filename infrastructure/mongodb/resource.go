@@ -133,8 +133,27 @@ func getResourceSummary(collection, owner, rId string, result interface{}) error
 			resourceOwnerFilter(owner),
 			resourceIdFilter(rId),
 			bson.M{
-				subfieldOfItems(fieldName):   1,
-				subfieldOfItems(fieldRepoId): 1,
+				subfieldOfItems(fieldName):     1,
+				subfieldOfItems(fieldRepoId):   1,
+				subfieldOfItems(fieldRepoType): 1,
+			},
+			result,
+		)
+	}
+
+	return withContext(f)
+}
+
+func getResourceSummaryByName(collection, owner, name string, result interface{}) error {
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(owner),
+			resourceNameFilter(name),
+			bson.M{
+				subfieldOfItems(fieldId):       1,
+				subfieldOfItems(fieldRepoId):   1,
+				subfieldOfItems(fieldRepoType): 1,
 			},
 			result,
 		)

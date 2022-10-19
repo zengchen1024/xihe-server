@@ -121,12 +121,12 @@ func (col model) GetByName(owner, name string) (do repositories.ModelDO, err err
 	return
 }
 
-func (col model) GetSummary(owner string, modelId string) (
+func (col model) GetSummaryByName(owner, name string) (
 	do repositories.ResourceSummaryDO, err error,
 ) {
 	var v []dModel
 
-	err = getResourceSummary(col.collectionName, owner, modelId, &v)
+	err = getResourceSummaryByName(col.collectionName, owner, name, &v)
 	if err != nil {
 		return
 	}
@@ -138,10 +138,11 @@ func (col model) GetSummary(owner string, modelId string) (
 	}
 
 	item := &v[0].Items[0]
+	do.Id = item.Id
+	do.Name = name
 	do.Owner = owner
-	do.Id = modelId
-	do.Name = item.Name
 	do.RepoId = item.RepoId
+	do.RepoType = item.RepoType
 
 	return
 }

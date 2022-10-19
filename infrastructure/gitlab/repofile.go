@@ -58,8 +58,10 @@ func (impl *repoFile) Download(
 		return
 	}
 
-	h := &req.Header
-	h.Add("PRIVATE-TOKEN", u.Token)
+	if u.Token != "" {
+		h := &req.Header
+		h.Add("PRIVATE-TOKEN", u.Token)
+	}
 
 	code := 0
 	data, code, err = impl.cli.Download(req)
@@ -163,6 +165,50 @@ func (impl *repoFile) modify(
 	return err
 }
 
-func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoFileInfo) error {
-	return nil
+func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []platform.RepoPathItem, err error) {
+	body := `
+{
+	"query":"query {
+		project(fullPath: \"%s\") {
+			repository {
+				tree(ref: \"%s\", path: \"%s\") {
+					blobs {
+						nodes {
+							name type lfsOid
+						}
+					}
+				}
+			}
+		}
+	}"
+}
+`
+	data := fmt.Sprintf(
+		body,
+		u.User.Account()+"/"+info.RepoName.ResourceName(),
+		defaultBranch, info.Path.Directory(),
+	)
+
+	data = strings.ReplaceAll(data, "\n", "")
+	data = strings.ReplaceAll(data, "\t", "")
+
+	req, err := http.NewRequest(http.MethodPost, graphql_endpoint, strings.NewReader(data))
+	if err != nil {
+		return
+	}
+
+	h := &req.Header
+	if u.Token != "" {
+		h.Add("Authorization", "Bearer "+u.Token)
+	}
+	h.Add("Content-Type", "application/json")
+
+	v := graphqlData{}
+	if _, err = impl.cli.ForwardTo(req, &v); err != nil {
+		return
+	}
+
+	r = v.toRepoPathItems()
+
+	return
 }

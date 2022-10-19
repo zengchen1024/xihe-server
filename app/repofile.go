@@ -8,14 +8,17 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 )
 
+type RepoDir = platform.RepoDir
 type UserInfo = platform.UserInfo
 type RepoFileInfo = platform.RepoFileInfo
+type RepoPathItem = platform.RepoPathItem
 
 type RepoFileService interface {
+	List(u *UserInfo, d *RepoDir) ([]RepoPathItem, error)
 	Create(*UserInfo, *RepoFileCreateCmd) error
 	Update(*UserInfo, *RepoFileUpdateCmd) error
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
-	Preview(*UserInfo, *RepoFilePreviewCmd) (RepoFilePreviewDTO, error)
+	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 }
 
@@ -31,6 +34,7 @@ type repoFileService struct {
 	sender message.Sender
 }
 
+type RepoFileListCmd = RepoDir
 type RepoFileDeleteCmd = RepoFileInfo
 type RepoFilePreviewCmd = RepoFileInfo
 type RepoFileDownloadCmd = RepoFileInfo
@@ -96,9 +100,9 @@ func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 }
 
 func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd) (
-	dto RepoFilePreviewDTO, err error,
+	content []byte, err error,
 ) {
-	data, notFound, err := s.rf.Download(u, cmd)
+	content, notFound, err := s.rf.Download(u, cmd)
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}
@@ -107,9 +111,7 @@ func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd)
 		return
 	}
 
-	if isLFS, _ := s.rf.IsLFSFile(data); !isLFS {
-		dto.Content = base64.StdEncoding.EncodeToString(data)
-	} else {
+	if isLFS, _ := s.rf.IsLFSFile(content); isLFS {
 		err = ErrorPreviewLFSFile{
 			errors.New("can't preview the lfs file, download it"),
 		}
@@ -118,11 +120,11 @@ func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd)
 	return
 }
 
+func (s *repoFileService) List(u *UserInfo, d *RepoFileListCmd) ([]RepoPathItem, error) {
+	return s.rf.List(u, d)
+}
+
 type RepoFileDownloadDTO struct {
 	Content     string `json:"content"`
 	DownloadURL string `json:"download_url"`
-}
-
-type RepoFilePreviewDTO struct {
-	Content string `json:"content"`
 }

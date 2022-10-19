@@ -121,12 +121,12 @@ func (col dataset) GetByName(owner, name string) (do repositories.DatasetDO, err
 	return
 }
 
-func (col dataset) GetSummary(owner string, datasetId string) (
+func (col dataset) GetSummaryByName(owner, name string) (
 	do repositories.ResourceSummaryDO, err error,
 ) {
 	var v []dDataset
 
-	err = getResourceSummary(col.collectionName, owner, datasetId, &v)
+	err = getResourceSummaryByName(col.collectionName, owner, name, &v)
 	if err != nil {
 		return
 	}
@@ -138,10 +138,11 @@ func (col dataset) GetSummary(owner string, datasetId string) (
 	}
 
 	item := &v[0].Items[0]
+	do.Id = item.Id
+	do.Name = name
 	do.Owner = owner
-	do.Id = datasetId
-	do.Name = item.Name
 	do.RepoId = item.RepoId
+	do.RepoType = item.RepoType
 
 	return
 }

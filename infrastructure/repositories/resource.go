@@ -107,10 +107,11 @@ type ReverselyRelatedResourceInfoDO struct {
 }
 
 type ResourceSummaryDO struct {
-	Owner  string
-	Name   string
-	Id     string
-	RepoId string
+	Owner    string
+	Name     string
+	Id       string
+	RepoId   string
+	RepoType string
 }
 
 func (do *ResourceSummaryDO) toProject() (s domain.ResourceSummary, err error) {
@@ -145,6 +146,10 @@ func (do *ResourceSummaryDO) toDataset() (s domain.ResourceSummary, err error) {
 
 func (do *ResourceSummaryDO) convert(s *domain.ResourceSummary) (err error) {
 	if s.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	if s.RepoType, err = domain.NewRepoType(do.RepoType); err != nil {
 		return
 	}
 
