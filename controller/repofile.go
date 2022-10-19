@@ -225,7 +225,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Param	name	path 	string			true	"repo name"
 // @Param	path	path 	string			true	"repo file path"
 // @Accept json
-// @Success 200 {object} app.RepoFilePreviewDTO
+// @Success 200
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{user}/{name}/file/{path}/preview [get]

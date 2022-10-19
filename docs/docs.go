@@ -1175,60 +1175,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{name}/{id}/file/{path}": {
-            "get": {
-                "description": "Download repo file",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "RepoFile"
-                ],
-                "summary": "Download",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "repo name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "repo id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "repo file path",
-                        "name": "path",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.RepoFileDownloadDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "bad_request_param"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
+        "/v1/repo/{name}/file/{path}": {
             "put": {
                 "description": "update repo file",
                 "consumes": [
@@ -1243,13 +1190,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "repo name",
                         "name": "name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "repo id",
-                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1313,13 +1253,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "repo id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "repo file path",
                         "name": "path",
                         "in": "path",
@@ -1378,13 +1311,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "repo id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "repo file path",
                         "name": "path",
                         "in": "path",
@@ -1410,28 +1336,28 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{name}/{id}/file/{path}/preview": {
+        "/v1/repo/{user}/{name}/file/{path}": {
             "get": {
-                "description": "preview repo file",
+                "description": "Download repo file",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "RepoFile"
                 ],
-                "summary": "Preview",
+                "summary": "Download",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "repo name",
-                        "name": "name",
+                        "description": "user",
+                        "name": "user",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "repo id",
-                        "name": "id",
+                        "description": "repo name",
+                        "name": "name",
                         "in": "path",
                         "required": true
                     },
@@ -1447,7 +1373,114 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.RepoFilePreviewDTO"
+                            "$ref": "#/definitions/app.RepoFileDownloadDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repo/{user}/{name}/file/{path}/preview": {
+            "get": {
+                "description": "preview repo file",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RepoFile"
+                ],
+                "summary": "Preview",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo file path",
+                        "name": "path",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repo/{user}{name}/files": {
+            "get": {
+                "description": "list repo file in a path",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RepoFile"
+                ],
+                "summary": "List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo file path",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.RepoPathItem"
                         }
                     },
                     "400": {
@@ -2629,10 +2662,16 @@ const docTemplate = `{
                 }
             }
         },
-        "app.RepoFilePreviewDTO": {
+        "app.RepoPathItem": {
             "type": "object",
             "properties": {
-                "content": {
+                "isDir": {
+                    "type": "boolean"
+                },
+                "isLFSFile": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }
