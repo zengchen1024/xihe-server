@@ -205,23 +205,6 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 		TrainingId: ctx.Param("id"),
 	}
 
-	v, err := ctl.ts.Get(&info)
-	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
-	}
-
-	var data trainingDetail
-
-	if v.IsDone {
-		data.TrainingDTO = &v
-
-		ctx.JSON(http.StatusAccepted, newResponseData(data))
-
-		return
-	}
-
 	// setup websocket
 	upgrader := websocket.Upgrader{
 		Subprotocols: []string{token},
@@ -239,21 +222,15 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 
 	defer ws.Close()
 
-	// send the training
-	data.TrainingDTO = &v
+	// start loop
+	var v app.TrainingDTO
 
-	if log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId); err == nil && len(log) > 0 {
-		data.Log = string(log)
+	data := &trainingDetail{
+		TrainingDTO: &v,
 	}
 
-	if err = ws.WriteJSON(newResponseData(data)); err != nil {
-		return
-	}
-
-	i := 0
+	i := 4
 	for {
-		time.Sleep(time.Second)
-
 		if i++; i == 5 {
 			i = 0
 
@@ -281,6 +258,7 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 			}
 		}
 
+		time.Sleep(time.Second)
 	}
 }
 
@@ -334,22 +312,6 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 
 	pid := ctx.Param("pid")
 
-	// first
-	v, err := ctl.ts.List(pl.DomainAccount(), pid)
-	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
-	}
-
-	done, index := finished(v)
-	if done {
-		ctx.JSON(http.StatusOK, newResponseData(v))
-
-		return
-	}
-	running := &v[index]
-
 	// setup websocket
 	upgrader := websocket.Upgrader{
 		Subprotocols: []string{token},
@@ -367,21 +329,18 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 
 	defer ws.Close()
 
-	// send the trainings
-	if err = ws.WriteJSON(newResponseData(v)); err != nil {
-		return
-	}
+	// start loop
+	var v []app.TrainingSummaryDTO
+	var running *app.TrainingSummaryDTO
 
-	i := 0
+	i := 4
 	for {
-		time.Sleep(time.Second)
-
 		if i++; i == 5 {
 			i = 0
 
 			v, err = ctl.ts.List(pl.DomainAccount(), pid)
 			if err != nil {
-				continue
+				break
 			}
 
 			if err = ws.WriteJSON(newResponseData(v)); err != nil {
@@ -400,6 +359,8 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 				break
 			}
 		}
+
+		time.Sleep(time.Second)
 	}
 }
 
