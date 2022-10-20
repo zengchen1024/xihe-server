@@ -42,21 +42,27 @@ type RepoFileInfo struct {
 	Path   domain.FilePath
 }
 
+type RepoFileContent struct {
+	Content   *string
+	IsEncoded bool
+}
+
 type RepoDir struct {
 	RepoName domain.ResourceName
 	Path     domain.Directory
 }
 
 type RepoPathItem struct {
-	Name      string
-	IsDir     bool
-	IsLFSFile bool
+	Path      string `json:"path"`
+	Name      string `json:"name"`
+	IsDir     bool   `json:"is_dir"`
+	IsLFSFile bool   `json:"is_lfs_file"`
 }
 
 type RepoFile interface {
 	List(u *UserInfo, d *RepoDir) ([]RepoPathItem, error)
-	Create(u *UserInfo, f *RepoFileInfo, content *string) error
-	Update(u *UserInfo, f *RepoFileInfo, content *string) error
+	Create(u *UserInfo, f *RepoFileInfo, content *RepoFileContent) error
+	Update(u *UserInfo, f *RepoFileInfo, content *RepoFileContent) error
 	Delete(u *UserInfo, f *RepoFileInfo) error
 	Download(u *UserInfo, f *RepoFileInfo) (data []byte, notFound bool, err error)
 	IsLFSFile(data []byte) (is bool, sha string)

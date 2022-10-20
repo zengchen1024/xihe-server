@@ -192,11 +192,13 @@ definitions:
     type: object
   app.RepoPathItem:
     properties:
-      isDir:
+      is_dir:
         type: boolean
-      isLFSFile:
+      is_lfs_file:
         type: boolean
       name:
+        type: string
+      path:
         type: string
     type: object
   app.ResourceDTO:
@@ -279,11 +281,15 @@ definitions:
     type: object
   controller.RepoFileCreateRequest:
     properties:
+      base64_encoded:
+        type: boolean
       content:
         type: string
     type: object
   controller.RepoFileUpdateRequest:
     properties:
+      base64_encoded:
+        type: boolean
       content:
         type: string
     type: object

@@ -12,6 +12,7 @@ type RepoDir = platform.RepoDir
 type UserInfo = platform.UserInfo
 type RepoFileInfo = platform.RepoFileInfo
 type RepoPathItem = platform.RepoPathItem
+type RepoFileContent = platform.RepoFileContent
 
 type RepoFileService interface {
 	List(u *UserInfo, d *RepoDir) ([]RepoPathItem, error)
@@ -42,13 +43,13 @@ type RepoFileDownloadCmd = RepoFileInfo
 type RepoFileCreateCmd struct {
 	RepoFileInfo
 
-	Content *string
+	RepoFileContent
 }
 
 type RepoFileUpdateCmd = RepoFileCreateCmd
 
 func (s *repoFileService) Create(u *platform.UserInfo, cmd *RepoFileCreateCmd) error {
-	return s.rf.Create(u, &cmd.RepoFileInfo, cmd.Content)
+	return s.rf.Create(u, &cmd.RepoFileInfo, &cmd.RepoFileContent)
 }
 
 func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) error {
@@ -63,7 +64,7 @@ func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) e
 		}
 	}
 
-	return s.rf.Update(u, &cmd.RepoFileInfo, cmd.Content)
+	return s.rf.Update(u, &cmd.RepoFileInfo, &cmd.RepoFileContent)
 }
 
 func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) error {

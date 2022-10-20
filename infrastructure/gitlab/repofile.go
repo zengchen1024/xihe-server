@@ -26,11 +26,17 @@ type repoFile struct {
 	cli utils.HttpClient
 }
 
-func (impl *repoFile) Create(u *platform.UserInfo, info *platform.RepoFileInfo, content *string) error {
+func (impl *repoFile) Create(
+	u *platform.UserInfo, info *platform.RepoFileInfo,
+	content *platform.RepoFileContent,
+) error {
 	return impl.modify(u, info, http.MethodPost, "create", content)
 }
 
-func (impl *repoFile) Update(u *platform.UserInfo, info *platform.RepoFileInfo, content *string) error {
+func (impl *repoFile) Update(
+	u *platform.UserInfo, info *platform.RepoFileInfo,
+	content *platform.RepoFileContent,
+) error {
 	return impl.modify(u, info, http.MethodPut, "update", content)
 }
 
@@ -148,11 +154,14 @@ func (impl *repoFile) toCommitInfo(u *platform.UserInfo, commitMsg string) Commi
 
 func (impl *repoFile) modify(
 	u *platform.UserInfo, info *platform.RepoFileInfo,
-	method, action string, content *string,
+	method, action string, content *platform.RepoFileContent,
 ) error {
 	opt := FileCreateOption{
 		CommitInfo: impl.toCommitInfo(u, action+" file: "+info.Path.FilePath()),
-		Content:    *content,
+		Content:    *content.Content,
+	}
+	if content.IsEncoded {
+		opt.Encoding = "base64"
 	}
 
 	req, err := impl.newRequest(u.Token, info, method, &opt)
@@ -174,7 +183,12 @@ func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []pl
 				tree(ref: \"%s\", path: \"%s\") {
 					blobs {
 						nodes {
-							name type lfsOid
+							name path lfsOid
+						}
+					},
+					trees {
+						nodes {
+							name path
 						}
 					}
 				}

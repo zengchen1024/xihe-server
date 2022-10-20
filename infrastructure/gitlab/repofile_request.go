@@ -12,7 +12,8 @@ type CommitInfo struct {
 type FileCreateOption struct {
 	CommitInfo
 
-	Content string `json:"content"          required:"true"`
+	Content  string `json:"content" required:"true"`
+	Encoding string `json:"encoding,omitempty"`
 }
 
 type graphqlData struct {
@@ -33,6 +34,7 @@ type graphqlTree struct {
 
 type graphqlBlobs struct {
 	Blobs graphqlNodes `json:"blobs"`
+	Trees graphqlNodes `json:"trees"`
 }
 
 type graphqlNodes struct {
@@ -40,21 +42,45 @@ type graphqlNodes struct {
 }
 
 type graphqlNode struct {
+	Path   string `json:"path"`
 	Name   string `json:"name"`
-	Type   string `json:"type"`
 	LFSOid string `json:"lfsOid"`
 }
 
 func (d *graphqlData) toRepoPathItems() (r []platform.RepoPathItem) {
-	v := d.Data.Project.Repo.Tree.Blobs.Nodes
+	files := d.Data.Project.Repo.Tree.Blobs.Nodes
+	dirs := d.Data.Project.Repo.Tree.Trees.Nodes
 
-	r = make([]platform.RepoPathItem, len(v))
+	total := len(files) + len(dirs)
+	if total == 0 {
+		return
+	}
 
-	for i := range v {
+	r = make([]platform.RepoPathItem, total)
+
+	for i := range files {
+		item := &files[i]
+
 		r[i] = platform.RepoPathItem{
-			Name:      v[i].Name,
-			IsDir:     v[i].Type == "tree",
-			IsLFSFile: v[i].LFSOid != "",
+			Path:      item.Path,
+			Name:      item.Name,
+			IsLFSFile: item.LFSOid != "",
+		}
+	}
+
+	if len(dirs) == 0 {
+		return
+	}
+
+	v := r[len(files):]
+
+	for i := range dirs {
+		item := &dirs[i]
+
+		v[i] = platform.RepoPathItem{
+			Path:  item.Path,
+			Name:  item.Name,
+			IsDir: true,
 		}
 	}
 
