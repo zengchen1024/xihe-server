@@ -152,6 +152,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 	}
 
+	engine.UseRawPath = true
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 

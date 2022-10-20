@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,6 +65,8 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 		return
 	}
 
+	fmt.Println("path = ", ctx.Param("path"))
+
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
@@ -79,8 +82,8 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 	}
 
 	cmd := app.RepoFileCreateCmd{
-		RepoFileInfo: info,
-		Content:      &req.Content,
+		RepoFileInfo:    info,
+		RepoFileContent: req.toContent(),
 	}
 	u := pl.PlatformUserInfo()
 
@@ -128,8 +131,8 @@ func (ctl *RepoFileController) Update(ctx *gin.Context) {
 	}
 
 	cmd := app.RepoFileUpdateCmd{
-		RepoFileInfo: info,
-		Content:      &req.Content,
+		RepoFileInfo:    info,
+		RepoFileContent: req.toContent(),
 	}
 	u := pl.PlatformUserInfo()
 

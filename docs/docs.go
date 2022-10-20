@@ -2665,13 +2665,16 @@ const docTemplate = `{
         "app.RepoPathItem": {
             "type": "object",
             "properties": {
-                "isDir": {
+                "is_dir": {
                     "type": "boolean"
                 },
-                "isLFSFile": {
+                "is_lfs_file": {
                     "type": "boolean"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 }
             }
@@ -2799,6 +2802,9 @@ const docTemplate = `{
         "controller.RepoFileCreateRequest": {
             "type": "object",
             "properties": {
+                "base64_encoded": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 }
@@ -2807,6 +2813,9 @@ const docTemplate = `{
         "controller.RepoFileUpdateRequest": {
             "type": "object",
             "properties": {
+                "base64_encoded": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 }

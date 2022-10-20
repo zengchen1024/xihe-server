@@ -24,19 +24,21 @@ func NewUserSerivce() platform.User {
 }
 
 func Init(cfg *Config) error {
-	v, err := sdk.NewClient(cfg.RootToken, sdk.WithBaseURL(cfg.Endpoint))
-	if err != nil {
-		return err
-	}
+	/*
+		v, err := sdk.NewClient(cfg.RootToken, sdk.WithBaseURL(cfg.Endpoint))
+		if err != nil {
+			return err
+		}
 
-	s, err := initOBS(cfg)
-	if err != nil {
-		return err
-	}
+		s, err := initOBS(cfg)
+		if err != nil {
+			return err
+		}
 
-	obsHelper = &s
+		obsHelper = &s
 
-	admin = &administrator{v}
+		admin = &administrator{v}
+	*/
 	endpoint = strings.TrimSuffix(cfg.Endpoint, "/")
 	defaultBranch = cfg.DefaultBranch
 	graphql_endpoint = strings.TrimSuffix(cfg.GraphqlEndpoint, "/")
