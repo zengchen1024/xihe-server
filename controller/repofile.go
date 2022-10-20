@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,8 +63,6 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 
 		return
 	}
-
-	fmt.Println("path = ", ctx.Param("path"))
 
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
