@@ -12,7 +12,7 @@ type CommitInfo struct {
 type FileCreateOption struct {
 	CommitInfo
 
-	Content  string `json:"content" required:"true"`
+	Content  string `json:"content"`
 	Encoding string `json:"encoding,omitempty"`
 }
 
