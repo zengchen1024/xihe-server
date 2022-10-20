@@ -307,10 +307,14 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
+		log.Errorf("check token failed before updating ws")
+
 		return
 	}
 
 	pid := ctx.Param("pid")
+
+	log.Infof("list training, token=%s, pid=%s", token, pid)
 
 	// setup websocket
 	upgrader := websocket.Upgrader{
@@ -322,6 +326,8 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 
 	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
+		log.Errorf("update ws failed, err:%s", err.Error())
+
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -369,6 +375,8 @@ func (ctl *TrainingController) checkTokenForWebsocket(ctx *gin.Context) (
 ) {
 	token = ctx.GetHeader(headerSecWebsocket)
 	if token == "" {
+		log.Errorf("check token for ws, no token")
+
 		ctx.JSON(
 			http.StatusBadRequest,
 			newResponseCodeMsg(errorBadRequestHeader, "no token"),
