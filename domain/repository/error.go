@@ -29,3 +29,9 @@ func IsErrorResourceNotExists(err error) bool {
 
 	return ok
 }
+
+func IsErrorDuplicateCreating(err error) bool {
+	_, ok := err.(ErrorDuplicateCreating)
+
+	return ok
+}

@@ -16,29 +16,39 @@ type FileCreateOption struct {
 	Encoding string `json:"encoding,omitempty"`
 }
 
+type graphqlResult struct {
+	Data graphqlData `json:"data"`
+}
+
 type graphqlData struct {
-	Data graphqlProject `json:"data"`
+	Project graphqlProject `json:"project"`
 }
 
 type graphqlProject struct {
-	Project graphqlRepo `json:"project"`
+	Repo graphqlRepo `json:"repository"`
 }
 
 type graphqlRepo struct {
-	Repo graphqlTree `json:"repository"`
+	Tree  graphqlTree  `json:"tree"`
+	Blobs graphqlBlobs `json:"blobs"`
 }
 
 type graphqlTree struct {
-	Tree graphqlBlobs `json:"tree"`
+	Blobs      graphqlBlobs  `json:"blobs"`
+	Trees      graphqlTrees  `json:"trees"`
+	LastCommit graphqlCommit `json:"lastCommit"`
 }
 
 type graphqlBlobs struct {
-	Blobs graphqlNodes `json:"blobs"`
-	Trees graphqlNodes `json:"trees"`
+	Nodes []graphqlNode `json:"nodes"`
 }
 
-type graphqlNodes struct {
+type graphqlTrees struct {
 	Nodes []graphqlNode `json:"nodes"`
+}
+
+type graphqlCommit struct {
+	SHA string `json:"sha"`
 }
 
 type graphqlNode struct {
@@ -47,7 +57,7 @@ type graphqlNode struct {
 	LFSOid string `json:"lfsOid"`
 }
 
-func (d *graphqlData) toRepoPathItems() (r []platform.RepoPathItem) {
+func (d *graphqlResult) toRepoPathItems() (r []platform.RepoPathItem) {
 	files := d.Data.Project.Repo.Tree.Blobs.Nodes
 	dirs := d.Data.Project.Repo.Tree.Trees.Nodes
 
