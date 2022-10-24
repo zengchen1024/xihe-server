@@ -10,6 +10,8 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+type InferenceInfo = domain.InferenceInfo
+
 type InferenceCreateCmd struct {
 	ProjectId     string
 	ProjectName   domain.ProjName
@@ -18,20 +20,15 @@ type InferenceCreateCmd struct {
 
 	InferenceDir domain.Directory
 	BootFile     domain.FilePath
-	ModelRef     domain.ResourceRef
 }
 
 func (cmd *InferenceCreateCmd) Validate() error {
-	m := &cmd.ModelRef
 	b := cmd.ProjectId == "" ||
 		cmd.ProjectName == nil ||
 		cmd.ProjectOwner == nil ||
 		cmd.ProjectRepoId == "" ||
 		cmd.InferenceDir == nil ||
-		cmd.BootFile == nil ||
-		m.User == nil ||
-		m.RepoId == "" ||
-		m.File == ""
+		cmd.BootFile == nil
 
 	if b {
 		return errors.New("invalid cmd")
@@ -41,29 +38,46 @@ func (cmd *InferenceCreateCmd) Validate() error {
 }
 
 func (cmd *InferenceCreateCmd) toInference(v *domain.Infereance, lastCommit string) {
-	v.ModelRef = cmd.ModelRef
 	v.ProjectId = cmd.ProjectId
 	v.LastCommit = lastCommit
 	v.ProjectOwner = cmd.ProjectOwner
 	v.ProjectRepoId = cmd.ProjectRepoId
 }
 
+type InferenceService interface {
+	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, error)
+	Get(info *domain.InferenceInfo) (InferenceDTO, error)
+}
+
+func NewInferenceService(
+	p platform.RepoFile,
+	repo repository.Inference,
+	sender message.Sender,
+	minExpiryForInference int64,
+) InferenceService {
+	return inferenceService{
+		p:                     p,
+		repo:                  repo,
+		sender:                sender,
+		minExpiryForInference: minExpiryForInference,
+	}
+}
+
 type inferenceService struct {
-	p      platform.RepoFile
-	repo   repository.Inference
-	sender message.Sender
+	p                     platform.RepoFile
+	repo                  repository.Inference
+	sender                message.Sender
+	minExpiryForInference int64
 }
 
 type InferenceDTO struct {
-	Error     string `json:"error"`
-	AccessURL string `json:"access_url"`
-
-	currentInstanceId  string `json:"-"`
-	CreatingInstanceId string `json:"-"`
+	Error      string
+	AccessURL  string
+	InstanceId string
 }
 
 func (dto *InferenceDTO) hasResult() bool {
-	return dto.currentInstanceId != "" || dto.CreatingInstanceId != ""
+	return dto.InstanceId != ""
 }
 
 func (dto *InferenceDTO) canReuseCurrent() bool {
@@ -98,8 +112,9 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 	if err != nil || dto.hasResult() {
 		if dto.canReuseCurrent() {
 			err = s.sender.ExtendExpiry(&domain.InferenceInfo{
-				Id:             dto.currentInstanceId,
-				InferenceIndex: index,
+				Id:           dto.InstanceId,
+				ProjectId:    index.ProjectId,
+				ProjectOwner: index.ProjectOwner,
 			})
 		}
 
@@ -109,10 +124,11 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 	v := new(domain.Infereance)
 	cmd.toInference(v, sha)
 
-	if dto.CreatingInstanceId, err = s.repo.Save(v, version); err == nil {
+	if dto.InstanceId, err = s.repo.Save(v, version); err == nil {
 		err = s.sender.CreateInference(&domain.InferenceInfo{
-			Id:             dto.CreatingInstanceId,
-			InferenceIndex: index,
+			Id:           dto.InstanceId,
+			ProjectId:    index.ProjectId,
+			ProjectOwner: index.ProjectOwner,
 		})
 
 		return
@@ -121,6 +137,16 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 	if repository.IsErrorDuplicateCreating(err) {
 		dto, _, err = s.check(&index)
 	}
+
+	return
+}
+
+func (s inferenceService) Get(info *domain.InferenceInfo) (dto InferenceDTO, err error) {
+	v, err := s.repo.FindInstance(info)
+
+	dto.Error = v.Error
+	dto.AccessURL = v.AccessURL
+	dto.InstanceId = info.Id
 
 	return
 }
@@ -140,13 +166,13 @@ func (s inferenceService) check(index *domain.InferenceIndex) (
 
 		if item.Error != "" {
 			dto.Error = item.Error
-			dto.currentInstanceId = item.Id
+			dto.InstanceId = item.Id
 
 			return
 		}
 
-		if item.IsCreating() {
-			dto.CreatingInstanceId = item.Id
+		if item.Expiry == 0 && item.AccessURL == "" {
+			dto.InstanceId = item.Id
 
 			return
 		}
@@ -160,9 +186,10 @@ func (s inferenceService) check(index *domain.InferenceIndex) (
 		return
 	}
 
-	if e, n := target.Expiry, utils.Now(); n < e && n+3600 < e {
+	e, n := target.Expiry, utils.Now()
+	if n < e && n+s.minExpiryForInference <= e {
 		dto.AccessURL = target.AccessURL
-		dto.currentInstanceId = target.Id
+		dto.InstanceId = target.Id
 	}
 
 	return

@@ -262,7 +262,6 @@ func (impl *repoFile) GetDirFileInfo(u *platform.UserInfo, info *platform.RepoDi
 
 	data = strings.ReplaceAll(data, "\n", "")
 	data = strings.ReplaceAll(data, "\t", "")
-	fmt.Println(data)
 
 	req, err := http.NewRequest(http.MethodPost, graphql_endpoint, strings.NewReader(data))
 	if err != nil {

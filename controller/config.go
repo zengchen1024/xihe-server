@@ -33,6 +33,7 @@ type APIConfig struct {
 	EncryptionKey            string `json:"encryption_key"              required:"true"`
 	DefaultPassword          string `json:"default_password"            required:"true"`
 	MaxTrainingRecordNum     int    `json:"max_training_record_num"     required:"true"`
+	MinExpiryForInference    int    `json:"min_expiry_for_inference"    required:"true"`
 	MaxPictureSizeToDescribe int64  `json:"-"`
 	MaxPictureSizeToVQA      int64  `json:"-"`
 }

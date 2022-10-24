@@ -5,6 +5,7 @@ type Infereance struct {
 
 	InferenceIndex
 
+	ProjectName   ProjName
 	ProjectRepoId string
 
 	ModelRef ResourceRef
@@ -20,9 +21,9 @@ type InferenceIndex struct {
 }
 
 type InferenceInfo struct {
-	Id string
-
-	InferenceIndex
+	Id           string
+	ProjectId    string
+	ProjectOwner Account
 }
 
 type InferenceDetail struct {
@@ -34,8 +35,4 @@ type InferenceDetail struct {
 
 	// AccessURL stores the url to access the inference service.
 	AccessURL string
-}
-
-func (d *InferenceDetail) IsCreating() bool {
-	return d.Expiry == 0 && d.Error == "" && d.AccessURL == ""
 }
