@@ -59,5 +59,5 @@ type TrainingHandler interface {
 
 type InferenceHandler interface {
 	HandleEventCreateInference(*domain.InferenceInfo) error
-	HandleEventExtendExpiry(*domain.InferenceInfo) error
+	HandleEventExtendInferenceExpiry(*domain.InferenceInfo) error
 }

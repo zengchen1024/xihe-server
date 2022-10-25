@@ -69,6 +69,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// inference
+	s, err = registerHandlerForInference(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
 	// register end
 	if len(subscribers) == 0 {
 		return nil
@@ -251,5 +260,48 @@ func registerHandlerForTraining(handler interface{}) (mq.Subscriber, error) {
 		v.TrainingId = body.TrainingId
 
 		return h.HandleEventCreateTraining(&v)
+	})
+}
+
+func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.InferenceHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Inference, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgInference{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		v := domain.InferenceInfo{}
+
+		if v.ProjectOwner, err = domain.NewAccount(body.ProjectOwner); err != nil {
+			return
+		}
+
+		if v.ProjectName, err = domain.NewProjName(body.ProjectName); err != nil {
+			return
+		}
+
+		v.Id = body.InferenceId
+		v.ProjectId = body.ProjectId
+		v.LastCommit = body.LastCommit
+
+		switch body.Action {
+		case actionCreate:
+			return h.HandleEventCreateInference(&v)
+
+		case actionExtend:
+			return h.HandleEventExtendInferenceExpiry(&v)
+		}
+
+		return nil
 	})
 }

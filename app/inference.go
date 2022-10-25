@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/inference"
 	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -45,27 +46,36 @@ func (cmd *InferenceCreateCmd) toInference(v *domain.Inference, lastCommit strin
 type InferenceService interface {
 	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, string, error)
 	Get(info *InferenceIndex) (InferenceDTO, error)
+
+	CreateInferenceInstance(*domain.InferenceInfo) error
+	ExtendExpiryForInstance(*domain.InferenceInfo) error
 }
 
 func NewInferenceService(
 	p platform.RepoFile,
 	repo repository.Inference,
 	sender message.Sender,
+	manager inference.Inference,
 	minExpiryForInference int64,
+	survivalTimeForInstance int64,
 ) InferenceService {
 	return inferenceService{
-		p:                     p,
-		repo:                  repo,
-		sender:                sender,
-		minExpiryForInference: minExpiryForInference,
+		p:                       p,
+		repo:                    repo,
+		sender:                  sender,
+		manager:                 manager,
+		minExpiryForInference:   minExpiryForInference,
+		survivalTimeForInstance: survivalTimeForInstance,
 	}
 }
 
 type inferenceService struct {
-	p                     platform.RepoFile
-	repo                  repository.Inference
-	sender                message.Sender
-	minExpiryForInference int64
+	p                       platform.RepoFile
+	repo                    repository.Inference
+	sender                  message.Sender
+	manager                 inference.Inference
+	minExpiryForInference   int64
+	survivalTimeForInstance int64
 }
 
 type InferenceDTO struct {
@@ -183,4 +193,12 @@ func (s inferenceService) check(instance *domain.Inference) (
 	}
 
 	return
+}
+
+func (s inferenceService) CreateInferenceInstance(info *domain.InferenceInfo) error {
+	return s.manager.Create(info)
+}
+
+func (s inferenceService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
+	return s.manager.ExtendExpiry(info, utils.Now()+s.survivalTimeForInstance)
 }

@@ -23,7 +23,7 @@ func AddRouterForInferenceController(
 ) {
 	ctl := InferenceController{
 		s: app.NewInferenceService(
-			p, repo, sender, int64(apiConfig.MinExpiryForInference),
+			p, repo, sender, nil, int64(apiConfig.MinExpiryForInference), 0,
 		),
 		rs:      app.NewRepoFileService(p, nil),
 		project: project,
