@@ -17,6 +17,7 @@ type Topics struct {
 	Fork            string `json:"fork"             required:"true"`
 	Training        string `json:"training"         required:"true"`
 	Following       string `json:"following"        required:"true"`
+	Inference       string `json:"inference"        required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
 
@@ -84,15 +85,26 @@ func (s sender) CreateTraining(info *domain.TrainingInfo) error {
 	return s.send(topics.Training, &v)
 }
 
-func (s sender) send(topic string, v interface{}) error {
-	body, err := json.Marshal(v)
-	if err != nil {
-		return err
+// Inference
+func (s sender) CreateInference(info *domain.InferenceInfo) error {
+	return s.sendInference(info, actionCreate)
+}
+
+func (s sender) ExtendInferenceExpiry(info *domain.InferenceInfo) error {
+	return s.sendInference(info, actionExtend)
+}
+
+func (s sender) sendInference(info *domain.InferenceInfo, action string) error {
+	v := msgInference{
+		Action:       action,
+		ProjectId:    info.ProjectId,
+		LastCommit:   info.LastCommit,
+		ProjectName:  info.ProjectName.ProjName(),
+		ProjectOwner: info.ProjectOwner.Account(),
+		InferenceId:  info.Id,
 	}
 
-	return kafka.Publish(topic, &mq.Message{
-		Body: body,
-	})
+	return s.send(topics.Inference, &v)
 }
 
 // RelatedResource
@@ -112,4 +124,16 @@ func (s sender) sendRelatedResource(msg *message.RelatedResource, action string)
 	}
 
 	return s.send(topics.RelatedResource, &v)
+}
+
+// send
+func (s sender) send(topic string, v interface{}) error {
+	body, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	return kafka.Publish(topic, &mq.Message{
+		Body: body,
+	})
 }

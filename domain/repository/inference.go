@@ -11,9 +11,9 @@ type InferenceSummary struct {
 }
 
 type Inference interface {
-	Save(*domain.Infereance, int) (string, error)
-	UpdateExpiry(string, int64) error
-	UpdateDetail(string, *domain.InferenceDetail) error
-	FindInstance(*domain.InferenceInfo) (InferenceSummary, error)
-	FindInstances(*domain.InferenceIndex) ([]InferenceSummary, int, error)
+	Save(*domain.Inference, int) (string, error)
+	UpdateExpiry(*domain.InferenceIndex, int64) error
+	UpdateDetail(*domain.InferenceIndex, *domain.InferenceDetail) error
+	FindInstance(*domain.InferenceIndex) (InferenceSummary, error)
+	FindInstances(index *domain.ResourceIndex, lastCommit string) ([]InferenceSummary, int, error)
 }

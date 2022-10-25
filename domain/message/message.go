@@ -19,7 +19,7 @@ type Sender interface {
 	CreateTraining(*domain.TrainingInfo) error
 
 	CreateInference(*domain.InferenceInfo) error
-	ExtendExpiry(*domain.InferenceInfo) error
+	ExtendInferenceExpiry(*domain.InferenceInfo) error
 }
 
 type EventHandler interface {

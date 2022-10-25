@@ -24,7 +24,6 @@ type Config struct {
 	MaxDescLength         int `json:"max_desc_length"`
 	MaxNicknameLength     int `json:"max_nickname_length"`
 	MaxRelatedResourceNum int `json:"max_related_resource_num"`
-	MinExpiryForInference int `json:"min_expiry_for_inference"`
 
 	Covers           []string `json:"covers"            required:"true"`
 	Protocols        []string `json:"protocols"         required:"true"`
@@ -51,10 +50,6 @@ func (cfg *Config) SetDefault() {
 
 	if cfg.MaxRelatedResourceNum <= 0 {
 		cfg.MaxRelatedResourceNum = 5
-	}
-
-	if cfg.MinExpiryForInference <= 0 {
-		cfg.MinExpiryForInference = 3600
 	}
 
 	if cfg.MaxNicknameLength == 0 {

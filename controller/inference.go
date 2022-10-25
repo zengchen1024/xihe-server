@@ -18,7 +18,6 @@ func AddRouterForInferenceController(
 	rg *gin.RouterGroup,
 	p platform.RepoFile,
 	repo repository.Inference,
-	model repository.Model,
 	project repository.Project,
 	sender message.Sender,
 ) {
@@ -26,9 +25,12 @@ func AddRouterForInferenceController(
 		s: app.NewInferenceService(
 			p, repo, sender, int64(apiConfig.MinExpiryForInference),
 		),
-		model:   model,
+		rs:      app.NewRepoFileService(p, nil),
 		project: project,
 	}
+
+	ctl.inferenceDir, _ = domain.NewDirectory(apiConfig.InferenceDir)
+	ctl.inferenceBootFile, _ = domain.NewFilePath(apiConfig.InferenceBootFile)
 
 	rg.POST("/v1/inference/project/:owner/:pid", ctl.Create)
 }
@@ -39,14 +41,10 @@ type InferenceController struct {
 	s  app.InferenceService
 	rs app.RepoFileService
 
-	p platform.RepoFile
-
-	model   repository.Model
 	project repository.Project
 
 	inferenceDir      domain.Directory
 	inferenceBootFile domain.FilePath
-	inferenceConfig   domain.FilePath
 }
 
 // @Summary Create
@@ -61,14 +59,26 @@ type InferenceController struct {
 // @Failure 500 system_error        system error
 // @Router /v1/inference/project/{owner}/{pid} [post]
 func (ctl *InferenceController) Create(ctx *gin.Context) {
+	pl := oldUserTokenPayload{}
 	token := ctx.GetHeader(headerSecWebsocket)
+	visitor := true
+
+	if token != "" {
+		visitor = false
+
+		if ok := ctl.checkApiToken(ctx, token, &pl, false); !ok {
+			return
+		}
+	}
 
 	// setup websocket
-	upgrader := websocket.Upgrader{
-		Subprotocols: []string{token},
-		CheckOrigin: func(r *http.Request) bool {
+	upgrader := websocket.Upgrader{}
+
+	if token != "" {
+		upgrader.Subprotocols = []string{token}
+		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return r.Header.Get(headerSecWebsocket) == token
-		},
+		}
 	}
 
 	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
@@ -102,19 +112,13 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO
-	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
-	if !ok {
-		return
-	}
-
 	viewOther := visitor || pl.isNotMe(owner)
 
 	if viewOther && v.IsPrivate() {
 		ws.WriteJSON(
 			newResponseCodeMsg(
 				errorNotAllowed,
-				"can't inference private project",
+				"project is not found",
 			),
 		)
 
@@ -129,15 +133,14 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	}
 
 	cmd := app.InferenceCreateCmd{
-		ProjectId:     v.Id,
-		ProjectName:   v.Name.(domain.ProjName),
-		ProjectOwner:  owner,
-		ProjectRepoId: v.RepoId,
-		InferenceDir:  ctl.inferenceDir,
-		BootFile:      ctl.inferenceBootFile,
+		ProjectId:    v.Id,
+		ProjectName:  v.Name.(domain.ProjName),
+		ProjectOwner: owner,
+		InferenceDir: ctl.inferenceDir,
+		BootFile:     ctl.inferenceBootFile,
 	}
 
-	dto, err := ctl.s.Create(&u, &cmd)
+	dto, lastCommit, err := ctl.s.Create(&u, &cmd)
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
 
@@ -162,13 +165,14 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 
 	time.Sleep(10 * time.Second)
 
-	info := app.InferenceInfo{
-		Id:           dto.InstanceId,
-		ProjectOwner: owner,
-		ProjectId:    projectId,
+	info := app.InferenceIndex{
+		Id:         dto.InstanceId,
+		LastCommit: lastCommit,
 	}
+	info.Project.Id = projectId
+	info.Project.Owner = owner
 
-	for i := 0; i < 300; i++ {
+	for i := 0; i < apiConfig.InferenceTimeout; i++ {
 		dto, err = ctl.s.Get(&info)
 		if err != nil {
 			ws.WriteJSON(
@@ -195,8 +199,9 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 
 			return
 		}
+
+		time.Sleep(time.Second)
 	}
 
 	ws.WriteJSON(newResponseCodeMsg(errorSystemError, "timeout"))
-
 }

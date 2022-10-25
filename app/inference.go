@@ -10,13 +10,12 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
-type InferenceInfo = domain.InferenceInfo
+type InferenceIndex = domain.InferenceIndex
 
 type InferenceCreateCmd struct {
-	ProjectId     string
-	ProjectName   domain.ProjName
-	ProjectOwner  domain.Account
-	ProjectRepoId string
+	ProjectId    string
+	ProjectName  domain.ProjName
+	ProjectOwner domain.Account
 
 	InferenceDir domain.Directory
 	BootFile     domain.FilePath
@@ -26,7 +25,6 @@ func (cmd *InferenceCreateCmd) Validate() error {
 	b := cmd.ProjectId == "" ||
 		cmd.ProjectName == nil ||
 		cmd.ProjectOwner == nil ||
-		cmd.ProjectRepoId == "" ||
 		cmd.InferenceDir == nil ||
 		cmd.BootFile == nil
 
@@ -37,16 +35,16 @@ func (cmd *InferenceCreateCmd) Validate() error {
 	return nil
 }
 
-func (cmd *InferenceCreateCmd) toInference(v *domain.Infereance, lastCommit string) {
+func (cmd *InferenceCreateCmd) toInference(v *domain.Inference, lastCommit string) {
 	v.ProjectId = cmd.ProjectId
 	v.LastCommit = lastCommit
+	v.ProjectName = cmd.ProjectName
 	v.ProjectOwner = cmd.ProjectOwner
-	v.ProjectRepoId = cmd.ProjectRepoId
 }
 
 type InferenceService interface {
-	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, error)
-	Get(info *domain.InferenceInfo) (InferenceDTO, error)
+	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, string, error)
+	Get(info *InferenceIndex) (InferenceDTO, error)
 }
 
 func NewInferenceService(
@@ -85,7 +83,7 @@ func (dto *InferenceDTO) canReuseCurrent() bool {
 }
 
 func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
-	dto InferenceDTO, err error,
+	dto InferenceDTO, sha string, err error,
 ) {
 	sha, b, err := s.p.GetDirFileInfo(u, &platform.RepoDirFile{
 		RepoName: cmd.ProjectName,
@@ -102,59 +100,51 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 		}
 	}
 
-	index := domain.InferenceIndex{
-		ProjectId:    cmd.ProjectId,
-		LastCommit:   sha,
-		ProjectOwner: cmd.ProjectOwner,
-	}
+	instance := new(domain.Inference)
+	cmd.toInference(instance, sha)
 
-	dto, version, err := s.check(&index)
+	dto, version, err := s.check(instance)
 	if err != nil || dto.hasResult() {
 		if dto.canReuseCurrent() {
-			err = s.sender.ExtendExpiry(&domain.InferenceInfo{
-				Id:           dto.InstanceId,
-				ProjectId:    index.ProjectId,
-				ProjectOwner: index.ProjectOwner,
-			})
+			instance.Id = dto.InstanceId
+			err = s.sender.ExtendInferenceExpiry(&instance.InferenceInfo)
 		}
 
 		return
 	}
 
-	v := new(domain.Infereance)
-	cmd.toInference(v, sha)
-
-	if dto.InstanceId, err = s.repo.Save(v, version); err == nil {
-		err = s.sender.CreateInference(&domain.InferenceInfo{
-			Id:           dto.InstanceId,
-			ProjectId:    index.ProjectId,
-			ProjectOwner: index.ProjectOwner,
-		})
+	if dto.InstanceId, err = s.repo.Save(instance, version); err == nil {
+		instance.Id = dto.InstanceId
+		err = s.sender.CreateInference(&instance.InferenceInfo)
 
 		return
 	}
 
 	if repository.IsErrorDuplicateCreating(err) {
-		dto, _, err = s.check(&index)
+		dto, _, err = s.check(instance)
 	}
 
 	return
 }
 
-func (s inferenceService) Get(info *domain.InferenceInfo) (dto InferenceDTO, err error) {
-	v, err := s.repo.FindInstance(info)
+func (s inferenceService) Get(index *InferenceIndex) (dto InferenceDTO, err error) {
+	v, err := s.repo.FindInstance(index)
 
 	dto.Error = v.Error
 	dto.AccessURL = v.AccessURL
-	dto.InstanceId = info.Id
+	dto.InstanceId = v.Id
 
 	return
 }
 
-func (s inferenceService) check(index *domain.InferenceIndex) (
+func (s inferenceService) check(instance *domain.Inference) (
 	dto InferenceDTO, version int, err error,
 ) {
-	v, version, err := s.repo.FindInstances(index)
+	index := domain.ResourceIndex{
+		Owner: instance.ProjectOwner,
+		Id:    instance.ProjectId,
+	}
+	v, version, err := s.repo.FindInstances(&index, instance.LastCommit)
 	if err != nil || len(v) == 0 {
 		return
 	}

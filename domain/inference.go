@@ -1,28 +1,18 @@
 package domain
 
-type Infereance struct {
-	Id string
-
-	InferenceIndex
-
-	ProjectName   ProjName
-	ProjectRepoId string
-
-	ModelRef ResourceRef
+type Inference struct {
+	InferenceInfo
 
 	// following fileds is not under the controlling of version
 	InferenceDetail
 }
 
-type InferenceIndex struct {
+type InferenceInfo struct {
+	Id string
+
 	ProjectId    string
 	LastCommit   string
-	ProjectOwner Account
-}
-
-type InferenceInfo struct {
-	Id           string
-	ProjectId    string
+	ProjectName  ProjName
 	ProjectOwner Account
 }
 
@@ -35,4 +25,10 @@ type InferenceDetail struct {
 
 	// AccessURL stores the url to access the inference service.
 	AccessURL string
+}
+
+type InferenceIndex struct {
+	Project    ResourceIndex
+	Id         string
+	LastCommit string
 }
