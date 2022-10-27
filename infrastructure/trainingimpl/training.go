@@ -2,6 +2,7 @@ package trainingimpl
 
 import (
 	"github.com/opensourceways/xihe-training-center/sdk"
+	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -37,6 +38,11 @@ func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *dom
 		Inputs:         impl.toInput(t.Inputs),
 		Hypeparameters: impl.toKeyValue(t.Hypeparameters),
 	}
+
+	logrus.Debugf(
+		"create job, endpoint:%s, user:%s, opt:%#v",
+		endpoint, user.Account(), opt,
+	)
 
 	if t.Desc != nil {
 		opt.Desc = t.Desc.TrainingDesc()
