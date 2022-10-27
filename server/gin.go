@@ -85,8 +85,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		),
 	)
 
-	training := repositories.NewTraningRepository(
-		mongodb.NewTraningMapper(
+	training := repositories.NewTrainingRepository(
+		mongodb.NewTrainingMapper(
 			cfg.Mongodb.TrainingCollection,
 		),
 	)

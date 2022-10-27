@@ -1612,6 +1612,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/train/project/{pid}/training/ws": {
+            "get": {
+                "description": "get trainings",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Training"
+                ],
+                "summary": "List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.TrainingSummaryDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/train/project/{pid}/training/{id}": {
             "get": {
                 "description": "get training info",
