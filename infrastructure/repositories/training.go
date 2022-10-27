@@ -18,7 +18,7 @@ type TrainingMapper interface {
 	UpdateJobDetail(*TrainingInfoDO, *TrainingJobDetailDO) error
 }
 
-func NewTraningRepository(mapper TrainingMapper) repository.Training {
+func NewTrainingRepository(mapper TrainingMapper) repository.Training {
 	return training{mapper}
 }
 
