@@ -21,7 +21,8 @@ import (
 )
 
 type options struct {
-	service liboptions.ServiceOptions
+	service     liboptions.ServiceOptions
+	enableDebug bool
 }
 
 func (o *options) Validate() error {
@@ -32,6 +33,11 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 	var o options
 
 	o.service.AddFlags(fs)
+
+	fs.BoolVar(
+		&o.enableDebug, "enable_debug", false,
+		"whether to enable debug model.",
+	)
 
 	fs.Parse(args)
 	return o
@@ -47,6 +53,11 @@ func main() {
 	)
 	if err := o.Validate(); err != nil {
 		logrus.Fatalf("Invalid options, err:%s", err.Error())
+	}
+
+	if o.enableDebug {
+		logrus.SetLevel(logrus.DebugLevel)
+		logrus.Debug("debug enabled.")
 	}
 
 	// cfg
