@@ -25,7 +25,7 @@ type TrainingService interface {
 	Delete(info *domain.TrainingInfo) error
 	Terminate(info *domain.TrainingInfo) error
 	GetLogDownloadURL(info *domain.TrainingInfo) (string, error)
-	CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error
+	CreateTrainingJob(info *domain.TrainingInfo, endpoint string) (bool, error)
 }
 
 func NewTrainingService(
@@ -236,34 +236,43 @@ func (s trainingService) GetLogDownloadURL(info *domain.TrainingInfo) (string, e
 	return "", nil
 }
 
-func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint string) error {
+func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint string) (retry bool, err error) {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		if repository.IsErrorResourceNotExists(err) {
-			return errorUnavailableTraining{
-				fmt.Errorf(
-					"training(%s/%s/%s) is not exist.",
-					info.User.Account(), info.ProjectId, info.TrainingId,
-				),
+			err = errorUnavailableTraining{
+				errors.New("training is not exist."),
 			}
+		} else {
+			retry = true
 		}
 
-		return err
+		return
 	}
 
 	if data.Job.JobId != "" {
-		return nil
+		return false, nil
 	}
 
 	v, err := s.train.CreateJob(endpoint, info.User, &data.TrainingConfig)
 	if err != nil {
-		return s.repo.UpdateJobDetail(
+		retry = true
+
+		err1 := s.repo.UpdateJobDetail(
 			info,
 			&domain.JobDetail{
 				Status: trainingStatusScheduleFailed,
 			},
 		)
+		if err1 != nil {
+			err = fmt.Errorf(
+				"create training job err:%s, save db err:%s",
+				err.Error(), err1.Error(),
+			)
+		}
+	} else {
+		err = s.repo.SaveJob(info, &v)
 	}
 
-	return s.repo.SaveJob(info, &v)
+	return
 }
