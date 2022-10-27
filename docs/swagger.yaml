@@ -1988,6 +1988,29 @@ paths:
       summary: GetLog
       tags:
       - Training
+  /v1/train/project/{pid}/training/ws:
+    get:
+      consumes:
+      - application/json
+      description: get trainings
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.TrainingSummaryDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Training
   /v1/user:
     get:
       consumes:

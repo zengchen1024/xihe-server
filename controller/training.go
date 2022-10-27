@@ -38,6 +38,7 @@ func AddRouterForTrainingController(
 	rg.POST("/v1/train/project/:pid/training/:id", ctl.Recreate)
 	rg.PUT("/v1/train/project/:pid/training/:id", ctl.Terminate)
 	rg.GET("/v1/train/project/:pid/training", ctl.List)
+	rg.GET("/v1/train/project/:pid/training/ws", ctl.ListByWS)
 	rg.GET("/v1/train/project/:pid/training/:id/log", ctl.GetLogDownloadURL)
 	rg.GET("/v1/train/project/:pid/training/:id", ctl.Get)
 	rg.DELETE("v1/train/project/:pid/training/:id", ctl.Delete)
@@ -292,6 +293,30 @@ func (ctl *TrainingController) getTrainingLog(endpoint, jobId string) ([]byte, e
 // @Failure 500 system_error        system error
 // @Router /v1/train/project/{pid}/training [get]
 func (ctl *TrainingController) List(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	v, err := ctl.ts.List(pl.DomainAccount(), ctx.Param("pid"))
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(v))
+}
+
+// @Summary List
+// @Description get trainings
+// @Tags  Training
+// @Param	pid	path 	string	true	"project id"
+// @Accept json
+// @Success 200 {object} app.TrainingSummaryDTO
+// @Failure 500 system_error        system error
+// @Router /v1/train/project/{pid}/training/ws [get]
+func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 
 	finished := func(v []app.TrainingSummaryDTO) (b bool, i int) {
 		for i = range v {
