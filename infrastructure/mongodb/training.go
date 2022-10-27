@@ -8,7 +8,7 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func NewTraningMapper(name string) repositories.TrainingMapper {
+func NewTrainingMapper(name string) repositories.TrainingMapper {
 	return training{name}
 }
 

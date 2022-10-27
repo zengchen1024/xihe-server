@@ -17,6 +17,7 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
 )
 
 type options struct {
@@ -111,6 +112,15 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
 			),
 			nil, nil, nil, nil, nil,
+		),
+
+		training: app.NewTrainingService(
+			log,
+			trainingimpl.NewTraining(&trainingimpl.Config{}),
+			repositories.NewTrainingRepository(
+				mongodb.NewTrainingMapper(cfg.Mongodb.TrainingCollection),
+			),
+			nil, 0,
 		),
 	}
 }
