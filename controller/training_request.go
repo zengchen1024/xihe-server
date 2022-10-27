@@ -33,7 +33,7 @@ type TrainingCreateRequest struct {
 	BootFile string `json:"boot_file"`
 
 	Hypeparameters []KeyValue    `json:"hyperparameter"`
-	Env            []KeyValue    `json:"evn"`
+	Env            []KeyValue    `json:"env"`
 	Models         []TrainingRef `json:"models"`
 	Datasets       []TrainingRef `json:"datasets"`
 
@@ -255,15 +255,6 @@ func (ctl *TrainingController) setModelsInput(
 
 		return
 	}
-	if len(v) != len(p) {
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
-				errors.New("some models does not exist"),
-			))
-
-			return
-		}
-	}
 
 	ids := map[string]string{}
 	for i := range v {
@@ -275,7 +266,13 @@ func (ctl *TrainingController) setModelsInput(
 	for i := range inputs {
 		v := &tinputs[i]
 
-		v.RepoId = ids[index(v.User, inputs[i].Name)]
+		if v.RepoId, ok = ids[index(v.User, inputs[i].Name)]; !ok {
+			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
+				errors.New("can't find repo id"),
+			))
+
+			return
+		}
 	}
 
 	cmd.Inputs = append(cmd.Inputs, tinputs...)
@@ -328,15 +325,6 @@ func (ctl *TrainingController) setDatasetsInput(
 
 		return
 	}
-	if len(v) != len(p) {
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
-				errors.New("some datasets does not exist"),
-			))
-
-			return
-		}
-	}
 
 	ids := map[string]string{}
 	for i := range v {
@@ -348,7 +336,13 @@ func (ctl *TrainingController) setDatasetsInput(
 	for i := range inputs {
 		v := &tinputs[i]
 
-		v.RepoId = ids[index(v.User, inputs[i].Name)]
+		if v.RepoId, ok = ids[index(v.User, inputs[i].Name)]; !ok {
+			ctx.JSON(http.StatusBadRequest, respBadRequestParam(
+				errors.New("can't find repo id"),
+			))
+
+			return
+		}
 	}
 
 	cmd.Inputs = append(cmd.Inputs, tinputs...)

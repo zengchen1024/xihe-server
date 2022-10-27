@@ -85,6 +85,7 @@ func (ctl *TrainingController) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
+
 		return
 	}
 
@@ -97,6 +98,14 @@ func (ctl *TrainingController) Create(ctx *gin.Context) {
 	}
 
 	if !ctl.setDatasetsInput(ctx, cmd, req.Datasets) {
+		return
+	}
+
+	if err := cmd.Validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
 		return
 	}
 
