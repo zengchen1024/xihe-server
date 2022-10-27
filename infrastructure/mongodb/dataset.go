@@ -202,10 +202,11 @@ func (col dataset) ListSummary(opts map[string][]string) (
 			item := &items[j]
 
 			dos[j] = repositories.ResourceSummaryDO{
-				Id:     item.Id,
-				Name:   item.Name,
-				Owner:  owner,
-				RepoId: item.RepoId,
+				Id:       item.Id,
+				Name:     item.Name,
+				Owner:    owner,
+				RepoId:   item.RepoId,
+				RepoType: item.RepoType,
 			}
 		}
 

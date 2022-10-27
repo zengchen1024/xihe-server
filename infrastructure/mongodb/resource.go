@@ -360,10 +360,11 @@ func listUsersResourcesSummary(collection string, opts map[string][]string, resu
 				},
 			},
 			bson.M{
-				fieldOwner:                   1,
-				subfieldOfItems(fieldId):     1,
-				subfieldOfItems(fieldName):   1,
-				subfieldOfItems(fieldRepoId): 1,
+				fieldOwner:                     1,
+				subfieldOfItems(fieldId):       1,
+				subfieldOfItems(fieldName):     1,
+				subfieldOfItems(fieldRepoId):   1,
+				subfieldOfItems(fieldRepoType): 1,
 			}, result,
 		)
 	}
