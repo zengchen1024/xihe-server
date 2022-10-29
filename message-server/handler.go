@@ -187,6 +187,9 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 }
 
 func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
+	// wait for the sync of model and dataset
+	time.Sleep(10 * time.Second)
+
 	return h.do(func(lastChance bool) error {
 		retry, err := h.training.CreateTrainingJob(
 			info, h.trainingEndpoint, lastChance,
