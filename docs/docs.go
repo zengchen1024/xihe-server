@@ -2877,7 +2877,7 @@ const docTemplate = `{
                 "desc": {
                     "type": "string"
                 },
-                "evn": {
+                "env": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.KeyValue"

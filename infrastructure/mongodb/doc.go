@@ -263,11 +263,15 @@ type dInput struct {
 type dJobInfo struct {
 	Endpoint  string `bson:"endpoint"    json:"endpoint"`
 	JobId     string `bson:"job_id"      json:"job_id"`
-	LogDir    string `bson:"log_dir"     json:"log_dir"`
-	OutputDir string `bson:"output_dir"  json:"output_dir"`
+	LogDir    string `bson:"log"         json:"log"`
+	AimDir    string `bson:"aim"         json:"aim"`
+	OutputDir string `bson:"output"      json:"output"`
 }
 
 type dJobDetail struct {
-	Status   string `bson:"status"       json:"status"`
-	Duration int    `bson:"duration"     json:"duration"`
+	Duration   int    `bson:"duration"   json:"duration,omitempty"`
+	Status     string `bson:"status"     json:"status,omitempty"`
+	LogPath    string `bson:"log"        json:"log,omitempty"`
+	AimPath    string `bson:"aim"        json:"aim,omitempty"`
+	OutputPath string `bson:"output"     json:"output,omitempty"`
 }

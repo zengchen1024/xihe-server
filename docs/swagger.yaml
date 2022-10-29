@@ -307,7 +307,7 @@ definitions:
         type: array
       desc:
         type: string
-      evn:
+      env:
         items:
           $ref: '#/definitions/controller.KeyValue'
         type: array

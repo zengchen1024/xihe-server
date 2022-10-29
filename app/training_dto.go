@@ -78,12 +78,14 @@ type TrainingSummaryDTO struct {
 }
 
 func (s trainingService) toTrainingSummaryDTO(
-	t *domain.TrainingSummary, dto *TrainingSummaryDTO, done bool,
+	t *domain.TrainingSummary, dto *TrainingSummaryDTO,
 ) {
 	status := t.JobDetail.Status
 	if status == "" {
 		status = trainingStatusScheduling
 	}
+
+	done := status == trainingStatusScheduleFailed || s.train.IsJobDone(status)
 
 	*dto = TrainingSummaryDTO{
 		Id:        t.Id,

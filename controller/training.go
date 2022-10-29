@@ -85,6 +85,7 @@ func (ctl *TrainingController) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
+
 		return
 	}
 
@@ -97,6 +98,14 @@ func (ctl *TrainingController) Create(ctx *gin.Context) {
 	}
 
 	if !ctl.setDatasetsInput(ctx, cmd, req.Datasets) {
+		return
+	}
+
+	if err := cmd.Validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
 		return
 	}
 
@@ -240,7 +249,8 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 				break
 			}
 
-			if log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId); err == nil && len(log) > 0 {
+			log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId)
+			if err == nil && len(log) > 0 {
 				data.Log = string(log)
 			}
 
@@ -252,10 +262,12 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 				break
 			}
 		} else {
-			v.Duration++
+			if v.Duration > 0 {
+				v.Duration++
 
-			if err = ws.WriteJSON(newResponseData(data)); err != nil {
-				break
+				if err = ws.WriteJSON(newResponseData(data)); err != nil {
+					break
+				}
 			}
 		}
 
@@ -387,10 +399,12 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 				running = &v[index]
 			}
 		} else {
-			running.Duration++
+			if running.Duration > 0 {
+				running.Duration++
 
-			if err = ws.WriteJSON(newResponseData(v)); err != nil {
-				break
+				if err = ws.WriteJSON(newResponseData(v)); err != nil {
+					break
+				}
 			}
 		}
 

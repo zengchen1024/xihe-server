@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -17,15 +16,20 @@ const (
 	trainingStatusScheduleFailed = "schedule_failed"
 )
 
+type JobDetail = domain.JobDetail
+type TrainingInfo = domain.TrainingInfo
+type TrainingConfig = domain.TrainingConfig
+
 type TrainingService interface {
-	Create(cmd *TrainingCreateCmd) (string, error)
-	Recreate(info *domain.TrainingInfo) (string, error)
+	Create(*TrainingCreateCmd) (string, error)
+	Recreate(*TrainingInfo) (string, error)
+	UpdateJobDetail(*TrainingInfo, *JobDetail) error
 	List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error)
-	Get(info *domain.TrainingInfo) (TrainingDTO, error)
-	Delete(info *domain.TrainingInfo) error
-	Terminate(info *domain.TrainingInfo) error
-	GetLogDownloadURL(info *domain.TrainingInfo) (string, error)
-	CreateTrainingJob(info *domain.TrainingInfo, endpoint string) (bool, error)
+	Get(*TrainingInfo) (TrainingDTO, error)
+	Delete(*TrainingInfo) error
+	Terminate(*TrainingInfo) error
+	GetLogDownloadURL(*TrainingInfo) (string, error)
+	CreateTrainingJob(*TrainingInfo, string, bool) (bool, error)
 }
 
 func NewTrainingService(
@@ -62,7 +66,7 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 	return s.create(cmd.User, cmd.ProjectId, cmd.toTrainingConfig())
 }
 
-func (s trainingService) Recreate(info *domain.TrainingInfo) (string, error) {
+func (s trainingService) Recreate(info *TrainingInfo) (string, error) {
 	v, err := s.repo.GetTrainingConfig(info)
 	if err != nil {
 		return "", err
@@ -72,7 +76,7 @@ func (s trainingService) Recreate(info *domain.TrainingInfo) (string, error) {
 }
 
 func (s trainingService) create(
-	user domain.Account, projectId string, config *domain.TrainingConfig,
+	user domain.Account, projectId string, config *TrainingConfig,
 ) (string, error) {
 	v, version, err := s.repo.List(user, projectId)
 	if err != nil {
@@ -106,7 +110,7 @@ func (s trainingService) create(
 	}
 
 	// send message
-	err = s.sender.CreateTraining(&domain.TrainingInfo{
+	err = s.sender.CreateTraining(&TrainingInfo{
 		User:       user,
 		ProjectId:  projectId,
 		TrainingId: r,
@@ -127,70 +131,26 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	r := make([]TrainingSummaryDTO, len(v))
 
 	for i := range v {
-		item := &v[i]
-
-		done := s.isJobDone(item.JobDetail.Status)
-		if !done && item.JobId != "" {
-			detail, err := s.getAndUpdateJobDetail(
-				&domain.TrainingInfo{
-					User:       user,
-					ProjectId:  projectId,
-					TrainingId: item.Id,
-				},
-				item.Endpoint, item.JobId,
-				item.JobDetail.Status,
-			)
-
-			if err == nil {
-				item.JobDetail = detail
-			}
-		}
-
-		s.toTrainingSummaryDTO(&v[i], &r[i], done)
+		s.toTrainingSummaryDTO(&v[i], &r[i])
 	}
 
 	return r, nil
 }
 
-func (s trainingService) Get(info *domain.TrainingInfo) (TrainingDTO, error) {
+func (s trainingService) Get(info *TrainingInfo) (TrainingDTO, error) {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		return TrainingDTO{}, err
 	}
 
-	job := &data.Job
-	jd := &data.JobDetail
-
-	if s.isJobDone(jd.Status) || job.JobId == "" {
-		return s.toTrainingDTO(&data), nil
-	}
-
-	detail, err := s.getAndUpdateJobDetail(
-		info, job.Endpoint, job.JobId, jd.Status,
-	)
-	if err == nil {
-		*jd = detail
-	}
-
 	return s.toTrainingDTO(&data), nil
 }
 
-func (s trainingService) getAndUpdateJobDetail(
-	info *domain.TrainingInfo, endpoint, jobId, old string,
-) (r domain.JobDetail, err error) {
-	r, err = s.train.GetJob(endpoint, jobId)
-	if err != nil {
-		return
-	}
-
-	if r.Status != old {
-		_ = s.repo.UpdateJobDetail(info, &r)
-	}
-
-	return
+func (s trainingService) UpdateJobDetail(info *TrainingInfo, v *JobDetail) error {
+	return s.repo.UpdateJobDetail(info, v)
 }
 
-func (s trainingService) Delete(info *domain.TrainingInfo) error {
+func (s trainingService) Delete(info *TrainingInfo) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -207,7 +167,7 @@ func (s trainingService) Delete(info *domain.TrainingInfo) error {
 	return s.repo.Delete(info)
 }
 
-func (s trainingService) Terminate(info *domain.TrainingInfo) error {
+func (s trainingService) Terminate(info *TrainingInfo) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -223,7 +183,7 @@ func (s trainingService) Terminate(info *domain.TrainingInfo) error {
 	return nil
 }
 
-func (s trainingService) GetLogDownloadURL(info *domain.TrainingInfo) (string, error) {
+func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return "", err
@@ -236,7 +196,26 @@ func (s trainingService) GetLogDownloadURL(info *domain.TrainingInfo) (string, e
 	return "", nil
 }
 
-func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint string) (retry bool, err error) {
+func (s trainingService) CreateTrainingJob(
+	info *TrainingInfo, endpoint string, lastChance bool,
+) (retry bool, err error) {
+	retry, err = s.createTrainingJob(info, endpoint)
+	if err == nil {
+		return
+	}
+
+	if lastChance {
+		s.repo.UpdateJobDetail(info, &JobDetail{
+			Status: trainingStatusScheduleFailed,
+		})
+	}
+
+	return
+}
+
+func (s trainingService) createTrainingJob(info *TrainingInfo, endpoint string) (
+	retry bool, err error,
+) {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		if repository.IsErrorResourceNotExists(err) {
@@ -258,20 +237,14 @@ func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint s
 	if err != nil {
 		retry = true
 
-		err1 := s.repo.UpdateJobDetail(
-			info,
-			&domain.JobDetail{
-				Status: trainingStatusScheduleFailed,
-			},
+		return
+	}
+
+	if err1 := s.repo.SaveJob(info, &v); err1 != nil {
+		s.log.Errorf(
+			"create training(%s) job(%s) successfully, but save db err:%s",
+			info.TrainingId, v.JobId, err1.Error(),
 		)
-		if err1 != nil {
-			err = fmt.Errorf(
-				"create training job err:%s, save db err:%s",
-				err.Error(), err1.Error(),
-			)
-		}
-	} else {
-		err = s.repo.SaveJob(info, &v)
 	}
 
 	return
