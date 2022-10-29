@@ -63,8 +63,11 @@ type JobInfo struct {
 }
 
 type JobDetail struct {
-	Status   string
-	Duration int
+	Status     string
+	LogPath    string
+	AimPath    string
+	OutputPath string
+	Duration   int
 }
 
 type TrainingSummary struct {

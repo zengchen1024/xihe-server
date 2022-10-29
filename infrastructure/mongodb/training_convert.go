@@ -145,13 +145,17 @@ func (col training) toTrainingJobInfoDO(doc *dJobInfo) repositories.TrainingJobI
 		Endpoint:  doc.Endpoint,
 		JobId:     doc.JobId,
 		LogDir:    doc.LogDir,
+		AimDir:    doc.AimDir,
 		OutputDir: doc.OutputDir,
 	}
 }
 
 func (col training) toTrainingJobDetailDO(doc *dJobDetail) repositories.TrainingJobDetailDO {
 	return repositories.TrainingJobDetailDO{
-		Status:   doc.Status,
-		Duration: doc.Duration,
+		Status:     doc.Status,
+		Duration:   doc.Duration,
+		LogPath:    doc.LogPath,
+		AimPath:    doc.AimPath,
+		OutputPath: doc.OutputPath,
 	}
 }

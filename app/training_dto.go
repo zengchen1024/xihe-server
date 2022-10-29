@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
@@ -78,11 +79,17 @@ type TrainingSummaryDTO struct {
 }
 
 func (s trainingService) toTrainingSummaryDTO(
-	t *domain.TrainingSummary, dto *TrainingSummaryDTO, done bool,
+	t *domain.TrainingSummary, dto *TrainingSummaryDTO,
 ) {
+	done := false
+
 	status := t.JobDetail.Status
 	if status == "" {
 		status = trainingStatusScheduling
+	} else {
+		// TODO let training center tell if it is done
+		done = status == trainingStatusScheduleFailed ||
+			strings.ToLower(status) != "running"
 	}
 
 	*dto = TrainingSummaryDTO{

@@ -48,7 +48,7 @@ func (h *handler) HandleEventAddRelatedResource(info *message.RelatedResource) e
 
 	data := h.getParameterForEventRelatedResource(info)
 
-	return h.do(func() (err error) {
+	return h.do(func(bool) (err error) {
 		return rh.Add(&data)
 	})
 }
@@ -61,7 +61,7 @@ func (h *handler) HandleEventRemoveRelatedResource(info *message.RelatedResource
 
 	data := h.getParameterForEventRelatedResource(info)
 
-	return h.do(func() (err error) {
+	return h.do(func(bool) (err error) {
 		return rh.Remove(&data)
 	})
 }
@@ -103,7 +103,7 @@ func (h *handler) getHandlerForEventRelatedResource(
 }
 
 func (h *handler) HandleEventAddFollowing(f *domain.FollowerInfo) error {
-	return h.do(func() (err error) {
+	return h.do(func(bool) (err error) {
 		if err = h.user.AddFollower(f); err == nil {
 			return
 		}
@@ -117,7 +117,7 @@ func (h *handler) HandleEventAddFollowing(f *domain.FollowerInfo) error {
 }
 
 func (h *handler) HandleEventRemoveFollowing(f *domain.FollowerInfo) (err error) {
-	return h.do(func() error {
+	return h.do(func(bool) error {
 		return h.user.RemoveFollower(f)
 	})
 }
@@ -138,7 +138,7 @@ func (h *handler) handleEventLike(
 	obj *domain.ResourceObject, op string,
 	f func(*domain.ResourceIndex) error,
 ) (err error) {
-	return h.do(func() (err error) {
+	return h.do(func(bool) (err error) {
 		if err = f(&obj.ResourceIndex); err != nil {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
@@ -170,7 +170,7 @@ func (h *handler) getHandlerForEventLike(t domain.ResourceType) likeHanler {
 }
 
 func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
-	return h.do(func() (err error) {
+	return h.do(func(bool) (err error) {
 		if err = h.project.IncreaseFork(index); err != nil {
 			if isResourceNotExists(err) {
 				h.log.Errorf(
@@ -187,8 +187,10 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 }
 
 func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
-	err := h.do(func() error {
-		retry, err := h.training.CreateTrainingJob(info, h.trainingEndpoint)
+	return h.do(func(lastChance bool) error {
+		retry, err := h.training.CreateTrainingJob(
+			info, h.trainingEndpoint, lastChance,
+		)
 		if err != nil {
 			h.log.Errorf(
 				"handle training(%s/%s/%s) failed, err:%s",
@@ -203,28 +205,26 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 
 		return err
 	})
-
-	if err != nil {
-		//h.training.UpdateJobStatus
-	}
-
-	return err
 }
 
-func (h *handler) do(f func() error) (err error) {
-	if err = f(); err == nil {
+func (h *handler) do(f func(bool) error) (err error) {
+	n := h.maxRetry - 1
+
+	if err = f(n <= 0); err == nil || n <= 0 {
 		return
 	}
 
-	for i := 1; i < h.maxRetry; i++ {
+	for i := 1; i < n; i++ {
 		time.Sleep(sleepTime)
 
-		if err = f(); err == nil {
+		if err = f(false); err == nil {
 			return
 		}
 	}
 
-	return h.errMaxRetry(err)
+	time.Sleep(sleepTime)
+
+	return f(true)
 }
 
 func (h *handler) errMaxRetry(err error) error {

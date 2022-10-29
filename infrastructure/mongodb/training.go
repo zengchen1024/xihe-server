@@ -233,6 +233,7 @@ func (col training) UpdateJobInfo(info *repositories.TrainingInfoDO, job *reposi
 		Endpoint:  job.Endpoint,
 		JobId:     job.JobId,
 		LogDir:    job.LogDir,
+		AimDir:    job.AimDir,
 		OutputDir: job.OutputDir,
 	}
 
@@ -257,8 +258,11 @@ func (col training) UpdateJobInfo(info *repositories.TrainingInfoDO, job *reposi
 
 func (col training) UpdateJobDetail(info *repositories.TrainingInfoDO, detail *repositories.TrainingJobDetailDO) error {
 	v := dJobDetail{
-		Status:   detail.Status,
-		Duration: detail.Duration,
+		Duration:   detail.Duration,
+		Status:     detail.Status,
+		LogPath:    detail.LogPath,
+		AimPath:    detail.AimPath,
+		OutputPath: detail.OutputPath,
 	}
 
 	doc, err := genDoc(v)
