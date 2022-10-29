@@ -187,7 +187,7 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 }
 
 func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
-	return h.do(func() error {
+	err := h.do(func() error {
 		retry, err := h.training.CreateTrainingJob(info, h.trainingEndpoint)
 		if err != nil {
 			h.log.Errorf(
@@ -203,6 +203,12 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 
 		return err
 	})
+
+	if err != nil {
+		//h.training.UpdateJobStatus
+	}
+
+	return err
 }
 
 func (h *handler) do(f func() error) (err error) {

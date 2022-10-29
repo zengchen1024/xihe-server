@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -190,6 +189,12 @@ func (s trainingService) getAndUpdateJobDetail(
 	return
 }
 
+func (s trainingService) UpdateJobStatus(info *domain.TrainingInfo, status string) error {
+	return s.repo.UpdateJobDetail(info, &domain.JobDetail{
+		Status: status,
+	})
+}
+
 func (s trainingService) Delete(info *domain.TrainingInfo) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
@@ -258,20 +263,14 @@ func (s trainingService) CreateTrainingJob(info *domain.TrainingInfo, endpoint s
 	if err != nil {
 		retry = true
 
-		err1 := s.repo.UpdateJobDetail(
-			info,
-			&domain.JobDetail{
-				Status: trainingStatusScheduleFailed,
-			},
+		return
+	}
+
+	if err1 := s.repo.SaveJob(info, &v); err1 != nil {
+		s.log.Errorf(
+			"create training(%s) job(%s) successfully, but save db err:%s",
+			info.TrainingId, v.JobId, err1.Error(),
 		)
-		if err1 != nil {
-			err = fmt.Errorf(
-				"create training job err:%s, save db err:%s",
-				err.Error(), err1.Error(),
-			)
-		}
-	} else {
-		err = s.repo.SaveJob(info, &v)
 	}
 
 	return

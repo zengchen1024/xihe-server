@@ -59,6 +59,7 @@ type JobInfo struct {
 	JobId     string
 	LogDir    string
 	OutputDir string
+	AimDir    string
 }
 
 type JobDetail struct {
