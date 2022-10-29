@@ -86,20 +86,6 @@ func (impl *trainingImpl) GetLogDownloadURL(endpoint, jobId string) (string, err
 	return v.LogURL, nil
 }
 
-func (impl *trainingImpl) GetJob(endpoint, jobId string) (r domain.JobDetail, err error) {
-	cli := sdk.NewTrainingCenter(endpoint)
-
-	v, err := cli.GetTraining(jobId)
-	if err != nil {
-		return
-	}
-
-	r.Duration = v.Duration
-	r.Status = v.Status
-
-	return
-}
-
 func (impl *trainingImpl) toCompute(c *domain.Compute) sdk.Compute {
 	return sdk.Compute{
 		Type:    c.Type.ComputeType(),
