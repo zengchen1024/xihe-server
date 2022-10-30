@@ -295,6 +295,8 @@ github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221029135354-a3c2f772b172 
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221029135354-a3c2f772b172/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221030014210-ad9dbf8dad22 h1:1Jr7s7nvYNRV2y2AWoMsXi7oA4eZ4955691DCdX+m/o=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221030014210-ad9dbf8dad22/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
+github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221030031457-2d167d076e4d h1:V3v5GkM53Cwcmpop+L+3Z9FA9LLwtbfWKhai7O80FKA=
+github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221030031457-2d167d076e4d/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
 github.com/opensourceways/xihe-training-center v0.0.0-20221027020142-09e9a8d2ac31 h1:6XJ9NUacOBatGUwowFezTzVBO8CBVIVZoRoP+I9+PS4=
 github.com/opensourceways/xihe-training-center v0.0.0-20221027020142-09e9a8d2ac31/go.mod h1:QqYfHgfh+lUiHv4wACuDxE5tMXQSAhhYsAFwoOCatGM=
 github.com/opensourceways/xihe-training-center v0.0.0-20221030012221-84984771cb72 h1:eK5xEQkHB8Y3aNHr/S9cUm4cYfp+orfyZSF4FfQzWnc=
