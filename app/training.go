@@ -233,7 +233,7 @@ func (s trainingService) createTrainingJob(info *TrainingInfo, endpoint string) 
 		return false, nil
 	}
 
-	v, err := s.train.CreateJob(endpoint, info.User, &data.TrainingConfig)
+	v, err := s.train.CreateJob(endpoint, info, &data.TrainingConfig)
 	if err != nil {
 		retry = true
 
