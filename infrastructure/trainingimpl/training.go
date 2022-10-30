@@ -23,11 +23,13 @@ func (impl *trainingImpl) IsJobDone(status string) bool {
 	return impl.doneStatus.Has(status)
 }
 
-func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *domain.TrainingConfig) (
+func (impl *trainingImpl) CreateJob(endpoint string, info *domain.TrainingInfo, t *domain.TrainingConfig) (
 	job domain.JobInfo, err error,
 ) {
 	opt := sdk.TrainingCreateOption{
-		User:           user.Account(),
+		User:           info.User.Account(),
+		ProjectId:      info.ProjectId,
+		TrainingId:     info.TrainingId,
 		ProjectName:    t.ProjectName.ProjName(),
 		ProjectRepoId:  t.ProjectRepoId,
 		Name:           t.Name.TrainingName(),
@@ -40,8 +42,8 @@ func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *dom
 	}
 
 	logrus.Debugf(
-		"create job, endpoint:%s, user:%s, opt:%#v",
-		endpoint, user.Account(), opt,
+		"create job, endpoint:%s, training:%s, opt:%#v",
+		endpoint, info.TrainingId, opt,
 	)
 
 	if t.Desc != nil {
@@ -58,6 +60,7 @@ func (impl *trainingImpl) CreateJob(endpoint string, user domain.Account, t *dom
 	job.Endpoint = endpoint
 	job.JobId = v.JobId
 	job.LogDir = v.LogDir
+	job.AimDir = v.AimDir
 	job.OutputDir = v.OutputDir
 
 	return

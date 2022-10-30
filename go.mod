@@ -9,8 +9,8 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95
-	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221029135354-a3c2f772b172
-	github.com/opensourceways/xihe-training-center v0.0.0-20221027020142-09e9a8d2ac31
+	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221030014210-ad9dbf8dad22
+	github.com/opensourceways/xihe-training-center v0.0.0-20221030012221-84984771cb72
 	github.com/sirupsen/logrus v1.9.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.3
