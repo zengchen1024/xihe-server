@@ -190,27 +190,34 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 	// wait for the sync of model and dataset
 	time.Sleep(10 * time.Second)
 
-	return h.do(func(lastChance bool) error {
-		retry, err := h.training.CreateTrainingJob(
-			info, h.trainingEndpoint, lastChance,
-		)
-		if err != nil {
-			h.log.Errorf(
-				"handle training(%s/%s/%s) failed, err:%s",
-				info.User.Account(), info.ProjectId, info.TrainingId,
-				err.Error(),
+	return h.retry(
+		func(lastChance bool) error {
+			retry, err := h.training.CreateTrainingJob(
+				info, h.trainingEndpoint, lastChance,
 			)
+			if err != nil {
+				h.log.Errorf(
+					"handle training(%s/%s/%s) failed, err:%s",
+					info.User.Account(), info.ProjectId, info.TrainingId,
+					err.Error(),
+				)
 
-			if retry {
-				return nil
+				if !retry {
+					return nil
+				}
 			}
-		}
 
-		return err
-	})
+			return err
+		},
+		10*time.Second,
+	)
 }
 
 func (h *handler) do(f func(bool) error) (err error) {
+	return h.retry(f, sleepTime)
+}
+
+func (h *handler) retry(f func(bool) error, interval time.Duration) (err error) {
 	n := h.maxRetry - 1
 
 	if err = f(n <= 0); err == nil || n <= 0 {
@@ -218,14 +225,14 @@ func (h *handler) do(f func(bool) error) (err error) {
 	}
 
 	for i := 1; i < n; i++ {
-		time.Sleep(sleepTime)
+		time.Sleep(interval)
 
 		if err = f(false); err == nil {
 			return
 		}
 	}
 
-	time.Sleep(sleepTime)
+	time.Sleep(interval)
 
 	return f(true)
 }
