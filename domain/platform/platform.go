@@ -52,6 +52,12 @@ type RepoDir struct {
 	Path     domain.Directory
 }
 
+type RepoDirFile struct {
+	RepoName domain.ResourceName
+	Dir      domain.Directory
+	File     domain.FilePath
+}
+
 type RepoPathItem struct {
 	Path      string `json:"path"`
 	Name      string `json:"name"`
@@ -67,4 +73,5 @@ type RepoFile interface {
 	Download(u *UserInfo, f *RepoFileInfo) (data []byte, notFound bool, err error)
 	IsLFSFile(data []byte) (is bool, sha string)
 	GenLFSDownloadURL(sha string) (string, error)
+	GetDirFileInfo(u *UserInfo, d *RepoDirFile) (sha string, exist bool, err error)
 }

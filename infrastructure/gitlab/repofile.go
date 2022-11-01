@@ -174,7 +174,9 @@ func (impl *repoFile) modify(
 	return err
 }
 
-func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []platform.RepoPathItem, err error) {
+func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (
+	r []platform.RepoPathItem, err error,
+) {
 	body := `
 {
 	"query":"query {
@@ -217,12 +219,68 @@ func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (r []pl
 	}
 	h.Add("Content-Type", "application/json")
 
-	v := graphqlData{}
+	v := graphqlResult{}
 	if _, err = impl.cli.ForwardTo(req, &v); err != nil {
 		return
 	}
 
 	r = v.toRepoPathItems()
+
+	return
+}
+
+func (impl *repoFile) GetDirFileInfo(u *platform.UserInfo, info *platform.RepoDirFile) (
+	sha string, exist bool, err error,
+) {
+	body := `
+{
+	"query":"query {
+		project(fullPath: \"%s\") {
+			repository {
+				tree(ref: \"%s\", path: \"%s\") {
+					lastCommit {
+						sha
+					},
+				},
+				blobs(ref: \"%s\", paths: [\"%s\"]) {
+					nodes {
+						path
+					},
+				}
+
+			}
+		}
+	}"
+}
+`
+	data := fmt.Sprintf(
+		body,
+		u.User.Account()+"/"+info.RepoName.ResourceName(),
+		defaultBranch, info.Dir.Directory(),
+		defaultBranch, info.File.FilePath(),
+	)
+
+	data = strings.ReplaceAll(data, "\n", "")
+	data = strings.ReplaceAll(data, "\t", "")
+
+	req, err := http.NewRequest(http.MethodPost, graphql_endpoint, strings.NewReader(data))
+	if err != nil {
+		return
+	}
+
+	h := &req.Header
+	if u.Token != "" {
+		h.Add("Authorization", "Bearer "+u.Token)
+	}
+	h.Add("Content-Type", "application/json")
+
+	v := graphqlResult{}
+	if _, err = impl.cli.ForwardTo(req, &v); err != nil {
+		return
+	}
+
+	sha = v.Data.Project.Repo.Tree.LastCommit.SHA
+	exist = len(v.Data.Project.Repo.Blobs.Nodes) > 0
 
 	return
 }

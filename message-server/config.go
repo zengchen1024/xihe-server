@@ -6,15 +6,17 @@ import (
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 )
 
 type configuration struct {
 	MaxRetry         int    `json:"max_retry"`
 	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
 
-	Mongodb config.Mongodb `json:"mongodb"  required:"true"`
-	Domain  domain.Config  `json:"domain"   required:"true"`
-	MQ      config.MQ      `json:"mq"       required:"true"`
+	Inference inferenceConfig `json:"inference"  required:"true"`
+	Mongodb   config.Mongodb  `json:"mongodb"  required:"true"`
+	Domain    domain.Config   `json:"domain"   required:"true"`
+	MQ        config.MQ       `json:"mq"       required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -25,6 +27,7 @@ func (cfg *configuration) getMQConfig() mq.MQConfig {
 
 func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
+		&cfg.Inference,
 		&cfg.Mongodb,
 		&cfg.Domain,
 		&cfg.MQ,
@@ -63,4 +66,34 @@ func (cfg *configuration) Validate() error {
 
 func (cfg *configuration) initDomainConfig() {
 	domain.Init(&cfg.Domain)
+}
+
+type inferenceConfig struct {
+	InstanceSurvivalTime int64 `json:"inference_survival_time"`
+
+	inferenceimpl.Config
+}
+
+func (cfg *inferenceConfig) SetDefault() {
+	if cfg.InstanceSurvivalTime <= 0 {
+		cfg.InstanceSurvivalTime = 5 * 3600
+	}
+
+	var i interface{}
+	i = &cfg.Config
+
+	if f, ok := i.(config.ConfigSetDefault); ok {
+		f.SetDefault()
+	}
+}
+
+func (cfg *inferenceConfig) Validate() error {
+	var i interface{}
+	i = &cfg.Config
+
+	if f, ok := i.(config.ConfigValidate); ok {
+		return f.Validate()
+	}
+
+	return nil
 }

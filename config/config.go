@@ -112,17 +112,18 @@ func (cfg *Config) Validate() error {
 }
 
 type Mongodb struct {
-	DBName             string `json:"mongodb_db"              required:"true"`
-	MongodbConn        string `json:"mongodb_conn"            required:"true"`
-	TagCollection      string `json:"tag_collection"          required:"true"`
-	UserCollection     string `json:"user_collection"         required:"true"`
-	LikeCollection     string `json:"like_collection"         required:"true"`
-	ModelCollection    string `json:"model_collection"        required:"true"`
-	LoginCollection    string `json:"login_collection"        required:"true"`
-	DatasetCollection  string `json:"dataset_collection"      required:"true"`
-	ProjectCollection  string `json:"project_collection"      required:"true"`
-	ActivityCollection string `json:"activity_collection"     required:"true"`
-	TrainingCollection string `json:"training_collection"     required:"true"`
+	DBName              string `json:"mongodb_db"              required:"true"`
+	MongodbConn         string `json:"mongodb_conn"            required:"true"`
+	TagCollection       string `json:"tag_collection"          required:"true"`
+	UserCollection      string `json:"user_collection"         required:"true"`
+	LikeCollection      string `json:"like_collection"         required:"true"`
+	ModelCollection     string `json:"model_collection"        required:"true"`
+	LoginCollection     string `json:"login_collection"        required:"true"`
+	DatasetCollection   string `json:"dataset_collection"      required:"true"`
+	ProjectCollection   string `json:"project_collection"      required:"true"`
+	ActivityCollection  string `json:"activity_collection"     required:"true"`
+	TrainingCollection  string `json:"training_collection"     required:"true"`
+	InferenceCollection string `json:"inference_collection"    required:"true"`
 }
 
 type AuthingService struct {

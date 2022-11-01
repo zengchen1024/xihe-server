@@ -17,6 +17,9 @@ type Sender interface {
 	RemoveRelatedResource(*RelatedResource) error
 
 	CreateTraining(*domain.TrainingInfo) error
+
+	CreateInference(*domain.InferenceInfo) error
+	ExtendInferenceExpiry(*domain.InferenceInfo) error
 }
 
 type EventHandler interface {
@@ -52,4 +55,9 @@ type RelatedResource struct {
 
 type TrainingHandler interface {
 	HandleEventCreateTraining(*domain.TrainingInfo) error
+}
+
+type InferenceHandler interface {
+	HandleEventCreateInference(*domain.InferenceInfo) error
+	HandleEventExtendInferenceExpiry(*domain.InferenceInfo) error
 }

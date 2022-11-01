@@ -91,6 +91,12 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		),
 	)
 
+	inference := repositories.NewInferenceRepository(
+		mongodb.NewInferenceMapper(
+			cfg.Mongodb.InferenceCollection,
+		),
+	)
+
 	tags := repositories.NewTagsRepository(
 		mongodb.NewTagsMapper(cfg.Mongodb.TagCollection),
 	)
@@ -149,6 +155,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForRepoFileController(
 			v1, gitlabRepo, model, proj, dataset, sender,
+		)
+
+		controller.AddRouterForInferenceController(
+			v1, gitlabRepo, inference, proj, sender,
 		)
 	}
 

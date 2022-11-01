@@ -14,6 +14,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
+	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
@@ -89,17 +90,16 @@ func main() {
 }
 
 func newHandler(cfg *configuration, log *logrus.Entry) *handler {
+	userRepo := repositories.NewUserRepository(
+		mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+	)
+
 	return &handler{
 		log:              log,
 		maxRetry:         cfg.MaxRetry,
 		trainingEndpoint: cfg.TrainingEndpoint,
 
-		user: app.NewUserService(
-			repositories.NewUserRepository(
-				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
-			),
-			nil, nil,
-		),
+		user: app.NewUserService(userRepo, nil, nil),
 
 		project: app.NewProjectService(
 			nil,
@@ -132,6 +132,15 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 				mongodb.NewTrainingMapper(cfg.Mongodb.TrainingCollection),
 			),
 			nil, 0,
+		),
+
+		inference: app.NewInferenceMessageService(
+			repositories.NewInferenceRepository(
+				mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
+			),
+			userRepo,
+			inferenceimpl.NewInference(&cfg.Inference.Config),
+			cfg.Inference.InstanceSurvivalTime,
 		),
 	}
 }

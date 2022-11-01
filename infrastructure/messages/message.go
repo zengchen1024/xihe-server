@@ -5,6 +5,8 @@ import "github.com/opensourceways/xihe-server/domain"
 const (
 	actionAdd    = "add"
 	actionRemove = "remove"
+	actionCreate = "create"
+	actionExtend = "extend"
 )
 
 type msgFollower struct {
@@ -28,6 +30,15 @@ type msgTraining struct {
 	User       string `json:"user"`
 	ProjectId  string `json:"pid"`
 	TrainingId string `json:"rid"`
+}
+
+type msgInference struct {
+	Action       string `json:"action"`
+	InferenceId  string `json:"id"`
+	ProjectId    string `json:"pid"`
+	LastCommit   string `json:"commit"`
+	ProjectName  string `json:"name"`
+	ProjectOwner string `json:"owner"`
 }
 
 type msgRelatedResource struct {

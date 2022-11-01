@@ -33,11 +33,12 @@ type handler struct {
 	maxRetry         int
 	trainingEndpoint string
 
-	user     app.UserService
-	model    app.ModelService
-	dataset  app.DatasetService
-	project  app.ProjectService
-	training app.TrainingService
+	user      app.UserService
+	model     app.ModelService
+	dataset   app.DatasetService
+	project   app.ProjectService
+	training  app.TrainingService
+	inference app.InferenceMessageService
 }
 
 func (h *handler) HandleEventAddRelatedResource(info *message.RelatedResource) error {
@@ -211,6 +212,32 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 		},
 		10*time.Second,
 	)
+}
+
+func (h *handler) HandleEventCreateInference(info *domain.InferenceInfo) error {
+	return h.do(func(bool) error {
+		err := h.inference.CreateInferenceInstance(info)
+		if err != nil {
+			h.log.Error(err)
+
+			return nil
+		}
+
+		return err
+	})
+}
+
+func (h *handler) HandleEventExtendInferenceExpiry(info *domain.InferenceInfo) error {
+	return h.do(func(bool) error {
+		err := h.inference.ExtendExpiryForInstance(info)
+		if err != nil {
+			h.log.Error(err)
+
+			return nil
+		}
+
+		return err
+	})
 }
 
 func (h *handler) do(f func(bool) error) (err error) {

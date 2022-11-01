@@ -10,6 +10,8 @@ const (
 	fieldDesc           = "desc"
 	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"
+	fieldCommit         = "commit"
+	fieldExpiry         = "expiry"
 	fieldRepoId         = "repo_id"
 	fieldTags           = "tags"
 	fieldName           = "name"
@@ -274,4 +276,21 @@ type dJobDetail struct {
 	LogPath    string `bson:"log"        json:"log,omitempty"`
 	AimPath    string `bson:"aim"        json:"aim,omitempty"`
 	OutputPath string `bson:"output"     json:"output,omitempty"`
+}
+
+type dInference struct {
+	Owner       string `bson:"owner"   json:"owner"`
+	ProjectId   string `bson:"pid"     json:"pid"`
+	ProjectName string `bson:"name"    json:"name"`
+	LastCommit  string `bson:"commit"  json:"commit"`
+	Version     int    `bson:"version" json:"-"`
+
+	Items []inferenceItem `bson:"items"  json:"-"`
+}
+
+type inferenceItem struct {
+	Id        string `bson:"id"          json:"id"`
+	Expiry    int64  `bson:"expiry"      json:"expiry,omitempty"`
+	Error     string `bson:"error"       json:"error,omitempty"`
+	AccessURL string `bson:"url"         json:"url,omitempty"`
 }

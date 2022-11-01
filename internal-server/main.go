@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
+	"github.com/opensourceways/xihe-grpc-protocol/grpc/inference"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/server"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/training"
 	"github.com/sirupsen/logrus"
@@ -88,6 +89,13 @@ func main() {
 		nil, 0,
 	)
 
+	// inference
+	inferenceService := app.NewInferenceInternalService(
+		repositories.NewInferenceRepository(
+			mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
+		),
+	)
+
 	// cfg
 	cfg.initDomainConfig()
 
@@ -95,6 +103,7 @@ func main() {
 	s := server.NewServer()
 
 	s.RegisterTrainingServer(trainingServer{train})
+	s.RegisterInferenceServer(inferenceServer{inferenceService})
 
 	if err := s.Run(strconv.Itoa(o.service.Port)); err != nil {
 		log.Errorf("start server failed, err:%s", err.Error())
@@ -102,7 +111,7 @@ func main() {
 }
 
 type trainingServer struct {
-	train app.TrainingService
+	service app.TrainingService
 }
 
 func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *training.TrainingInfo) error {
@@ -111,7 +120,7 @@ func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *traini
 		return nil
 	}
 
-	return t.train.UpdateJobDetail(
+	return t.service.UpdateJobDetail(
 		&domain.TrainingInfo{
 			User:       u,
 			ProjectId:  index.ProjectId,
@@ -123,6 +132,32 @@ func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *traini
 			LogPath:    v.LogPath,
 			AimPath:    v.AimZipPath,
 			OutputPath: v.OutputZipPath,
+		},
+	)
+}
+
+type inferenceServer struct {
+	service app.InferenceInternalService
+}
+
+func (t inferenceServer) SetInferenceInfo(index *inference.InferenceIndex, v *inference.InferenceInfo) error {
+	u, err := domain.NewAccount(index.User)
+	if err != nil {
+		return nil
+	}
+
+	return t.service.UpdateDetail(
+		&domain.InferenceIndex{
+			Project: domain.ResourceIndex{
+				Owner: u,
+				Id:    index.ProjectId,
+			},
+			Id:         index.Id,
+			LastCommit: index.LastCommit,
+		},
+		&app.InferenceDetail{
+			Error:     v.Error,
+			AccessURL: v.AccessURL,
 		},
 	)
 }
