@@ -90,15 +90,10 @@ func main() {
 	)
 
 	// inference
-	inferenceService := app.NewInferenceService(
-		nil,
+	inferenceService := app.NewInferenceInternalService(
 		repositories.NewInferenceRepository(
 			mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
 		),
-		repositories.NewUserRepository(
-			mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
-		),
-		nil, nil, 0, 0,
 	)
 
 	// cfg
@@ -142,7 +137,7 @@ func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *traini
 }
 
 type inferenceServer struct {
-	service app.InferenceService
+	service app.InferenceInternalService
 }
 
 func (t inferenceServer) SetInferenceInfo(index *inference.InferenceIndex, v *inference.InferenceInfo) error {

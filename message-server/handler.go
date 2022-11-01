@@ -38,7 +38,7 @@ type handler struct {
 	dataset   app.DatasetService
 	project   app.ProjectService
 	training  app.TrainingService
-	inference app.InferenceService
+	inference app.InferenceMessageService
 }
 
 func (h *handler) HandleEventAddRelatedResource(info *message.RelatedResource) error {

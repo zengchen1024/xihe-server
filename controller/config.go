@@ -33,7 +33,7 @@ type APIConfig struct {
 	EncryptionKey            string `json:"encryption_key"              required:"true"`
 	DefaultPassword          string `json:"default_password"            required:"true"`
 	MaxTrainingRecordNum     int    `json:"max_training_record_num"     required:"true"`
-	MinExpiryForInference    int    `json:"min_expiry_for_inference"    required:"true"`
+	MinExpiryForInference    int    `json:"min_expiry_for_inference"`
 	InferenceDir             string `json:"inference_dir"`
 	InferenceBootFile        string `json:"inference_boot_file"`
 	InferenceTimeout         int    `json:"inference_timeout"`

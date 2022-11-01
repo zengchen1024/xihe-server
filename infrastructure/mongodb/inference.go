@@ -101,10 +101,6 @@ func (col inference) UpdateDetail(
 
 	doc, _ := genDoc(data)
 
-	return col.updateDetail(index, doc)
-}
-
-func (col inference) updateDetail(index *repositories.InferenceIndexDO, doc bson.M) error {
 	f := func(ctx context.Context) error {
 		_, err := cli.modifyArrayElemWithoutVersion(
 			ctx, col.collectionName, fieldItems,

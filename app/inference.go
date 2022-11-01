@@ -48,39 +48,27 @@ func (cmd *InferenceCreateCmd) toInference(v *domain.Inference, lastCommit strin
 type InferenceService interface {
 	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, string, error)
 	Get(info *InferenceIndex) (InferenceDTO, error)
-	UpdateDetail(*InferenceIndex, *InferenceDetail) error
-	CreateInferenceInstance(*domain.InferenceInfo) error
-	ExtendExpiryForInstance(*domain.InferenceInfo) error
 }
 
 func NewInferenceService(
 	p platform.RepoFile,
 	repo repository.Inference,
-	user repository.User,
 	sender message.Sender,
-	manager inference.Inference,
 	minExpiryForInference int64,
-	survivalTimeForInstance int64,
 ) InferenceService {
 	return inferenceService{
-		p:                       p,
-		repo:                    repo,
-		user:                    user,
-		sender:                  sender,
-		manager:                 manager,
-		minExpiryForInference:   minExpiryForInference,
-		survivalTimeForInstance: survivalTimeForInstance,
+		p:                     p,
+		repo:                  repo,
+		sender:                sender,
+		minExpiryForInference: minExpiryForInference,
 	}
 }
 
 type inferenceService struct {
-	p                       platform.RepoFile
-	repo                    repository.Inference
-	user                    repository.User
-	sender                  message.Sender
-	manager                 inference.Inference
-	minExpiryForInference   int64
-	survivalTimeForInstance int64
+	p                     platform.RepoFile
+	repo                  repository.Inference
+	sender                message.Sender
+	minExpiryForInference int64
 }
 
 type InferenceDTO struct {
@@ -155,10 +143,6 @@ func (s inferenceService) Get(index *InferenceIndex) (dto InferenceDTO, err erro
 	return
 }
 
-func (s inferenceService) UpdateDetail(index *InferenceIndex, detail *InferenceDetail) error {
-	return s.repo.UpdateDetail(index, detail)
-}
-
 func (s inferenceService) check(instance *domain.Inference) (
 	dto InferenceDTO, version int, err error,
 ) {
@@ -203,7 +187,51 @@ func (s inferenceService) check(instance *domain.Inference) (
 	return
 }
 
-func (s inferenceService) CreateInferenceInstance(info *domain.InferenceInfo) error {
+type InferenceInternalService interface {
+	UpdateDetail(*InferenceIndex, *InferenceDetail) error
+}
+
+func NewInferenceInternalService(repo repository.Inference) InferenceInternalService {
+	return inferenceInternalService{
+		repo: repo,
+	}
+}
+
+type inferenceInternalService struct {
+	repo repository.Inference
+}
+
+func (s inferenceInternalService) UpdateDetail(index *InferenceIndex, detail *InferenceDetail) error {
+	return s.repo.UpdateDetail(index, detail)
+}
+
+type InferenceMessageService interface {
+	CreateInferenceInstance(*domain.InferenceInfo) error
+	ExtendExpiryForInstance(*domain.InferenceInfo) error
+}
+
+func NewInferenceMessageService(
+	repo repository.Inference,
+	user repository.User,
+	manager inference.Inference,
+	survivalTimeForInstance int64,
+) InferenceMessageService {
+	return inferenceMessageService{
+		repo:                    repo,
+		user:                    user,
+		manager:                 manager,
+		survivalTimeForInstance: survivalTimeForInstance,
+	}
+}
+
+type inferenceMessageService struct {
+	repo                    repository.Inference
+	user                    repository.User
+	manager                 inference.Inference
+	survivalTimeForInstance int64
+}
+
+func (s inferenceMessageService) CreateInferenceInstance(info *domain.InferenceInfo) error {
 	v, err := s.user.GetByAccount(info.Project.Owner)
 	if err != nil {
 		return err
@@ -212,7 +240,7 @@ func (s inferenceService) CreateInferenceInstance(info *domain.InferenceInfo) er
 	return s.manager.Create(info, v.PlatformToken)
 }
 
-func (s inferenceService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
+func (s inferenceMessageService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
 	v := utils.Now() + s.survivalTimeForInstance
 
 	if err := s.manager.ExtendExpiry(&info.InferenceIndex, v); err != nil {

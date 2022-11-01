@@ -134,10 +134,13 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			nil, 0,
 		),
 
-		inference: app.NewInferenceService(
-			nil, nil, userRepo, nil,
+		inference: app.NewInferenceMessageService(
+			repositories.NewInferenceRepository(
+				mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
+			),
+			userRepo,
 			inferenceimpl.NewInference(&cfg.Inference.Config),
-			0, cfg.Inference.InstanceSurvivalTime,
+			cfg.Inference.InstanceSurvivalTime,
 		),
 	}
 }
