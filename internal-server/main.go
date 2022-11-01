@@ -95,6 +95,9 @@ func main() {
 		repositories.NewInferenceRepository(
 			mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
 		),
+		repositories.NewUserRepository(
+			mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+		),
 		nil, nil, 0, 0,
 	)
 

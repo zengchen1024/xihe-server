@@ -5,6 +5,6 @@ import (
 )
 
 type Inference interface {
-	Create(*domain.InferenceInfo) error
-	ExtendExpiry(*domain.InferenceInfo, int64) error
+	Create(*domain.InferenceInfo, string) error
+	ExtendExpiry(*domain.InferenceIndex, int64) error
 }

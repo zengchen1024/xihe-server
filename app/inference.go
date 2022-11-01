@@ -9,6 +9,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
+	"github.com/sirupsen/logrus"
 )
 
 type InferenceIndex = domain.InferenceIndex
@@ -55,6 +56,7 @@ type InferenceService interface {
 func NewInferenceService(
 	p platform.RepoFile,
 	repo repository.Inference,
+	user repository.User,
 	sender message.Sender,
 	manager inference.Inference,
 	minExpiryForInference int64,
@@ -63,6 +65,7 @@ func NewInferenceService(
 	return inferenceService{
 		p:                       p,
 		repo:                    repo,
+		user:                    user,
 		sender:                  sender,
 		manager:                 manager,
 		minExpiryForInference:   minExpiryForInference,
@@ -73,6 +76,7 @@ func NewInferenceService(
 type inferenceService struct {
 	p                       platform.RepoFile
 	repo                    repository.Inference
+	user                    repository.User
 	sender                  message.Sender
 	manager                 inference.Inference
 	minExpiryForInference   int64
@@ -119,6 +123,9 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 		if dto.canReuseCurrent() {
 			instance.Id = dto.InstanceId
 			err = s.sender.ExtendInferenceExpiry(&instance.InferenceInfo)
+			logrus.Debugf(
+				"will reuse the inference instance(%s)", dto.InstanceId,
+			)
 		}
 
 		return
@@ -197,13 +204,18 @@ func (s inferenceService) check(instance *domain.Inference) (
 }
 
 func (s inferenceService) CreateInferenceInstance(info *domain.InferenceInfo) error {
-	return s.manager.Create(info)
+	v, err := s.user.GetByAccount(info.Project.Owner)
+	if err != nil {
+		return err
+	}
+
+	return s.manager.Create(info, v.PlatformToken)
 }
 
 func (s inferenceService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
 	v := utils.Now() + s.survivalTimeForInstance
 
-	if err := s.manager.ExtendExpiry(info, v); err != nil {
+	if err := s.manager.ExtendExpiry(&info.InferenceIndex, v); err != nil {
 		return err
 	}
 

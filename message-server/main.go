@@ -90,17 +90,16 @@ func main() {
 }
 
 func newHandler(cfg *configuration, log *logrus.Entry) *handler {
+	userRepo := repositories.NewUserRepository(
+		mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+	)
+
 	return &handler{
 		log:              log,
 		maxRetry:         cfg.MaxRetry,
 		trainingEndpoint: cfg.TrainingEndpoint,
 
-		user: app.NewUserService(
-			repositories.NewUserRepository(
-				mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
-			),
-			nil, nil,
-		),
+		user: app.NewUserService(userRepo, nil, nil),
 
 		project: app.NewProjectService(
 			nil,
@@ -136,7 +135,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		),
 
 		inference: app.NewInferenceService(
-			nil, nil, nil,
+			nil, nil, userRepo, nil,
 			inferenceimpl.NewInference(&cfg.Inference.Config),
 			0, cfg.Inference.InstanceSurvivalTime,
 		),
