@@ -12,6 +12,7 @@ import (
 )
 
 type InferenceIndex = domain.InferenceIndex
+type InferenceDetail = domain.InferenceDetail
 
 type InferenceCreateCmd struct {
 	ProjectId    string
@@ -37,16 +38,16 @@ func (cmd *InferenceCreateCmd) Validate() error {
 }
 
 func (cmd *InferenceCreateCmd) toInference(v *domain.Inference, lastCommit string) {
-	v.ProjectId = cmd.ProjectId
+	v.Project.Id = cmd.ProjectId
 	v.LastCommit = lastCommit
 	v.ProjectName = cmd.ProjectName
-	v.ProjectOwner = cmd.ProjectOwner
+	v.Project.Owner = cmd.ProjectOwner
 }
 
 type InferenceService interface {
 	Create(*UserInfo, *InferenceCreateCmd) (InferenceDTO, string, error)
 	Get(info *InferenceIndex) (InferenceDTO, error)
-
+	UpdateDetail(*InferenceIndex, *InferenceDetail) error
 	CreateInferenceInstance(*domain.InferenceInfo) error
 	ExtendExpiryForInstance(*domain.InferenceInfo) error
 }
@@ -147,14 +148,14 @@ func (s inferenceService) Get(index *InferenceIndex) (dto InferenceDTO, err erro
 	return
 }
 
+func (s inferenceService) UpdateDetail(index *InferenceIndex, detail *InferenceDetail) error {
+	return s.repo.UpdateDetail(index, detail)
+}
+
 func (s inferenceService) check(instance *domain.Inference) (
 	dto InferenceDTO, version int, err error,
 ) {
-	index := domain.ResourceIndex{
-		Owner: instance.ProjectOwner,
-		Id:    instance.ProjectId,
-	}
-	v, version, err := s.repo.FindInstances(&index, instance.LastCommit)
+	v, version, err := s.repo.FindInstances(&instance.Project, instance.LastCommit)
 	if err != nil || len(v) == 0 {
 		return
 	}
@@ -200,5 +201,11 @@ func (s inferenceService) CreateInferenceInstance(info *domain.InferenceInfo) er
 }
 
 func (s inferenceService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
-	return s.manager.ExtendExpiry(info, utils.Now()+s.survivalTimeForInstance)
+	v := utils.Now() + s.survivalTimeForInstance
+
+	if err := s.manager.ExtendExpiry(info, v); err != nil {
+		return err
+	}
+
+	return s.repo.UpdateDetail(&info.InferenceIndex, &domain.InferenceDetail{Expiry: v})
 }

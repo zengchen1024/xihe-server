@@ -89,10 +89,6 @@ func (col inference) insert(do *repositories.InferenceDO, version int) (identity
 	return
 }
 
-func (col inference) UpdateExpiry(index *repositories.InferenceIndexDO, expiry int64) error {
-	return col.updateDetail(index, bson.M{fieldExpiry: expiry})
-}
-
 func (col inference) UpdateDetail(
 	index *repositories.InferenceIndexDO,
 	detail *repositories.InferenceDetailDO,

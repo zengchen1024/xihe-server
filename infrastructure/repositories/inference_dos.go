@@ -39,9 +39,9 @@ type InferenceDO struct {
 func (impl inference) toInferenceDO(obj *domain.Inference) InferenceDO {
 	return InferenceDO{
 		Id:           obj.Id,
-		ProjectId:    obj.ProjectId,
+		ProjectId:    obj.Project.Id,
 		LastCommit:   obj.LastCommit,
 		ProjectName:  obj.ProjectName.ProjName(),
-		ProjectOwner: obj.ProjectOwner.Account(),
+		ProjectOwner: obj.Project.Owner.Account(),
 	}
 }

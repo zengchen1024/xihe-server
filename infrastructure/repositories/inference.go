@@ -10,7 +10,6 @@ import (
 type InferenceMapper interface {
 	Insert(*InferenceDO, int) (string, error)
 	Get(*InferenceIndexDO) (InferenceSummaryDO, error)
-	UpdateExpiry(*InferenceIndexDO, int64) error
 	UpdateDetail(*InferenceIndexDO, *InferenceDetailDO) error
 	List(*ResourceIndexDO, string) ([]InferenceSummaryDO, int, error)
 }
@@ -76,17 +75,9 @@ func (impl inference) FindInstances(info *domain.ResourceIndex, lastCommit strin
 	return
 }
 
-func (impl inference) UpdateExpiry(info *domain.InferenceIndex, expiry int64) error {
-	index := impl.toInferenceIndexDO(info)
-
-	if err := impl.mapper.UpdateExpiry(&index, expiry); err != nil {
-		return convertError(err)
-	}
-
-	return nil
-}
-
-func (impl inference) UpdateDetail(info *domain.InferenceIndex, detail *domain.InferenceDetail) error {
+func (impl inference) UpdateDetail(
+	info *domain.InferenceIndex, detail *domain.InferenceDetail,
+) error {
 	index := impl.toInferenceIndexDO(info)
 
 	if err := impl.mapper.UpdateDetail(&index, detail); err != nil {

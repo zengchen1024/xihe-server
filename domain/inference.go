@@ -8,12 +8,9 @@ type Inference struct {
 }
 
 type InferenceInfo struct {
-	Id string
+	InferenceIndex
 
-	ProjectId    string
-	LastCommit   string
-	ProjectName  ProjName
-	ProjectOwner Account
+	ProjectName ProjName
 }
 
 type InferenceDetail struct {

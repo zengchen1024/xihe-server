@@ -282,7 +282,7 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 
 		v := domain.InferenceInfo{}
 
-		if v.ProjectOwner, err = domain.NewAccount(body.ProjectOwner); err != nil {
+		if v.Project.Owner, err = domain.NewAccount(body.ProjectOwner); err != nil {
 			return
 		}
 
@@ -291,7 +291,7 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		v.Id = body.InferenceId
-		v.ProjectId = body.ProjectId
+		v.Project.Id = body.ProjectId
 		v.LastCommit = body.LastCommit
 
 		switch body.Action {

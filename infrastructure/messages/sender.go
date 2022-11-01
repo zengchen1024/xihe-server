@@ -97,10 +97,10 @@ func (s sender) ExtendInferenceExpiry(info *domain.InferenceInfo) error {
 func (s sender) sendInference(info *domain.InferenceInfo, action string) error {
 	v := msgInference{
 		Action:       action,
-		ProjectId:    info.ProjectId,
+		ProjectId:    info.Project.Id,
 		LastCommit:   info.LastCommit,
 		ProjectName:  info.ProjectName.ProjName(),
-		ProjectOwner: info.ProjectOwner.Account(),
+		ProjectOwner: info.Project.Owner.Account(),
 		InferenceId:  info.Id,
 	}
 

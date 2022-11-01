@@ -290,7 +290,7 @@ type dInference struct {
 
 type inferenceItem struct {
 	Id        string `bson:"id"          json:"id"`
-	Expiry    int64  `bson:"expiry"      json:"expiry"`
-	Error     string `bson:"error"       json:"error"`
-	AccessURL string `bson:"url"         json:"url"`
+	Expiry    int64  `bson:"expiry"      json:"expiry,omitempty"`
+	Error     string `bson:"error"       json:"error,omitempty"`
+	AccessURL string `bson:"url"         json:"url,omitempty"`
 }
