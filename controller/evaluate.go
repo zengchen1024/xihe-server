@@ -26,8 +26,8 @@ func AddRouterForEvaluateController(
 		train: train,
 	}
 
-	rg.POST("/v1/train/project/:pid/training/:tid/evaluate", ctl.Create)
-	rg.GET("/v1/train/project/:pid/training/:tid/evaluate/:id", ctl.Watch)
+	rg.POST("/v1/evaluate/project/:pid/training/:tid/evaluate", ctl.Create)
+	rg.GET("/v1/evaluate/project/:pid/training/:tid/evaluate/:id", ctl.Watch)
 }
 
 type EvaluateController struct {
@@ -47,7 +47,7 @@ type EvaluateController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/train/project/{pid}/training/{tid}/evaluate [post]
+// @Router /v1/evaluate/project/{pid}/training/{tid}/evaluate [post]
 func (ctl *EvaluateController) Create(ctx *gin.Context) {
 	req := EvaluateCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -140,7 +140,7 @@ func (ctl *EvaluateController) createStandard(
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/train/project/{pid}/training/{tid}/evaluate/{id} [get]
+// @Router /v1/evaluate/project/{pid}/training/{tid}/evaluate/{id} [get]
 func (ctl *EvaluateController) Watch(ctx *gin.Context) {
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
