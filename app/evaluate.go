@@ -185,12 +185,6 @@ func (s evaluateService) check(instance *domain.EvaluateIndex) (
 			return
 		}
 
-		if item.Expiry == 0 && item.AccessURL == "" {
-			dto.InstanceId = item.Id
-
-			return
-		}
-
 		if target == nil || item.Expiry > target.Expiry {
 			target = item
 		}
@@ -250,9 +244,11 @@ type evaluateMessageService struct {
 }
 
 func (s evaluateMessageService) CreateEvaluateInstance(info *message.EvaluateInfo) error {
+	expiry := utils.Now() + int64(s.survivalTimeForInstance)
+
 	switch info.Type {
 	case domain.EvaluateTypeCustom:
-		return s.manager.Create(&evaluate.EvaluateInfo{
+		err := s.manager.Create(&evaluate.EvaluateInfo{
 			Evaluate: &domain.Evaluate{
 				EvaluateIndex: info.EvaluateIndex,
 				EvaluateType:  info.Type,
@@ -260,6 +256,13 @@ func (s evaluateMessageService) CreateEvaluateInstance(info *message.EvaluateInf
 			OBSPath:      info.OBSPath,
 			SurvivalTime: s.survivalTimeForInstance,
 		})
+		if err != nil {
+			return err
+		}
+
+		return s.repo.UpdateDetail(
+			&info.EvaluateIndex, &domain.EvaluateDetail{Expiry: expiry},
+		)
 
 	case domain.EvaluateTypeStandard:
 		p, err := s.repo.GetStandardEvaluateParms(&info.EvaluateIndex)
@@ -267,7 +270,7 @@ func (s evaluateMessageService) CreateEvaluateInstance(info *message.EvaluateInf
 			return err
 		}
 
-		return s.manager.Create(&evaluate.EvaluateInfo{
+		err = s.manager.Create(&evaluate.EvaluateInfo{
 			Evaluate: &domain.Evaluate{
 				EvaluateIndex:         info.EvaluateIndex,
 				EvaluateType:          info.Type,
@@ -276,8 +279,16 @@ func (s evaluateMessageService) CreateEvaluateInstance(info *message.EvaluateInf
 			OBSPath:      info.OBSPath,
 			SurvivalTime: s.survivalTimeForInstance,
 		})
+		if err != nil {
+			return err
+		}
+
+		return s.repo.UpdateDetail(
+			&info.EvaluateIndex, &domain.EvaluateDetail{Expiry: expiry},
+		)
 
 	default:
 		return nil
 	}
+
 }

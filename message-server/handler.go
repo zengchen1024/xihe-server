@@ -226,9 +226,9 @@ func (h *handler) HandleEventCreateInference(info *domain.InferenceInfo) error {
 	})
 }
 
-func (h *handler) HandleEventExtendInferenceExpiry(info *domain.InferenceInfo) error {
+func (h *handler) HandleEventExtendInferenceSurvivalTime(info *message.InferenceExtendInfo) error {
 	return h.do(func(bool) error {
-		err := h.inference.ExtendExpiryForInstance(info)
+		err := h.inference.ExtendSurvivalTime(info)
 		if err != nil {
 			h.log.Error(err)
 		}
