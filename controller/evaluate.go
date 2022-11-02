@@ -40,8 +40,9 @@ type EvaluateController struct {
 // @Summary Create
 // @Description create evaluate
 // @Tags  Evaluate
-// @Param	pid	path 	string		true	"project id"
-// @Param	tid	path 	string		true	"training id"
+// @Param	pid	path 	string			true	"project id"
+// @Param	tid	path 	string			true	"training id"
+// @Param	body	body 	EvaluateCreateRequest	true	"body of creating inference"
 // @Accept json
 // @Success 201 {object} app.EvaluateDTO
 // @Failure 400 bad_request_body    can't parse request body

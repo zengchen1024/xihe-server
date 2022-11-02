@@ -483,6 +483,15 @@ const docTemplate = `{
                         "name": "tid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "body of creating inference",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.EvaluateCreateRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -3016,6 +3025,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.EvaluateCreateRequest": {
+            "type": "object",
+            "properties": {
+                "batch_size_scope": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "learning_rate_scope": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "momentum_scope": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
                     "type": "string"
                 }
             }
