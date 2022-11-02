@@ -41,6 +41,15 @@ type msgInference struct {
 	ProjectOwner string `json:"owner"`
 }
 
+type msgEvaluate struct {
+	Type         string `json:"type"`
+	OBSPath      string `json:"path"`
+	ProjectId    string `json:"pid"`
+	TrainingId   string `json:"tid"`
+	EvaluateId   string `json:"id"`
+	ProjectOwner string `json:"owner"`
+}
+
 type msgRelatedResource struct {
 	Action   string         `json:"action"`
 	Promoter resourceObject `json:"promoter"`

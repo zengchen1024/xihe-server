@@ -38,6 +38,7 @@ type handler struct {
 	dataset   app.DatasetService
 	project   app.ProjectService
 	training  app.TrainingService
+	evaluate  app.EvaluateMessageService
 	inference app.InferenceMessageService
 }
 
@@ -219,8 +220,6 @@ func (h *handler) HandleEventCreateInference(info *domain.InferenceInfo) error {
 		err := h.inference.CreateInferenceInstance(info)
 		if err != nil {
 			h.log.Error(err)
-
-			return nil
 		}
 
 		return err
@@ -232,8 +231,17 @@ func (h *handler) HandleEventExtendInferenceExpiry(info *domain.InferenceInfo) e
 		err := h.inference.ExtendExpiryForInstance(info)
 		if err != nil {
 			h.log.Error(err)
+		}
 
-			return nil
+		return err
+	})
+}
+
+func (h *handler) HandleEventCreateEvaluate(info *message.EvaluateInfo) error {
+	return h.do(func(bool) error {
+		err := h.evaluate.CreateEvaluateInstance(info)
+		if err != nil {
+			h.log.Error(err)
 		}
 
 		return err

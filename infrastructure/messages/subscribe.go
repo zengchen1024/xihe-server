@@ -78,6 +78,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// evaluate
+	s, err = registerHandlerForEvaluate(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
 	// register end
 	if len(subscribers) == 0 {
 		return nil
@@ -303,5 +312,38 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 		}
 
 		return nil
+	})
+}
+
+func registerHandlerForEvaluate(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.EvaluateHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Evaluate, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgEvaluate{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		v := message.EvaluateInfo{}
+
+		if v.Project.Owner, err = domain.NewAccount(body.ProjectOwner); err != nil {
+			return
+		}
+
+		v.Id = body.EvaluateId
+		v.Type = body.Type
+		v.OBSPath = body.OBSPath
+		v.Project.Id = body.ProjectId
+		v.TrainingId = body.TrainingId
+
+		return h.HandleEventCreateEvaluate(&v)
 	})
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
+	"github.com/opensourceways/xihe-grpc-protocol/grpc/evaluate"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/inference"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/server"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/training"
@@ -96,6 +97,13 @@ func main() {
 		),
 	)
 
+	// inference
+	evaluateService := app.NewEvaluateInternalService(
+		repositories.NewEvaluateRepository(
+			mongodb.NewEvaluateMapper(cfg.Mongodb.EvaluateCollection),
+		),
+	)
+
 	// cfg
 	cfg.initDomainConfig()
 
@@ -103,6 +111,7 @@ func main() {
 	s := server.NewServer()
 
 	s.RegisterTrainingServer(trainingServer{train})
+	s.RegisterEvaluateServer(evaluateServer{evaluateService})
 	s.RegisterInferenceServer(inferenceServer{inferenceService})
 
 	if err := s.Run(strconv.Itoa(o.service.Port)); err != nil {
@@ -156,6 +165,32 @@ func (t inferenceServer) SetInferenceInfo(index *inference.InferenceIndex, v *in
 			LastCommit: index.LastCommit,
 		},
 		&app.InferenceDetail{
+			Error:     v.Error,
+			AccessURL: v.AccessURL,
+		},
+	)
+}
+
+type evaluateServer struct {
+	service app.EvaluateInternalService
+}
+
+func (t evaluateServer) SetEvaluateInfo(index *evaluate.EvaluateIndex, v *evaluate.EvaluateInfo) error {
+	u, err := domain.NewAccount(index.User)
+	if err != nil {
+		return nil
+	}
+
+	return t.service.UpdateDetail(
+		&domain.EvaluateIndex{
+			Project: domain.ResourceIndex{
+				Owner: u,
+				Id:    index.ProjectId,
+			},
+			Id:         index.Id,
+			TrainingId: index.TrainingID,
+		},
+		&app.EvaluateDetail{
 			Error:     v.Error,
 			AccessURL: v.AccessURL,
 		},

@@ -19,15 +19,17 @@ type inferenceImpl struct {
 	cli *sdk.InferenceEvaluate
 }
 
-func (impl inferenceImpl) Create(info *domain.InferenceInfo, token string) error {
+func (impl inferenceImpl) Create(info *inference.InferenceInfo) error {
 	opt := sdk.InferenceCreateOption{
-		UserToken:   token,
+		UserToken:   info.UserToken,
 		LastCommit:  info.LastCommit,
 		ProjectName: info.ProjectName.ResourceName(),
 	}
 	opt.User = info.Project.Owner.Account()
 	opt.ProjectId = info.Project.Id
 	opt.InferenceId = info.Id
+
+	// TODO survival time
 
 	return impl.cli.CreateInference(&opt)
 }

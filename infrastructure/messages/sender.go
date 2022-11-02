@@ -18,6 +18,7 @@ type Topics struct {
 	Training        string `json:"training"         required:"true"`
 	Following       string `json:"following"        required:"true"`
 	Inference       string `json:"inference"        required:"true"`
+	Evaluate        string `json:"evaluate"         required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
 
@@ -105,6 +106,20 @@ func (s sender) sendInference(info *domain.InferenceInfo, action string) error {
 	}
 
 	return s.send(topics.Inference, &v)
+}
+
+// Evaluate
+func (s sender) CreateEvaluate(info *message.EvaluateInfo) error {
+	v := msgEvaluate{
+		Type:         info.Type,
+		OBSPath:      info.OBSPath,
+		ProjectId:    info.Project.Id,
+		TrainingId:   info.TrainingId,
+		EvaluateId:   info.Id,
+		ProjectOwner: info.Project.Owner.Account(),
+	}
+
+	return s.send(topics.Evaluate, &v)
 }
 
 // RelatedResource

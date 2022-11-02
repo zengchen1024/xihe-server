@@ -25,7 +25,6 @@ func AddRouterForInferenceController(
 		s: app.NewInferenceService(
 			p, repo, sender, int64(apiConfig.MinExpiryForInference),
 		),
-		rs:      app.NewRepoFileService(p, nil),
 		project: project,
 	}
 
@@ -38,8 +37,7 @@ func AddRouterForInferenceController(
 type InferenceController struct {
 	baseController
 
-	s  app.InferenceService
-	rs app.RepoFileService
+	s app.InferenceService
 
 	project repository.Project
 

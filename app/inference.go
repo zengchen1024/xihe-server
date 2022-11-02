@@ -107,13 +107,21 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 	cmd.toInference(instance, sha)
 
 	dto, version, err := s.check(instance)
-	if err != nil || dto.hasResult() {
+	if err != nil {
+		return
+	}
+
+	if dto.hasResult() {
 		if dto.canReuseCurrent() {
 			instance.Id = dto.InstanceId
-			err = s.sender.ExtendInferenceExpiry(&instance.InferenceInfo)
-			logrus.Debugf(
-				"will reuse the inference instance(%s)", dto.InstanceId,
-			)
+			logrus.Debugf("will reuse the inference instance(%s)", dto.InstanceId)
+
+			if err1 := s.sender.ExtendInferenceExpiry(&instance.InferenceInfo); err1 != nil {
+				logrus.Errorf(
+					"extend instance(%s) failed, err:%s",
+					dto.InstanceId, err1.Error(),
+				)
+			}
 		}
 
 		return
@@ -214,7 +222,7 @@ func NewInferenceMessageService(
 	repo repository.Inference,
 	user repository.User,
 	manager inference.Inference,
-	survivalTimeForInstance int64,
+	survivalTimeForInstance int,
 ) InferenceMessageService {
 	return inferenceMessageService{
 		repo:                    repo,
@@ -228,7 +236,7 @@ type inferenceMessageService struct {
 	repo                    repository.Inference
 	user                    repository.User
 	manager                 inference.Inference
-	survivalTimeForInstance int64
+	survivalTimeForInstance int
 }
 
 func (s inferenceMessageService) CreateInferenceInstance(info *domain.InferenceInfo) error {
@@ -237,11 +245,15 @@ func (s inferenceMessageService) CreateInferenceInstance(info *domain.InferenceI
 		return err
 	}
 
-	return s.manager.Create(info, v.PlatformToken)
+	return s.manager.Create(&inference.InferenceInfo{
+		InferenceInfo: info,
+		UserToken:     v.PlatformToken,
+		SurvivalTime:  s.survivalTimeForInstance,
+	})
 }
 
 func (s inferenceMessageService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
-	v := utils.Now() + s.survivalTimeForInstance
+	v := utils.Now() + int64(s.survivalTimeForInstance)
 
 	if err := s.manager.ExtendExpiry(&info.InferenceIndex, v); err != nil {
 		return err
