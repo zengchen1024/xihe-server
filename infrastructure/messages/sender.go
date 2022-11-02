@@ -18,6 +18,7 @@ type Topics struct {
 	Training        string `json:"training"         required:"true"`
 	Following       string `json:"following"        required:"true"`
 	Inference       string `json:"inference"        required:"true"`
+	Evaluate        string `json:"evaluate"         required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
 
@@ -75,10 +76,10 @@ func (s sender) IncreaseFork(msg *domain.ResourceIndex) error {
 }
 
 // Training
-func (s sender) CreateTraining(info *domain.TrainingInfo) error {
+func (s sender) CreateTraining(info *domain.TrainingIndex) error {
 	v := msgTraining{
-		User:       info.User.Account(),
-		ProjectId:  info.ProjectId,
+		User:       info.Project.Owner.Account(),
+		ProjectId:  info.Project.Id,
 		TrainingId: info.TrainingId,
 	}
 
@@ -87,24 +88,43 @@ func (s sender) CreateTraining(info *domain.TrainingInfo) error {
 
 // Inference
 func (s sender) CreateInference(info *domain.InferenceInfo) error {
-	return s.sendInference(info, actionCreate)
-}
-
-func (s sender) ExtendInferenceExpiry(info *domain.InferenceInfo) error {
-	return s.sendInference(info, actionExtend)
-}
-
-func (s sender) sendInference(info *domain.InferenceInfo, action string) error {
-	v := msgInference{
-		Action:       action,
-		ProjectId:    info.Project.Id,
-		LastCommit:   info.LastCommit,
-		ProjectName:  info.ProjectName.ProjName(),
-		ProjectOwner: info.Project.Owner.Account(),
-		InferenceId:  info.Id,
-	}
+	v := s.toInferenceMsg(&info.InferenceIndex)
+	v.Action = actionCreate
+	v.ProjectName = info.ProjectName.ProjName()
 
 	return s.send(topics.Inference, &v)
+
+}
+
+func (s sender) ExtendInferenceSurvivalTime(info *message.InferenceExtendInfo) error {
+	v := s.toInferenceMsg(&info.InferenceIndex)
+	v.Action = actionExtend
+	v.Expiry = info.Expiry
+
+	return s.send(topics.Inference, &v)
+}
+
+func (s sender) toInferenceMsg(index *domain.InferenceIndex) msgInference {
+	return msgInference{
+		ProjectId:    index.Project.Id,
+		LastCommit:   index.LastCommit,
+		InferenceId:  index.Id,
+		ProjectOwner: index.Project.Owner.Account(),
+	}
+}
+
+// Evaluate
+func (s sender) CreateEvaluate(info *message.EvaluateInfo) error {
+	v := msgEvaluate{
+		Type:         info.Type,
+		OBSPath:      info.OBSPath,
+		ProjectId:    info.Project.Id,
+		TrainingId:   info.TrainingId,
+		EvaluateId:   info.Id,
+		ProjectOwner: info.Project.Owner.Account(),
+	}
+
+	return s.send(topics.Evaluate, &v)
 }
 
 // RelatedResource

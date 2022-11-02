@@ -6,6 +6,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/infrastructure/evaluateimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 )
 
@@ -14,9 +15,10 @@ type configuration struct {
 	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
 
 	Inference inferenceConfig `json:"inference"  required:"true"`
-	Mongodb   config.Mongodb  `json:"mongodb"  required:"true"`
-	Domain    domain.Config   `json:"domain"   required:"true"`
-	MQ        config.MQ       `json:"mq"       required:"true"`
+	Evaluate  evaluateConfig  `json:"evaluate"   required:"true"`
+	Mongodb   config.Mongodb  `json:"mongodb"    required:"true"`
+	Domain    domain.Config   `json:"domain"     required:"true"`
+	MQ        config.MQ       `json:"mq"         required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -28,6 +30,7 @@ func (cfg *configuration) getMQConfig() mq.MQConfig {
 func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Inference,
+		&cfg.Evaluate,
 		&cfg.Mongodb,
 		&cfg.Domain,
 		&cfg.MQ,
@@ -69,14 +72,14 @@ func (cfg *configuration) initDomainConfig() {
 }
 
 type inferenceConfig struct {
-	InstanceSurvivalTime int64 `json:"inference_survival_time"`
+	SurvivalTime int `json:"survival_time"`
 
 	inferenceimpl.Config
 }
 
 func (cfg *inferenceConfig) SetDefault() {
-	if cfg.InstanceSurvivalTime <= 0 {
-		cfg.InstanceSurvivalTime = 5 * 3600
+	if cfg.SurvivalTime <= 0 {
+		cfg.SurvivalTime = 5 * 3600
 	}
 
 	var i interface{}
@@ -88,6 +91,37 @@ func (cfg *inferenceConfig) SetDefault() {
 }
 
 func (cfg *inferenceConfig) Validate() error {
+	var i interface{}
+	i = &cfg.Config
+
+	if f, ok := i.(config.ConfigValidate); ok {
+		return f.Validate()
+	}
+
+	return nil
+}
+
+// evaluate
+type evaluateConfig struct {
+	SurvivalTime int `json:"survival_time"`
+
+	evaluateimpl.Config
+}
+
+func (cfg *evaluateConfig) SetDefault() {
+	if cfg.SurvivalTime <= 0 {
+		cfg.SurvivalTime = 5 * 3600
+	}
+
+	var i interface{}
+	i = &cfg.Config
+
+	if f, ok := i.(config.ConfigSetDefault); ok {
+		f.SetDefault()
+	}
+}
+
+func (cfg *evaluateConfig) Validate() error {
 	var i interface{}
 	i = &cfg.Config
 

@@ -19,11 +19,12 @@ type inferenceImpl struct {
 	cli *sdk.InferenceEvaluate
 }
 
-func (impl inferenceImpl) Create(info *domain.InferenceInfo, token string) error {
+func (impl inferenceImpl) Create(info *inference.InferenceInfo) error {
 	opt := sdk.InferenceCreateOption{
-		UserToken:   token,
-		LastCommit:  info.LastCommit,
-		ProjectName: info.ProjectName.ResourceName(),
+		UserToken:    info.UserToken,
+		LastCommit:   info.LastCommit,
+		ProjectName:  info.ProjectName.ResourceName(),
+		SurvivalTime: info.SurvivalTime,
 	}
 	opt.User = info.Project.Owner.Account()
 	opt.ProjectId = info.Project.Id
@@ -32,9 +33,9 @@ func (impl inferenceImpl) Create(info *domain.InferenceInfo, token string) error
 	return impl.cli.CreateInference(&opt)
 }
 
-func (impl inferenceImpl) ExtendExpiry(index *domain.InferenceIndex, expiry int64) error {
+func (impl inferenceImpl) ExtendSurvivalTime(index *domain.InferenceIndex, timeToExtend int) error {
 	opt := sdk.InferenceUpdateOption{
-		Expiry: expiry,
+		TimeToExtend: timeToExtend,
 	}
 	opt.User = index.Project.Owner.Account()
 	opt.ProjectId = index.Project.Id

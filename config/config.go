@@ -123,6 +123,7 @@ type Mongodb struct {
 	ProjectCollection   string `json:"project_collection"      required:"true"`
 	ActivityCollection  string `json:"activity_collection"     required:"true"`
 	TrainingCollection  string `json:"training_collection"     required:"true"`
+	EvaluateCollection  string `json:"evaluate_collection"     required:"true"`
 	InferenceCollection string `json:"inference_collection"    required:"true"`
 }
 

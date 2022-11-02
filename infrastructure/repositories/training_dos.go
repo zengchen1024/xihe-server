@@ -264,10 +264,10 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	return
 }
 
-func (impl training) toTrainingInfoDo(info *domain.TrainingInfo) TrainingInfoDO {
-	return TrainingInfoDO{
-		User:       info.User.Account(),
-		ProjectId:  info.ProjectId,
+func (impl training) toTrainingInfoDo(info *domain.TrainingIndex) TrainingIndexDO {
+	return TrainingIndexDO{
+		User:       info.Project.Owner.Account(),
+		ProjectId:  info.Project.Id,
 		TrainingId: info.TrainingId,
 	}
 }
@@ -283,7 +283,7 @@ type TrainingSummaryDO struct {
 	CreatedAt int64
 }
 
-type TrainingInfoDO struct {
+type TrainingIndexDO struct {
 	User       string
 	ProjectId  string
 	TrainingId string

@@ -226,3 +226,24 @@ func (ctl baseController) getListResourceParameter(
 
 	return
 }
+
+func (ctl *baseController) checkTokenForWebsocket(ctx *gin.Context) (
+	pl oldUserTokenPayload, token string, ok bool,
+) {
+	token = ctx.GetHeader(headerSecWebsocket)
+	if token == "" {
+		//TODO delete
+		log.Errorf("check token for ws, no token")
+
+		ctx.JSON(
+			http.StatusBadRequest,
+			newResponseCodeMsg(errorBadRequestHeader, "no token"),
+		)
+
+		return
+	}
+
+	ok = ctl.checkApiToken(ctx, token, &pl, false)
+
+	return
+}

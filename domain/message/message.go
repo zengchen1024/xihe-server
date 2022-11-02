@@ -4,6 +4,17 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type EvaluateInfo struct {
+	domain.EvaluateIndex
+	Type    string
+	OBSPath string
+}
+
+type InferenceExtendInfo struct {
+	domain.InferenceIndex
+	Expiry int64
+}
+
 type Sender interface {
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
@@ -16,10 +27,12 @@ type Sender interface {
 	AddRelatedResource(*RelatedResource) error
 	RemoveRelatedResource(*RelatedResource) error
 
-	CreateTraining(*domain.TrainingInfo) error
+	CreateTraining(*domain.TrainingIndex) error
 
 	CreateInference(*domain.InferenceInfo) error
-	ExtendInferenceExpiry(*domain.InferenceInfo) error
+	ExtendInferenceSurvivalTime(*InferenceExtendInfo) error
+
+	CreateEvaluate(*EvaluateInfo) error
 }
 
 type EventHandler interface {
@@ -54,10 +67,14 @@ type RelatedResource struct {
 }
 
 type TrainingHandler interface {
-	HandleEventCreateTraining(*domain.TrainingInfo) error
+	HandleEventCreateTraining(*domain.TrainingIndex) error
 }
 
 type InferenceHandler interface {
 	HandleEventCreateInference(*domain.InferenceInfo) error
-	HandleEventExtendInferenceExpiry(*domain.InferenceInfo) error
+	HandleEventExtendInferenceSurvivalTime(*InferenceExtendInfo) error
+}
+
+type EvaluateHandler interface {
+	HandleEventCreateEvaluate(*EvaluateInfo) error
 }

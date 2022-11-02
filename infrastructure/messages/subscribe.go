@@ -78,6 +78,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// evaluate
+	s, err = registerHandlerForEvaluate(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
 	// register end
 	if len(subscribers) == 0 {
 		return nil
@@ -250,13 +259,13 @@ func registerHandlerForTraining(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		v := domain.TrainingInfo{}
+		v := domain.TrainingIndex{}
 
-		if v.User, err = domain.NewAccount(body.User); err != nil {
+		if v.Project.Owner, err = domain.NewAccount(body.User); err != nil {
 			return
 		}
 
-		v.ProjectId = body.ProjectId
+		v.Project.Id = body.ProjectId
 		v.TrainingId = body.TrainingId
 
 		return h.HandleEventCreateTraining(&v)
@@ -280,13 +289,9 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		v := domain.InferenceInfo{}
+		v := domain.InferenceIndex{}
 
 		if v.Project.Owner, err = domain.NewAccount(body.ProjectOwner); err != nil {
-			return
-		}
-
-		if v.ProjectName, err = domain.NewProjName(body.ProjectName); err != nil {
 			return
 		}
 
@@ -296,12 +301,59 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 
 		switch body.Action {
 		case actionCreate:
-			return h.HandleEventCreateInference(&v)
+			info := domain.InferenceInfo{
+				InferenceIndex: v,
+			}
+
+			info.ProjectName, err = domain.NewProjName(body.ProjectName)
+			if err != nil {
+				return
+			}
+
+			return h.HandleEventCreateInference(&info)
 
 		case actionExtend:
-			return h.HandleEventExtendInferenceExpiry(&v)
+			return h.HandleEventExtendInferenceSurvivalTime(
+				&message.InferenceExtendInfo{
+					InferenceIndex: v,
+					Expiry:         body.Expiry,
+				},
+			)
 		}
 
 		return nil
+	})
+}
+
+func registerHandlerForEvaluate(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.EvaluateHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Evaluate, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgEvaluate{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		v := message.EvaluateInfo{}
+
+		if v.Project.Owner, err = domain.NewAccount(body.ProjectOwner); err != nil {
+			return
+		}
+
+		v.Id = body.EvaluateId
+		v.Type = body.Type
+		v.OBSPath = body.OBSPath
+		v.Project.Id = body.ProjectId
+		v.TrainingId = body.TrainingId
+
+		return h.HandleEventCreateEvaluate(&v)
 	})
 }

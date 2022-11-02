@@ -35,6 +35,7 @@ const (
 	fieldDatasets       = "datasets"
 	fieldProjects       = "projects"
 	fieldRId            = "rid"
+	fieldTId            = "tid"
 	fieldROwner         = "rowner"
 	fieldRType          = "rtype"
 	fieldUpdatedAt      = "updated_at"
@@ -293,4 +294,24 @@ type inferenceItem struct {
 	Expiry    int64  `bson:"expiry"      json:"expiry,omitempty"`
 	Error     string `bson:"error"       json:"error,omitempty"`
 	AccessURL string `bson:"url"         json:"url,omitempty"`
+}
+
+type dEvaluate struct {
+	Owner      string `bson:"owner"       json:"owner"`
+	ProjectId  string `bson:"pid"         json:"pid"`
+	TrainingId string `bson:"tid"         json:"tid"`
+	Version    int    `bson:"version"     json:"-"`
+
+	Items []evaluateItem `bson:"items"  json:"-"`
+}
+
+type evaluateItem struct {
+	Id                string   `bson:"id"          json:"id"`
+	Type              string   `bson:"type"        json:"type"`
+	MomentumScope     []string `bson:"momentum"    json:"momentum,omitempty"`
+	BatchSizeScope    []string `bson:"bsize"       json:"bsize,omitempty"`
+	LearningRateScope []string `bson:"rate"        json:"rate,omitempty"`
+	Expiry            int64    `bson:"expiry"      json:"expiry,omitempty"`
+	Error             string   `bson:"error"       json:"error,omitempty"`
+	AccessURL         string   `bson:"url"         json:"url,omitempty"`
 }

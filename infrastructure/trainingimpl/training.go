@@ -23,12 +23,12 @@ func (impl *trainingImpl) IsJobDone(status string) bool {
 	return impl.doneStatus.Has(status)
 }
 
-func (impl *trainingImpl) CreateJob(endpoint string, info *domain.TrainingInfo, t *domain.TrainingConfig) (
+func (impl *trainingImpl) CreateJob(endpoint string, info *domain.TrainingIndex, t *domain.TrainingConfig) (
 	job domain.JobInfo, err error,
 ) {
 	opt := sdk.TrainingCreateOption{
-		User:           info.User.Account(),
-		ProjectId:      info.ProjectId,
+		User:           info.Project.Owner.Account(),
+		ProjectId:      info.Project.Id,
 		TrainingId:     info.TrainingId,
 		ProjectName:    t.ProjectName.ProjName(),
 		ProjectRepoId:  t.ProjectRepoId,

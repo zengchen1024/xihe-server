@@ -38,6 +38,7 @@ type handler struct {
 	dataset   app.DatasetService
 	project   app.ProjectService
 	training  app.TrainingService
+	evaluate  app.EvaluateMessageService
 	inference app.InferenceMessageService
 }
 
@@ -187,7 +188,7 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 	})
 }
 
-func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
+func (h *handler) HandleEventCreateTraining(info *domain.TrainingIndex) error {
 	// wait for the sync of model and dataset
 	time.Sleep(10 * time.Second)
 
@@ -199,8 +200,8 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 			if err != nil {
 				h.log.Errorf(
 					"handle training(%s/%s/%s) failed, err:%s",
-					info.User.Account(), info.ProjectId, info.TrainingId,
-					err.Error(),
+					info.Project.Owner.Account(), info.Project.Id,
+					info.TrainingId, err.Error(),
 				)
 
 				if !retry {
@@ -219,21 +220,28 @@ func (h *handler) HandleEventCreateInference(info *domain.InferenceInfo) error {
 		err := h.inference.CreateInferenceInstance(info)
 		if err != nil {
 			h.log.Error(err)
-
-			return nil
 		}
 
 		return err
 	})
 }
 
-func (h *handler) HandleEventExtendInferenceExpiry(info *domain.InferenceInfo) error {
+func (h *handler) HandleEventExtendInferenceSurvivalTime(info *message.InferenceExtendInfo) error {
 	return h.do(func(bool) error {
-		err := h.inference.ExtendExpiryForInstance(info)
+		err := h.inference.ExtendSurvivalTime(info)
 		if err != nil {
 			h.log.Error(err)
+		}
 
-			return nil
+		return err
+	})
+}
+
+func (h *handler) HandleEventCreateEvaluate(info *message.EvaluateInfo) error {
+	return h.do(func(bool) error {
+		err := h.evaluate.CreateEvaluateInstance(info)
+		if err != nil {
+			h.log.Error(err)
 		}
 
 		return err

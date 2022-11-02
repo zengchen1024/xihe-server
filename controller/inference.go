@@ -23,9 +23,8 @@ func AddRouterForInferenceController(
 ) {
 	ctl := InferenceController{
 		s: app.NewInferenceService(
-			p, repo, sender, int64(apiConfig.MinExpiryForInference),
+			p, repo, sender, apiConfig.MinSurvivalTimeOfInference,
 		),
-		rs:      app.NewRepoFileService(p, nil),
 		project: project,
 	}
 
@@ -38,8 +37,7 @@ func AddRouterForInferenceController(
 type InferenceController struct {
 	baseController
 
-	s  app.InferenceService
-	rs app.RepoFileService
+	s app.InferenceService
 
 	project repository.Project
 
@@ -147,17 +145,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if dto.Error != "" {
-		ws.WriteJSON(
-			newResponseCodeMsg(
-				errorSystemError, dto.Error,
-			),
-		)
-
-		return
-	}
-
-	if dto.AccessURL != "" {
+	if dto.Error != "" || dto.AccessURL != "" {
 		ws.WriteJSON(newResponseData(dto))
 
 		return
@@ -175,26 +163,12 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	for i := 0; i < apiConfig.InferenceTimeout; i++ {
 		dto, err = ctl.s.Get(&info)
 		if err != nil {
-			ws.WriteJSON(
-				newResponseCodeMsg(
-					errorSystemError, dto.Error,
-				),
-			)
+			ws.WriteJSON(newResponseError(err))
 
 			return
 		}
 
-		if dto.Error != "" {
-			ws.WriteJSON(
-				newResponseCodeMsg(
-					errorSystemError, dto.Error,
-				),
-			)
-
-			return
-		}
-
-		if dto.AccessURL != "" {
+		if dto.Error != "" || dto.AccessURL != "" {
 			ws.WriteJSON(newResponseData(dto))
 
 			return

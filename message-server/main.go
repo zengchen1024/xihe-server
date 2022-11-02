@@ -14,6 +14,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
+	"github.com/opensourceways/xihe-server/infrastructure/evaluateimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -140,7 +141,15 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			),
 			userRepo,
 			inferenceimpl.NewInference(&cfg.Inference.Config),
-			cfg.Inference.InstanceSurvivalTime,
+			cfg.Inference.SurvivalTime,
+		),
+
+		evaluate: app.NewEvaluateMessageService(
+			repositories.NewEvaluateRepository(
+				mongodb.NewEvaluateMapper(cfg.Mongodb.EvaluateCollection),
+			),
+			evaluateimpl.NewEvaluate(&cfg.Evaluate.Config),
+			cfg.Evaluate.SurvivalTime,
 		),
 	}
 }

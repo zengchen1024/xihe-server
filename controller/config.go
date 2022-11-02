@@ -28,22 +28,28 @@ func Init(cfg *APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
-	TokenKey                 string `json:"token_key"                   required:"true"`
-	TokenExpiry              int64  `json:"token_expiry"                required:"true"`
-	EncryptionKey            string `json:"encryption_key"              required:"true"`
-	DefaultPassword          string `json:"default_password"            required:"true"`
-	MaxTrainingRecordNum     int    `json:"max_training_record_num"     required:"true"`
-	MinExpiryForInference    int    `json:"min_expiry_for_inference"`
-	InferenceDir             string `json:"inference_dir"`
-	InferenceBootFile        string `json:"inference_boot_file"`
-	InferenceTimeout         int    `json:"inference_timeout"`
-	MaxPictureSizeToDescribe int64  `json:"-"`
-	MaxPictureSizeToVQA      int64  `json:"-"`
+	TokenKey                   string `json:"token_key"                   required:"true"`
+	TokenExpiry                int64  `json:"token_expiry"                required:"true"`
+	EncryptionKey              string `json:"encryption_key"              required:"true"`
+	DefaultPassword            string `json:"default_password"            required:"true"`
+	MaxTrainingRecordNum       int    `json:"max_training_record_num"     required:"true"`
+	InferenceDir               string `json:"inference_dir"`
+	InferenceBootFile          string `json:"inference_boot_file"`
+	InferenceTimeout           int    `json:"inference_timeout"`
+	EvaluateTimeout            int    `json:"evaluate_timeout"`
+	MaxPictureSizeToDescribe   int64  `json:"-"`
+	MaxPictureSizeToVQA        int64  `json:"-"`
+	MinSurvivalTimeOfEvaluate  int    `json:"min_survival_time_of_evaluate"`
+	MinSurvivalTimeOfInference int    `json:"min_survival_time_of_inference"`
 }
 
 func (cfg *APIConfig) SetDefault() {
-	if cfg.MinExpiryForInference <= 0 {
-		cfg.MinExpiryForInference = 3600
+	if cfg.MinSurvivalTimeOfInference <= 0 {
+		cfg.MinSurvivalTimeOfInference = 3600
+	}
+
+	if cfg.MinSurvivalTimeOfEvaluate <= 0 {
+		cfg.MinSurvivalTimeOfEvaluate = 3600
 	}
 
 	if cfg.InferenceDir == "" {
@@ -56,6 +62,10 @@ func (cfg *APIConfig) SetDefault() {
 
 	if cfg.InferenceTimeout <= 0 {
 		cfg.InferenceTimeout = 300
+	}
+
+	if cfg.EvaluateTimeout <= 0 {
+		cfg.EvaluateTimeout = 300
 	}
 }
 

@@ -76,6 +76,15 @@ definitions:
           $ref: '#/definitions/domain.Tags'
         type: array
     type: object
+  app.EvaluateDTO:
+    properties:
+      access_url:
+        type: string
+      error:
+        type: string
+      evaluate_id:
+        type: string
+    type: object
   app.FollowDTO:
     properties:
       account:
@@ -95,6 +104,15 @@ definitions:
         type: array
       total:
         type: integer
+    type: object
+  app.InferenceDTO:
+    properties:
+      access_url:
+        type: string
+      error:
+        type: string
+      inference_id:
+        type: string
     type: object
   app.LikeDTO:
     properties:
@@ -1076,6 +1094,42 @@ paths:
       summary: Get
       tags:
       - Dataset
+  /v1/inference/project/{owner}/{pid}:
+    post:
+      consumes:
+      - application/json
+      description: create inference
+      parameters:
+      - description: project owner
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.InferenceDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Inference
   /v1/model:
     post:
       consumes:
@@ -1988,6 +2042,83 @@ paths:
       summary: GetLog
       tags:
       - Training
+  /v1/train/project/{pid}/training/{tid}/evaluate:
+    post:
+      consumes:
+      - application/json
+      description: create evaluate
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: tid
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.EvaluateDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Evaluate
+  /v1/train/project/{pid}/training/{tid}/evaluate/{id}:
+    get:
+      consumes:
+      - application/json
+      description: watch evaluate
+      parameters:
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      - description: training id
+        in: path
+        name: tid
+        required: true
+        type: string
+      - description: evaluate id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.EvaluateDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Watch
+      tags:
+      - Evaluate
   /v1/train/project/{pid}/training/ws:
     get:
       consumes:

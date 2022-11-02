@@ -25,13 +25,13 @@ type InferenceCreateCmd struct {
 }
 
 func (cmd *InferenceCreateCmd) Validate() error {
-	b := cmd.ProjectId == "" ||
-		cmd.ProjectName == nil ||
-		cmd.ProjectOwner == nil ||
-		cmd.InferenceDir == nil ||
-		cmd.BootFile == nil
+	b := cmd.ProjectId != "" ||
+		cmd.ProjectName != nil ||
+		cmd.ProjectOwner != nil ||
+		cmd.InferenceDir != nil ||
+		cmd.BootFile != nil
 
-	if b {
+	if !b {
 		return errors.New("invalid cmd")
 	}
 
@@ -54,27 +54,28 @@ func NewInferenceService(
 	p platform.RepoFile,
 	repo repository.Inference,
 	sender message.Sender,
-	minExpiryForInference int64,
+	minSurvivalTime int,
 ) InferenceService {
 	return inferenceService{
-		p:                     p,
-		repo:                  repo,
-		sender:                sender,
-		minExpiryForInference: minExpiryForInference,
+		p:               p,
+		repo:            repo,
+		sender:          sender,
+		minSurvivalTime: int64(minSurvivalTime),
 	}
 }
 
 type inferenceService struct {
-	p                     platform.RepoFile
-	repo                  repository.Inference
-	sender                message.Sender
-	minExpiryForInference int64
+	p               platform.RepoFile
+	repo            repository.Inference
+	sender          message.Sender
+	minSurvivalTime int64
 }
 
 type InferenceDTO struct {
-	Error      string
-	AccessURL  string
-	InstanceId string
+	expiry     int64
+	Error      string `json:"error"`
+	AccessURL  string `json:"access_url"`
+	InstanceId string `json:"inference_id"`
 }
 
 func (dto *InferenceDTO) hasResult() bool {
@@ -107,13 +108,25 @@ func (s inferenceService) Create(u *UserInfo, cmd *InferenceCreateCmd) (
 	cmd.toInference(instance, sha)
 
 	dto, version, err := s.check(instance)
-	if err != nil || dto.hasResult() {
+	if err != nil {
+		return
+	}
+
+	if dto.hasResult() {
 		if dto.canReuseCurrent() {
 			instance.Id = dto.InstanceId
-			err = s.sender.ExtendInferenceExpiry(&instance.InferenceInfo)
-			logrus.Debugf(
-				"will reuse the inference instance(%s)", dto.InstanceId,
-			)
+			logrus.Debugf("will reuse the inference instance(%s)", dto.InstanceId)
+
+			err1 := s.sender.ExtendInferenceSurvivalTime(&message.InferenceExtendInfo{
+				InferenceIndex: instance.InferenceIndex,
+				Expiry:         dto.expiry,
+			})
+			if err1 != nil {
+				logrus.Errorf(
+					"extend instance(%s) failed, err:%s",
+					dto.InstanceId, err1.Error(),
+				)
+			}
 		}
 
 		return
@@ -163,12 +176,6 @@ func (s inferenceService) check(instance *domain.Inference) (
 			return
 		}
 
-		if item.Expiry == 0 && item.AccessURL == "" {
-			dto.InstanceId = item.Id
-
-			return
-		}
-
 		if target == nil || item.Expiry > target.Expiry {
 			target = item
 		}
@@ -179,7 +186,8 @@ func (s inferenceService) check(instance *domain.Inference) (
 	}
 
 	e, n := target.Expiry, utils.Now()
-	if n < e && n+s.minExpiryForInference <= e {
+	if n < e && n+s.minSurvivalTime <= e {
+		dto.expiry = target.Expiry
 		dto.AccessURL = target.AccessURL
 		dto.InstanceId = target.Id
 	}
@@ -207,14 +215,14 @@ func (s inferenceInternalService) UpdateDetail(index *InferenceIndex, detail *In
 
 type InferenceMessageService interface {
 	CreateInferenceInstance(*domain.InferenceInfo) error
-	ExtendExpiryForInstance(*domain.InferenceInfo) error
+	ExtendSurvivalTime(*message.InferenceExtendInfo) error
 }
 
 func NewInferenceMessageService(
 	repo repository.Inference,
 	user repository.User,
 	manager inference.Inference,
-	survivalTimeForInstance int64,
+	survivalTimeForInstance int,
 ) InferenceMessageService {
 	return inferenceMessageService{
 		repo:                    repo,
@@ -228,7 +236,7 @@ type inferenceMessageService struct {
 	repo                    repository.Inference
 	user                    repository.User
 	manager                 inference.Inference
-	survivalTimeForInstance int64
+	survivalTimeForInstance int
 }
 
 func (s inferenceMessageService) CreateInferenceInstance(info *domain.InferenceInfo) error {
@@ -237,15 +245,47 @@ func (s inferenceMessageService) CreateInferenceInstance(info *domain.InferenceI
 		return err
 	}
 
-	return s.manager.Create(info, v.PlatformToken)
-}
-
-func (s inferenceMessageService) ExtendExpiryForInstance(info *domain.InferenceInfo) error {
-	v := utils.Now() + s.survivalTimeForInstance
-
-	if err := s.manager.ExtendExpiry(&info.InferenceIndex, v); err != nil {
+	err = s.manager.Create(&inference.InferenceInfo{
+		InferenceInfo: info,
+		UserToken:     v.PlatformToken,
+		SurvivalTime:  s.survivalTimeForInstance,
+	})
+	if err != nil {
 		return err
 	}
 
-	return s.repo.UpdateDetail(&info.InferenceIndex, &domain.InferenceDetail{Expiry: v})
+	return s.repo.UpdateDetail(
+		&info.InferenceIndex,
+		&domain.InferenceDetail{Expiry: utils.Now() + int64(s.survivalTimeForInstance)},
+	)
+}
+
+func (s inferenceMessageService) ExtendSurvivalTime(info *message.InferenceExtendInfo) error {
+	expiry, n := info.Expiry, utils.Now()
+	if expiry < n {
+		logrus.Errorf(
+			"extend survival time for inference instance(%s) failed, it is timeout.",
+			info.Id,
+		)
+
+		return nil
+	}
+
+	n += int64(s.survivalTimeForInstance)
+
+	v := int(n - expiry)
+	if v < 10 {
+		logrus.Debugf(
+			"no need to extend survival time for inference instance(%s) in a small range",
+			info.Id,
+		)
+
+		return nil
+	}
+
+	if err := s.manager.ExtendSurvivalTime(&info.InferenceIndex, v); err != nil {
+		return err
+	}
+
+	return s.repo.UpdateDetail(&info.InferenceIndex, &domain.InferenceDetail{Expiry: n})
 }

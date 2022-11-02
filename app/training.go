@@ -17,19 +17,19 @@ const (
 )
 
 type JobDetail = domain.JobDetail
-type TrainingInfo = domain.TrainingInfo
+type TrainingIndex = domain.TrainingIndex
 type TrainingConfig = domain.TrainingConfig
 
 type TrainingService interface {
 	Create(*TrainingCreateCmd) (string, error)
-	Recreate(*TrainingInfo) (string, error)
-	UpdateJobDetail(*TrainingInfo, *JobDetail) error
+	Recreate(*TrainingIndex) (string, error)
+	UpdateJobDetail(*TrainingIndex, *JobDetail) error
 	List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error)
-	Get(*TrainingInfo) (TrainingDTO, error)
-	Delete(*TrainingInfo) error
-	Terminate(*TrainingInfo) error
-	GetLogDownloadURL(*TrainingInfo) (string, error)
-	CreateTrainingJob(*TrainingInfo, string, bool) (bool, error)
+	Get(*TrainingIndex) (TrainingDTO, error)
+	Delete(*TrainingIndex) error
+	Terminate(*TrainingIndex) error
+	GetLogDownloadURL(*TrainingIndex) (string, error)
+	CreateTrainingJob(*TrainingIndex, string, bool) (bool, error)
 }
 
 func NewTrainingService(
@@ -66,13 +66,13 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 	return s.create(cmd.User, cmd.ProjectId, cmd.toTrainingConfig())
 }
 
-func (s trainingService) Recreate(info *TrainingInfo) (string, error) {
+func (s trainingService) Recreate(info *TrainingIndex) (string, error) {
 	v, err := s.repo.GetTrainingConfig(info)
 	if err != nil {
 		return "", err
 	}
 
-	return s.create(info.User, info.ProjectId, &v)
+	return s.create(info.Project.Owner, info.Project.Id, &v)
 }
 
 func (s trainingService) create(
@@ -110,9 +110,11 @@ func (s trainingService) create(
 	}
 
 	// send message
-	err = s.sender.CreateTraining(&TrainingInfo{
-		User:       user,
-		ProjectId:  projectId,
+	err = s.sender.CreateTraining(&TrainingIndex{
+		Project: domain.ResourceIndex{
+			Owner: user,
+			Id:    projectId,
+		},
 		TrainingId: r,
 	})
 	if err != nil {
@@ -137,7 +139,7 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	return r, nil
 }
 
-func (s trainingService) Get(info *TrainingInfo) (TrainingDTO, error) {
+func (s trainingService) Get(info *TrainingIndex) (TrainingDTO, error) {
 	data, err := s.repo.Get(info)
 	if err != nil {
 		return TrainingDTO{}, err
@@ -146,11 +148,11 @@ func (s trainingService) Get(info *TrainingInfo) (TrainingDTO, error) {
 	return s.toTrainingDTO(&data), nil
 }
 
-func (s trainingService) UpdateJobDetail(info *TrainingInfo, v *JobDetail) error {
+func (s trainingService) UpdateJobDetail(info *TrainingIndex, v *JobDetail) error {
 	return s.repo.UpdateJobDetail(info, v)
 }
 
-func (s trainingService) Delete(info *TrainingInfo) error {
+func (s trainingService) Delete(info *TrainingIndex) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -167,7 +169,7 @@ func (s trainingService) Delete(info *TrainingInfo) error {
 	return s.repo.Delete(info)
 }
 
-func (s trainingService) Terminate(info *TrainingInfo) error {
+func (s trainingService) Terminate(info *TrainingIndex) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return err
@@ -183,7 +185,7 @@ func (s trainingService) Terminate(info *TrainingInfo) error {
 	return nil
 }
 
-func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
+func (s trainingService) GetLogDownloadURL(info *TrainingIndex) (string, error) {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return "", err
@@ -197,7 +199,7 @@ func (s trainingService) GetLogDownloadURL(info *TrainingInfo) (string, error) {
 }
 
 func (s trainingService) CreateTrainingJob(
-	info *TrainingInfo, endpoint string, lastChance bool,
+	info *TrainingIndex, endpoint string, lastChance bool,
 ) (retry bool, err error) {
 	retry, err = s.createTrainingJob(info, endpoint)
 	if err == nil {
@@ -213,7 +215,7 @@ func (s trainingService) CreateTrainingJob(
 	return
 }
 
-func (s trainingService) createTrainingJob(info *TrainingInfo, endpoint string) (
+func (s trainingService) createTrainingJob(info *TrainingIndex, endpoint string) (
 	retry bool, err error,
 ) {
 	data, err := s.repo.Get(info)

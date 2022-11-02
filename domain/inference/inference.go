@@ -4,7 +4,13 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type InferenceInfo struct {
+	*domain.InferenceInfo
+	UserToken    string
+	SurvivalTime int
+}
+
 type Inference interface {
-	Create(*domain.InferenceInfo, string) error
-	ExtendExpiry(*domain.InferenceIndex, int64) error
+	Create(*InferenceInfo) error
+	ExtendSurvivalTime(index *domain.InferenceIndex, timeToExtend int) error
 }
