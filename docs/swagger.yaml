@@ -290,6 +290,23 @@ definitions:
       version:
         type: string
     type: object
+  controller.EvaluateCreateRequest:
+    properties:
+      batch_size_scope:
+        items:
+          type: string
+        type: array
+      learning_rate_scope:
+        items:
+          type: string
+        type: array
+      momentum_scope:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+    type: object
   controller.KeyValue:
     properties:
       key:
@@ -1110,6 +1127,12 @@ paths:
         name: tid
         required: true
         type: string
+      - description: body of creating inference
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.EvaluateCreateRequest'
       responses:
         "201":
           description: Created
