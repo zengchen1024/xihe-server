@@ -88,21 +88,27 @@ func (s sender) CreateTraining(info *domain.TrainingInfo) error {
 
 // Inference
 func (s sender) CreateInference(info *domain.InferenceInfo) error {
-	return s.sendInference(info, actionCreate)
-}
-
-func (s sender) ExtendInferenceExpiry(info *domain.InferenceInfo) error {
-	return s.sendInference(info, actionExtend)
-}
-
-func (s sender) sendInference(info *domain.InferenceInfo, action string) error {
 	v := msgInference{
-		Action:       action,
+		Action:       actionCreate,
 		ProjectId:    info.Project.Id,
 		LastCommit:   info.LastCommit,
+		InferenceId:  info.Id,
 		ProjectName:  info.ProjectName.ProjName(),
 		ProjectOwner: info.Project.Owner.Account(),
+	}
+
+	return s.send(topics.Inference, &v)
+
+}
+
+func (s sender) ExtendInferenceSurvivalTime(info *message.InferenceExtendInfo) error {
+	v := msgInference{
+		Action:       actionExtend,
+		Expiry:       info.Expiry,
+		ProjectId:    info.Project.Id,
+		LastCommit:   info.LastCommit,
 		InferenceId:  info.Id,
+		ProjectOwner: info.Project.Owner.Account(),
 	}
 
 	return s.send(topics.Inference, &v)

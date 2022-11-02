@@ -39,6 +39,7 @@ type msgInference struct {
 	LastCommit   string `json:"commit"`
 	ProjectName  string `json:"name"`
 	ProjectOwner string `json:"owner"`
+	Expiry       int64  `json:"expiry"`
 }
 
 type msgEvaluate struct {

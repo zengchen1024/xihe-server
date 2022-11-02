@@ -10,7 +10,7 @@ require (
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95
 	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221101123717-861bb4a4b5bb
-	github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101125932-aedf86ba6242
+	github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102021502-99b5b70890e8
 	github.com/opensourceways/xihe-training-center v0.0.0-20221031102124-01279bbaf60e
 	github.com/sirupsen/logrus v1.9.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a

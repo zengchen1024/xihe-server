@@ -10,6 +10,11 @@ type EvaluateInfo struct {
 	OBSPath string
 }
 
+type InferenceExtendInfo struct {
+	domain.InferenceIndex
+	Expiry int64
+}
+
 type Sender interface {
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
@@ -25,7 +30,7 @@ type Sender interface {
 	CreateTraining(*domain.TrainingInfo) error
 
 	CreateInference(*domain.InferenceInfo) error
-	ExtendInferenceExpiry(*domain.InferenceInfo) error
+	ExtendInferenceSurvivalTime(*InferenceExtendInfo) error
 
 	CreateEvaluate(*EvaluateInfo) error
 }
@@ -67,7 +72,7 @@ type TrainingHandler interface {
 
 type InferenceHandler interface {
 	HandleEventCreateInference(*domain.InferenceInfo) error
-	HandleEventExtendInferenceExpiry(*domain.InferenceInfo) error
+	HandleEventExtendInferenceSurvivalTime(*InferenceExtendInfo) error
 }
 
 type EvaluateHandler interface {

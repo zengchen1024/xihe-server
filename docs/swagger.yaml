@@ -96,6 +96,15 @@ definitions:
       total:
         type: integer
     type: object
+  app.InferenceDTO:
+    properties:
+      accessURL:
+        type: string
+      error:
+        type: string
+      instanceId:
+        type: string
+    type: object
   app.LikeDTO:
     properties:
       resource:
@@ -1076,6 +1085,42 @@ paths:
       summary: Get
       tags:
       - Dataset
+  /v1/inference/project/{owner}/{pid}:
+    post:
+      consumes:
+      - application/json
+      description: create inference
+      parameters:
+      - description: project owner
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: project id
+        in: path
+        name: pid
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.InferenceDTO'
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_body
+        "401":
+          description: Unauthorized
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Inference
   /v1/model:
     post:
       consumes:

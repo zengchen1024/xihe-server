@@ -330,6 +330,8 @@ github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101020938-37d1c5c8
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101020938-37d1c5c8b8e4/go.mod h1:AOhkDQhNT6henO9D06vZWQfEY33KjPtfEz8HdO3tW+w=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101125932-aedf86ba6242 h1:3WX6vzFfN+Ptw8awm+xnrDu1j7t7sqYfJwm9JHWg/qA=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101125932-aedf86ba6242/go.mod h1:RUjXRkCLp9qD9S/uu31fTvrefP6jUzJAO+jOPGyGEh4=
+github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102021502-99b5b70890e8 h1:JEbrzsCOm568TB75EnBPY71c7gcWh+nIE7Z0mZTLX6c=
+github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102021502-99b5b70890e8/go.mod h1:RUjXRkCLp9qD9S/uu31fTvrefP6jUzJAO+jOPGyGEh4=
 github.com/opensourceways/xihe-training-center v0.0.0-20221031102124-01279bbaf60e h1:h8vAC1DMpeO23XDD+Gxpp6JQ8ph9raz4t2sic+IdDdU=
 github.com/opensourceways/xihe-training-center v0.0.0-20221031102124-01279bbaf60e/go.mod h1:6gi9VkmzKON56f6ys2KwWSZJuAdob534uA+8y/3HRf8=
 github.com/otiai10/copy v1.7.0/go.mod h1:rmRl6QPdJj6EiUqXQ/4Nn2lLXoNQjFCQbbNrxgc/t3U=

@@ -295,20 +295,25 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		if v.ProjectName, err = domain.NewProjName(body.ProjectName); err != nil {
-			return
-		}
-
 		v.Id = body.InferenceId
 		v.Project.Id = body.ProjectId
 		v.LastCommit = body.LastCommit
 
 		switch body.Action {
 		case actionCreate:
+			if v.ProjectName, err = domain.NewProjName(body.ProjectName); err != nil {
+				return
+			}
+
 			return h.HandleEventCreateInference(&v)
 
 		case actionExtend:
-			return h.HandleEventExtendInferenceExpiry(&v)
+			return h.HandleEventExtendInferenceSurvivalTime(
+				&message.InferenceExtendInfo{
+					InferenceIndex: v.InferenceIndex,
+					Expiry:         body.Expiry,
+				},
+			)
 		}
 
 		return nil

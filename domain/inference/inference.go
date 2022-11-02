@@ -12,5 +12,5 @@ type InferenceInfo struct {
 
 type Inference interface {
 	Create(*InferenceInfo) error
-	ExtendExpiry(*domain.InferenceIndex, int64) error
+	ExtendSurvivalTime(index *domain.InferenceIndex, timeToExtend int) error
 }

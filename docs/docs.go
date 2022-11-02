@@ -459,6 +459,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inference/project/{owner}/{pid}": {
+            "post": {
+                "description": "create inference",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inference"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project owner",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.InferenceDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/model": {
             "post": {
                 "description": "create model",
@@ -2550,6 +2604,20 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "app.InferenceDTO": {
+            "type": "object",
+            "properties": {
+                "accessURL": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "instanceId": {
+                    "type": "string"
                 }
             }
         },
