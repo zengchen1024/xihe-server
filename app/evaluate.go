@@ -14,19 +14,17 @@ type EvaluateIndex = domain.EvaluateIndex
 type EvaluateDetail = domain.EvaluateDetail
 
 type CustomEvaluateCreateCmd struct {
-	ProjectOwner domain.Account
-	ProjectId    string
-	TrainingId   string
-	AimPath      string
+	domain.TrainingIndex
+	AimPath string
 }
 
 func (cmd *CustomEvaluateCreateCmd) Validate() error {
-	b := cmd.ProjectId == "" ||
-		cmd.ProjectOwner == nil ||
-		cmd.TrainingId == "" ||
+	b := cmd.Project.Id != "" ||
+		cmd.Project.Owner != nil ||
+		cmd.TrainingId != "" ||
 		cmd.AimPath != ""
 
-	if b {
+	if !b {
 		return errors.New("invalid cmd")
 	}
 
@@ -35,16 +33,13 @@ func (cmd *CustomEvaluateCreateCmd) Validate() error {
 
 func (cmd *CustomEvaluateCreateCmd) toEvaluate(v *domain.Evaluate) {
 	v.EvaluateType = domain.EvaluateTypeCustom
-	v.Project.Id = cmd.ProjectId
-	v.TrainingId = cmd.TrainingId
-	v.Project.Owner = cmd.ProjectOwner
+	v.TrainingIndex = cmd.TrainingIndex
 }
 
 // standard
 type StandardEvaluateCreateCmd struct {
-	ProjectOwner      domain.Account
-	ProjectId         string
-	TrainingId        string
+	domain.TrainingIndex
+
 	LogPath           string
 	MomentumScope     domain.EvaluateScope
 	BatchSizeScope    domain.EvaluateScope
@@ -52,12 +47,12 @@ type StandardEvaluateCreateCmd struct {
 }
 
 func (cmd *StandardEvaluateCreateCmd) Validate() error {
-	b := cmd.ProjectId == "" ||
-		cmd.ProjectOwner == nil ||
-		cmd.TrainingId == "" ||
+	b := cmd.Project.Id != "" ||
+		cmd.Project.Owner != nil ||
+		cmd.TrainingId != "" ||
 		cmd.LogPath != ""
 
-	if b {
+	if !b {
 		return errors.New("invalid cmd")
 	}
 
@@ -66,9 +61,7 @@ func (cmd *StandardEvaluateCreateCmd) Validate() error {
 
 func (cmd *StandardEvaluateCreateCmd) toEvaluate(v *domain.Evaluate) {
 	v.EvaluateType = domain.EvaluateTypeStandard
-	v.Project.Id = cmd.ProjectId
-	v.TrainingId = cmd.TrainingId
-	v.Project.Owner = cmd.ProjectOwner
+	v.TrainingIndex = cmd.TrainingIndex
 
 	v.MomentumScope = cmd.MomentumScope
 	v.BatchSizeScope = cmd.BatchSizeScope
@@ -84,25 +77,25 @@ type EvaluateService interface {
 func NewEvaluateService(
 	repo repository.Evaluate,
 	sender message.Sender,
-	minExpiryForEvaluate int64,
+	minSurvivalTime int,
 ) EvaluateService {
 	return evaluateService{
-		repo:                 repo,
-		sender:               sender,
-		minExpiryForEvaluate: minExpiryForEvaluate,
+		repo:            repo,
+		sender:          sender,
+		minSurvivalTime: int64(minSurvivalTime),
 	}
 }
 
 type evaluateService struct {
-	repo                 repository.Evaluate
-	sender               message.Sender
-	minExpiryForEvaluate int64
+	repo            repository.Evaluate
+	sender          message.Sender
+	minSurvivalTime int64
 }
 
 type EvaluateDTO struct {
-	Error      string
-	AccessURL  string
-	InstanceId string
+	Error      string `json:"error"`
+	AccessURL  string `json:"access_url"`
+	InstanceId string `json:"evaluate_id"`
 }
 
 func (dto *EvaluateDTO) hasResult() bool {
@@ -195,7 +188,7 @@ func (s evaluateService) check(instance *domain.EvaluateIndex) (
 	}
 
 	e, n := target.Expiry, utils.Now()
-	if n < e && n+s.minExpiryForEvaluate <= e {
+	if n < e && n+s.minSurvivalTime <= e {
 		dto.AccessURL = target.AccessURL
 		dto.InstanceId = target.Id
 	}

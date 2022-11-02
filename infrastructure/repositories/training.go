@@ -9,13 +9,14 @@ import (
 
 type TrainingMapper interface {
 	Insert(*UserTrainingDO, int) (string, error)
-	Delete(*TrainingInfoDO) error
-	Get(*TrainingInfoDO) (TrainingDetailDO, error)
-	GetTrainingConfig(*TrainingInfoDO) (TrainingConfigDO, error)
+	Delete(*TrainingIndexDO) error
+	Get(*TrainingIndexDO) (TrainingDetailDO, error)
+	GetTrainingConfig(*TrainingIndexDO) (TrainingConfigDO, error)
 	List(user, projectId string) ([]TrainingSummaryDO, int, error)
-	UpdateJobInfo(*TrainingInfoDO, *TrainingJobInfoDO) error
-	GetJobInfo(*TrainingInfoDO) (TrainingJobInfoDO, error)
-	UpdateJobDetail(*TrainingInfoDO, *TrainingJobDetailDO) error
+	UpdateJobInfo(*TrainingIndexDO, *TrainingJobInfoDO) error
+	GetJobInfo(*TrainingIndexDO) (TrainingJobInfoDO, error)
+	UpdateJobDetail(*TrainingIndexDO, *TrainingJobDetailDO) error
+	GetJobDetail(*TrainingIndexDO) (TrainingJobDetailDO, error)
 }
 
 func NewTrainingRepository(mapper TrainingMapper) repository.Training {
@@ -41,7 +42,7 @@ func (impl training) Save(ut *domain.UserTraining, version int) (string, error) 
 	return v, nil
 }
 
-func (impl training) Delete(info *domain.TrainingInfo) error {
+func (impl training) Delete(info *domain.TrainingIndex) error {
 	do := impl.toTrainingInfoDo(info)
 
 	if err := impl.mapper.Delete(&do); err != nil {
@@ -51,7 +52,7 @@ func (impl training) Delete(info *domain.TrainingInfo) error {
 	return nil
 }
 
-func (impl training) Get(info *domain.TrainingInfo) (domain.UserTraining, error) {
+func (impl training) Get(info *domain.TrainingIndex) (domain.UserTraining, error) {
 	do := impl.toTrainingInfoDo(info)
 
 	v, err := impl.mapper.Get(&do)
@@ -62,7 +63,7 @@ func (impl training) Get(info *domain.TrainingInfo) (domain.UserTraining, error)
 	return v.toUserTraining()
 }
 
-func (impl training) GetTrainingConfig(info *domain.TrainingInfo) (domain.TrainingConfig, error) {
+func (impl training) GetTrainingConfig(info *domain.TrainingIndex) (domain.TrainingConfig, error) {
 	do := impl.toTrainingInfoDo(info)
 
 	v, err := impl.mapper.GetTrainingConfig(&do)
@@ -97,7 +98,7 @@ func (impl training) List(user domain.Account, projectId string) (
 	return
 }
 
-func (impl training) SaveJob(info *domain.TrainingInfo, job *domain.JobInfo) error {
+func (impl training) SaveJob(info *domain.TrainingIndex, job *domain.JobInfo) error {
 	do := impl.toTrainingInfoDo(info)
 
 	if err := impl.mapper.UpdateJobInfo(&do, job); err != nil {
@@ -107,7 +108,7 @@ func (impl training) SaveJob(info *domain.TrainingInfo, job *domain.JobInfo) err
 	return nil
 }
 
-func (impl training) GetJob(info *domain.TrainingInfo) (job domain.JobInfo, err error) {
+func (impl training) GetJob(info *domain.TrainingIndex) (job domain.JobInfo, err error) {
 	t := impl.toTrainingInfoDo(info)
 
 	do, err := impl.mapper.GetJobInfo(&t)
@@ -120,7 +121,20 @@ func (impl training) GetJob(info *domain.TrainingInfo) (job domain.JobInfo, err 
 	return do, nil
 }
 
-func (impl training) UpdateJobDetail(info *domain.TrainingInfo, detail *domain.JobDetail) error {
+func (impl training) GetJobDetail(info *domain.TrainingIndex) (job domain.JobDetail, err error) {
+	t := impl.toTrainingInfoDo(info)
+
+	do, err := impl.mapper.GetJobDetail(&t)
+	if err != nil {
+		err = convertError(err)
+
+		return
+	}
+
+	return do, nil
+}
+
+func (impl training) UpdateJobDetail(info *domain.TrainingIndex, detail *domain.JobDetail) error {
 	do := impl.toTrainingInfoDo(info)
 
 	if err := impl.mapper.UpdateJobDetail(&do, detail); err != nil {

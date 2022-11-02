@@ -23,9 +23,9 @@ func (impl evaluateImpl) Create(info *evaluate.EvaluateInfo) error {
 	switch info.EvaluateType {
 	case domain.EvaluateTypeCustom:
 		opt := &sdk.CustomEvaluateCreateOption{
-			AimPath: info.OBSPath,
+			AimPath:      info.OBSPath,
+			SurvivalTime: info.SurvivalTime,
 		}
-		// TODO survival time
 		opt.User = info.Project.Owner.Account()
 		opt.ProjectId = info.Project.Id
 		opt.TrainingId = info.TrainingId
@@ -36,6 +36,7 @@ func (impl evaluateImpl) Create(info *evaluate.EvaluateInfo) error {
 	case domain.EvaluateTypeStandard:
 		opt := &sdk.StandardEvaluateCreateOption{
 			LogPath:           info.OBSPath,
+			SurvivalTime:      info.SurvivalTime,
 			MomentumScope:     ([]string)(info.MomentumScope),
 			BatchSizeScope:    ([]string)(info.BatchSizeScope),
 			LearningRateScope: ([]string)(info.LearningRateScope),

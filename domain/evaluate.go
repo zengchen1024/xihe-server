@@ -26,7 +26,7 @@ type StandardEvaluateParms struct {
 type EvaluateScope []string
 
 type EvaluateIndex struct {
-	Project    ResourceIndex
-	TrainingId string
-	Id         string
+	TrainingIndex
+
+	Id string
 }

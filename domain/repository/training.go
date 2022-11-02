@@ -6,14 +6,15 @@ import (
 
 type Training interface {
 	Save(*domain.UserTraining, int) (string, error)
-	Get(*domain.TrainingInfo) (domain.UserTraining, error)
-	Delete(*domain.TrainingInfo) error
+	Get(*domain.TrainingIndex) (domain.UserTraining, error)
+	Delete(*domain.TrainingIndex) error
 	List(user domain.Account, projectId string) ([]domain.TrainingSummary, int, error)
 
-	GetTrainingConfig(*domain.TrainingInfo) (domain.TrainingConfig, error)
+	GetTrainingConfig(*domain.TrainingIndex) (domain.TrainingConfig, error)
 
-	SaveJob(*domain.TrainingInfo, *domain.JobInfo) error
-	GetJob(*domain.TrainingInfo) (domain.JobInfo, error)
+	SaveJob(*domain.TrainingIndex, *domain.JobInfo) error
+	GetJob(*domain.TrainingIndex) (domain.JobInfo, error)
 
-	UpdateJobDetail(*domain.TrainingInfo, *domain.JobDetail) error
+	UpdateJobDetail(*domain.TrainingIndex, *domain.JobDetail) error
+	GetJobDetail(*domain.TrainingIndex) (domain.JobDetail, error)
 }

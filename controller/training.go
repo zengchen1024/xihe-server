@@ -209,9 +209,11 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 		return
 	}
 
-	info := domain.TrainingInfo{
-		User:       pl.DomainAccount(),
-		ProjectId:  ctx.Param("pid"),
+	info := domain.TrainingIndex{
+		Project: domain.ResourceIndex{
+			Owner: pl.DomainAccount(),
+			Id:    ctx.Param("pid"),
+		},
 		TrainingId: ctx.Param("id"),
 	}
 
@@ -412,27 +414,6 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 	}
 }
 
-func (ctl *TrainingController) checkTokenForWebsocket(ctx *gin.Context) (
-	pl oldUserTokenPayload, token string, ok bool,
-) {
-	token = ctx.GetHeader(headerSecWebsocket)
-	if token == "" {
-		//TODO delete
-		log.Errorf("check token for ws, no token")
-
-		ctx.JSON(
-			http.StatusBadRequest,
-			newResponseCodeMsg(errorBadRequestHeader, "no token"),
-		)
-
-		return
-	}
-
-	ok = ctl.checkApiToken(ctx, token, &pl, false)
-
-	return
-}
-
 // @Summary GetLog
 // @Description get log url of training for downloading
 // @Tags  Training
@@ -448,9 +429,11 @@ func (ctl *TrainingController) GetLogDownloadURL(ctx *gin.Context) {
 		return
 	}
 
-	info := domain.TrainingInfo{
-		User:       pl.DomainAccount(),
-		ProjectId:  ctx.Param("pid"),
+	info := domain.TrainingIndex{
+		Project: domain.ResourceIndex{
+			Owner: pl.DomainAccount(),
+			Id:    ctx.Param("pid"),
+		},
 		TrainingId: ctx.Param("id"),
 	}
 
@@ -464,15 +447,17 @@ func (ctl *TrainingController) GetLogDownloadURL(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseData(trainingLogResp{v}))
 }
 
-func (ctl *TrainingController) getTrainingInfo(ctx *gin.Context) (domain.TrainingInfo, bool) {
+func (ctl *TrainingController) getTrainingInfo(ctx *gin.Context) (domain.TrainingIndex, bool) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
-		return domain.TrainingInfo{}, ok
+		return domain.TrainingIndex{}, ok
 	}
 
-	return domain.TrainingInfo{
-		User:       pl.DomainAccount(),
-		ProjectId:  ctx.Param("pid"),
+	return domain.TrainingIndex{
+		Project: domain.ResourceIndex{
+			Owner: pl.DomainAccount(),
+			Id:    ctx.Param("pid"),
+		},
 		TrainingId: ctx.Param("id"),
 	}, true
 }

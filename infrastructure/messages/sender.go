@@ -76,10 +76,10 @@ func (s sender) IncreaseFork(msg *domain.ResourceIndex) error {
 }
 
 // Training
-func (s sender) CreateTraining(info *domain.TrainingInfo) error {
+func (s sender) CreateTraining(info *domain.TrainingIndex) error {
 	v := msgTraining{
-		User:       info.User.Account(),
-		ProjectId:  info.ProjectId,
+		User:       info.Project.Owner.Account(),
+		ProjectId:  info.Project.Id,
 		TrainingId: info.TrainingId,
 	}
 
@@ -88,30 +88,29 @@ func (s sender) CreateTraining(info *domain.TrainingInfo) error {
 
 // Inference
 func (s sender) CreateInference(info *domain.InferenceInfo) error {
-	v := msgInference{
-		Action:       actionCreate,
-		ProjectId:    info.Project.Id,
-		LastCommit:   info.LastCommit,
-		InferenceId:  info.Id,
-		ProjectName:  info.ProjectName.ProjName(),
-		ProjectOwner: info.Project.Owner.Account(),
-	}
+	v := s.toInferenceMsg(&info.InferenceIndex)
+	v.Action = actionCreate
+	v.ProjectName = info.ProjectName.ProjName()
 
 	return s.send(topics.Inference, &v)
 
 }
 
 func (s sender) ExtendInferenceSurvivalTime(info *message.InferenceExtendInfo) error {
-	v := msgInference{
-		Action:       actionExtend,
-		Expiry:       info.Expiry,
-		ProjectId:    info.Project.Id,
-		LastCommit:   info.LastCommit,
-		InferenceId:  info.Id,
-		ProjectOwner: info.Project.Owner.Account(),
-	}
+	v := s.toInferenceMsg(&info.InferenceIndex)
+	v.Action = actionExtend
+	v.Expiry = info.Expiry
 
 	return s.send(topics.Inference, &v)
+}
+
+func (s sender) toInferenceMsg(index *domain.InferenceIndex) msgInference {
+	return msgInference{
+		ProjectId:    index.Project.Id,
+		LastCommit:   index.LastCommit,
+		InferenceId:  index.Id,
+		ProjectOwner: index.Project.Owner.Account(),
+	}
 }
 
 // Evaluate

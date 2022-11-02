@@ -30,6 +30,7 @@ func (cfg *configuration) getMQConfig() mq.MQConfig {
 func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Inference,
+		&cfg.Evaluate,
 		&cfg.Mongodb,
 		&cfg.Domain,
 		&cfg.MQ,

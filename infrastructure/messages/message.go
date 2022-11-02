@@ -34,12 +34,21 @@ type msgTraining struct {
 
 type msgInference struct {
 	Action       string `json:"action"`
-	InferenceId  string `json:"id"`
 	ProjectId    string `json:"pid"`
 	LastCommit   string `json:"commit"`
-	ProjectName  string `json:"name"`
+	InferenceId  string `json:"id"`
 	ProjectOwner string `json:"owner"`
-	Expiry       int64  `json:"expiry"`
+
+	msgCreateInference
+	msgExtendInference
+}
+
+type msgCreateInference struct {
+	ProjectName string `json:"name"`
+}
+
+type msgExtendInference struct {
+	Expiry int64 `json:"expiry"`
 }
 
 type msgEvaluate struct {

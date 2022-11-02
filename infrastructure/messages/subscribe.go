@@ -259,13 +259,13 @@ func registerHandlerForTraining(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		v := domain.TrainingInfo{}
+		v := domain.TrainingIndex{}
 
-		if v.User, err = domain.NewAccount(body.User); err != nil {
+		if v.Project.Owner, err = domain.NewAccount(body.User); err != nil {
 			return
 		}
 
-		v.ProjectId = body.ProjectId
+		v.Project.Id = body.ProjectId
 		v.TrainingId = body.TrainingId
 
 		return h.HandleEventCreateTraining(&v)
@@ -289,7 +289,7 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		v := domain.InferenceInfo{}
+		v := domain.InferenceIndex{}
 
 		if v.Project.Owner, err = domain.NewAccount(body.ProjectOwner); err != nil {
 			return
@@ -301,16 +301,21 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 
 		switch body.Action {
 		case actionCreate:
-			if v.ProjectName, err = domain.NewProjName(body.ProjectName); err != nil {
+			info := domain.InferenceInfo{
+				InferenceIndex: v,
+			}
+
+			info.ProjectName, err = domain.NewProjName(body.ProjectName)
+			if err != nil {
 				return
 			}
 
-			return h.HandleEventCreateInference(&v)
+			return h.HandleEventCreateInference(&info)
 
 		case actionExtend:
 			return h.HandleEventExtendInferenceSurvivalTime(
 				&message.InferenceExtendInfo{
-					InferenceIndex: v.InferenceIndex,
+					InferenceIndex: v,
 					Expiry:         body.Expiry,
 				},
 			)

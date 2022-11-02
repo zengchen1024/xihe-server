@@ -130,9 +130,11 @@ func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *traini
 	}
 
 	return t.service.UpdateJobDetail(
-		&domain.TrainingInfo{
-			User:       u,
-			ProjectId:  index.ProjectId,
+		&domain.TrainingIndex{
+			Project: domain.ResourceIndex{
+				Owner: u,
+				Id:    index.ProjectId,
+			},
 			TrainingId: index.Id,
 		},
 		&app.JobDetail{
@@ -183,12 +185,14 @@ func (t evaluateServer) SetEvaluateInfo(index *evaluate.EvaluateIndex, v *evalua
 
 	return t.service.UpdateDetail(
 		&domain.EvaluateIndex{
-			Project: domain.ResourceIndex{
-				Owner: u,
-				Id:    index.ProjectId,
+			TrainingIndex: domain.TrainingIndex{
+				Project: domain.ResourceIndex{
+					Owner: u,
+					Id:    index.ProjectId,
+				},
+				TrainingId: index.TrainingID,
 			},
-			Id:         index.Id,
-			TrainingId: index.TrainingID,
+			Id: index.Id,
 		},
 		&app.EvaluateDetail{
 			Error:     v.Error,

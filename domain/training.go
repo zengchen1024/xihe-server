@@ -80,8 +80,7 @@ type TrainingSummary struct {
 	CreatedAt int64
 }
 
-type TrainingInfo struct {
-	User       Account
-	ProjectId  string
+type TrainingIndex struct {
+	Project    ResourceIndex
 	TrainingId string
 }

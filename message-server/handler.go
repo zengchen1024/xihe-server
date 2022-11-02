@@ -188,7 +188,7 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 	})
 }
 
-func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
+func (h *handler) HandleEventCreateTraining(info *domain.TrainingIndex) error {
 	// wait for the sync of model and dataset
 	time.Sleep(10 * time.Second)
 
@@ -200,8 +200,8 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingInfo) error {
 			if err != nil {
 				h.log.Errorf(
 					"handle training(%s/%s/%s) failed, err:%s",
-					info.User.Account(), info.ProjectId, info.TrainingId,
-					err.Error(),
+					info.Project.Owner.Account(), info.Project.Id,
+					info.TrainingId, err.Error(),
 				)
 
 				if !retry {

@@ -25,13 +25,13 @@ type InferenceCreateCmd struct {
 }
 
 func (cmd *InferenceCreateCmd) Validate() error {
-	b := cmd.ProjectId == "" ||
-		cmd.ProjectName == nil ||
-		cmd.ProjectOwner == nil ||
-		cmd.InferenceDir == nil ||
-		cmd.BootFile == nil
+	b := cmd.ProjectId != "" ||
+		cmd.ProjectName != nil ||
+		cmd.ProjectOwner != nil ||
+		cmd.InferenceDir != nil ||
+		cmd.BootFile != nil
 
-	if b {
+	if !b {
 		return errors.New("invalid cmd")
 	}
 
@@ -54,28 +54,28 @@ func NewInferenceService(
 	p platform.RepoFile,
 	repo repository.Inference,
 	sender message.Sender,
-	minExpiryForInference int64,
+	minSurvivalTime int,
 ) InferenceService {
 	return inferenceService{
-		p:                     p,
-		repo:                  repo,
-		sender:                sender,
-		minExpiryForInference: minExpiryForInference,
+		p:               p,
+		repo:            repo,
+		sender:          sender,
+		minSurvivalTime: int64(minSurvivalTime),
 	}
 }
 
 type inferenceService struct {
-	p                     platform.RepoFile
-	repo                  repository.Inference
-	sender                message.Sender
-	minExpiryForInference int64
+	p               platform.RepoFile
+	repo            repository.Inference
+	sender          message.Sender
+	minSurvivalTime int64
 }
 
 type InferenceDTO struct {
 	expiry     int64
-	Error      string
-	AccessURL  string
-	InstanceId string
+	Error      string `json:"error"`
+	AccessURL  string `json:"access_url"`
+	InstanceId string `json:"inference_id"`
 }
 
 func (dto *InferenceDTO) hasResult() bool {
@@ -186,7 +186,7 @@ func (s inferenceService) check(instance *domain.Inference) (
 	}
 
 	e, n := target.Expiry, utils.Now()
-	if n < e && n+s.minExpiryForInference <= e {
+	if n < e && n+s.minSurvivalTime <= e {
 		dto.expiry = target.Expiry
 		dto.AccessURL = target.AccessURL
 		dto.InstanceId = target.Id
