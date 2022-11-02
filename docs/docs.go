@@ -459,6 +459,121 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/evaluate/project/{pid}/training/{tid}/evaluate": {
+            "post": {
+                "description": "create evaluate",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Evaluate"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "tid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.EvaluateDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/evaluate/project/{pid}/training/{tid}/evaluate/{id}": {
+            "get": {
+                "description": "watch evaluate",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Evaluate"
+                ],
+                "summary": "Watch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training id",
+                        "name": "tid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "evaluate id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.EvaluateDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inference/project/{owner}/{pid}": {
             "post": {
                 "description": "create inference",
@@ -1900,121 +2015,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controller.trainingLogResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/train/project/{pid}/training/{tid}/evaluate": {
-            "post": {
-                "description": "create evaluate",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Evaluate"
-                ],
-                "summary": "Create",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "tid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/app.EvaluateDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "bad_request_body"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "bad_request_param"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/train/project/{pid}/training/{tid}/evaluate/{id}": {
-            "get": {
-                "description": "watch evaluate",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Evaluate"
-                ],
-                "summary": "Watch",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "project id",
-                        "name": "pid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "training id",
-                        "name": "tid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "evaluate id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/app.EvaluateDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "bad_request_body"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "bad_request_param"
                         }
                     },
                     "500": {
