@@ -246,10 +246,10 @@ func listResourceWithoutSort(
 ) error {
 	fieldItemsRef := "$" + fieldItems
 
-	project := bson.M{fieldItems: bson.M{"$filter": bson.M{
-		"input": fieldItemsRef,
-		"cond": bson.M{
-			fieldItems: func() bson.M {
+	project := bson.M{
+		fieldItems: bson.M{"$filter": bson.M{
+			"input": fieldItemsRef,
+			"cond": func() bson.M {
 				conds := bson.A{}
 
 				if do.RepoType != "" {
@@ -266,8 +266,8 @@ func listResourceWithoutSort(
 
 				return condForArrayElem(conds)
 			}(),
-		},
-	}}}
+		}},
+	}
 
 	keep := bson.M{}
 	for _, item := range fields {
@@ -276,6 +276,60 @@ func listResourceWithoutSort(
 
 	pipeline := bson.A{
 		bson.M{"$match": resourceOwnerFilter(owner)},
+		bson.M{"$project": project},
+		bson.M{"$project": keep},
+	}
+
+	return withContext(func(ctx context.Context) error {
+		col := cli.collection(collection)
+		cursor, err := col.Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, result)
+	})
+}
+
+func globalListResourceWithoutSort(
+	collection string,
+	do *repositories.GlobalResourceListDO,
+	fields []string, result interface{},
+) error {
+	fieldItemsRef := "$" + fieldItems
+
+	project := bson.M{
+		fieldItems: bson.M{"$filter": bson.M{
+			"input": fieldItemsRef,
+			"cond": func() bson.M {
+				conds := bson.A{}
+
+				if len(do.Tags) > 0 {
+					for _, tag := range do.Tags {
+						conds = append(conds, valueInCondForArrayElem(
+							fieldTags, tag,
+						))
+					}
+				}
+
+				if do.Name != "" {
+					conds = append(conds, matchCondForArrayElem(
+						fieldName, do.Name,
+					))
+				}
+
+				return condForArrayElem(conds)
+			}(),
+		}},
+		fieldOwner: 1,
+	}
+
+	keep := bson.M{fieldOwner: 1}
+	for _, item := range fields {
+		keep[subfieldOfItems(item)] = 1
+	}
+
+	pipeline := bson.A{
 		bson.M{"$project": project},
 		bson.M{"$project": keep},
 	}

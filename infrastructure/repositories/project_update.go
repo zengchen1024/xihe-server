@@ -5,6 +5,8 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+type GlobalResourceListDO = repository.GlobalResourceListOption
+
 func (impl project) IncreaseFork(p *domain.ResourceIndex) error {
 	err := impl.mapper.IncreaseFork(toResourceIndexDO(p))
 	if err != nil {
@@ -135,6 +137,15 @@ func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO 
 	}
 }
 
+func (impl project) GlobalListAndSortByUpdateTime(
+	option *repository.GlobalResourceListOption,
+) (repository.UserProjectsInfo, error) {
+	return impl.doList(func() ([]ProjectSummaryDO, int, error) {
+		return impl.mapper.GlobalListAndSortByUpdateTime(option)
+	})
+
+}
+
 func (impl project) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
 ) (repository.UserProjectsInfo, error) {
@@ -168,7 +179,17 @@ func (impl project) list(
 ) {
 	do := toResourceListDO(option)
 
-	v, total, err := f(owner.Account(), &do)
+	return impl.doList(func() ([]ProjectSummaryDO, int, error) {
+		return f(owner.Account(), &do)
+	})
+}
+
+func (impl project) doList(
+	f func() ([]ProjectSummaryDO, int, error),
+) (
+	info repository.UserProjectsInfo, err error,
+) {
+	v, total, err := f()
 	if err != nil {
 		err = convertError(err)
 

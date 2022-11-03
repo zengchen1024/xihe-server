@@ -40,6 +40,8 @@ func (col project) newDoc(owner string) error {
 }
 
 func (col project) Insert(do repositories.ProjectDO) (identity string, err error) {
+	do.Tags = []string{}
+
 	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}

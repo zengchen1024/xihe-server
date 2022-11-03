@@ -19,6 +19,15 @@ type ResourceListOption struct {
 	PageNum      int
 }
 
+type GlobalResourceListOption struct {
+	// can't define Name as domain.ResourceName
+	// because the Name can be subpart of the real resource name
+	Name         string
+	Tags         []string
+	CountPerPage int
+	PageNum      int
+}
+
 type RelatedResourceInfo struct {
 	ResourceToUpdate
 
@@ -55,6 +64,8 @@ type Project interface {
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
+
+	GlobalListAndSortByUpdateTime(*GlobalResourceListOption) (UserProjectsInfo, error)
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error

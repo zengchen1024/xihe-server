@@ -20,6 +20,8 @@ type ProjectMapper interface {
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ProjectSummaryDO, int, error)
 
+	GlobalListAndSortByUpdateTime(*GlobalResourceListDO) ([]ProjectSummaryDO, int, error)
+
 	IncreaseFork(ResourceIndexDO) error
 
 	AddLike(ResourceIndexDO) error
