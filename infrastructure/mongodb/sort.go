@@ -23,7 +23,7 @@ func firstLetterSortAndPaginate(
 			return a.letter < b.letter
 		}
 
-		return a.updateAt < b.updateAt
+		return a.updateAt >= b.updateAt
 	})
 
 	return datas[i:j]
@@ -47,7 +47,7 @@ func updateAtSortAndPaginate(
 		a, b := &datas[i], &datas[j]
 
 		if a.updateAt != b.updateAt {
-			return a.updateAt < b.updateAt
+			return a.updateAt >= b.updateAt
 		}
 
 		return a.id < b.id
@@ -74,10 +74,10 @@ func downloadSortAndPaginate(
 		a, b := &datas[i], &datas[j]
 
 		if a.download != b.download {
-			return a.download < b.download
+			return a.download >= b.download
 		}
 
-		return a.updateAt < b.updateAt
+		return a.updateAt >= b.updateAt
 	})
 
 	return datas[i:j]

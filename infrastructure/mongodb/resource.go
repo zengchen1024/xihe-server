@@ -181,7 +181,6 @@ func sortByUpdateTime() bson.M {
 func sortByFirstLetter() bson.M {
 	return bson.M{
 		subfieldOfItems(fieldFirstLetter): 1,
-		subfieldOfItems(fieldUpdatedAt):   1,
 	}
 }
 

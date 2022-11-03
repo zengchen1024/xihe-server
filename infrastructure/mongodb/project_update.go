@@ -3,7 +3,6 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
@@ -95,6 +94,7 @@ func (col project) ListAndSortByUpdateTime(
 func (col project) ListAndSortByFirstLetter(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.ProjectSummaryDO, int, error) {
+
 	f := func(items []projectItem) []projectItem {
 		v := make([]firstLetterSortData, len(items))
 
@@ -169,13 +169,11 @@ func (col project) listResource(
 	)
 
 	if err != nil || len(v) == 0 || len(v[0].Items) == 0 {
-		fmt.Println("fuck")
 		return
 	}
 
 	items := v[0].Items
 	total = len(items)
-	fmt.Println("total = ", total)
 
 	items = sortAndPagination(items)
 	if len(items) == 0 {
@@ -184,7 +182,6 @@ func (col project) listResource(
 
 	r = make([]repositories.ProjectSummaryDO, len(items))
 	for i := range items {
-		// fmt.Printf("%v %v\n", v[i].Item.Name, v[i].Item.UpdatedAt)
 		col.toProjectSummaryDO(owner, &items[i], &r[i])
 	}
 
