@@ -76,7 +76,7 @@ func (col model) listResource(
 
 func (col model) summaryFields() []string {
 	return []string{
-		fieldId, fieldName, fieldDesc, fieldTags,
+		fieldId, fieldName, fieldDesc, fieldTags, fieldFirstLetter,
 		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
 	}
 }

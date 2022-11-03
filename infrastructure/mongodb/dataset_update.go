@@ -76,7 +76,7 @@ func (col dataset) listResource(
 
 func (col dataset) summaryFields() []string {
 	return []string{
-		fieldId, fieldName, fieldDesc, fieldTags,
+		fieldId, fieldName, fieldDesc, fieldTags, fieldFirstLetter,
 		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
 	}
 }

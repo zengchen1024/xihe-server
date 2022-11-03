@@ -179,7 +179,10 @@ func sortByUpdateTime() bson.M {
 }
 
 func sortByFirstLetter() bson.M {
-	return bson.M{subfieldOfItems(fieldFirstLetter): 1}
+	return bson.M{
+		subfieldOfItems(fieldFirstLetter): 1,
+		subfieldOfItems(fieldUpdatedAt):   1,
+	}
 }
 
 func sortByDownloadCount() bson.M {
@@ -299,6 +302,58 @@ func listResource(
 
 			pipeline = append(pipeline, bson.M{"$limit": do.CountPerPage})
 		}
+	}
+
+	return withContext(func(ctx context.Context) error {
+		col := cli.collection(collection)
+		cursor, err := col.Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, result)
+	})
+}
+
+func listResourceWithoutSort(
+	collection, owner string,
+	do *repositories.ResourceListDO,
+	fields []string, result interface{},
+) error {
+	fieldItemsRef := "$" + fieldItems
+
+	project := bson.M{fieldItems: bson.M{"$filter": bson.M{
+		"input": fieldItemsRef,
+		"cond": bson.M{
+			fieldItems: func() bson.M {
+				conds := bson.A{}
+
+				if do.RepoType != "" {
+					conds = append(conds, eqCondForArrayElem(
+						fieldRepoType, do.RepoType,
+					))
+				}
+
+				if do.Name != "" {
+					conds = append(conds, matchCondForArrayElem(
+						fieldName, do.Name,
+					))
+				}
+
+				return condForArrayElem(conds)
+			}(),
+		},
+	}}}
+
+	keep := bson.M{}
+	for _, item := range fields {
+		keep[subfieldOfItems(item)] = 1
+	}
+
+	pipeline := bson.A{
+		bson.M{"$match": resourceOwnerFilter(owner)},
+		bson.M{"$project": project},
+		bson.M{"$project": keep},
 	}
 
 	return withContext(func(ctx context.Context) error {
