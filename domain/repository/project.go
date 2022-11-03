@@ -65,7 +65,9 @@ type Project interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 
-	GlobalListAndSortByUpdateTime(*GlobalResourceListOption) (UserProjectsInfo, error)
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListOption) (UserProjectsInfo, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserProjectsInfo, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserProjectsInfo, error)
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error

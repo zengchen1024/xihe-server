@@ -291,7 +291,7 @@ func listResourceWithoutSort(
 	})
 }
 
-func globalListResourceWithoutSort(
+func listGlobalResourceWithoutSort(
 	collection string,
 	do *repositories.GlobalResourceListDO,
 	fields []string, result interface{},
