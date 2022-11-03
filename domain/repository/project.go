@@ -20,12 +20,9 @@ type ResourceListOption struct {
 }
 
 type GlobalResourceListOption struct {
-	// can't define Name as domain.ResourceName
-	// because the Name can be subpart of the real resource name
-	Name         string
-	Tags         []string
-	PageNum      int
-	CountPerPage int
+	Tags []string
+
+	ResourceListOption
 }
 
 type RelatedResourceInfo struct {

@@ -35,6 +35,7 @@ func AddRouterForDatasetController(
 	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
 	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
 	rg.GET("/v1/dataset/:owner", ctl.List)
+	rg.GET("/v1/dataset", ctl.ListGlobal)
 
 	rg.PUT("/v1/dataset/:owner/:id/tags", ctl.SetTags)
 }
@@ -321,6 +322,38 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))
+}
+
+// @Summary ListGlobal
+// @Description list global public dataset
+// @Tags  Dataset
+// @Param	name		query	string	false	"name of dataset"
+// @Param	tags		query	string	false	"tags, separate multiple tags with commas"
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
+// @Accept json
+// @Success 200 {object} app.GlobalDatasetsDTO
+// @Produce json
+// @Router /v1/dataset [get]
+func (ctl *DatasetController) ListGlobal(ctx *gin.Context) {
+	cmd, err := ctl.getListGlobalResourceParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	result, err := ctl.s.ListGlobal(&cmd)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(result))
 }
 
 // @Summary SetTags

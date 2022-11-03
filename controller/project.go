@@ -42,6 +42,7 @@ func AddRouterForProjectController(
 	rg.PUT("/v1/project/:owner/:id", ctl.Update)
 	rg.GET("/v1/project/:owner/:name", ctl.Get)
 	rg.GET("/v1/project/:owner", ctl.List)
+	rg.GET("/v1/project", ctl.ListGlobal)
 
 	rg.POST("/v1/project/:owner/:id", ctl.Fork)
 
@@ -336,6 +337,38 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))
+}
+
+// @Summary ListGlobal
+// @Description list global public project
+// @Tags  Project
+// @Param	name		query	string	false	"name of project"
+// @Param	tags		query	string	false	"tags, separate multiple tags with commas"
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
+// @Accept json
+// @Success 200 {object} app.GlobalProjectsDTO
+// @Produce json
+// @Router /v1/project [get]
+func (ctl *ProjectController) ListGlobal(ctx *gin.Context) {
+	cmd, err := ctl.getListGlobalResourceParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	result, err := ctl.s.ListGlobal(&cmd)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(result))
 }
 
 // @Summary Fork

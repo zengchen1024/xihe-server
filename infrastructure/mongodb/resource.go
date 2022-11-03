@@ -174,20 +174,6 @@ func getResourceByName(collection, owner, name string, result interface{}) error
 	return withContext(f)
 }
 
-func sortByUpdateTime() bson.M {
-	return bson.M{subfieldOfItems(fieldUpdatedAt): -1}
-}
-
-func sortByFirstLetter() bson.M {
-	return bson.M{
-		subfieldOfItems(fieldFirstLetter): 1,
-	}
-}
-
-func sortByDownloadCount() bson.M {
-	return bson.M{subfieldOfItems(fieldDownloadCount): -1}
-}
-
 func insertResource(collection, owner, name string, doc bson.M) error {
 	docFilter := resourceOwnerFilter(owner)
 
@@ -303,6 +289,12 @@ func listGlobalResourceWithoutSort(
 			"input": fieldItemsRef,
 			"cond": func() bson.M {
 				conds := bson.A{}
+
+				if do.RepoType != "" {
+					conds = append(conds, eqCondForArrayElem(
+						fieldRepoType, do.RepoType,
+					))
+				}
 
 				if len(do.Tags) > 0 {
 					for _, tag := range do.Tags {

@@ -227,6 +227,30 @@ func (ctl baseController) getListResourceParameter(
 	return
 }
 
+func (ctl baseController) getListGlobalResourceParameter(
+	ctx *gin.Context,
+) (cmd app.GlobalResourceListCmd, err error) {
+	v, err := ctl.getListResourceParameter(ctx)
+	if err != nil {
+		return
+	}
+
+	if s := ctl.getQueryParameter(ctx, "tags"); s != "" {
+		/*
+			tags := []string{}
+			for _, t :=  range strings.Split(s, ",") {
+
+			}
+			//cmd.Tags =
+		*/
+	}
+
+	cmd.ResourceListOption = v.ResourceListOption
+	cmd.SortType = v.SortType
+
+	return
+}
+
 func (ctl *baseController) checkTokenForWebsocket(ctx *gin.Context) (
 	pl oldUserTokenPayload, token string, ok bool,
 ) {

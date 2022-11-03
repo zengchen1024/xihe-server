@@ -91,6 +91,7 @@ type DatasetService interface {
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.DatasetName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
+	ListGlobal(*GlobalResourceListCmd) (GlobalDatasetsDTO, error)
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
