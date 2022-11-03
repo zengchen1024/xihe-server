@@ -22,6 +22,10 @@ type ModelMapper interface {
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListDO) ([]ModelSummaryDO, int, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListDO) ([]ModelSummaryDO, int, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListDO) ([]ModelSummaryDO, int, error)
+
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 

@@ -22,6 +22,10 @@ type DatasetMapper interface {
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListDO) ([]DatasetSummaryDO, int, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListDO) ([]DatasetSummaryDO, int, error)
+
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 

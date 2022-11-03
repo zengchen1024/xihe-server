@@ -40,6 +40,8 @@ func (col model) newDoc(owner string) error {
 }
 
 func (col model) Insert(do repositories.ModelDO) (identity string, err error) {
+	do.Tags = []string{}
+
 	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}

@@ -40,6 +40,8 @@ func (col dataset) newDoc(owner string) error {
 }
 
 func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error) {
+	do.Tags = []string{}
+
 	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}

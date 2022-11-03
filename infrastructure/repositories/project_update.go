@@ -166,9 +166,9 @@ func (impl project) list(
 ) (
 	info repository.UserProjectsInfo, err error,
 ) {
-	do := toResourceListDO(option)
-
 	return impl.doList(func() ([]ProjectSummaryDO, int, error) {
+		do := toResourceListDO(option)
+
 		return f(owner.Account(), &do)
 	})
 }

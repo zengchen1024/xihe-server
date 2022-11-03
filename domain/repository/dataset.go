@@ -33,6 +33,10 @@ type Dataset interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListOption) (UserDatasetsInfo, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserDatasetsInfo, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserDatasetsInfo, error)
+
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 

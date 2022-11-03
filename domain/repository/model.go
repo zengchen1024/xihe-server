@@ -33,6 +33,10 @@ type Model interface {
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListOption) (UserModelsInfo, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserModelsInfo, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserModelsInfo, error)
+
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 

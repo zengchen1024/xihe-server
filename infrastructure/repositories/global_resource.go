@@ -35,3 +35,65 @@ func (impl project) ListGlobalAndSortByDownloadCount(
 		},
 	)
 }
+
+// Model
+func (impl model) ListGlobalAndSortByUpdateTime(
+	option *repository.GlobalResourceListOption,
+) (repository.UserModelsInfo, error) {
+	return impl.doList(
+		func() ([]ModelSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByUpdateTime(option)
+		},
+	)
+}
+
+func (impl model) ListGlobalAndSortByFirstLetter(
+	option *repository.GlobalResourceListOption,
+) (repository.UserModelsInfo, error) {
+	return impl.doList(
+		func() ([]ModelSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByFirstLetter(option)
+		},
+	)
+}
+
+func (impl model) ListGlobalAndSortByDownloadCount(
+	option *repository.GlobalResourceListOption,
+) (repository.UserModelsInfo, error) {
+	return impl.doList(
+		func() ([]ModelSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByDownloadCount(option)
+		},
+	)
+}
+
+// Dataset
+func (impl dataset) ListGlobalAndSortByUpdateTime(
+	option *repository.GlobalResourceListOption,
+) (repository.UserDatasetsInfo, error) {
+	return impl.doList(
+		func() ([]DatasetSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByUpdateTime(option)
+		},
+	)
+}
+
+func (impl dataset) ListGlobalAndSortByFirstLetter(
+	option *repository.GlobalResourceListOption,
+) (repository.UserDatasetsInfo, error) {
+	return impl.doList(
+		func() ([]DatasetSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByFirstLetter(option)
+		},
+	)
+}
+
+func (impl dataset) ListGlobalAndSortByDownloadCount(
+	option *repository.GlobalResourceListOption,
+) (repository.UserDatasetsInfo, error) {
+	return impl.doList(
+		func() ([]DatasetSummaryDO, int, error) {
+			return impl.mapper.ListGlobalAndSortByDownloadCount(option)
+		},
+	)
+}
