@@ -15,8 +15,8 @@ type ResourceListOption struct {
 	Name     string
 	RepoType domain.RepoType
 
-	CountPerPage int
 	PageNum      int
+	CountPerPage int
 }
 
 type GlobalResourceListOption struct {
@@ -24,8 +24,8 @@ type GlobalResourceListOption struct {
 	// because the Name can be subpart of the real resource name
 	Name         string
 	Tags         []string
-	CountPerPage int
 	PageNum      int
+	CountPerPage int
 }
 
 type RelatedResourceInfo struct {

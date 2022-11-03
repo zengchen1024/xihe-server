@@ -44,11 +44,11 @@ func (col project) GlobalListAndSortByUpdateTime(do *repositories.GlobalResource
 	return col.globalListResource(do, f)
 }
 
-func (col project) GlobalListAndSortByFirstLetter(
-	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectSummaryDO, int, error) {
+func (col project) GlobalListAndSortByFirstLetter(do *repositories.GlobalResourceListDO) (
+	[]repositories.ProjectSummaryDO, int, error,
+) {
 
-	f := func(items []projectItem) []projectItem {
+	f := func(items []globalProject) []globalProject {
 		v := make([]firstLetterSortData, len(items))
 
 		for i := range items {
@@ -66,7 +66,7 @@ func (col project) GlobalListAndSortByFirstLetter(
 			return nil
 		}
 
-		r := make([]projectItem, len(v))
+		r := make([]globalProject, len(v))
 		for i := range v {
 			r[i] = items[v[i].index]
 		}
@@ -74,14 +74,14 @@ func (col project) GlobalListAndSortByFirstLetter(
 		return r
 	}
 
-	return col.listResource(owner, do, f)
+	return col.globalListResource(do, f)
 }
 
-func (col project) GlobalListAndSortByDownloadCount(
-	owner string, do *repositories.ResourceListDO,
-) ([]repositories.ProjectSummaryDO, int, error) {
+func (col project) GlobalListAndSortByDownloadCount(do *repositories.GlobalResourceListDO) (
+	[]repositories.ProjectSummaryDO, int, error,
+) {
 
-	f := func(items []projectItem) []projectItem {
+	f := func(items []globalProject) []globalProject {
 		v := make([]downloadSortData, len(items))
 
 		for i := range items {
@@ -99,7 +99,7 @@ func (col project) GlobalListAndSortByDownloadCount(
 			return nil
 		}
 
-		r := make([]projectItem, len(v))
+		r := make([]globalProject, len(v))
 		for i := range v {
 			r[i] = items[v[i].index]
 		}
@@ -107,7 +107,7 @@ func (col project) GlobalListAndSortByDownloadCount(
 		return r
 	}
 
-	return col.listResource(owner, do, f)
+	return col.globalListResource(do, f)
 }
 
 func (col project) globalListResource(
