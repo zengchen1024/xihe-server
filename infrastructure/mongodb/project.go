@@ -174,12 +174,6 @@ func (col project) GetSummaryByName(owner, name string) (
 	return
 }
 
-func (col project) List(owner string, do *repositories.ResourceListDO) (
-	[]repositories.ProjectSummaryDO, int, error,
-) {
-	return col.listResource(owner, do, nil)
-}
-
 func (col project) ListUsersProjects(opts map[string][]string) (
 	r []repositories.ProjectSummaryDO, err error,
 ) {

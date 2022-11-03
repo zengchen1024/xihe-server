@@ -147,12 +147,6 @@ func (col dataset) GetSummaryByName(owner, name string) (
 	return
 }
 
-func (col dataset) List(owner string, do *repositories.ResourceListDO) (
-	[]repositories.DatasetSummaryDO, int, error,
-) {
-	return col.listResource(owner, do, nil)
-}
-
 func (col dataset) ListUsersDatasets(opts map[string][]string) (
 	r []repositories.DatasetSummaryDO, err error,
 ) {

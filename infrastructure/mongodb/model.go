@@ -147,12 +147,6 @@ func (col model) GetSummaryByName(owner, name string) (
 	return
 }
 
-func (col model) List(owner string, do *repositories.ResourceListDO) (
-	[]repositories.ModelSummaryDO, int, error,
-) {
-	return col.listResource(owner, do, nil)
-}
-
 func (col model) ListUsersModels(opts map[string][]string) (
 	r []repositories.ModelSummaryDO, err error,
 ) {

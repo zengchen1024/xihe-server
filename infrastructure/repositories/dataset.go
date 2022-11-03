@@ -18,7 +18,6 @@ type DatasetMapper interface {
 	ListUsersDatasets(map[string][]string) ([]DatasetSummaryDO, error)
 	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
 
-	List(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]DatasetSummaryDO, int, error)

@@ -179,7 +179,9 @@ func sortByUpdateTime() bson.M {
 }
 
 func sortByFirstLetter() bson.M {
-	return bson.M{subfieldOfItems(fieldFirstLetter): 1}
+	return bson.M{
+		subfieldOfItems(fieldFirstLetter): 1,
+	}
 }
 
 func sortByDownloadCount() bson.M {
@@ -237,10 +239,10 @@ func updateResourceProperty(
 	return nil
 }
 
-func listResource(
+func listResourceWithoutSort(
 	collection, owner string,
 	do *repositories.ResourceListDO,
-	sort bson.M, fields []string, result interface{},
+	fields []string, result interface{},
 ) error {
 	fieldItemsRef := "$" + fieldItems
 
@@ -271,34 +273,11 @@ func listResource(
 	for _, item := range fields {
 		keep[subfieldOfItems(item)] = 1
 	}
-	keep["total"] = bson.M{
-		"$cond": bson.M{
-			"if":   bson.M{"$isArray": fieldItemsRef},
-			"then": bson.M{"$size": fieldItemsRef},
-			"else": 0,
-		},
-	}
 
 	pipeline := bson.A{
 		bson.M{"$match": resourceOwnerFilter(owner)},
 		bson.M{"$project": project},
 		bson.M{"$project": keep},
-		bson.M{"$unwind": fieldItemsRef},
-	}
-
-	if sort != nil || do.CountPerPage > 0 {
-		if sort != nil {
-			pipeline = append(pipeline, bson.M{"$sort": sort})
-		}
-
-		if do.CountPerPage > 0 {
-			if do.PageNum > 1 {
-				skip := do.CountPerPage * (do.PageNum - 1)
-				pipeline = append(pipeline, bson.M{"$skip": skip})
-			}
-
-			pipeline = append(pipeline, bson.M{"$limit": do.CountPerPage})
-		}
 	}
 
 	return withContext(func(ctx context.Context) error {

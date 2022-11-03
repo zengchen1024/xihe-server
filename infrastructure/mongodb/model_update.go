@@ -1,8 +1,6 @@
 package mongodb
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
@@ -33,42 +31,128 @@ func (col model) RemoveRelatedProject(do *repositories.ReverselyRelatedResourceI
 func (col model) ListAndSortByUpdateTime(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.ModelSummaryDO, int, error) {
-	return col.listResource(owner, do, sortByUpdateTime())
+
+	f := func(items []modelItem) []modelItem {
+		v := make([]updateAtSortData, len(items))
+
+		for i := range items {
+			item := &items[i]
+
+			v[i] = updateAtSortData{
+				id:       item.Id,
+				index:    i,
+				updateAt: item.UpdatedAt,
+			}
+		}
+
+		v = updateAtSortAndPaginate(v, do.CountPerPage, do.PageNum)
+		if len(v) == 0 {
+			return nil
+		}
+
+		r := make([]modelItem, len(v))
+		for i := range v {
+			r[i] = items[v[i].index]
+		}
+
+		return r
+	}
+
+	return col.listResource(owner, do, f)
 }
 
 func (col model) ListAndSortByFirstLetter(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.ModelSummaryDO, int, error) {
-	return col.listResource(owner, do, sortByFirstLetter())
+
+	f := func(items []modelItem) []modelItem {
+		v := make([]firstLetterSortData, len(items))
+
+		for i := range items {
+			item := &items[i]
+
+			v[i] = firstLetterSortData{
+				index:    i,
+				letter:   item.FL,
+				updateAt: item.UpdatedAt,
+			}
+		}
+
+		v = firstLetterSortAndPaginate(v, do.CountPerPage, do.PageNum)
+		if len(v) == 0 {
+			return nil
+		}
+
+		r := make([]modelItem, len(v))
+		for i := range v {
+			r[i] = items[v[i].index]
+		}
+
+		return r
+	}
+
+	return col.listResource(owner, do, f)
 }
 
 func (col model) ListAndSortByDownloadCount(
 	owner string, do *repositories.ResourceListDO,
 ) ([]repositories.ModelSummaryDO, int, error) {
-	return col.listResource(owner, do, sortByDownloadCount())
+
+	f := func(items []modelItem) []modelItem {
+		v := make([]downloadSortData, len(items))
+
+		for i := range items {
+			item := &items[i]
+
+			v[i] = downloadSortData{
+				index:    i,
+				download: item.DownloadCount,
+				updateAt: item.UpdatedAt,
+			}
+		}
+
+		v = downloadSortAndPaginate(v, do.CountPerPage, do.PageNum)
+		if len(v) == 0 {
+			return nil
+		}
+
+		r := make([]modelItem, len(v))
+		for i := range v {
+			r[i] = items[v[i].index]
+		}
+
+		return r
+	}
+
+	return col.listResource(owner, do, f)
 }
 
 func (col model) listResource(
-	owner string, do *repositories.ResourceListDO, sort bson.M,
+	owner string,
+	do *repositories.ResourceListDO,
+	sortAndPagination func(items []modelItem) []modelItem,
 ) (r []repositories.ModelSummaryDO, total int, err error) {
-	var v []struct {
-		Total int       `bson:"total"`
-		Item  modelItem `bson:"items"`
-	}
+	var v []dModel
 
-	err = listResource(
-		col.collectionName, owner, do, sort, col.summaryFields(), &v,
+	err = listResourceWithoutSort(
+		col.collectionName, owner, do, col.summaryFields(), &v,
 	)
 
-	if err != nil || len(v) == 0 {
+	if err != nil || len(v) == 0 || len(v[0].Items) == 0 {
 		return
 	}
 
-	total = v[0].Total
+	items := v[0].Items
+	total = len(items)
 
-	r = make([]repositories.ModelSummaryDO, len(v))
-	for i := range v {
-		col.toModelSummaryDO(owner, &v[i].Item, &r[i])
+	items = sortAndPagination(items)
+	if len(items) == 0 {
+		return
+	}
+
+	r = make([]repositories.ModelSummaryDO, len(items))
+	for i := range items {
+		col.toModelSummaryDO(owner, &items[i], &r[i])
 	}
 
 	return
@@ -76,7 +160,7 @@ func (col model) listResource(
 
 func (col model) summaryFields() []string {
 	return []string{
-		fieldId, fieldName, fieldDesc, fieldTags,
+		fieldId, fieldName, fieldDesc, fieldTags, fieldFirstLetter,
 		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
 	}
 }

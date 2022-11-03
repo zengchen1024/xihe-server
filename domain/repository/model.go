@@ -29,7 +29,6 @@ type Model interface {
 	FindUserModels([]UserResourceListOption) ([]domain.ModelSummary, error)
 	ListSummary([]ModelSummaryListOption) ([]domain.ResourceSummary, error)
 
-	List(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserModelsInfo, error)

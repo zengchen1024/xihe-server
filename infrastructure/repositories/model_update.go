@@ -93,14 +93,6 @@ type ModelPropertyDO struct {
 	Tags     []string
 }
 
-func (impl model) List(
-	owner domain.Account, option *repository.ResourceListOption,
-) (repository.UserModelsInfo, error) {
-	return impl.list(
-		owner, option, impl.mapper.List,
-	)
-}
-
 func (impl model) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
 ) (repository.UserModelsInfo, error) {

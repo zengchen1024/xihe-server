@@ -18,7 +18,6 @@ type ModelMapper interface {
 	ListUsersModels(map[string][]string) ([]ModelSummaryDO, error)
 	ListSummary(map[string][]string) ([]ResourceSummaryDO, error)
 
-	List(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByUpdateTime(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByFirstLetter(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
 	ListAndSortByDownloadCount(string, *ResourceListDO) ([]ModelSummaryDO, int, error)
