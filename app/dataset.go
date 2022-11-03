@@ -200,7 +200,7 @@ func (s datasetService) List(owner domain.Account, cmd *ResourceListCmd) (
 	var v repository.UserDatasetsInfo
 
 	if cmd.SortType == nil {
-		v, err = s.repo.List(owner, &option)
+		v, err = s.repo.ListAndSortByUpdateTime(owner, &option)
 	} else {
 		switch cmd.SortType.SortType() {
 		case domain.SortTypeUpdateTime:

@@ -74,7 +74,7 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 func (s projectService) genForkedRepoName(
 	owner domain.Account, srcName domain.ProjName,
 ) (domain.ProjName, error) {
-	v, err := s.repo.List(
+	v, err := s.repo.ListAndSortByUpdateTime(
 		owner,
 		&repository.ResourceListOption{Name: srcName.ProjName()},
 	)

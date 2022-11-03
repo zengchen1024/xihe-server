@@ -53,14 +53,6 @@ type DatasetPropertyDO struct {
 	Tags     []string
 }
 
-func (impl dataset) List(
-	owner domain.Account, option *repository.ResourceListOption,
-) (repository.UserDatasetsInfo, error) {
-	return impl.list(
-		owner, option, impl.mapper.List,
-	)
-}
-
 func (impl dataset) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
 ) (repository.UserDatasetsInfo, error) {

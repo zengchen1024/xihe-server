@@ -29,7 +29,6 @@ type Dataset interface {
 	FindUserDatasets([]UserResourceListOption) ([]domain.DatasetSummary, error)
 	ListSummary([]DatasetSummaryListOption) ([]domain.ResourceSummary, error)
 
-	List(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserDatasetsInfo, error)

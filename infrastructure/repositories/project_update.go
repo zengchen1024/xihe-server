@@ -135,14 +135,6 @@ func toResourceToUpdateDO(info *repository.ResourceToUpdate) ResourceToUpdateDO 
 	}
 }
 
-func (impl project) List(
-	owner domain.Account, option *repository.ResourceListOption,
-) (repository.UserProjectsInfo, error) {
-	return impl.list(
-		owner, option, impl.mapper.List,
-	)
-}
-
 func (impl project) ListAndSortByUpdateTime(
 	owner domain.Account, option *repository.ResourceListOption,
 ) (repository.UserProjectsInfo, error) {

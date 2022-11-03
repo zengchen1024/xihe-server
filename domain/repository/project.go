@@ -52,7 +52,6 @@ type Project interface {
 
 	FindUserProjects([]UserResourceListOption) ([]domain.ProjectSummary, error)
 
-	List(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
