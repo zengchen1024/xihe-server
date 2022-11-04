@@ -1,11 +1,7 @@
 package domain
 
-type ResourceTags struct {
-	Type  ResourceType
-	Items []DomainTags
-}
-
 type DomainTags struct {
+	Name   string
 	Domain string `json:"domain"`
 	Items  []Tags `json:"items"`
 }

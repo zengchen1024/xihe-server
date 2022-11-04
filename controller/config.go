@@ -7,6 +7,15 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+const (
+	resourceTagTypeModel         = "model"
+	resourceTagTypeProject       = "project"
+	resourceTagTypeDataset       = "dataset"
+	resourceTagTypeGlobalModel   = "global_model"
+	resourceTagTypeGlobalProject = "global_project"
+	resourceTagTypeGlobalDataset = "global_dataset"
+)
+
 var (
 	apiConfig     APIConfig
 	encryptHelper utils.SymmetricEncryption
@@ -28,6 +37,7 @@ func Init(cfg *APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
+	Tags                       Tags   `json:"tags"                        required:"true"`
 	TokenKey                   string `json:"token_key"                   required:"true"`
 	TokenExpiry                int64  `json:"token_expiry"                required:"true"`
 	EncryptionKey              string `json:"encryption_key"              required:"true"`
@@ -81,4 +91,38 @@ func (cfg *APIConfig) Validate() (err error) {
 	_, err = domain.NewFilePath(cfg.InferenceBootFile)
 
 	return
+}
+
+type Tags struct {
+	ModelTagDomains         []string `json:"model"            required:"true"`
+	ProjectTagDomains       []string `json:"project"          required:"true"`
+	DatasetTagDomains       []string `json:"dataset"          required:"true"`
+	GlobalModelTagDomains   []string `json:"global_model"     required:"true"`
+	GlobalProjectTagDomains []string `json:"global_project"   required:"true"`
+	GlobalDatasetTagDomains []string `json:"global_dataset"   required:"true"`
+}
+
+func (t *Tags) getDomains(name string) []string {
+	switch name {
+	case resourceTagTypeModel:
+		return t.ModelTagDomains
+
+	case resourceTagTypeProject:
+		return t.ProjectTagDomains
+
+	case resourceTagTypeDataset:
+		return t.DatasetTagDomains
+
+	case resourceTagTypeGlobalModel:
+		return t.GlobalModelTagDomains
+
+	case resourceTagTypeGlobalProject:
+		return t.GlobalProjectTagDomains
+
+	case resourceTagTypeGlobalDataset:
+		return t.GlobalDatasetTagDomains
+
+	default:
+		return nil
+	}
 }

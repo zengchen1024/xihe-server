@@ -61,6 +61,7 @@ type ProjectController struct {
 	user repository.User
 	repo repository.Project
 	s    app.ProjectService
+	ts   app.TagsService
 
 	model   repository.Model
 	dataset repository.Dataset
@@ -685,7 +686,7 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	tags, err := ctl.tags.List(domain.ResourceTypeProject)
+	tags, err := ctl.tags.List(apiConfig.Tags.ProjectTagDomains)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

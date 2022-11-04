@@ -206,16 +206,18 @@ type ResourceIndex struct {
 }
 
 type dResourceTags struct {
-	ResourceType string         `bson:"rtype"   json:"rtype"`
-	Items        []dDomainTags  `bson:"items"   json:"items"`
-	Orders       map[string]int `bson:"orders"   json:"orders"`
+	Items []dDomainTags `bson:"items"    json:"items"`
 }
 
 type dDomainTags struct {
-	Domain string   `bson:"domain"   json:"domain"`
-	Kind   string   `bson:"kind"     json:"kind"`
-	Order  int      `bson:"order"    json:"order"`
-	Tags   []string `bson:"tags"     json:"tags"`
+	Name   string  `bson:"name"          json:"name"`
+	Domain string  `bson:"domain"        json:"domain"`
+	Tags   []dTags `bson:"tags"          json:"tags"`
+}
+
+type dTags struct {
+	Kind string   `bson:"kind"           json:"kind"`
+	Tags []string `bson:"tags"           json:"tags"`
 }
 
 type dTraining struct {

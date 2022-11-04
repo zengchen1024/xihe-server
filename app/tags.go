@@ -6,7 +6,7 @@ import (
 )
 
 type TagsService interface {
-	List(domain.ResourceType) ([]DomainTagsDTO, error)
+	List([]string) ([]DomainTagsDTO, error)
 }
 
 func NewTagsService(repo repository.Tags) TagsService {
@@ -19,6 +19,6 @@ type tagsService struct {
 
 type DomainTagsDTO = domain.DomainTags
 
-func (s tagsService) List(resourceType domain.ResourceType) ([]DomainTagsDTO, error) {
-	return s.repo.List(resourceType)
+func (s tagsService) List(domainNames []string) ([]DomainTagsDTO, error) {
+	return s.repo.List(domainNames)
 }
