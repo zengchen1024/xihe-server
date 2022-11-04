@@ -12,6 +12,7 @@ type GlobalResourceListCmd struct {
 }
 
 func (cmd *GlobalResourceListCmd) toResourceListOption() repository.GlobalResourceListOption {
+	// only allow to list public resources.
 	cmd.RepoType, _ = domain.NewRepoType(domain.RepoTypePublic)
 
 	return cmd.GlobalResourceListOption
@@ -56,9 +57,22 @@ func (s projectService) ListGlobal(cmd *GlobalResourceListCmd) (
 		return
 	}
 
+	// find avatars
+	users := make([]domain.Account, len(items))
+	for i := range items {
+		users[i] = items[i].Owner
+	}
+
+	avatars, err := s.rs.findUserAvater(users)
+	if err != nil {
+		return
+	}
+
+	// gen result
 	dtos := make([]GlobalProjectDTO, len(items))
 	for i := range items {
 		s.toProjectSummaryDTO(&items[i], &dtos[i].ProjectSummaryDTO)
+		dtos[i].AvatarId = avatars[i]
 	}
 
 	dto.Total = v.Total
@@ -106,9 +120,22 @@ func (s modelService) ListGlobal(cmd *GlobalResourceListCmd) (
 		return
 	}
 
+	// find avatars
+	users := make([]domain.Account, len(items))
+	for i := range items {
+		users[i] = items[i].Owner
+	}
+
+	avatars, err := s.rs.findUserAvater(users)
+	if err != nil {
+		return
+	}
+
+	// gen result
 	dtos := make([]GlobalModelDTO, len(items))
 	for i := range items {
 		s.toModelSummaryDTO(&items[i], &dtos[i].ModelSummaryDTO)
+		dtos[i].AvatarId = avatars[i]
 	}
 
 	dto.Total = v.Total
@@ -156,9 +183,22 @@ func (s datasetService) ListGlobal(cmd *GlobalResourceListCmd) (
 		return
 	}
 
+	// find avatars
+	users := make([]domain.Account, len(items))
+	for i := range items {
+		users[i] = items[i].Owner
+	}
+
+	avatars, err := s.rs.findUserAvater(users)
+	if err != nil {
+		return
+	}
+
+	// gen result
 	dtos := make([]GlobalDatasetDTO, len(items))
 	for i := range items {
 		s.toDatasetSummaryDTO(&items[i], &dtos[i].DatasetSummaryDTO)
+		dtos[i].AvatarId = avatars[i]
 	}
 
 	dto.Total = v.Total
