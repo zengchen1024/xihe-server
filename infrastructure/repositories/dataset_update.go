@@ -34,6 +34,7 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
+		TagKinds: p.TagKinds,
 	}
 
 	if err := impl.mapper.UpdateProperty(&do); err != nil {
@@ -51,6 +52,7 @@ type DatasetPropertyDO struct {
 	Desc     string
 	RepoType string
 	Tags     []string
+	TagKinds []string
 }
 
 func (impl dataset) ListAndSortByUpdateTime(

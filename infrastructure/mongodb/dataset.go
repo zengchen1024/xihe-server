@@ -40,8 +40,6 @@ func (col dataset) newDoc(owner string) error {
 }
 
 func (col dataset) Insert(do repositories.DatasetDO) (identity string, err error) {
-	do.Tags = []string{}
-
 	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}
@@ -82,6 +80,7 @@ func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
 		Desc:     do.Desc,
 		RepoType: do.RepoType,
 		Tags:     do.Tags,
+		TagKinds: do.TagKinds,
 	}
 
 	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
@@ -225,7 +224,14 @@ func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 			Desc:     do.Desc,
 			RepoType: do.RepoType,
 			Tags:     do.Tags,
+			TagKinds: do.TagKinds,
 		},
+	}
+
+	// The serach by the tag want the tags exist.
+	if docObj.Tags == nil {
+		docObj.Tags = []string{}
+		docObj.TagKinds = []string{}
 	}
 
 	return genDoc(docObj)

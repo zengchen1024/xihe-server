@@ -58,6 +58,7 @@ func (cmd *ProjectCreateCmd) toProject() domain.Project {
 				cmd.Protocol.ProtocolName(),
 				cmd.Training.TrainingPlatform(),
 			},
+			TagKinds: []string{},
 		},
 	}
 }

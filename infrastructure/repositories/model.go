@@ -172,6 +172,7 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		RepoType:  m.RepoType.RepoType(),
 		Protocol:  m.Protocol.ProtocolName(),
 		Tags:      m.Tags,
+		TagKinds:  m.TagKinds,
 		RepoId:    m.RepoId,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
@@ -189,6 +190,7 @@ type ModelDO struct {
 	RepoType      string
 	RepoId        string
 	Tags          []string
+	TagKinds      []string
 	CreatedAt     int64
 	UpdatedAt     int64
 	Version       int

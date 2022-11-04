@@ -172,6 +172,7 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		RepoType:  d.RepoType.RepoType(),
 		Protocol:  d.Protocol.ProtocolName(),
 		Tags:      d.Tags,
+		TagKinds:  d.TagKinds,
 		RepoId:    d.RepoId,
 		CreatedAt: d.CreatedAt,
 		UpdatedAt: d.UpdatedAt,
@@ -189,6 +190,7 @@ type DatasetDO struct {
 	RepoType      string
 	RepoId        string
 	Tags          []string
+	TagKinds      []string
 	CreatedAt     int64
 	UpdatedAt     int64
 	Version       int

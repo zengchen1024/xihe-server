@@ -74,6 +74,7 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
+		TagKinds: p.TagKinds,
 	}
 
 	if err := impl.mapper.UpdateProperty(&do); err != nil {
@@ -91,6 +92,7 @@ type ModelPropertyDO struct {
 	Desc     string
 	RepoType string
 	Tags     []string
+	TagKinds []string
 }
 
 func (impl model) ListAndSortByUpdateTime(

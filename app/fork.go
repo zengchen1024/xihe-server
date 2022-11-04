@@ -11,13 +11,14 @@ import (
 )
 
 type ProjectForkCmd struct {
-	From  domain.Project
-	Owner domain.Account
+	From      domain.Project
+	Owner     domain.Account
+	ValidTags []domain.DomainTags
 }
 
-func (cmd *ProjectForkCmd) toProject(name domain.ProjName) domain.Project {
+func (cmd *ProjectForkCmd) toProject(name domain.ProjName) (r domain.Project) {
 	p := &cmd.From
-	return domain.Project{
+	r = domain.Project{
 		Owner:     cmd.Owner,
 		Type:      p.Type,
 		Protocol:  p.Protocol,
@@ -32,6 +33,14 @@ func (cmd *ProjectForkCmd) toProject(name domain.ProjName) domain.Project {
 			Tags:     p.Tags,
 		},
 	}
+
+	h := ResourceTagsUpdateCmd{
+		All: cmd.ValidTags,
+	}
+
+	r.TagKinds = h.genTagKinds(p.Tags)
+
+	return
 }
 
 func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto ProjectDTO, err error) {
