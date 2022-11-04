@@ -20,7 +20,7 @@ type ResourceListOption struct {
 }
 
 type GlobalResourceListOption struct {
-	Level    int
+	Level    domain.ResourceLevel
 	Tags     []string
 	TagKinds []string
 

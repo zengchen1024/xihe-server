@@ -61,7 +61,6 @@ type ProjectController struct {
 	user repository.User
 	repo repository.Project
 	s    app.ProjectService
-	ts   app.TagsService
 
 	model   repository.Model
 	dataset repository.Dataset

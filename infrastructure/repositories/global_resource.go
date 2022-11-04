@@ -16,7 +16,9 @@ func toGlobalResourceListDO(
 ) (do GlobalResourceListDO) {
 	do.ResourceListDO = toResourceListDO(&opt.ResourceListOption)
 
-	do.Level = opt.Level
+	if opt.Level != nil {
+		do.Level = opt.Level.Int()
+	}
 	do.Tags = opt.Tags
 	do.TagKinds = opt.TagKinds
 

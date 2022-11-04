@@ -15,6 +15,9 @@ const (
 	SortTypeUpdateTime    = "update_time"
 	SortTypeFirstLetter   = "first_letter"
 	SortTypeDownloadCount = "download_count"
+
+	resourceLevelOfficial = "official"
+	resourceLevelGood     = "good"
 )
 
 var (
@@ -254,6 +257,42 @@ type resourceDesc string
 
 func (r resourceDesc) ResourceDesc() string {
 	return string(r)
+}
+
+// ResourceLevel
+type ResourceLevel interface {
+	ResourceLevel() string
+	Int() int
+}
+
+func NewResourceLevel(v string) (ResourceLevel, error) {
+	switch v {
+	case resourceLevelOfficial:
+		return resourceLevel{
+			level: 2,
+			desc:  v,
+		}, nil
+	case resourceLevelGood:
+		return resourceLevel{
+			level: 1,
+			desc:  v,
+		}, nil
+	default:
+		return resourceLevel{}, nil
+	}
+}
+
+type resourceLevel struct {
+	level int
+	desc  string
+}
+
+func (r resourceLevel) ResourceLevel() string {
+	return r.desc
+}
+
+func (r resourceLevel) Int() int {
+	return r.level
 }
 
 // SortType

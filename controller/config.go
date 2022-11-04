@@ -37,20 +37,22 @@ func Init(cfg *APIConfig, l *logrus.Entry) error {
 }
 
 type APIConfig struct {
-	Tags                       Tags   `json:"tags"                        required:"true"`
-	TokenKey                   string `json:"token_key"                   required:"true"`
-	TokenExpiry                int64  `json:"token_expiry"                required:"true"`
-	EncryptionKey              string `json:"encryption_key"              required:"true"`
-	DefaultPassword            string `json:"default_password"            required:"true"`
-	MaxTrainingRecordNum       int    `json:"max_training_record_num"     required:"true"`
-	InferenceDir               string `json:"inference_dir"`
-	InferenceBootFile          string `json:"inference_boot_file"`
-	InferenceTimeout           int    `json:"inference_timeout"`
-	EvaluateTimeout            int    `json:"evaluate_timeout"`
-	MaxPictureSizeToDescribe   int64  `json:"-"`
-	MaxPictureSizeToVQA        int64  `json:"-"`
-	MinSurvivalTimeOfEvaluate  int    `json:"min_survival_time_of_evaluate"`
-	MinSurvivalTimeOfInference int    `json:"min_survival_time_of_inference"`
+	Tags                           Tags   `json:"tags"                        required:"true"`
+	TokenKey                       string `json:"token_key"                   required:"true"`
+	TokenExpiry                    int64  `json:"token_expiry"                required:"true"`
+	EncryptionKey                  string `json:"encryption_key"              required:"true"`
+	DefaultPassword                string `json:"default_password"            required:"true"`
+	MaxTrainingRecordNum           int    `json:"max_training_record_num"     required:"true"`
+	InferenceDir                   string `json:"inference_dir"`
+	InferenceBootFile              string `json:"inference_boot_file"`
+	InferenceTimeout               int    `json:"inference_timeout"`
+	EvaluateTimeout                int    `json:"evaluate_timeout"`
+	MaxPictureSizeToDescribe       int64  `json:"-"`
+	MaxPictureSizeToVQA            int64  `json:"-"`
+	MinSurvivalTimeOfEvaluate      int    `json:"min_survival_time_of_evaluate"`
+	MinSurvivalTimeOfInference     int    `json:"min_survival_time_of_inference"`
+	MaxTagsNumToSearchResource     int    `json:"max_tags_num_to_search_resource"`
+	MaxTagKindsNumToSearchResource int    `json:"max_tag_kinds_num_to_search_resource"`
 }
 
 func (cfg *APIConfig) SetDefault() {
@@ -76,6 +78,14 @@ func (cfg *APIConfig) SetDefault() {
 
 	if cfg.EvaluateTimeout <= 0 {
 		cfg.EvaluateTimeout = 300
+	}
+
+	if cfg.MaxTagsNumToSearchResource <= 0 {
+		cfg.MaxTagsNumToSearchResource = 5
+	}
+
+	if cfg.MaxTagKindsNumToSearchResource <= 0 {
+		cfg.MaxTagKindsNumToSearchResource = 5
 	}
 }
 

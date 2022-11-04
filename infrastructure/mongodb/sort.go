@@ -57,7 +57,7 @@ func updateAtSortAndPaginate(
 		}
 
 		if a.updateAt != b.updateAt {
-			return a.updateAt >= b.updateAt
+			return a.updateAt > b.updateAt
 		}
 
 		return a.id < b.id
@@ -89,7 +89,7 @@ func downloadSortAndPaginate(
 		}
 
 		if a.download != b.download {
-			return a.download >= b.download
+			return a.download > b.download
 		}
 
 		return a.updateAt >= b.updateAt
