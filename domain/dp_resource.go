@@ -265,20 +265,20 @@ type ResourceLevel interface {
 	Int() int
 }
 
-func NewResourceLevel(v string) (ResourceLevel, error) {
+func NewResourceLevel(v string) ResourceLevel {
 	switch v {
 	case resourceLevelOfficial:
 		return resourceLevel{
 			level: 2,
 			desc:  v,
-		}, nil
+		}
 	case resourceLevelGood:
 		return resourceLevel{
 			level: 1,
 			desc:  v,
-		}, nil
+		}
 	default:
-		return resourceLevel{}, nil
+		return resourceLevel{}
 	}
 }
 

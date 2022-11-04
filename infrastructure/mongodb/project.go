@@ -40,9 +40,6 @@ func (col project) newDoc(owner string) error {
 }
 
 func (col project) Insert(do repositories.ProjectDO) (identity string, err error) {
-	// The serach by the tag want the tags exist.
-	do.Tags = []string{}
-
 	if identity, err = col.insert(do); err == nil || !isDocNotExists(err) {
 		return
 	}
@@ -84,6 +81,7 @@ func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 		CoverId:  do.CoverId,
 		RepoType: do.RepoType,
 		Tags:     do.Tags,
+		TagKinds: do.TagKinds,
 	}
 
 	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
@@ -220,7 +218,14 @@ func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 			CoverId:  do.CoverId,
 			RepoType: do.RepoType,
 			Tags:     do.Tags,
+			TagKinds: do.TagKinds,
 		},
+	}
+
+	// The serach by the tag want the tags exist.
+	if docObj.Tags == nil {
+		docObj.Tags = []string{}
+		docObj.TagKinds = []string{}
 	}
 
 	return genDoc(docObj)

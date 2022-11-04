@@ -146,6 +146,7 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		Protocol:  p.Protocol.ProtocolName(),
 		Training:  p.Training.TrainingPlatform(),
 		Tags:      p.Tags,
+		TagKinds:  p.TagKinds,
 		RepoId:    p.RepoId,
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
@@ -166,6 +167,7 @@ type ProjectDO struct {
 	RepoType      string
 	RepoId        string
 	Tags          []string
+	TagKinds      []string
 	CreatedAt     int64
 	UpdatedAt     int64
 	Version       int

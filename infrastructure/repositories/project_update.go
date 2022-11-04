@@ -84,6 +84,7 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 		CoverId:  p.CoverId.CoverId(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
+		TagKinds: p.TagKinds,
 	}
 
 	if err := impl.mapper.UpdateProperty(&do); err != nil {
@@ -102,6 +103,7 @@ type ProjectPropertyDO struct {
 	CoverId  string
 	RepoType string
 	Tags     []string
+	TagKinds []string
 }
 
 func toRelatedResourceDO(info *repository.RelatedResourceInfo) RelatedResourceDO {

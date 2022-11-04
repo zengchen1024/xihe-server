@@ -258,14 +258,7 @@ func (ctl baseController) getListGlobalResourceParameter(
 	}
 
 	if s := ctl.getQueryParameter(ctx, "level"); s != "" {
-		level, err1 := domain.NewResourceLevel(s)
-		if err1 != nil {
-			err = err1
-
-			return
-		}
-
-		cmd.Level = level
+		cmd.Level = domain.NewResourceLevel(s)
 	}
 
 	cmd.ResourceListOption = v.ResourceListOption

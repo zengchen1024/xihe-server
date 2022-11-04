@@ -40,6 +40,7 @@ type ProjectModifiableProperty struct {
 	CoverId  CoverId
 	RepoType RepoType
 	Tags     []string
+	TagKinds []string
 }
 
 type ProjectSummary struct {
