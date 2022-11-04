@@ -123,8 +123,10 @@ func (req *resourceTagsUpdateRequest) toCmd(
 		return
 	}
 
+	cmd.All = validTags
 	cmd.ToAdd = req.ToAdd
 	cmd.ToRemove = req.ToRemove
+
 	err = nil
 
 	return

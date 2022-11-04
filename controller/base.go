@@ -236,13 +236,29 @@ func (ctl baseController) getListGlobalResourceParameter(
 	}
 
 	if s := ctl.getQueryParameter(ctx, "tags"); s != "" {
-		/*
-			tags := []string{}
-			for _, t :=  range strings.Split(s, ",") {
+		tags := strings.Split(s, ",")
+		if len(tags) > apiConfig.MaxTagsNumToSearchResource {
+			err = errors.New("too many tags to search by")
 
-			}
-			//cmd.Tags =
-		*/
+			return
+		}
+
+		cmd.Tags = tags
+	}
+
+	if s := ctl.getQueryParameter(ctx, "tag_kinds"); s != "" {
+		kinds := strings.Split(s, ",")
+		if len(kinds) > apiConfig.MaxTagKindsNumToSearchResource {
+			err = errors.New("too many tag kinds to search by")
+
+			return
+		}
+
+		cmd.TagKinds = kinds
+	}
+
+	if s := ctl.getQueryParameter(ctx, "level"); s != "" {
+		cmd.Level = domain.NewResourceLevel(s)
 	}
 
 	cmd.ResourceListOption = v.ResourceListOption

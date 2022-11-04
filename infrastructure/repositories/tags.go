@@ -6,7 +6,7 @@ import (
 )
 
 type TagsMapper interface {
-	List(string) ([]DomainTagsDo, error)
+	List([]string) ([]DomainTagsDo, error)
 }
 
 type DomainTagsDo = domain.DomainTags
@@ -20,8 +20,8 @@ type tags struct {
 	mapper TagsMapper
 }
 
-func (impl tags) List(resourceType domain.ResourceType) ([]domain.DomainTags, error) {
-	v, err := impl.mapper.List(resourceType.ResourceType())
+func (impl tags) List(domainNames []string) ([]domain.DomainTags, error) {
+	v, err := impl.mapper.List(domainNames)
 	if err != nil {
 		return nil, convertError(err)
 	}

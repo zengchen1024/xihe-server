@@ -389,6 +389,13 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		return
 	}
 
+	tags, err := ctl.tags.List(apiConfig.Tags.ProjectTagDomains)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
@@ -425,8 +432,9 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 	)
 
 	data, err := ctl.s.Fork(&app.ProjectForkCmd{
-		From:  proj,
-		Owner: pl.DomainAccount(),
+		From:      proj,
+		Owner:     pl.DomainAccount(),
+		ValidTags: tags,
 	}, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
@@ -685,7 +693,7 @@ func (ctl *ProjectController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	tags, err := ctl.tags.List(domain.ResourceTypeProject)
+	tags, err := ctl.tags.List(apiConfig.Tags.ProjectTagDomains)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

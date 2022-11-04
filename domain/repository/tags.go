@@ -5,5 +5,5 @@ import (
 )
 
 type Tags interface {
-	List(domain.ResourceType) ([]domain.DomainTags, error)
+	List(domainNames []string) ([]domain.DomainTags, error)
 }

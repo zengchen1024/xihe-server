@@ -78,6 +78,7 @@ func (s datasetService) SetTags(d *domain.Dataset, cmd *ResourceTagsUpdateCmd) e
 	}
 
 	d.DatasetModifiableProperty.Tags = tags
+	d.DatasetModifiableProperty.TagKinds = cmd.genTagKinds(tags)
 
 	info := repository.DatasetPropertyUpdateInfo{
 		ResourceToUpdate: s.toResourceToUpdate(d),

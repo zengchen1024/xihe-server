@@ -498,7 +498,7 @@ func (ctl *ModelController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	tags, err := ctl.tags.List(domain.ResourceTypeModel)
+	tags, err := ctl.tags.List(apiConfig.Tags.ModelTagDomains)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

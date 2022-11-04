@@ -3,6 +3,7 @@ package mongodb
 import "sort"
 
 type firstLetterSortData struct {
+	level    int
 	index    int
 	letter   byte
 	updateAt int64
@@ -19,6 +20,10 @@ func firstLetterSortAndPaginate(
 	sort.Slice(datas, func(i, j int) bool {
 		a, b := &datas[i], &datas[j]
 
+		if a.level != b.level {
+			return a.level > b.level
+		}
+
 		if a.letter != b.letter {
 			return a.letter < b.letter
 		}
@@ -31,6 +36,7 @@ func firstLetterSortAndPaginate(
 
 type updateAtSortData struct {
 	id       string
+	level    int
 	index    int
 	updateAt int64
 }
@@ -46,8 +52,12 @@ func updateAtSortAndPaginate(
 	sort.Slice(datas, func(i, j int) bool {
 		a, b := &datas[i], &datas[j]
 
+		if a.level != b.level {
+			return a.level > b.level
+		}
+
 		if a.updateAt != b.updateAt {
-			return a.updateAt >= b.updateAt
+			return a.updateAt > b.updateAt
 		}
 
 		return a.id < b.id
@@ -57,6 +67,7 @@ func updateAtSortAndPaginate(
 }
 
 type downloadSortData struct {
+	level    int
 	index    int
 	download int
 	updateAt int64
@@ -73,8 +84,12 @@ func downloadSortAndPaginate(
 	sort.Slice(datas, func(i, j int) bool {
 		a, b := &datas[i], &datas[j]
 
+		if a.level != b.level {
+			return a.level > b.level
+		}
+
 		if a.download != b.download {
-			return a.download >= b.download
+			return a.download > b.download
 		}
 
 		return a.updateAt >= b.updateAt

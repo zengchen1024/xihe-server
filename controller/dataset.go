@@ -377,7 +377,7 @@ func (ctl *DatasetController) SetTags(ctx *gin.Context) {
 		return
 	}
 
-	tags, err := ctl.tags.List(domain.ResourceTypeDataset)
+	tags, err := ctl.tags.List(apiConfig.Tags.DatasetTagDomains)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

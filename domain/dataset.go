@@ -32,6 +32,7 @@ type DatasetModifiableProperty struct {
 	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
+	TagKinds []string
 }
 
 type DatasetSummary struct {

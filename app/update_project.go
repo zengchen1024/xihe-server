@@ -92,6 +92,7 @@ func (s projectService) SetTags(p *domain.Project, cmd *ResourceTagsUpdateCmd) e
 	}
 
 	p.ProjectModifiableProperty.Tags = tags
+	p.ProjectModifiableProperty.TagKinds = cmd.genTagKinds(tags)
 
 	info := repository.ProjectPropertyUpdateInfo{
 		ResourceToUpdate: s.toResourceToUpdate(p),

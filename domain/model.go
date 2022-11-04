@@ -36,6 +36,7 @@ type ModelModifiableProperty struct {
 	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
+	TagKinds []string
 }
 
 type ModelSummary struct {

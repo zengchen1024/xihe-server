@@ -45,6 +45,7 @@ func (cmd *ModelCreateCmd) toModel() domain.Model {
 			Desc:     cmd.Desc,
 			RepoType: cmd.RepoType,
 			Tags:     []string{cmd.Protocol.ProtocolName()},
+			TagKinds: []string{},
 		},
 	}
 }

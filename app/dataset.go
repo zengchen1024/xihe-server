@@ -44,6 +44,7 @@ func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
 			Desc:     cmd.Desc,
 			RepoType: cmd.RepoType,
 			Tags:     []string{cmd.Protocol.ProtocolName()},
+			TagKinds: []string{},
 		},
 	}
 }
