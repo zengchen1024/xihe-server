@@ -76,9 +76,16 @@ func (impl user) GetUserAvatarId(account domain.Account) (domain.AvatarId, error
 }
 
 func (impl user) FindUsersInfo(accounts []domain.Account) (r []domain.UserInfo, err error) {
-	v := make([]string, len(accounts))
+	m := map[string]struct{}{}
 	for i := range accounts {
-		v[i] = accounts[i].Account()
+		n := accounts[i].Account()
+		m[n] = struct{}{}
+	}
+
+	i, v := 0, make([]string, len(m))
+	for k := range m {
+		v[i] = k
+		i++
 	}
 
 	d, err := impl.mapper.ListUsersInfo(v)

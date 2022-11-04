@@ -124,9 +124,19 @@ func (impl model) list(
 ) (
 	info repository.UserModelsInfo, err error,
 ) {
-	do := toResourceListDO(option)
+	return impl.doList(func() ([]ModelSummaryDO, int, error) {
+		do := toResourceListDO(option)
 
-	v, total, err := f(owner.Account(), &do)
+		return f(owner.Account(), &do)
+	})
+}
+
+func (impl model) doList(
+	f func() ([]ModelSummaryDO, int, error),
+) (
+	info repository.UserModelsInfo, err error,
+) {
+	v, total, err := f()
 	if err != nil {
 		err = convertError(err)
 

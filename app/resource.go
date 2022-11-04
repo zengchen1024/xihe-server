@@ -352,3 +352,22 @@ func (s resourceService) userMapToList(m map[string]domain.Account) []domain.Acc
 
 	return r
 }
+func (s resourceService) findUserAvater(users []domain.Account) ([]string, error) {
+	allUsers, err := s.user.FindUsersInfo(users)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfos := make(map[string]string)
+	for i := range allUsers {
+		item := &allUsers[i]
+		userInfos[item.Account.Account()] = item.AvatarId.AvatarId()
+	}
+
+	r := make([]string, len(users))
+	for i := range users {
+		r[i] = userInfos[users[i].Account()]
+	}
+
+	return r, nil
+}

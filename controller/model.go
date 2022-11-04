@@ -38,6 +38,7 @@ func AddRouterForModelController(
 	rg.PUT("/v1/model/:owner/:id", ctl.Update)
 	rg.GET("/v1/model/:owner/:name", ctl.Get)
 	rg.GET("/v1/model/:owner", ctl.List)
+	rg.GET("/v1/model", ctl.ListGlobal)
 
 	rg.PUT("/v1/model/:owner/:id/dataset/relation", ctl.AddRelatedDataset)
 	rg.DELETE("/v1/model/:owner/:id/dataset/relation", ctl.RemoveRelatedDataset)
@@ -328,6 +329,38 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))
+}
+
+// @Summary ListGlobal
+// @Description list global public model
+// @Tags  Model
+// @Param	name		query	string	false	"name of model"
+// @Param	tags		query	string	false	"tags, separate multiple tags with commas"
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
+// @Accept json
+// @Success 200 {object} app.GlobalModelsDTO
+// @Produce json
+// @Router /v1/model [get]
+func (ctl *ModelController) ListGlobal(ctx *gin.Context) {
+	cmd, err := ctl.getListGlobalResourceParameter(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	result, err := ctl.s.ListGlobal(&cmd)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(result))
 }
 
 // @Summary AddRelatedDataset

@@ -84,9 +84,20 @@ func (impl dataset) list(
 ) (
 	info repository.UserDatasetsInfo, err error,
 ) {
-	do := toResourceListDO(option)
+	return impl.doList(func() ([]DatasetSummaryDO, int, error) {
+		do := toResourceListDO(option)
 
-	v, total, err := f(owner.Account(), &do)
+		return f(owner.Account(), &do)
+	})
+
+}
+
+func (impl dataset) doList(
+	f func() ([]DatasetSummaryDO, int, error),
+) (
+	info repository.UserDatasetsInfo, err error,
+) {
+	v, total, err := f()
 	if err != nil {
 		err = convertError(err)
 

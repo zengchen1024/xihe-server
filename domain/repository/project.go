@@ -15,8 +15,14 @@ type ResourceListOption struct {
 	Name     string
 	RepoType domain.RepoType
 
-	CountPerPage int
 	PageNum      int
+	CountPerPage int
+}
+
+type GlobalResourceListOption struct {
+	Tags []string
+
+	ResourceListOption
 }
 
 type RelatedResourceInfo struct {
@@ -55,6 +61,10 @@ type Project interface {
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
 	ListAndSortByDownloadCount(domain.Account, *ResourceListOption) (UserProjectsInfo, error)
+
+	ListGlobalAndSortByUpdateTime(*GlobalResourceListOption) (UserProjectsInfo, error)
+	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserProjectsInfo, error)
+	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserProjectsInfo, error)
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error

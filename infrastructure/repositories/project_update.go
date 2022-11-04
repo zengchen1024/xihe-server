@@ -166,9 +166,19 @@ func (impl project) list(
 ) (
 	info repository.UserProjectsInfo, err error,
 ) {
-	do := toResourceListDO(option)
+	return impl.doList(func() ([]ProjectSummaryDO, int, error) {
+		do := toResourceListDO(option)
 
-	v, total, err := f(owner.Account(), &do)
+		return f(owner.Account(), &do)
+	})
+}
+
+func (impl project) doList(
+	f func() ([]ProjectSummaryDO, int, error),
+) (
+	info repository.UserProjectsInfo, err error,
+) {
+	v, total, err := f()
 	if err != nil {
 		err = convertError(err)
 

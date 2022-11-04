@@ -105,6 +105,106 @@ definitions:
       total:
         type: integer
     type: object
+  app.GlobalDatasetDTO:
+    properties:
+      avatar_id:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  app.GlobalDatasetsDTO:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/app.GlobalDatasetDTO'
+        type: array
+      total:
+        type: integer
+    type: object
+  app.GlobalModelDTO:
+    properties:
+      avatar_id:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  app.GlobalModelsDTO:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/app.GlobalModelDTO'
+        type: array
+      total:
+        type: integer
+    type: object
+  app.GlobalProjectDTO:
+    properties:
+      avatar_id:
+        type: string
+      cover_id:
+        type: string
+      desc:
+        type: string
+      download_count:
+        type: integer
+      fork_count:
+        type: integer
+      id:
+        type: string
+      like_count:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  app.GlobalProjectsDTO:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/app.GlobalProjectDTO'
+        type: array
+      total:
+        type: integer
+    type: object
   app.InferenceDTO:
     properties:
       access_url:
@@ -966,6 +1066,41 @@ paths:
       tags:
       - BigModel
   /v1/dataset:
+    get:
+      consumes:
+      - application/json
+      description: list global public dataset
+      parameters:
+      - description: name of dataset
+        in: query
+        name: name
+        type: string
+      - description: tags, separate multiple tags with commas
+        in: query
+        name: tags
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.GlobalDatasetsDTO'
+      summary: ListGlobal
+      tags:
+      - Dataset
     post:
       consumes:
       - application/json
@@ -1231,6 +1366,41 @@ paths:
       tags:
       - Inference
   /v1/model:
+    get:
+      consumes:
+      - application/json
+      description: list global public model
+      parameters:
+      - description: name of model
+        in: query
+        name: name
+        type: string
+      - description: tags, separate multiple tags with commas
+        in: query
+        name: tags
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.GlobalModelsDTO'
+      summary: ListGlobal
+      tags:
+      - Model
     post:
       consumes:
       - application/json
@@ -1434,6 +1604,41 @@ paths:
       tags:
       - Model
   /v1/project:
+    get:
+      consumes:
+      - application/json
+      description: list global public project
+      parameters:
+      - description: name of project
+        in: query
+        name: name
+        type: string
+      - description: tags, separate multiple tags with commas
+        in: query
+        name: tags
+        type: string
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      - description: sort keys, value can be update_time, first_letter, download_count
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.GlobalProjectsDTO'
+      summary: ListGlobal
+      tags:
+      - Project
     post:
       consumes:
       - application/json
