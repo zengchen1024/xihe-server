@@ -6,14 +6,19 @@ import (
 
 type GlobalResourceListDO struct {
 	ResourceListDO
-	Tags []string
+	Level    int
+	Tags     []string
+	TagKinds []string
 }
 
 func toGlobalResourceListDO(
 	opt *repository.GlobalResourceListOption,
 ) (do GlobalResourceListDO) {
 	do.ResourceListDO = toResourceListDO(&opt.ResourceListOption)
+
+	do.Level = opt.Level
 	do.Tags = opt.Tags
+	do.TagKinds = opt.TagKinds
 
 	return
 }

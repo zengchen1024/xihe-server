@@ -40,6 +40,7 @@ func (col model) ListAndSortByUpdateTime(
 
 			v[i] = updateAtSortData{
 				id:       item.Id,
+				level:    item.Level,
 				index:    i,
 				updateAt: item.UpdatedAt,
 			}
@@ -73,6 +74,7 @@ func (col model) ListAndSortByFirstLetter(
 
 			v[i] = firstLetterSortData{
 				index:    i,
+				level:    item.Level,
 				letter:   item.FL,
 				updateAt: item.UpdatedAt,
 			}
@@ -106,6 +108,7 @@ func (col model) ListAndSortByDownloadCount(
 
 			v[i] = downloadSortData{
 				index:    i,
+				level:    item.Level,
 				download: item.DownloadCount,
 				updateAt: item.UpdatedAt,
 			}
@@ -161,7 +164,7 @@ func (col model) listResource(
 func (col model) summaryFields() []string {
 	return []string{
 		fieldId, fieldName, fieldDesc, fieldTags, fieldFirstLetter,
-		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount,
+		fieldUpdatedAt, fieldLikeCount, fieldDownloadCount, fieldLevel,
 	}
 }
 

@@ -8,12 +8,14 @@ const (
 	fieldBio            = "bio"
 	fieldJob            = "job"
 	fieldDesc           = "desc"
+	fieldLevel          = "level"
 	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"
 	fieldCommit         = "commit"
 	fieldExpiry         = "expiry"
 	fieldRepoId         = "repo_id"
 	fieldTags           = "tags"
+	fieldKinds          = "kinds"
 	fieldName           = "name"
 	fieldItems          = "items"
 	fieldOwner          = "owner"
@@ -73,12 +75,14 @@ type projectItem struct {
 }
 
 type ProjectPropertyItem struct {
+	Level    int      `bson:"level"      json:"level"`
 	Name     string   `bson:"name"       json:"name"`
 	FL       byte     `bson:"fl"         json:"fl"`
 	Desc     string   `bson:"desc"       json:"desc"`
 	CoverId  string   `bson:"cover_id"   json:"cover_id"`
 	RepoType string   `bson:"repo_type"  json:"repo_type"`
 	Tags     []string `bson:"tags"       json:"tags"`
+	TagKinds []string `bson:"kinds"      json:"kinds"`
 }
 
 type dModel struct {
@@ -109,10 +113,12 @@ type modelItem struct {
 
 type ModelPropertyItem struct {
 	FL       byte     `bson:"fl"         json:"fl"`
+	Level    int      `bson:"level"      json:"level"`
 	Name     string   `bson:"name"       json:"name"`
 	Desc     string   `bson:"desc"       json:"desc"`
 	RepoType string   `bson:"repo_type"  json:"repo_type"`
 	Tags     []string `bson:"tags"       json:"tags"`
+	TagKinds []string `bson:"kinds"      json:"kinds"`
 }
 
 type dDataset struct {
@@ -141,10 +147,12 @@ type datasetItem struct {
 
 type DatasetPropertyItem struct {
 	FL       byte     `bson:"fl"         json:"fl"`
+	Level    int      `bson:"level"      json:"level"`
 	Name     string   `bson:"name"       json:"name"`
 	Desc     string   `bson:"desc"       json:"desc"`
 	RepoType string   `bson:"repo_type"  json:"repo_type"`
 	Tags     []string `bson:"tags"       json:"tags"`
+	TagKinds []string `bson:"kinds"      json:"kinds"`
 }
 
 type DUser struct {

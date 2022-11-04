@@ -21,6 +21,7 @@ func (col model) ListGlobalAndSortByUpdateTime(do *repositories.GlobalResourceLi
 
 			v[i] = updateAtSortData{
 				id:       item.Id,
+				level:    item.Level,
 				index:    i,
 				updateAt: item.UpdatedAt,
 			}
@@ -54,6 +55,7 @@ func (col model) ListGlobalAndSortByFirstLetter(do *repositories.GlobalResourceL
 
 			v[i] = firstLetterSortData{
 				index:    i,
+				level:    item.Level,
 				letter:   item.FL,
 				updateAt: item.UpdatedAt,
 			}
@@ -87,6 +89,7 @@ func (col model) ListGlobalAndSortByDownloadCount(do *repositories.GlobalResourc
 
 			v[i] = downloadSortData{
 				index:    i,
+				level:    item.Level,
 				download: item.DownloadCount,
 				updateAt: item.UpdatedAt,
 			}

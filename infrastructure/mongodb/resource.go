@@ -290,6 +290,12 @@ func listGlobalResourceWithoutSort(
 			"cond": func() bson.M {
 				conds := bson.A{}
 
+				if do.Level != 0 {
+					conds = append(conds, eqCondForArrayElem(
+						fieldLevel, do.Level,
+					))
+				}
+
 				if do.RepoType != "" {
 					conds = append(conds, eqCondForArrayElem(
 						fieldRepoType, do.RepoType,
@@ -300,6 +306,14 @@ func listGlobalResourceWithoutSort(
 					for _, tag := range do.Tags {
 						conds = append(conds, valueInCondForArrayElem(
 							fieldTags, tag,
+						))
+					}
+				}
+
+				if len(do.TagKinds) > 0 {
+					for _, t := range do.TagKinds {
+						conds = append(conds, valueInCondForArrayElem(
+							fieldKinds, t,
 						))
 					}
 				}
