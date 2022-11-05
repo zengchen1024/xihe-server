@@ -16,9 +16,9 @@ type ProjectForkCmd struct {
 	ValidTags []domain.DomainTags
 }
 
-func (cmd *ProjectForkCmd) toProject(name domain.ProjName) (r domain.Project) {
+func (cmd *ProjectForkCmd) toProject(name domain.ProjName, r *domain.Project) {
 	p := &cmd.From
-	r = domain.Project{
+	*r = domain.Project{
 		Owner:     cmd.Owner,
 		Type:      p.Type,
 		Protocol:  p.Protocol,
@@ -54,10 +54,11 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 		return
 	}
 
-	v := cmd.toProject(name)
+	v := new(domain.Project)
+	cmd.toProject(name, v)
 	v.RepoId = pid
 
-	p, err := s.repo.Save(&v)
+	p, err := s.repo.Save(v)
 	if err != nil {
 		return
 	}
