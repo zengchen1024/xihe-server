@@ -26,7 +26,7 @@ func AddRouterForUserController(
 		s:    app.NewUserService(repo, ps, sender),
 	}
 
-	// rg.POST("/v1/user", pc.Create)
+	rg.POST("/v1/user", pc.Create) // TODO: delete
 	rg.PUT("/v1/user", pc.Update)
 	rg.GET("/v1/user", pc.Get)
 
@@ -58,15 +58,11 @@ type UserController struct {
 // @Failure 500 duplicate_creating  create user repeatedly
 // @Router /v1/user [post]
 func (ctl *UserController) Create(ctx *gin.Context) {
-	pl, ok := ctl.checkNewUserApiToken(ctx)
-	if !ok {
-		return
-	}
+	token := ctx.GetHeader(headerPrivateToken)
 
-	info, err := ctl.auth.GetByAccessToken(pl.AccessToken)
-	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseCodeError(
-			errorSystemError, err,
+	if token != apiConfig.DefaultPassword {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed, "not allow",
 		))
 
 		return
@@ -82,16 +78,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if req.Account != info.Name.Account() {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorNotAllowed,
-			"account is not matched",
-		))
-
-		return
-	}
-
-	cmd, err := req.toCmd(info)
+	cmd, err := req.toCmd()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -107,7 +94,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	token, err := ctl.newApiToken(ctx, oldUserTokenPayload{
+	token, err = ctl.newApiToken(ctx, oldUserTokenPayload{
 		Account:                 d.Account,
 		Email:                   d.Email,
 		PlatformToken:           d.Platform.Token,

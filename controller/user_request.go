@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/authing"
 )
 
 type userBasicInfoUpdateRequest struct {
@@ -27,17 +26,29 @@ func (req *userBasicInfoUpdateRequest) toCmd() (
 
 type userCreateRequest struct {
 	Account  string `json:"account"`
-	Password string `json:"password"`
+	Email    string `json:"email"`
+	Bio      string `json:"bio"`
+	AvatarId string `json:"avatar_id"`
 }
 
-func (req *userCreateRequest) toCmd(info authing.UserInfo) (cmd app.UserCreateCmd, err error) {
-	cmd.Account = info.Name
-	cmd.Email = info.Email
-	cmd.Bio = info.Bio
-	cmd.AvatarId = info.AvatarId
+func (req *userCreateRequest) toCmd() (cmd app.UserCreateCmd, err error) {
+	if cmd.Account, err = domain.NewAccount(req.Account); err != nil {
+		return
+	}
 
-	cmd.Password, err = domain.NewPassword(req.Password)
-	if err != nil {
+	if cmd.Email, err = domain.NewEmail(req.Email); err != nil {
+		return
+	}
+
+	if cmd.Bio, err = domain.NewBio(req.Bio); err != nil {
+		return
+	}
+
+	if cmd.AvatarId, err = domain.NewAvatarId(req.AvatarId); err != nil {
+		return
+	}
+
+	if cmd.Password, err = domain.NewPassword(apiConfig.DefaultPassword); err != nil {
 		return
 	}
 

@@ -4149,7 +4149,13 @@ const docTemplate = `{
                 "account": {
                     "type": "string"
                 },
-                "password": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 }
             }
