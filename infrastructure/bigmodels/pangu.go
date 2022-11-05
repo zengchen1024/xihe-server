@@ -2,6 +2,7 @@ package bigmodels
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -59,9 +60,9 @@ func (s *service) sendReqToPangu(endpoint, question string) (answer string, err 
 
 	if v := strings.Split(r.Result, "\n"); len(v) == 2 && v[0] == question {
 		answer = v[1]
+	} else {
+		err = errors.New("failed")
 	}
-
-	// TODO: failed msg
 
 	return
 }

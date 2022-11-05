@@ -133,6 +133,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/luojia": {
+            "post": {
+                "description": "luo-jia big model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.luojiaResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/luojia_upload_picture": {
+            "post": {
+                "description": "upload a picture for luo-jia",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "picture",
+                        "name": "picture",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.pictureUploadResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/multiple_pictures": {
             "post": {
                 "description": "generate multiple pictures based on a text",
@@ -158,6 +217,42 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/controller.multiplePicturesGenerateResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/pangu": {
+            "post": {
+                "description": "pan-gu big model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of pan-gu",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.panguRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.panguResp"
                         }
                     },
                     "500": {
@@ -205,9 +300,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/bigmodel/upload_picture": {
+        "/v1/bigmodel/vqa_upload_picture": {
             "post": {
-                "description": "upload a picture",
+                "description": "upload a picture for vqa",
                 "consumes": [
                     "application/json"
                 ],
@@ -3622,6 +3717,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.luojiaResp": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.modelCreateRequest": {
             "type": "object",
             "properties": {
@@ -3743,6 +3846,22 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "controller.panguRequest": {
+            "type": "object",
+            "properties": {
+                "question": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.panguResp": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
                 }
             }
         },
