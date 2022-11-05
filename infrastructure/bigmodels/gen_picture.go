@@ -16,16 +16,23 @@ type pictureGenInfo struct {
 }
 
 func newPictureGenInfo(cfg *Config) pictureGenInfo {
+	e := &cfg.Endpoints
+
+	se, _ := e.parse(e.SinglePicture)
+	me, _ := e.parse(e.MultiplePictures)
+
 	v := pictureGenInfo{
-		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
-		multiplePictures: make(chan string, 1),
+		singlePictures:   make(chan string, len(se)),
+		multiplePictures: make(chan string, len(me)),
 	}
 
-	for _, e := range cfg.endpointsOfSinglePicture {
+	for _, e := range se {
 		v.singlePictures <- e
 	}
 
-	v.multiplePictures <- cfg.EndpointOfMultiplePictures
+	for _, e := range me {
+		v.multiplePictures <- e
+	}
 
 	return v
 }

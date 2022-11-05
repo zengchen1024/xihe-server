@@ -44,9 +44,13 @@ type vqaInfo struct {
 }
 
 func newVQAInfo(cfg *Config) vqaInfo {
+	ce := &cfg.Endpoints
+
+	es, _ := ce.parse(ce.VQA)
+
 	return vqaInfo{
 		bucket:   cfg.OBS.VQABucket,
-		endpoint: cfg.EndpointOfVQA,
+		endpoint: es[0],
 	}
 }
 

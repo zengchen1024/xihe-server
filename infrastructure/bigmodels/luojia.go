@@ -16,11 +16,18 @@ type luojiaInfo struct {
 }
 
 func newLuoJiaInfo(cfg *Config) luojiaInfo {
+	ce := &cfg.Endpoints
+
+	es, _ := ce.parse(ce.LuoJia)
+
 	v := luojiaInfo{
-		endpoints: make(chan string, 1),
+		endpoints: make(chan string, len(es)),
 	}
 
-	v.endpoints <- cfg.EndpointsOfLuoJia
+	for _, e := range es {
+		v.endpoints <- e
+	}
+
 	v.bucket = cfg.OBS.LuoJiaBucket
 
 	return v

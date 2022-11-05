@@ -7,27 +7,12 @@ import (
 )
 
 type Config struct {
-	OBS   OBSConfig   `json:"obs"             required:"true"`
-	Cloud CloudConfig `json:"cloud"           required:"true"`
+	OBS       OBSConfig   `json:"obs"             required:"true"`
+	Cloud     CloudConfig `json:"cloud"           required:"true"`
+	Endpoints Endpoints   `json:"endpoints"       required:"true"`
 
 	MaxPictureSizeToDescribe int64 `json:"max_picture_size_to_describe"`
 	MaxPictureSizeToVQA      int64 `json:"max_picture_size_to_vqa"`
-
-	EndpointOfVQA               string `json:"endpoint_of_vqa"                required:"true"`
-	EndpointsOfPangu            string `json:"endpoints_of_pangu"             required:"true"`
-	EndpointsOfLuoJia           string `json:"endpoints_of_luojia"            required:"true"`
-	EndpointsOfSinglePicture    string `json:"endpoints_of_signle_picture"    required:"true"`
-	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
-	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures"  required:"true"`
-
-	endpointsOfSinglePicture []string
-}
-
-type CloudConfig struct {
-	User         string `json:"user"            required:"true"`
-	Password     string `json:"password"        required:"true"`
-	Project      string `json:"project"         required:"true"`
-	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
 }
 
 func (cfg *Config) SetDefault() {
@@ -41,35 +26,7 @@ func (cfg *Config) SetDefault() {
 }
 
 func (cfg *Config) Validate() error {
-	if _, err := url.Parse(cfg.EndpointOfDescribingPicture); err != nil {
-		return errors.New("invalid url for describing picture")
-	}
-
-	if _, err := url.Parse(cfg.EndpointOfMultiplePictures); err != nil {
-		return errors.New("invalid url for generating multiple pictures")
-	}
-
-	if _, err := url.Parse(cfg.EndpointOfVQA); err != nil {
-		return errors.New("invalid url for vqa")
-	}
-
-	v := strings.Split(
-		strings.Trim(cfg.EndpointsOfSinglePicture, ","), ",",
-	)
-
-	for _, i := range v {
-		if _, err := url.Parse(i); err != nil {
-			return errors.New("invalid url for generating single picture")
-		}
-	}
-
-	if len(v) == 0 {
-		return errors.New("missing endpoints for generating single picture")
-	}
-
-	cfg.endpointsOfSinglePicture = v
-
-	return nil
+	return cfg.Endpoints.validate()
 }
 
 type OBSConfig struct {
@@ -78,4 +35,62 @@ type OBSConfig struct {
 	SecretKey    string `json:"secret_key"         required:"true"`
 	VQABucket    string `json:"vqa_bucket"         required:"true"`
 	LuoJiaBucket string `json:"luo_jia_bucket"     required:"true"`
+}
+
+type CloudConfig struct {
+	User         string `json:"user"            required:"true"`
+	Password     string `json:"password"        required:"true"`
+	Project      string `json:"project"         required:"true"`
+	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
+}
+
+type Endpoints struct {
+	VQA              string `json:"vqa"                required:"true"`
+	Pangu            string `json:"pangu"              required:"true"`
+	LuoJia           string `json:"luojia"             required:"true"`
+	DescPicture      string `json:"desc_picture"       required:"true"`
+	SinglePicture    string `json:"signle_picture"     required:"true"`
+	MultiplePictures string `json:"multiple_pictures"  required:"true"`
+}
+
+func (e *Endpoints) validate() (err error) {
+	if _, err = e.parse(e.VQA); err != nil {
+		return
+	}
+
+	if _, err = e.parse(e.Pangu); err != nil {
+		return
+	}
+
+	if _, err = e.parse(e.LuoJia); err != nil {
+		return
+	}
+
+	if _, err = e.parse(e.DescPicture); err != nil {
+		return
+	}
+
+	if _, err = e.parse(e.SinglePicture); err != nil {
+		return
+	}
+
+	_, err = e.parse(e.MultiplePictures)
+
+	return
+}
+
+func (e *Endpoints) parse(s string) ([]string, error) {
+	v := strings.Split(strings.Trim(s, ","), ",")
+
+	for _, i := range v {
+		if _, err := url.Parse(i); err != nil {
+			return nil, errors.New("invalid url")
+		}
+	}
+
+	if len(v) == 0 {
+		return nil, errors.New("missing endpoints")
+	}
+
+	return v, nil
 }

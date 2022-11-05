@@ -13,8 +13,12 @@ type pictureDescInfo struct {
 }
 
 func newPictureDescInfo(cfg *Config) pictureDescInfo {
+	ce := &cfg.Endpoints
+
+	es, _ := ce.parse(ce.DescPicture)
+
 	return pictureDescInfo{
-		endpoint: cfg.EndpointOfDescribingPicture,
+		endpoint: es[0],
 	}
 }
 
@@ -26,7 +30,9 @@ type descOfPicture struct {
 	} `json:"inference_result"`
 }
 
-func (s *service) DescribePicture(picture io.Reader, name string, length int64) (string, error) {
+func (s *service) DescribePicture(
+	picture io.Reader, name string, length int64,
+) (string, error) {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 	file, err := writer.CreateFormFile("file", name)
