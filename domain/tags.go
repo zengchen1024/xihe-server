@@ -34,6 +34,8 @@ func (t *Tags) getKindIfIncludes(tags []string) string {
 		if sets.NewString(tags...).HasAny(t.Items...) {
 			return t.Kind
 		}
+
+		return ""
 	}
 
 	if sets.NewString(t.Items...).HasAny(tags...) {
