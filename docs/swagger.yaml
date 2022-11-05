@@ -75,6 +75,8 @@ definitions:
         items:
           $ref: '#/definitions/domain.Tags'
         type: array
+      name:
+        type: string
     type: object
   app.EvaluateDTO:
     properties:
@@ -1330,7 +1332,7 @@ paths:
       tags:
       - Evaluate
   /v1/inference/project/{owner}/{pid}:
-    post:
+    get:
       consumes:
       - application/json
       description: create inference
@@ -2319,7 +2321,7 @@ paths:
       summary: Terminate
       tags:
       - Training
-  /v1/train/project/{pid}/training/{id}/log:
+  /v1/train/project/{pid}/training/{id}/result/{type}:
     get:
       consumes:
       - application/json
@@ -2333,6 +2335,11 @@ paths:
       - description: training id
         in: path
         name: id
+        required: true
+        type: string
+      - description: 'training result: log, output'
+        in: path
+        name: type
         required: true
         type: string
       responses:

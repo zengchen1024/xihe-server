@@ -108,7 +108,7 @@ func (ctl *EvaluateController) createCustom(ctx *gin.Context, index *domain.Trai
 func (ctl *EvaluateController) createStandard(
 	ctx *gin.Context, index *domain.TrainingIndex, req *EvaluateCreateRequest,
 ) {
-	job, err := ctl.train.GetJobDetail(index)
+	job, _, err := ctl.train.GetJobDetail(index)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

@@ -28,7 +28,9 @@ type TrainingService interface {
 	Get(*TrainingIndex) (TrainingDTO, error)
 	Delete(*TrainingIndex) error
 	Terminate(*TrainingIndex) error
+	GetLogPreviewURL(*TrainingIndex) (string, error)
 	GetLogDownloadURL(*TrainingIndex) (string, error)
+	GetOutputDownloadURL(*TrainingIndex) (string, error)
 	CreateTrainingJob(*TrainingIndex, string, bool) (bool, error)
 }
 
@@ -185,17 +187,43 @@ func (s trainingService) Terminate(info *TrainingIndex) error {
 	return nil
 }
 
-func (s trainingService) GetLogDownloadURL(info *TrainingIndex) (string, error) {
+func (s trainingService) GetLogPreviewURL(info *TrainingIndex) (string, error) {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
 		return "", err
 	}
 
 	if job.JobId != "" {
-		return s.train.GetLogDownloadURL(job.Endpoint, job.JobId)
+		return s.train.GetLogPreviewURL(job.Endpoint, job.JobId)
 	}
 
 	return "", nil
+}
+
+func (s trainingService) GetLogDownloadURL(info *TrainingIndex) (string, error) {
+	detail, endpoint, err := s.repo.GetJobDetail(info)
+	if err != nil {
+		return "", err
+	}
+
+	if detail.LogPath == "" {
+		return "", errors.New("not ready")
+	}
+
+	return s.train.GetFileDownloadURL(endpoint, detail.LogPath)
+}
+
+func (s trainingService) GetOutputDownloadURL(info *TrainingIndex) (string, error) {
+	detail, endpoint, err := s.repo.GetJobDetail(info)
+	if err != nil {
+		return "", err
+	}
+
+	if detail.OutputPath == "" {
+		return "", errors.New("not ready")
+	}
+
+	return s.train.GetFileDownloadURL(endpoint, detail.OutputPath)
 }
 
 func (s trainingService) CreateTrainingJob(

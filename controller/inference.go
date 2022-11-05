@@ -31,7 +31,7 @@ func AddRouterForInferenceController(
 	ctl.inferenceDir, _ = domain.NewDirectory(apiConfig.InferenceDir)
 	ctl.inferenceBootFile, _ = domain.NewFilePath(apiConfig.InferenceBootFile)
 
-	rg.POST("/v1/inference/project/:owner/:pid", ctl.Create)
+	rg.GET("/v1/inference/project/:owner/:pid", ctl.Create)
 }
 
 type InferenceController struct {
@@ -55,7 +55,7 @@ type InferenceController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/inference/project/{owner}/{pid} [post]
+// @Router /v1/inference/project/{owner}/{pid} [get]
 func (ctl *InferenceController) Create(ctx *gin.Context) {
 	pl := oldUserTokenPayload{}
 	token := ctx.GetHeader(headerSecWebsocket)

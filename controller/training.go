@@ -39,7 +39,10 @@ func AddRouterForTrainingController(
 	rg.PUT("/v1/train/project/:pid/training/:id", ctl.Terminate)
 	rg.GET("/v1/train/project/:pid/training", ctl.List)
 	rg.GET("/v1/train/project/:pid/training/ws", ctl.ListByWS)
-	rg.GET("/v1/train/project/:pid/training/:id/log", ctl.GetLogDownloadURL)
+	rg.GET(
+		"/v1/train/project/:pid/training/:id/result/:type",
+		ctl.GetResultDownloadURL,
+	)
 	rg.GET("/v1/train/project/:pid/training/:id", ctl.Get)
 	rg.DELETE("v1/train/project/:pid/training/:id", ctl.Delete)
 }
@@ -282,7 +285,7 @@ func (ctl *TrainingController) getTrainingLog(endpoint, jobId string) ([]byte, e
 		return nil, nil
 	}
 
-	s, err := ctl.train.GetLogDownloadURL(endpoint, jobId)
+	s, err := ctl.train.GetLogPreviewURL(endpoint, jobId)
 	if err != nil {
 		return nil, err
 	}
@@ -419,11 +422,12 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 // @Tags  Training
 // @Param	pid	path 	string	true	"project id"
 // @Param	id	path	string	true	"training id"
+// @Param	type	path	string	true	"training result: log, output"
 // @Accept json
 // @Success 200 {object} trainingLogResp
 // @Failure 500 system_error        system error
-// @Router /v1/train/project/{pid}/training/{id}/log [get]
-func (ctl *TrainingController) GetLogDownloadURL(ctx *gin.Context) {
+// @Router /v1/train/project/{pid}/training/{id}/result/{type} [get]
+func (ctl *TrainingController) GetResultDownloadURL(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
@@ -437,7 +441,24 @@ func (ctl *TrainingController) GetLogDownloadURL(ctx *gin.Context) {
 		TrainingId: ctx.Param("id"),
 	}
 
-	v, err := ctl.ts.GetLogDownloadURL(&info)
+	v := ""
+	var err error
+
+	switch ctx.Param("type") {
+	case "log":
+		v, err = ctl.ts.GetLogDownloadURL(&info)
+
+	case "output":
+		v, err = ctl.ts.GetOutputDownloadURL(&info)
+
+	default:
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "unknown result type",
+		))
+
+		return
+	}
+
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
