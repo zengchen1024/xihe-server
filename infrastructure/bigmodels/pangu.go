@@ -13,11 +13,17 @@ type panguInfo struct {
 }
 
 func newPanGuInfo(cfg *Config) panguInfo {
+	ce := &cfg.Endpoints
+
+	es, _ := ce.parse(ce.Pangu)
+
 	v := panguInfo{
-		endpoints: make(chan string, 1),
+		endpoints: make(chan string, len(es)),
 	}
 
-	v.endpoints <- cfg.EndpointsOfPangu
+	for _, e := range es {
+		v.endpoints <- e
+	}
 
 	return v
 }
