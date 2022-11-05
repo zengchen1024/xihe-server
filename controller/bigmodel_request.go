@@ -73,10 +73,6 @@ type panguResp struct {
 	Answer string `json:"answer"`
 }
 
-type luojiaRequest struct {
-	UserName string `json:"user_name"`
-}
-
 type luojiaResp struct {
 	Answer string `json:"answer"`
 }

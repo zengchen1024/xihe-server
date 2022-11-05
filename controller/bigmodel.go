@@ -21,7 +21,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
 	rg.POST("/v1/bigmodel/single_picture", ctl.GenSinglePicture)
 	rg.POST("/v1/bigmodel/multiple_pictures", ctl.GenMultiplePictures)
-	rg.POST("/v1/bigmodel/upload_picture", ctl.UploadPicture)
+	rg.POST("/v1/bigmodel/upload_picture", ctl.VQAUploadPicture)
 	rg.POST("/v1/bigmodel/ask", ctl.Ask)
 }
 
@@ -220,40 +220,32 @@ func (ctl *BigModelController) PanGu(ctx *gin.Context) {
 // @Title LuoJia
 // @Description luo-jia big model
 // @Tags  BigModel
-// @Param	body	body 	luojiaRequest	true	"body of luo-jia"
 // @Accept json
 // @Success 201 {object} luojiaResp
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/luojia [post]
 func (ctl *BigModelController) LuoJia(ctx *gin.Context) {
-	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	req := luojiaRequest{}
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
-
-		return
-	}
-
-	if v, err := ctl.s.LuoJia(req.UserName); err != nil {
+	if v, err := ctl.s.LuoJia(pl.Account); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
 	}
 }
 
-// @Title UploadPicture
-// @Description upload a picture
+// @Title VQAUploadPicture
+// @Description upload a picture for vqa
 // @Tags  BigModel
 // @Param	picture		formData 	file	true	"picture"
 // @Accept json
 // @Success 201 {object} pictureUploadResp
 // @Failure 500 system_error        system error
-// @Router /v1/bigmodel/upload_picture [post]
-func (ctl *BigModelController) UploadPicture(ctx *gin.Context) {
+// @Router /v1/bigmodel/vqa_upload_picture [post]
+func (ctl *BigModelController) VQAUploadPicture(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
@@ -287,7 +279,48 @@ func (ctl *BigModelController) UploadPicture(ctx *gin.Context) {
 
 	defer p.Close()
 
-	if err := ctl.s.UploadFile(p, filepath.Join(pl.Account, f.Filename)); err != nil {
+	if err := ctl.s.VQAUploadPicture(p, pl.DomainAccount(), f.Filename); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(pictureUploadResp{f.Filename}))
+	}
+}
+
+// @Title LuoJiaUploadPicture
+// @Description upload a picture for luo-jia
+// @Tags  BigModel
+// @Param	picture		formData 	file	true	"picture"
+// @Accept json
+// @Success 201 {object} pictureUploadResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/luojia_upload_picture [post]
+func (ctl *BigModelController) LuoJiaUploadPicture(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	f, err := ctx.FormFile("picture")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody, err.Error(),
+		))
+
+		return
+	}
+
+	p, err := f.Open()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "can't get picture",
+		))
+
+		return
+	}
+
+	defer p.Close()
+
+	if err := ctl.s.LuoJiaUploadPicture(p, pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(pictureUploadResp{f.Filename}))

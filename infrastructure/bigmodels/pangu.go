@@ -7,8 +7,22 @@ import (
 	"strings"
 )
 
+type panguInfo struct {
+	endpoints chan string
+}
+
+func newPanGuInfo(cfg *Config) panguInfo {
+	v := panguInfo{
+		endpoints: make(chan string, 1),
+	}
+
+	v.endpoints <- cfg.EndpointsOfPangu
+
+	return v
+}
+
 func (s *service) PanGu(question string) (answer string, err error) {
-	s.doIfFree(s.panguEndpoints, func(e string) error {
+	s.doIfFree(s.panguInfo.endpoints, func(e string) error {
 		answer, err = s.sendReqToPangu(e, question)
 
 		return err

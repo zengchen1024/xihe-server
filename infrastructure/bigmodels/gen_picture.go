@@ -10,10 +10,30 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type pictureGenInfo struct {
+	singlePictures   chan string
+	multiplePictures chan string
+}
+
+func newPictureGenInfo(cfg *Config) pictureGenInfo {
+	v := pictureGenInfo{
+		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
+		multiplePictures: make(chan string, 1),
+	}
+
+	for _, e := range cfg.endpointsOfSinglePicture {
+		v.singlePictures <- e
+	}
+
+	v.multiplePictures <- cfg.EndpointOfMultiplePictures
+
+	return v
+}
+
 func (s *service) GenPicture(user domain.Account, desc string) (string, error) {
 	r := new(singlePicture)
 
-	err := s.genPicture(user, desc, s.singlePictures, r)
+	err := s.genPicture(user, desc, s.pictureGenInfo.singlePictures, r)
 	if err != nil {
 		return "", err
 	}
@@ -24,7 +44,7 @@ func (s *service) GenPicture(user domain.Account, desc string) (string, error) {
 func (s *service) GenPictures(user domain.Account, desc string) ([]string, error) {
 	r := new(multiplePictures)
 
-	err := s.genPicture(user, desc, s.multiplePictures, r)
+	err := s.genPicture(user, desc, s.pictureGenInfo.multiplePictures, r)
 	if err != nil {
 		return nil, err
 	}

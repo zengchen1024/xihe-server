@@ -4,11 +4,38 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+
+	"github.com/opensourceways/xihe-server/domain"
 )
 
+type luojiaInfo struct {
+	bucket    string
+	endpoints chan string
+}
+
+func newLuoJiaInfo(cfg *Config) luojiaInfo {
+	v := luojiaInfo{
+		endpoints: make(chan string, 1),
+	}
+
+	v.endpoints <- cfg.EndpointsOfLuoJia
+	v.bucket = cfg.OBS.LuoJiaBucket
+
+	return v
+}
+
+func (s *service) LuoJiaUploadPicture(f io.Reader, user domain.Account) error {
+	return s.obs.createObject(
+		f,
+		s.luojiaInfo.bucket,
+		fmt.Sprintf("infer/%s/input.png", user.Account()),
+	)
+}
+
 func (s *service) LuoJia(question string) (answer string, err error) {
-	s.doIfFree(s.panguEndpoints, func(e string) error {
+	s.doIfFree(s.luojiaInfo.endpoints, func(e string) error {
 		answer, err = s.sendReqToLuojia(e, question)
 
 		return err
@@ -36,7 +63,6 @@ func (s *service) sendReqToLuojia(endpoint, userName string) (answer string, err
 	req.Header.Set("X-Auth-Token", t)
 
 	var r struct {
-		Msg    string `json:"msg"`
 		Result string `json:"result"`
 		Status int    `json:"status"`
 	}
@@ -46,8 +72,7 @@ func (s *service) sendReqToLuojia(endpoint, userName string) (answer string, err
 	}
 
 	if r.Status != 200 {
-		// TODO check
-		err = errors.New(r.Msg)
+		err = errors.New("failed")
 	} else {
 		answer = r.Result
 	}
