@@ -12,4 +12,6 @@ type BigModel interface {
 	GenPictures(domain.Account, string) ([]string, error)
 	Ask(domain.Question, string) (string, error)
 	UploadFile(f io.Reader, path string) error
+	PanGu(string) (string, error)
+	LuoJia(string) (string, error)
 }

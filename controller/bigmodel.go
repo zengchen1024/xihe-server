@@ -189,6 +189,62 @@ func (ctl *BigModelController) Ask(ctx *gin.Context) {
 	}
 }
 
+// @Title PanGu
+// @Description pan-gu big model
+// @Tags  BigModel
+// @Param	body	body 	panguRequest	true	"body of pan-gu"
+// @Accept json
+// @Success 201 {object} panguResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/pangu [post]
+func (ctl *BigModelController) PanGu(ctx *gin.Context) {
+	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := panguRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	if v, err := ctl.s.PanGu(req.Question); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(panguResp{v}))
+	}
+}
+
+// @Title LuoJia
+// @Description luo-jia big model
+// @Tags  BigModel
+// @Param	body	body 	luojiaRequest	true	"body of luo-jia"
+// @Accept json
+// @Success 201 {object} luojiaResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/luojia [post]
+func (ctl *BigModelController) LuoJia(ctx *gin.Context) {
+	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := luojiaRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	if v, err := ctl.s.LuoJia(req.UserName); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
+	}
+}
+
 // @Title UploadPicture
 // @Description upload a picture
 // @Tags  BigModel

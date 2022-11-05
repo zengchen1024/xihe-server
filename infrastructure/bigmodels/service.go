@@ -37,6 +37,7 @@ func Init(cfg *Config) error {
 		obs:              obs,
 		hc:               utils.NewHttpClient(3),
 		singlePictures:   make(chan string, len(cfg.endpointsOfSinglePicture)),
+		panguEndpoints:   make(chan string, 1),
 		multiplePictures: make(chan string, 1),
 	}
 
@@ -49,6 +50,7 @@ func Init(cfg *Config) error {
 	}
 
 	fm.multiplePictures <- cfg.EndpointOfMultiplePictures
+	fm.panguEndpoints <- cfg.EndpointsOfPangu
 
 	return nil
 }
@@ -65,6 +67,7 @@ type service struct {
 
 	singlePictures   chan string
 	multiplePictures chan string
+	panguEndpoints   chan string
 }
 
 // describe picture
@@ -222,4 +225,20 @@ func (s *service) token() (string, error) {
 	resp.Body.Close()
 
 	return t, nil
+}
+
+func (s *service) doIfFree(
+	ec chan string,
+	f func(string) error,
+) error {
+	select {
+	case e := <-ec:
+		err := f(e)
+		ec <- e
+
+		return err
+
+	default:
+		return errors.New("busy")
+	}
 }

@@ -36,16 +36,9 @@ func (s *service) genPicture(
 	user domain.Account, desc string,
 	ec chan string, result interface{},
 ) error {
-	select {
-	case e := <-ec:
-		err := s.sendReqToGenPicture(user, e, desc, result)
-		ec <- e
-
-		return err
-
-	default:
-		return errors.New("busy")
-	}
+	return s.doIfFree(ec, func(e string) error {
+		return s.sendReqToGenPicture(user, e, desc, result)
+	})
 }
 
 type pictureGenerateOpt struct {

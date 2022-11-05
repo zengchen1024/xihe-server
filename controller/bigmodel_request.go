@@ -64,3 +64,19 @@ type questionAskResp struct {
 type pictureUploadResp struct {
 	Path string `json:"path"`
 }
+
+type panguRequest struct {
+	Question string `json:"question"`
+}
+
+type panguResp struct {
+	Answer string `json:"answer"`
+}
+
+type luojiaRequest struct {
+	UserName string `json:"user_name"`
+}
+
+type luojiaResp struct {
+	Answer string `json:"answer"`
+}

@@ -16,10 +16,11 @@ type Config struct {
 	MaxPictureSizeToDescribe int64 `json:"max_picture_size_to_describe"`
 	MaxPictureSizeToVQA      int64 `json:"max_picture_size_to_vqa"`
 
+	EndpointOfVQA               string `json:"endpoint_of_vqa"                required:"true"`
+	EndpointsOfPangu            string `json:"endpoints_of_pangu"             required:"true"`
 	EndpointsOfSinglePicture    string `json:"endpoints_of_signle_picture"    required:"true"`
 	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
-	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures" required:"true"`
-	EndpointOfVQA               string `json:"endpoint_of_vqa" required:"true"`
+	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures"  required:"true"`
 
 	endpointsOfSinglePicture []string
 }
