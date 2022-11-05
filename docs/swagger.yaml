@@ -568,6 +568,11 @@ definitions:
       owner:
         type: string
     type: object
+  controller.luojiaResp:
+    properties:
+      answer:
+        type: string
+    type: object
   controller.modelCreateRequest:
     properties:
       desc:
@@ -648,6 +653,16 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  controller.panguRequest:
+    properties:
+      question:
+        type: string
+    type: object
+  controller.panguResp:
+    properties:
+      answer:
+        type: string
     type: object
   controller.pictureGenerateRequest:
     properties:
@@ -999,6 +1014,44 @@ paths:
             type: system_error
       tags:
       - BigModel
+  /v1/bigmodel/luojia:
+    post:
+      consumes:
+      - application/json
+      description: luo-jia big model
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.luojiaResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/luojia_upload_picture:
+    post:
+      consumes:
+      - application/json
+      description: upload a picture for luo-jia
+      parameters:
+      - description: picture
+        in: formData
+        name: picture
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.pictureUploadResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
   /v1/bigmodel/multiple_pictures:
     post:
       consumes:
@@ -1016,6 +1069,29 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/controller.multiplePicturesGenerateResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/pangu:
+    post:
+      consumes:
+      - application/json
+      description: pan-gu big model
+      parameters:
+      - description: body of pan-gu
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.panguRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.panguResp'
         "500":
           description: Internal Server Error
           schema:
@@ -1045,11 +1121,11 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/upload_picture:
+  /v1/bigmodel/vqa_upload_picture:
     post:
       consumes:
       - application/json
-      description: upload a picture
+      description: upload a picture for vqa
       parameters:
       - description: picture
         in: formData

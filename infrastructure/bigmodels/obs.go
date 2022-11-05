@@ -13,28 +13,21 @@ func initOBS(cfg *OBSConfig) (s obsService, err error) {
 	}
 
 	s.cli = cli
-	s.bucket = cfg.Bucket
 
 	return
 }
 
 type obsService struct {
 	cli *obs.ObsClient
-
-	bucket string
 }
 
-func (s *obsService) createObject(f io.Reader, path string) error {
+func (s *obsService) createObject(f io.Reader, bucket, path string) error {
 	input := &obs.PutObjectInput{}
-	input.Bucket = s.bucket
+	input.Bucket = bucket
 	input.Key = path
 	input.Body = f
 
 	_, err := s.cli.PutObject(input)
 
 	return err
-}
-
-func (s *service) UploadFile(f io.Reader, path string) error {
-	return s.obs.createObject(f, path)
 }

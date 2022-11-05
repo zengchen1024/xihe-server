@@ -7,21 +7,27 @@ import (
 )
 
 type Config struct {
-	OBS          OBSConfig `json:"obs"             required:"true"`
-	User         string    `json:"user"            required:"true"`
-	Password     string    `json:"password"        required:"true"`
-	Project      string    `json:"project"         required:"true"`
-	AuthEndpoint string    `json:"auth_endpoint"   required:"true"`
+	OBS   OBSConfig   `json:"obs"             required:"true"`
+	Cloud CloudConfig `json:"cloud"           required:"true"`
 
 	MaxPictureSizeToDescribe int64 `json:"max_picture_size_to_describe"`
 	MaxPictureSizeToVQA      int64 `json:"max_picture_size_to_vqa"`
 
+	EndpointOfVQA               string `json:"endpoint_of_vqa"                required:"true"`
+	EndpointsOfPangu            string `json:"endpoints_of_pangu"             required:"true"`
+	EndpointsOfLuoJia           string `json:"endpoints_of_luojia"            required:"true"`
 	EndpointsOfSinglePicture    string `json:"endpoints_of_signle_picture"    required:"true"`
 	EndpointOfDescribingPicture string `json:"endpoint_of_describing_picture" required:"true"`
-	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures" required:"true"`
-	EndpointOfVQA               string `json:"endpoint_of_vqa" required:"true"`
+	EndpointOfMultiplePictures  string `json:"endpoint_of_multiple_pictures"  required:"true"`
 
 	endpointsOfSinglePicture []string
+}
+
+type CloudConfig struct {
+	User         string `json:"user"            required:"true"`
+	Password     string `json:"password"        required:"true"`
+	Project      string `json:"project"         required:"true"`
+	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
 }
 
 func (cfg *Config) SetDefault() {
@@ -67,8 +73,9 @@ func (cfg *Config) Validate() error {
 }
 
 type OBSConfig struct {
-	Endpoint  string `json:"endpoint"   required:"true"`
-	AccessKey string `json:"access_key" required:"true"`
-	SecretKey string `json:"secret_key" required:"true"`
-	Bucket    string `json:"bucket"     required:"true"`
+	Endpoint     string `json:"endpoint"           required:"true"`
+	AccessKey    string `json:"access_key"         required:"true"`
+	SecretKey    string `json:"secret_key"         required:"true"`
+	VQABucket    string `json:"vqa_bucket"         required:"true"`
+	LuoJiaBucket string `json:"luo_jia_bucket"     required:"true"`
 }
