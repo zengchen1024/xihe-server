@@ -16,7 +16,7 @@ type TrainingMapper interface {
 	UpdateJobInfo(*TrainingIndexDO, *TrainingJobInfoDO) error
 	GetJobInfo(*TrainingIndexDO) (TrainingJobInfoDO, error)
 	UpdateJobDetail(*TrainingIndexDO, *TrainingJobDetailDO) error
-	GetJobDetail(*TrainingIndexDO) (TrainingJobDetailDO, error)
+	GetJobDetail(*TrainingIndexDO) (TrainingJobDetailDO, string, error)
 }
 
 func NewTrainingRepository(mapper TrainingMapper) repository.Training {
@@ -121,17 +121,19 @@ func (impl training) GetJob(info *domain.TrainingIndex) (job domain.JobInfo, err
 	return do, nil
 }
 
-func (impl training) GetJobDetail(info *domain.TrainingIndex) (job domain.JobDetail, err error) {
+func (impl training) GetJobDetail(info *domain.TrainingIndex) (
+	job domain.JobDetail, endpoint string, err error,
+) {
 	t := impl.toTrainingInfoDo(info)
 
-	do, err := impl.mapper.GetJobDetail(&t)
+	do, endpoint, err := impl.mapper.GetJobDetail(&t)
 	if err != nil {
 		err = convertError(err)
 
 		return
 	}
 
-	return do, nil
+	return do, endpoint, nil
 }
 
 func (impl training) UpdateJobDetail(info *domain.TrainingIndex, detail *domain.JobDetail) error {

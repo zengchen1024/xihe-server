@@ -78,7 +78,7 @@ func (impl *trainingImpl) TerminateJob(endpoint, jobId string) error {
 	return cli.TerminateTraining(jobId)
 }
 
-func (impl *trainingImpl) GetLogDownloadURL(endpoint, jobId string) (string, error) {
+func (impl *trainingImpl) GetLogPreviewURL(endpoint, jobId string) (string, error) {
 	cli := sdk.NewTrainingCenter(endpoint)
 
 	v, err := cli.GetLogDownloadURL(jobId)
@@ -86,7 +86,18 @@ func (impl *trainingImpl) GetLogDownloadURL(endpoint, jobId string) (string, err
 		return "", err
 	}
 
-	return v.LogURL, nil
+	return v.URL, nil
+}
+
+func (impl *trainingImpl) GetFileDownloadURL(endpoint, file string) (string, error) {
+	cli := sdk.NewTrainingCenter(endpoint)
+
+	v, err := cli.GetResultDownloadURL("no_need", file)
+	if err != nil {
+		return "", err
+	}
+
+	return v.URL, nil
 }
 
 func (impl *trainingImpl) toCompute(c *domain.Compute) sdk.Compute {

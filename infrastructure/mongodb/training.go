@@ -284,7 +284,9 @@ func (col training) UpdateJobDetail(info *repositories.TrainingIndexDO, detail *
 	return withContext(f)
 }
 
-func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (repositories.TrainingJobDetailDO, error) {
+func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (
+	repositories.TrainingJobDetailDO, string, error,
+) {
 	var v []dTraining
 
 	f := func(ctx context.Context) error {
@@ -293,6 +295,7 @@ func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (repositori
 			trainingDocFilter(info.User, info.ProjectId),
 			resourceIdFilter(info.TrainingId),
 			bson.M{
+				subfieldOfItems(fieldJob):    1,
 				subfieldOfItems(fieldDetail): 1,
 			},
 			&v,
@@ -300,16 +303,17 @@ func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (repositori
 	}
 
 	if err := withContext(f); err != nil {
-		return repositories.TrainingJobDetailDO{}, err
+		return repositories.TrainingJobDetailDO{}, "", err
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
 		err := repositories.NewErrorDataNotExists(errDocNotExists)
 
-		return repositories.TrainingJobDetailDO{}, err
+		return repositories.TrainingJobDetailDO{}, "", err
 	}
 
-	return col.toTrainingJobDetailDO(&v[0].Items[0].JobDetail), nil
+	item := &v[0].Items[0]
+	return col.toTrainingJobDetailDO(&item.JobDetail), item.Job.Endpoint, nil
 }
 
 func (col training) toTrainingSummary(t *trainingItem, s *repositories.TrainingSummaryDO) {

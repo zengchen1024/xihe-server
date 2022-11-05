@@ -16,5 +16,5 @@ type Training interface {
 	GetJob(*domain.TrainingIndex) (domain.JobInfo, error)
 
 	UpdateJobDetail(*domain.TrainingIndex, *domain.JobDetail) error
-	GetJobDetail(*domain.TrainingIndex) (domain.JobDetail, error)
+	GetJobDetail(*domain.TrainingIndex) (domain.JobDetail, string, error)
 }

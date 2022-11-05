@@ -637,7 +637,7 @@ const docTemplate = `{
             }
         },
         "/v1/inference/project/{owner}/{pid}": {
-            "post": {
+            "get": {
                 "description": "create inference",
                 "consumes": [
                     "application/json"
@@ -2152,7 +2152,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/train/project/{pid}/training/{id}/log": {
+        "/v1/train/project/{pid}/training/{id}/result/{type}": {
             "get": {
                 "description": "get log url of training for downloading",
                 "consumes": [
@@ -2174,6 +2174,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "training id",
                         "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "training result: log, output",
+                        "name": "type",
                         "in": "path",
                         "required": true
                     }
@@ -2856,6 +2863,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.Tags"
                     }
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
