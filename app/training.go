@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
@@ -70,6 +71,13 @@ func (s trainingService) Create(cmd *TrainingCreateCmd) (string, error) {
 
 func (s trainingService) Recreate(info *TrainingIndex) (string, error) {
 	v, err := s.repo.GetTrainingConfig(info)
+	if err != nil {
+		return "", err
+	}
+
+	v.Name, err = domain.NewTrainingName(
+		v.Name.TrainingName() + "-" + strconv.FormatInt(utils.Now(), 10),
+	)
 	if err != nil {
 		return "", err
 	}
