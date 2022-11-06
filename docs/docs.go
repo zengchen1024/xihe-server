@@ -2389,6 +2389,17 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "Update",
+                "parameters": [
+                    {
+                        "description": "body of updating user",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.userBasicInfoUpdateRequest"
+                        }
+                    }
+                ],
                 "responses": {}
             },
             "post": {
@@ -4175,6 +4186,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "log_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.userBasicInfoUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
+                "bio": {
                     "type": "string"
                 }
             }

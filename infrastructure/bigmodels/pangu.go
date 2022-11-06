@@ -2,10 +2,8 @@ package bigmodels
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 type panguInfo struct {
