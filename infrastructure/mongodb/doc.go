@@ -16,6 +16,7 @@ const (
 	fieldRepoId         = "repo_id"
 	fieldTags           = "tags"
 	fieldKinds          = "kinds"
+	fieldStatus         = "status"
 	fieldName           = "name"
 	fieldItems          = "items"
 	fieldOwner          = "owner"
@@ -43,6 +44,10 @@ const (
 	fieldUpdatedAt      = "updated_at"
 	fieldDownloadCount  = "download_count"
 	fieldFirstLetter    = "fl"
+	fieldPhase          = "phase"
+	fieldTeams          = "teams"
+	fieldCompetitors    = "competitors"
+	fieldSubmissions    = "submissions"
 )
 
 type dProject struct {
@@ -326,4 +331,50 @@ type evaluateItem struct {
 	Expiry            int64    `bson:"expiry"      json:"expiry,omitempty"`
 	Error             string   `bson:"error"       json:"error,omitempty"`
 	AccessURL         string   `bson:"url"         json:"url,omitempty"`
+}
+
+type DCompetition struct {
+	Id         string `bson:"id"              json:"id"`
+	Name       string `bson:"name"            json:"name"`
+	Desc       string `bson:"desc"            json:"desc"`
+	Host       string `bson:"host"            json:"host"`
+	Phase      string `bson:"phase"           json:"phase"`
+	Bonus      int    `bson:"bonus"           json:"bonus"`
+	Status     string `bson:"status"          json:"status"`
+	Duration   string `bson:"duration"        json:"duration"`
+	Doc        string `bson:"doc"             json:"doc"`
+	Poster     string `bson:"poster"          json:"poster"`
+	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
+	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
+
+	Teams       []dTeam       `bson:"teams"       json:"teams"`
+	Competitors []dCompetitor `bson:"competitors" json:"competitors"`
+	Submissions []dSubmission `bson:"submissions" json:"submissions"`
+}
+
+type dCompetitor struct {
+	Name     string            `bson:"name"      json:"name"`
+	City     string            `bson:"city"      json:"city"`
+	Email    string            `bson:"email"     json:"email"`
+	Phone    string            `bson:"phone"     json:"phone"`
+	Account  string            `bson:"account"   json:"account"`
+	Identity string            `bson:"identity"  json:"identity"`
+	Province string            `bson:"province"  json:"province"`
+	Detail   map[string]string `bson:"detail"    json:"detail"`
+	TeamId   string            `bson:"tid"       json:"tid"`
+	TeamRole string            `bson:"role"      json:"role"`
+}
+
+type dTeam struct {
+	Id   string `bson:"id"      json:"id"`
+	Name string `bson:"name"    json:"name"`
+}
+
+type dSubmission struct {
+	Id       string  `bson:"id"          json:"id"`
+	TeamId   string  `bson:"tid"         json:"tid"`
+	Status   string  `bson:"status"      json:"status"`
+	OBSPath  string  `bson:"path"        json:"path"`
+	SubmitAt string  `bson:"submit_at"   json:"submit_at"`
+	Score    float32 `bson:"score"       json:"score"`
 }
