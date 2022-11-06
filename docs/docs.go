@@ -361,6 +361,18 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "tag kinds, separate multiple kinds with commas",
+                        "name": "tag_kinds",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "dataset level, such as official, good",
+                        "name": "level",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "count per page",
                         "name": "count_per_page",
@@ -812,6 +824,18 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "tag kinds, separate multiple kinds with commas",
+                        "name": "tag_kinds",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "model level, such as official, good",
+                        "name": "level",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "count per page",
                         "name": "count_per_page",
@@ -1167,6 +1191,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "tags, separate multiple tags with commas",
                         "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "tag kinds, separate multiple kinds with commas",
+                        "name": "tag_kinds",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "project level, such as official, good",
+                        "name": "level",
                         "in": "query"
                     },
                     {

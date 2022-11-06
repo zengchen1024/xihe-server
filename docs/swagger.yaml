@@ -1161,6 +1161,14 @@ paths:
         in: query
         name: tags
         type: string
+      - description: tag kinds, separate multiple kinds with commas
+        in: query
+        name: tag_kinds
+        type: string
+      - description: dataset level, such as official, good
+        in: query
+        name: level
+        type: string
       - description: count per page
         in: query
         name: count_per_page
@@ -1461,6 +1469,14 @@ paths:
         in: query
         name: tags
         type: string
+      - description: tag kinds, separate multiple kinds with commas
+        in: query
+        name: tag_kinds
+        type: string
+      - description: model level, such as official, good
+        in: query
+        name: level
+        type: string
       - description: count per page
         in: query
         name: count_per_page
@@ -1698,6 +1714,14 @@ paths:
       - description: tags, separate multiple tags with commas
         in: query
         name: tags
+        type: string
+      - description: tag kinds, separate multiple kinds with commas
+        in: query
+        name: tag_kinds
+        type: string
+      - description: project level, such as official, good
+        in: query
+        name: level
         type: string
       - description: count per page
         in: query

@@ -329,6 +329,8 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 // @Tags  Dataset
 // @Param	name		query	string	false	"name of dataset"
 // @Param	tags		query	string	false	"tags, separate multiple tags with commas"
+// @Param	tag_kinds	query	string	false	"tag kinds, separate multiple kinds with commas"
+// @Param	level		query	string	false	"dataset level, such as official, good"
 // @Param	count_per_page	query	int	false	"count per page"
 // @Param	page_num	query	int	false	"page num which starts from 1"
 // @Param	sort_by		query	string	false	"sort keys, value can be update_time, first_letter, download_count"
