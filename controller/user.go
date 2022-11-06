@@ -115,6 +115,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 // @Summary Update
 // @Description update user basic info
 // @Tags  User
+// @Param	body	body 	userBasicInfoUpdateRequest	true	"body of updating user"
 // @Accept json
 // @Produce json
 // @Router /v1/user [put]

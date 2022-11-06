@@ -844,6 +844,13 @@ definitions:
       log_url:
         type: string
     type: object
+  controller.userBasicInfoUpdateRequest:
+    properties:
+      avatar_id:
+        type: string
+      bio:
+        type: string
+    type: object
   controller.userCreateRequest:
     properties:
       account:
@@ -2542,6 +2549,13 @@ paths:
       consumes:
       - application/json
       description: update user basic info
+      parameters:
+      - description: body of updating user
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.userBasicInfoUpdateRequest'
       produces:
       - application/json
       responses: {}
