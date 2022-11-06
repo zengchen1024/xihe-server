@@ -1,6 +1,8 @@
 package trainingimpl
 
 import (
+	"strings"
+
 	"github.com/opensourceways/xihe-training-center/sdk"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -92,7 +94,9 @@ func (impl *trainingImpl) GetLogPreviewURL(endpoint, jobId string) (string, erro
 func (impl *trainingImpl) GetFileDownloadURL(endpoint, file string) (string, error) {
 	cli := sdk.NewTrainingCenter(endpoint)
 
-	v, err := cli.GetResultDownloadURL("no_need", file)
+	v, err := cli.GetResultDownloadURL(
+		"no_need", strings.ReplaceAll(file, "/", "%2F"),
+	)
 	if err != nil {
 		return "", err
 	}
