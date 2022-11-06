@@ -64,11 +64,7 @@ func (s *service) sendReqToPangu(endpoint, question string) (answer string, err 
 		return
 	}
 
-	if v := strings.Split(r.Result, "\n"); len(v) == 2 && v[0] == question {
-		answer = v[1]
-	} else {
-		err = errors.New("failed")
-	}
+	answer = r.Result
 
 	return
 }
