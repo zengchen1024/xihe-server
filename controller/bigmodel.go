@@ -273,7 +273,7 @@ func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
 	if v, err := ctl.s.CodeGeex(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
+		ctx.JSON(http.StatusCreated, newResponseData(codegeexResp{v}))
 	}
 }
 

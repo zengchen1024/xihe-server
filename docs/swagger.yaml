@@ -408,6 +408,15 @@ definitions:
       id:
         type: string
     type: object
+  controller.CodeGeexRequest:
+    properties:
+      content:
+        type: string
+      lang:
+        type: string
+      result_num:
+        type: integer
+    type: object
   controller.Compute:
     properties:
       flavor:
@@ -493,6 +502,11 @@ definitions:
       name:
         type: string
       owner:
+        type: string
+    type: object
+  controller.codegeexResp:
+    properties:
+      answer:
         type: string
     type: object
   controller.datasetCreateRequest:
@@ -1022,6 +1036,29 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/controller.questionAskResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/codegeex:
+    post:
+      consumes:
+      - application/json
+      description: codegeex big model
+      parameters:
+      - description: codegeex body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CodeGeexRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.codegeexResp'
         "500":
           description: Internal Server Error
           schema:
