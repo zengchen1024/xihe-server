@@ -301,7 +301,7 @@ type dInference struct {
 }
 
 type inferenceItem struct {
-	Id        string `bson:"id"          json:"id"`
+	Id        string `bson:"id"          json:"id,omitempty"`
 	Expiry    int64  `bson:"expiry"      json:"expiry,omitempty"`
 	Error     string `bson:"error"       json:"error,omitempty"`
 	AccessURL string `bson:"url"         json:"url,omitempty"`
@@ -317,8 +317,9 @@ type dEvaluate struct {
 }
 
 type evaluateItem struct {
-	Id                string   `bson:"id"          json:"id"`
-	Type              string   `bson:"type"        json:"type"`
+	// must set omitempty, otherwise it will be override to empty
+	Id                string   `bson:"id"          json:"id,omitempty"`
+	Type              string   `bson:"type"        json:"type,omitempty"`
 	MomentumScope     []string `bson:"momentum"    json:"momentum,omitempty"`
 	BatchSizeScope    []string `bson:"bsize"       json:"bsize,omitempty"`
 	LearningRateScope []string `bson:"rate"        json:"rate,omitempty"`
