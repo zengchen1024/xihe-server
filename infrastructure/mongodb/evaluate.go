@@ -87,6 +87,8 @@ func (col evaluate) insert(do *repositories.EvaluateDO, version int) (identity s
 		return "", err
 	}
 
+	logrus.Debugf("will create a new ealuate: %v", doc)
+
 	f := func(ctx context.Context) error {
 		return cli.updateDoc(
 			ctx, col.collectionName,
