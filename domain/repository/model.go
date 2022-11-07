@@ -37,6 +37,8 @@ type Model interface {
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserModelsInfo, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserModelsInfo, error)
 
+	Search(*ResourceSearchOption) (ResourceSearchResult, error)
+
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 

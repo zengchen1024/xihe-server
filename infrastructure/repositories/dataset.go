@@ -26,6 +26,8 @@ type DatasetMapper interface {
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListDO) ([]DatasetSummaryDO, int, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListDO) ([]DatasetSummaryDO, int, error)
 
+	Search(do *GlobalResourceListDO, topNum int) ([]ResourceSummaryDO, int, error)
+
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 

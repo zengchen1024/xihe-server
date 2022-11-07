@@ -165,3 +165,37 @@ func (col dataset) toGlobalDatasets(v []dDataset) []globalDataset {
 
 	return r
 }
+
+func (col dataset) Search(do *repositories.GlobalResourceListDO, topNum int) (
+	r []repositories.ResourceSummaryDO, total int, err error,
+) {
+	var v []dDataset
+
+	err = listGlobalResourceWithoutSort(
+		col.collectionName, do, col.summaryFields(), &v,
+	)
+
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	items := col.toGlobalDatasets(v)
+
+	total = len(items)
+
+	r = make([]repositories.ResourceSummaryDO, total)
+
+	j := 0
+	for i := range items {
+		r[i].Owner = items[i].owner
+		r[i].Name = items[i].datasetItem.Name
+
+		if j++; j >= topNum {
+			r = r[:topNum]
+
+			break
+		}
+	}
+
+	return
+}

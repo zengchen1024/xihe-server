@@ -37,6 +37,8 @@ type Dataset interface {
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserDatasetsInfo, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserDatasetsInfo, error)
 
+	Search(*ResourceSearchOption) (ResourceSearchResult, error)
+
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 
