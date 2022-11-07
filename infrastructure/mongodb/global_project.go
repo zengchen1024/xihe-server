@@ -165,3 +165,37 @@ func (col project) toGlobalProjects(v []dProject) []globalProject {
 
 	return r
 }
+
+func (col project) Search(do *repositories.GlobalResourceListDO, topNum int) (
+	r []repositories.ResourceSummaryDO, total int, err error,
+) {
+	var v []dProject
+
+	err = listGlobalResourceWithoutSort(
+		col.collectionName, do, col.summaryFields(), &v,
+	)
+
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	items := col.toGlobalProjects(v)
+
+	total = len(items)
+
+	r = make([]repositories.ResourceSummaryDO, total)
+
+	j := 0
+	for i := range items {
+		r[i].Owner = items[i].owner
+		r[i].Name = items[i].projectItem.Name
+
+		if j++; j >= topNum {
+			r = r[:topNum]
+
+			break
+		}
+	}
+
+	return
+}

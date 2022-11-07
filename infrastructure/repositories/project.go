@@ -24,6 +24,8 @@ type ProjectMapper interface {
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListDO) ([]ProjectSummaryDO, int, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListDO) ([]ProjectSummaryDO, int, error)
 
+	Search(do *GlobalResourceListDO, topNum int) ([]ResourceSummaryDO, int, error)
+
 	IncreaseFork(ResourceIndexDO) error
 
 	AddLike(ResourceIndexDO) error

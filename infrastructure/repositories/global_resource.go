@@ -1,8 +1,21 @@
 package repositories
 
 import (
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
+
+func searchOptionToListDO(
+	opt *repository.ResourceSearchOption,
+) (do GlobalResourceListDO) {
+	do.Name = opt.Name
+
+	if opt.RepoType != nil {
+		do.RepoType = opt.RepoType.RepoType()
+	}
+
+	return
+}
 
 type GlobalResourceListDO struct {
 	ResourceListDO
@@ -62,6 +75,34 @@ func (impl project) listGlobal(
 	})
 }
 
+func (impl project) Search(option *repository.ResourceSearchOption) (
+	repository.ResourceSearchResult, error,
+) {
+	r := repository.ResourceSearchResult{}
+
+	do := searchOptionToListDO(option)
+	v, total, err := impl.mapper.Search(&do, option.TopNum)
+	if err != nil {
+		return r, err
+	}
+
+	items := make([]domain.ResourceSummary, len(v))
+	for i := range v {
+		if items[i].Owner, err = domain.NewAccount(v[i].Owner); err != nil {
+			return r, err
+		}
+
+		if items[i].Name, err = domain.NewProjName(v[i].Name); err != nil {
+			return r, err
+		}
+	}
+
+	r.Top = items
+	r.Total = total
+
+	return r, nil
+}
+
 // Model
 func (impl model) ListGlobalAndSortByUpdateTime(
 	option *repository.GlobalResourceListOption,
@@ -100,6 +141,34 @@ func (impl model) listGlobal(
 	})
 }
 
+func (impl model) Search(option *repository.ResourceSearchOption) (
+	repository.ResourceSearchResult, error,
+) {
+	r := repository.ResourceSearchResult{}
+
+	do := searchOptionToListDO(option)
+	v, total, err := impl.mapper.Search(&do, option.TopNum)
+	if err != nil {
+		return r, err
+	}
+
+	items := make([]domain.ResourceSummary, len(v))
+	for i := range v {
+		if items[i].Owner, err = domain.NewAccount(v[i].Owner); err != nil {
+			return r, err
+		}
+
+		if items[i].Name, err = domain.NewModelName(v[i].Name); err != nil {
+			return r, err
+		}
+	}
+
+	r.Top = items
+	r.Total = total
+
+	return r, nil
+}
+
 // Dataset
 func (impl dataset) ListGlobalAndSortByUpdateTime(
 	option *repository.GlobalResourceListOption,
@@ -136,4 +205,32 @@ func (impl dataset) listGlobal(
 
 		return f(&do)
 	})
+}
+
+func (impl dataset) Search(option *repository.ResourceSearchOption) (
+	repository.ResourceSearchResult, error,
+) {
+	r := repository.ResourceSearchResult{}
+
+	do := searchOptionToListDO(option)
+	v, total, err := impl.mapper.Search(&do, option.TopNum)
+	if err != nil {
+		return r, err
+	}
+
+	items := make([]domain.ResourceSummary, len(v))
+	for i := range v {
+		if items[i].Owner, err = domain.NewAccount(v[i].Owner); err != nil {
+			return r, err
+		}
+
+		if items[i].Name, err = domain.NewDatasetName(v[i].Name); err != nil {
+			return r, err
+		}
+	}
+
+	r.Top = items
+	r.Total = total
+
+	return r, nil
 }

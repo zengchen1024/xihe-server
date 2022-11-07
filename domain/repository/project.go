@@ -9,6 +9,14 @@ type UserResourceListOption struct {
 	Ids   []string
 }
 
+type ResourceSearchOption struct {
+	// can't define Name as domain.ResourceName
+	// because the Name can be subpart of the real resource name
+	Name     string
+	TopNum   int
+	RepoType domain.RepoType
+}
+
 type ResourceListOption struct {
 	// can't define Name as domain.ResourceName
 	// because the Name can be subpart of the real resource name
@@ -51,6 +59,12 @@ type UserProjectsInfo struct {
 	Total    int
 }
 
+type ResourceSearchResult struct {
+	Top []domain.ResourceSummary
+
+	Total int
+}
+
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
@@ -67,6 +81,8 @@ type Project interface {
 	ListGlobalAndSortByUpdateTime(*GlobalResourceListOption) (UserProjectsInfo, error)
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListOption) (UserProjectsInfo, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListOption) (UserProjectsInfo, error)
+
+	Search(*ResourceSearchOption) (ResourceSearchResult, error)
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error

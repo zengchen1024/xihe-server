@@ -26,6 +26,8 @@ type ModelMapper interface {
 	ListGlobalAndSortByFirstLetter(*GlobalResourceListDO) ([]ModelSummaryDO, int, error)
 	ListGlobalAndSortByDownloadCount(*GlobalResourceListDO) ([]ModelSummaryDO, int, error)
 
+	Search(do *GlobalResourceListDO, topNum int) ([]ResourceSummaryDO, int, error)
+
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 
