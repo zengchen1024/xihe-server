@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	OBS       OBSConfig   `json:"obs"             required:"true"`
-	Cloud     CloudConfig `json:"cloud"           required:"true"`
-	Endpoints Endpoints   `json:"endpoints"       required:"true"`
+	OBS       OBSConfig      `json:"obs"             required:"true"`
+	Cloud     CloudConfig    `json:"cloud"           required:"true"`
+	CodeGeex  CodeGeexConfig `json:"codegeex"        required:"true"`
+	Endpoints Endpoints      `json:"endpoints"       required:"true"`
 
 	MaxPictureSizeToDescribe int64 `json:"max_picture_size_to_describe"`
 	MaxPictureSizeToVQA      int64 `json:"max_picture_size_to_vqa"`
@@ -48,6 +49,7 @@ type Endpoints struct {
 	VQA              string `json:"vqa"                required:"true"`
 	Pangu            string `json:"pangu"              required:"true"`
 	LuoJia           string `json:"luojia"             required:"true"`
+	CodeGeex         string `json:"codegeex"           required:"true"`
 	DescPicture      string `json:"desc_picture"       required:"true"`
 	SinglePicture    string `json:"signle_picture"     required:"true"`
 	MultiplePictures string `json:"multiple_pictures"  required:"true"`
@@ -93,4 +95,9 @@ func (e *Endpoints) parse(s string) ([]string, error) {
 	}
 
 	return v, nil
+}
+
+type CodeGeexConfig struct {
+	AK string `json:"ak" required:"true"`
+	SK string `json:"sk" required:"true"`
 }

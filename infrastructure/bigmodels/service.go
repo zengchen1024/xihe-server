@@ -33,6 +33,7 @@ func Init(cfg *Config) error {
 	fm.vqaInfo = newVQAInfo(cfg)
 	fm.panguInfo = newPanGuInfo(cfg)
 	fm.luojiaInfo = newLuoJiaInfo(cfg)
+	fm.codegeexInfo = newCodeGeexInfo(cfg)
 	fm.pictureGenInfo = newPictureGenInfo(cfg)
 	fm.pictureDescInfo = newPictureDescInfo(cfg)
 
@@ -52,6 +53,7 @@ type service struct {
 	vqaInfo         vqaInfo
 	panguInfo       panguInfo
 	luojiaInfo      luojiaInfo
+	codegeexInfo    codegeexInfo
 	pictureGenInfo  pictureGenInfo
 	pictureDescInfo pictureDescInfo
 }

@@ -1,11 +1,26 @@
 package app
 
 import (
+	"errors"
 	"io"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/bigmodel"
 )
+
+type CodeGeexCmd bigmodel.CodeGeexReq
+
+func (cmd *CodeGeexCmd) Validate() error {
+	b := cmd.Content != "" &&
+		cmd.Lang != "" &&
+		cmd.ResultNum > 0
+
+	if !b {
+		return errors.New("invalid cmd")
+	}
+
+	return nil
+}
 
 type BigModelService interface {
 	DescribePicture(io.Reader, string, int64) (string, error)
@@ -16,6 +31,7 @@ type BigModelService interface {
 	LuoJiaUploadPicture(io.Reader, domain.Account) error
 	PanGu(string) (string, error)
 	LuoJia(string) (string, error)
+	CodeGeex(*CodeGeexCmd) (string, error)
 }
 
 func NewBigModelService(fm bigmodel.BigModel) BigModelService {
@@ -68,4 +84,8 @@ func (s bigModelService) LuoJia(q string) (string, error) {
 	// TODO check the content of question to see if it is legal
 
 	return s.fm.LuoJia(q)
+}
+
+func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (string, error) {
+	return s.fm.CodeGeex((*bigmodel.CodeGeexReq)(cmd))
 }

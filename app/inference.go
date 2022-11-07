@@ -25,10 +25,10 @@ type InferenceCreateCmd struct {
 }
 
 func (cmd *InferenceCreateCmd) Validate() error {
-	b := cmd.ProjectId != "" ||
-		cmd.ProjectName != nil ||
-		cmd.ProjectOwner != nil ||
-		cmd.InferenceDir != nil ||
+	b := cmd.ProjectId != "" &&
+		cmd.ProjectName != nil &&
+		cmd.ProjectOwner != nil &&
+		cmd.InferenceDir != nil &&
 		cmd.BootFile != nil
 
 	if !b {

@@ -26,6 +26,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/ask", ctl.Ask)
 	rg.POST("/v1/bigmodel/pangu", ctl.PanGu)
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
+	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
 }
 
 type BigModelController struct {
@@ -234,6 +235,42 @@ func (ctl *BigModelController) LuoJia(ctx *gin.Context) {
 	}
 
 	if v, err := ctl.s.LuoJia(pl.Account); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
+	}
+}
+
+// @Title CodeGeex
+// @Description codegeex big model
+// @Tags  BigModel
+// @Param	body	body 	CodeGeexRequest		true	"codegeex body"
+// @Accept json
+// @Success 201 {object} codegeexResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/codegeex [post]
+func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
+	req := CodeGeexRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+
+		return
+	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
+		return
+	}
+
+	if v, err := ctl.s.CodeGeex(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
