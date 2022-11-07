@@ -20,22 +20,22 @@ func AddRouterForUserController(
 	auth authing.User,
 	sender message.Sender,
 ) {
-	pc := UserController{
+	ctl := UserController{
 		auth: auth,
 		repo: repo,
 		s:    app.NewUserService(repo, ps, sender),
 	}
 
-	rg.POST("/v1/user", pc.Create) // TODO: delete
-	rg.PUT("/v1/user", pc.Update)
-	rg.GET("/v1/user", pc.Get)
+	rg.POST("/v1/user", ctl.Create) // TODO: delete
+	rg.PUT("/v1/user", ctl.Update)
+	rg.GET("/v1/user", ctl.Get)
 
-	rg.POST("/v1/user/following", pc.AddFollowing)
-	rg.DELETE("/v1/user/following/:account", pc.RemoveFollowing)
-	rg.GET("/v1/user/following/:account", pc.ListFollowing)
+	rg.POST("/v1/user/following", ctl.AddFollowing)
+	rg.DELETE("/v1/user/following/:account", ctl.RemoveFollowing)
+	rg.GET("/v1/user/following/:account", ctl.ListFollowing)
 
-	rg.GET("/v1/user/follower/:account", pc.ListFollower)
-	rg.GET("/v1/user/:account/gitlab", pc.GitlabToken)
+	rg.GET("/v1/user/follower/:account", ctl.ListFollower)
+	rg.GET("/v1/user/:account/gitlab", ctl.GitlabToken)
 }
 
 type UserController struct {
@@ -119,7 +119,7 @@ func (ctl *UserController) Create(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Router /v1/user [put]
-func (uc *UserController) Update(ctx *gin.Context) {
+func (ctl *UserController) Update(ctx *gin.Context) {
 	m := userBasicInfoUpdateRequest{}
 
 	if err := ctx.ShouldBindJSON(&m); err != nil {
@@ -140,7 +140,12 @@ func (uc *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := uc.s.UpdateBasicInfo(nil, cmd); err != nil {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if err := ctl.s.UpdateBasicInfo(pl.DomainAccount(), cmd); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseError(err))
 
 		return
