@@ -82,10 +82,12 @@ func (ctl *accessController) verify(roles []string, addr string) error {
 		return fmt.Errorf("not allowed permissions")
 	}
 
-	if ctl.RemoteAddr != addr {
-		// TODO: don't show the address
-		return fmt.Errorf("unmatched remote address, %s!=%s", ctl.RemoteAddr, addr)
-	}
+	/*
+		if ctl.RemoteAddr != addr {
+			// TODO: don't show the address
+			return fmt.Errorf("unmatched remote address, %s!=%s", ctl.RemoteAddr, addr)
+		}
 
+	*/
 	return nil
 }
