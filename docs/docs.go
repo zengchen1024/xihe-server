@@ -99,6 +99,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/codegeex": {
+            "post": {
+                "description": "codegeex big model",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "codegeex body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CodeGeexRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.codegeexResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/describe_picture": {
             "post": {
                 "description": "describe a picture",
@@ -3552,6 +3588,20 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.CodeGeexRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "result_num": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.Compute": {
             "type": "object",
             "properties": {
@@ -3682,6 +3732,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.codegeexResp": {
+            "type": "object",
+            "properties": {
+                "answer": {
                     "type": "string"
                 }
             }

@@ -19,9 +19,9 @@ type CustomEvaluateCreateCmd struct {
 }
 
 func (cmd *CustomEvaluateCreateCmd) Validate() error {
-	b := cmd.Project.Id != "" ||
-		cmd.Project.Owner != nil ||
-		cmd.TrainingId != "" ||
+	b := cmd.Project.Id != "" &&
+		cmd.Project.Owner != nil &&
+		cmd.TrainingId != "" &&
 		cmd.AimPath != ""
 
 	if !b {
@@ -47,9 +47,9 @@ type StandardEvaluateCreateCmd struct {
 }
 
 func (cmd *StandardEvaluateCreateCmd) Validate() error {
-	b := cmd.Project.Id != "" ||
-		cmd.Project.Owner != nil ||
-		cmd.TrainingId != "" ||
+	b := cmd.Project.Id != "" &&
+		cmd.Project.Owner != nil &&
+		cmd.TrainingId != "" &&
 		cmd.LogPath != ""
 
 	if !b {

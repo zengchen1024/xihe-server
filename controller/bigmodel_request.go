@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 
+	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 )
 
@@ -74,5 +75,27 @@ type panguResp struct {
 }
 
 type luojiaResp struct {
+	Answer string `json:"answer"`
+}
+
+type CodeGeexRequest struct {
+	Lang      string `json:"lang"`
+	Content   string `json:"content"`
+	ResultNum int    `json:"result_num"`
+}
+
+func (req *CodeGeexRequest) toCmd() (
+	cmd app.CodeGeexCmd, err error,
+) {
+	cmd.Lang = req.Lang
+	cmd.Content = req.Content
+	cmd.ResultNum = req.ResultNum
+
+	err = cmd.Validate()
+
+	return
+}
+
+type codegeexResp struct {
 	Answer string `json:"answer"`
 }
