@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
@@ -109,7 +110,15 @@ func (col evaluate) UpdateDetail(
 		AccessURL: detail.AccessURL,
 	}
 
-	doc, _ := genDoc(data)
+	doc, err := genDoc(data)
+	if err != nil {
+		return err
+	}
+
+	logrus.Debugf(
+		"update evaluate(%s/%s) to %v",
+		index.Project.Id, index.Id, doc,
+	)
 
 	f := func(ctx context.Context) error {
 		_, err := cli.modifyArrayElemWithoutVersion(
