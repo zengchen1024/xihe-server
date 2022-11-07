@@ -170,6 +170,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		controller.AddRouterForEvaluateController(
 			v1, evaluate, training, sender,
 		)
+		controller.AddRouterForSearchController(
+			v1, user, proj, model, dataset,
+		)
+
 	}
 
 	engine.UseRawPath = true

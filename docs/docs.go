@@ -1966,6 +1966,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/search": {
+            "get": {
+                "description": "search resource and user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name of resource or user",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.SearchDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/tags/{type}": {
             "get": {
                 "description": "list tags",
@@ -3424,6 +3458,45 @@ const docTemplate = `{
                 },
                 "update_at": {
                     "type": "string"
+                }
+            }
+        },
+        "app.ResourceSearchDTO": {
+            "type": "object",
+            "properties": {
+                "top": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ResourceSummaryDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "app.ResourceSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.SearchDTO": {
+            "type": "object",
+            "properties": {
+                "dataset": {
+                    "$ref": "#/definitions/app.ResourceSearchDTO"
+                },
+                "model": {
+                    "$ref": "#/definitions/app.ResourceSearchDTO"
+                },
+                "project": {
+                    "$ref": "#/definitions/app.ResourceSearchDTO"
                 }
             }
         },
