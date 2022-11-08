@@ -15,7 +15,7 @@ func (cmd *UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
 		changed = true
 	}
 
-	if cmd.Bio != nil && cmd.Bio.Bio() != cmd.Bio.Bio() {
+	if cmd.Bio != nil && cmd.Bio.Bio() != u.Bio.Bio() {
 		u.Bio = cmd.Bio
 		changed = true
 	}
