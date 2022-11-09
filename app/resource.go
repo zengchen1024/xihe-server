@@ -233,7 +233,7 @@ func (s resourceService) projectToResourceDTO(
 
 		v := ResourceDTO{
 			Id:            p.Id,
-			Name:          p.Name.ProjName(),
+			Name:          p.Name.ResourceName(),
 			Type:          domain.ResourceTypeProject.ResourceType(),
 			Desc:          p.Desc.ResourceDesc(),
 			CoverId:       p.CoverId.CoverId(),
@@ -261,7 +261,7 @@ func (s resourceService) modelToResourceDTO(
 
 		v := ResourceDTO{
 			Id:            d.Id,
-			Name:          d.Name.ModelName(),
+			Name:          d.Name.ResourceName(),
 			Type:          domain.ResourceTypeModel.ResourceType(),
 			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),
@@ -287,7 +287,7 @@ func (s resourceService) datasetToResourceDTO(
 
 		v := ResourceDTO{
 			Id:            d.Id,
-			Name:          d.Name.DatasetName(),
+			Name:          d.Name.ResourceName(),
 			Type:          domain.ResourceTypeDataset.ResourceType(),
 			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),

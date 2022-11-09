@@ -77,10 +77,10 @@ func (impl model) Get(owner domain.Account, identity string) (r domain.Model, er
 	return
 }
 
-func (impl model) GetByName(owner domain.Account, name domain.ModelName) (
+func (impl model) GetByName(owner domain.Account, name domain.ResourceName) (
 	r domain.Model, err error,
 ) {
-	v, err := impl.mapper.GetByName(owner.Account(), name.ModelName())
+	v, err := impl.mapper.GetByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -121,7 +121,7 @@ func (impl model) ListSummary(opts []repository.ModelSummaryListOption) (
 
 	for i := range opts {
 		owner := opts[i].Owner.Account()
-		name := opts[i].Name.ModelName()
+		name := opts[i].Name.ResourceName()
 
 		all.Insert(owner + name)
 
@@ -168,7 +168,7 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 	return ModelDO{
 		Id:        m.Id,
 		Owner:     m.Owner.Account(),
-		Name:      m.Name.ModelName(),
+		Name:      m.Name.ResourceName(),
 		FL:        m.Name.FirstLetterOfName(),
 		Desc:      m.Desc.ResourceDesc(),
 		RepoType:  m.RepoType.RepoType(),
@@ -210,7 +210,7 @@ func (do *ModelDO) toModel(r *domain.Model) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewModelName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

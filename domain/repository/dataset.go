@@ -6,7 +6,7 @@ import (
 
 type DatasetSummaryListOption struct {
 	Owner domain.Account
-	Name  domain.DatasetName
+	Name  domain.ResourceName
 }
 
 type DatasetPropertyUpdateInfo struct {
@@ -23,7 +23,7 @@ type UserDatasetsInfo struct {
 type Dataset interface {
 	Save(*domain.Dataset) (domain.Dataset, error)
 	Get(domain.Account, string) (domain.Dataset, error)
-	GetByName(domain.Account, domain.DatasetName) (domain.Dataset, error)
+	GetByName(domain.Account, domain.ResourceName) (domain.Dataset, error)
 	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)
 
 	FindUserDatasets([]UserResourceListOption) ([]domain.DatasetSummary, error)

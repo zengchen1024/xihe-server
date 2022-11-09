@@ -21,7 +21,7 @@ func (p *projectCreateRequest) toCmd() (cmd app.ProjectCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.GenProjName(p.Name); err != nil {
+	if cmd.Name, err = domain.NewResourceName(p.Name); err != nil {
 		return
 	}
 
@@ -63,7 +63,7 @@ type projectUpdateRequest struct {
 
 func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 	if p.Name != nil {
-		if cmd.Name, err = domain.NewProjName(*p.Name); err != nil {
+		if cmd.Name, err = domain.NewResourceName(*p.Name); err != nil {
 			return
 		}
 	}

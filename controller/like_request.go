@@ -12,8 +12,9 @@ import (
 type likeDeleteRequest = likeCreateRequest
 
 type likeCreateRequest struct {
-	Owner string `json:"owner"`
-	Name  string `json:"name"`
+	Owner        string `json:"owner"`
+	Name         string `json:"name"`
+	ResourceType string `json:"resource_type"`
 }
 
 func (req *likeCreateRequest) toCmd(
@@ -36,7 +37,7 @@ func (req *likeCreateRequest) toCmd(
 		return
 	}
 
-	if cmd.ResourceType, err = domain.ResourceTypeByName(req.Name); err != nil {
+	if cmd.ResourceType, err = domain.NewResourceType(req.ResourceType); err != nil {
 		bad()
 
 		return
@@ -46,7 +47,7 @@ func (req *likeCreateRequest) toCmd(
 
 	switch cmd.ResourceType.ResourceType() {
 	case domain.ResourceTypeProject.ResourceType():
-		name, err = domain.NewProjName(req.Name)
+		name, err = domain.NewResourceName(req.Name)
 		if err != nil {
 			bad()
 
@@ -54,7 +55,7 @@ func (req *likeCreateRequest) toCmd(
 		}
 
 	case domain.ResourceTypeDataset.ResourceType():
-		name, err = domain.NewDatasetName(req.Name)
+		name, err = domain.NewResourceName(req.Name)
 		if err != nil {
 			bad()
 
@@ -62,7 +63,7 @@ func (req *likeCreateRequest) toCmd(
 		}
 
 	case domain.ResourceTypeModel.ResourceType():
-		name, err = domain.NewModelName(req.Name)
+		name, err = domain.NewResourceName(req.Name)
 		if err != nil {
 			bad()
 

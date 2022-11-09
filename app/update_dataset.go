@@ -8,7 +8,7 @@ import (
 )
 
 type DatasetUpdateCmd struct {
-	Name     domain.DatasetName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 }
@@ -22,7 +22,7 @@ func (cmd *DatasetUpdateCmd) toDataset(
 		}
 	}
 
-	if cmd.Name != nil && p.Name.DatasetName() != cmd.Name.DatasetName() {
+	if cmd.Name != nil && p.Name.ResourceName() != cmd.Name.ResourceName() {
 		p.Name = cmd.Name
 		repo.Name = cmd.Name
 		f()

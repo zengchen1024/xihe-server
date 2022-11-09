@@ -12,7 +12,7 @@ import (
 
 type ProjectCreateCmd struct {
 	Owner    domain.Account
-	Name     domain.ProjName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	Type     domain.ProjType
 	CoverId  domain.CoverId
@@ -109,7 +109,7 @@ type ProjectDetailDTO struct {
 
 type ProjectService interface {
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
-	GetByName(domain.Account, domain.ProjName, bool) (ProjectDetailDTO, error)
+	GetByName(domain.Account, domain.ResourceName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalProjectsDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
@@ -191,7 +191,7 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 }
 
 func (s projectService) GetByName(
-	owner domain.Account, name domain.ProjName,
+	owner domain.Account, name domain.ResourceName,
 	allowPrivacy bool,
 ) (dto ProjectDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
@@ -275,7 +275,7 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 	*dto = ProjectDTO{
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
-		Name:          p.Name.ProjName(),
+		Name:          p.Name.ResourceName(),
 		Desc:          p.Desc.ResourceDesc(),
 		Type:          p.Type.ProjType(),
 		CoverId:       p.CoverId.CoverId(),
@@ -296,7 +296,7 @@ func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *Proje
 	*dto = ProjectSummaryDTO{
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
-		Name:          p.Name.ProjName(),
+		Name:          p.Name.ResourceName(),
 		Desc:          p.Desc.ResourceDesc(),
 		CoverId:       p.CoverId.CoverId(),
 		Tags:          p.Tags,

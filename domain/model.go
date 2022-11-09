@@ -32,7 +32,7 @@ func (m *Model) IsPrivate() bool {
 }
 
 type ModelModifiableProperty struct {
-	Name     ModelName
+	Name     ResourceName
 	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
@@ -42,7 +42,7 @@ type ModelModifiableProperty struct {
 type ModelSummary struct {
 	Id            string
 	Owner         Account
-	Name          ModelName
+	Name          ResourceName
 	Desc          ResourceDesc
 	Tags          []string
 	UpdatedAt     int64

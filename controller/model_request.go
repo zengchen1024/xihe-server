@@ -18,7 +18,7 @@ func (req *modelCreateRequest) toCmd() (cmd app.ModelCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.GenModelName(req.Name); err != nil {
+	if cmd.Name, err = domain.NewResourceName(req.Name); err != nil {
 		return
 	}
 
@@ -47,7 +47,7 @@ type modelUpdateRequest struct {
 
 func (p *modelUpdateRequest) toCmd() (cmd app.ModelUpdateCmd, err error) {
 	if p.Name != nil {
-		if cmd.Name, err = domain.NewModelName(*p.Name); err != nil {
+		if cmd.Name, err = domain.NewResourceName(*p.Name); err != nil {
 			return
 		}
 	}

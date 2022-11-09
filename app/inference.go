@@ -17,7 +17,7 @@ type InferenceDetail = domain.InferenceDetail
 
 type InferenceCreateCmd struct {
 	ProjectId    string
-	ProjectName  domain.ProjName
+	ProjectName  domain.ResourceName
 	ProjectOwner domain.Account
 
 	InferenceDir domain.Directory

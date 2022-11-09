@@ -30,7 +30,7 @@ func (impl dataset) UpdateProperty(info *repository.DatasetPropertyUpdateInfo) e
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
 		FL:       p.Name.FirstLetterOfName(),
-		Name:     p.Name.DatasetName(),
+		Name:     p.Name.ResourceName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
@@ -182,7 +182,7 @@ func (do *DatasetSummaryDO) toDatasetSummary(r *domain.DatasetSummary) (err erro
 		return
 	}
 
-	if r.Name, err = domain.NewDatasetName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

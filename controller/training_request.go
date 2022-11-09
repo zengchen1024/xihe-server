@@ -140,12 +140,12 @@ type TrainingRef struct {
 	File  string `json:"File"`
 }
 
-func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ModelName, err error) {
+func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ResourceName, err error) {
 	if err = t.toInput(&r); err != nil {
 		return
 	}
 
-	if name, err = domain.NewModelName(t.Name); err != nil {
+	if name, err = domain.NewResourceName(t.Name); err != nil {
 		return
 	}
 
@@ -154,12 +154,12 @@ func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ModelName, err
 	return
 }
 
-func (t *TrainingRef) toDatasetInput() (r domain.Input, name domain.DatasetName, err error) {
+func (t *TrainingRef) toDatasetInput() (r domain.Input, name domain.ResourceName, err error) {
 	if err = t.toInput(&r); err != nil {
 		return
 	}
 
-	if name, err = domain.NewDatasetName(t.Name); err != nil {
+	if name, err = domain.NewResourceName(t.Name); err != nil {
 		return
 	}
 
@@ -193,7 +193,7 @@ func (ctl *TrainingController) setProjectInfo(
 		return
 	}
 
-	name, ok := v.Name.(domain.ProjName)
+	name, ok := v.Name.(domain.ResourceName)
 	if !ok {
 		ctl.sendRespWithInternalError(ctx, newResponseError(
 			errors.New("it is not a project name"),

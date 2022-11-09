@@ -92,7 +92,7 @@ func (impl project) Search(option *repository.ResourceSearchOption) (
 			return r, err
 		}
 
-		if items[i].Name, err = domain.NewProjName(v[i].Name); err != nil {
+		if items[i].Name, err = domain.NewResourceName(v[i].Name); err != nil {
 			return r, err
 		}
 	}
@@ -158,7 +158,7 @@ func (impl model) Search(option *repository.ResourceSearchOption) (
 			return r, err
 		}
 
-		if items[i].Name, err = domain.NewModelName(v[i].Name); err != nil {
+		if items[i].Name, err = domain.NewResourceName(v[i].Name); err != nil {
 			return r, err
 		}
 	}
@@ -224,7 +224,7 @@ func (impl dataset) Search(option *repository.ResourceSearchOption) (
 			return r, err
 		}
 
-		if items[i].Name, err = domain.NewDatasetName(v[i].Name); err != nil {
+		if items[i].Name, err = domain.NewResourceName(v[i].Name); err != nil {
 			return r, err
 		}
 	}

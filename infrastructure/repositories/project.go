@@ -77,10 +77,10 @@ func (impl project) Get(owner domain.Account, identity string) (r domain.Project
 	return
 }
 
-func (impl project) GetByName(owner domain.Account, name domain.ProjName) (
+func (impl project) GetByName(owner domain.Account, name domain.ResourceName) (
 	r domain.Project, err error,
 ) {
-	v, err := impl.mapper.GetByName(owner.Account(), name.ProjName())
+	v, err := impl.mapper.GetByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -139,7 +139,7 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 	return ProjectDO{
 		Id:        p.Id,
 		Owner:     p.Owner.Account(),
-		Name:      p.Name.ProjName(),
+		Name:      p.Name.ResourceName(),
 		FL:        p.Name.FirstLetterOfName(),
 		Desc:      p.Desc.ResourceDesc(),
 		Type:      p.Type.ProjType(),
@@ -188,7 +188,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

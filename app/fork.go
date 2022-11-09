@@ -16,7 +16,7 @@ type ProjectForkCmd struct {
 	ValidTags []domain.DomainTags
 }
 
-func (cmd *ProjectForkCmd) toProject(name domain.ProjName, r *domain.Project) {
+func (cmd *ProjectForkCmd) toProject(name domain.ResourceName, r *domain.Project) {
 	p := &cmd.From
 	*r = domain.Project{
 		Owner:     cmd.Owner,
@@ -82,11 +82,11 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 }
 
 func (s projectService) genForkedRepoName(
-	owner domain.Account, srcName domain.ProjName,
-) (domain.ProjName, error) {
+	owner domain.Account, srcName domain.ResourceName,
+) (domain.ResourceName, error) {
 	v, err := s.repo.ListAndSortByUpdateTime(
 		owner,
-		&repository.ResourceListOption{Name: srcName.ProjName()},
+		&repository.ResourceListOption{Name: srcName.ResourceName()},
 	)
 	if err != nil {
 		return nil, err
@@ -95,10 +95,10 @@ func (s projectService) genForkedRepoName(
 	items := v.Projects
 	names := sets.NewString()
 	for i := range items {
-		names.Insert(items[i].Name.ProjName())
+		names.Insert(items[i].Name.ResourceName())
 	}
 
-	str := srcName.ProjName()
+	str := srcName.ResourceName()
 	n := len(items)
 	for {
 		if !names.Has(str) {
@@ -109,5 +109,5 @@ func (s projectService) genForkedRepoName(
 		n += 1
 	}
 
-	return domain.NewProjName(str)
+	return domain.NewResourceName(str)
 }

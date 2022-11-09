@@ -15,7 +15,7 @@ type UserTraining struct {
 }
 
 type TrainingConfig struct {
-	ProjectName   ProjName
+	ProjectName   ResourceName
 	ProjectRepoId string
 
 	Name TrainingName

@@ -132,7 +132,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 
 	cmd := app.InferenceCreateCmd{
 		ProjectId:    v.Id,
-		ProjectName:  v.Name.(domain.ProjName),
+		ProjectName:  v.Name.(domain.ResourceName),
 		ProjectOwner: owner,
 		InferenceDir: ctl.inferenceDir,
 		BootFile:     ctl.inferenceBootFile,

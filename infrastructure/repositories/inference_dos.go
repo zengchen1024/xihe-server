@@ -41,7 +41,7 @@ func (impl inference) toInferenceDO(obj *domain.Inference) InferenceDO {
 		Id:           obj.Id,
 		ProjectId:    obj.Project.Id,
 		LastCommit:   obj.LastCommit,
-		ProjectName:  obj.ProjectName.ProjName(),
+		ProjectName:  obj.ProjectName.ResourceName(),
 		ProjectOwner: obj.Project.Owner.Account(),
 	}
 }
