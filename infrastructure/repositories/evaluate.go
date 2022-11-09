@@ -55,11 +55,11 @@ func (impl evaluate) FindInstance(info *domain.EvaluateIndex) (
 	return
 }
 
-func (impl evaluate) FindInstances(info *domain.ResourceIndex, lastCommit string) (
+func (impl evaluate) FindInstances(info *domain.ResourceIndex, trainingId string) (
 	r []repository.EvaluateSummary, version int, err error,
 ) {
 	index := toResourceIndexDO(info)
-	v, version, err := impl.mapper.List(&index, lastCommit)
+	v, version, err := impl.mapper.List(&index, trainingId)
 	if err != nil {
 		err = convertError(err)
 
