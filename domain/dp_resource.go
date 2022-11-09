@@ -92,9 +92,14 @@ type ResourceDesc interface {
 }
 
 func NewResourceDesc(v string) (ResourceDesc, error) {
-	max := config.MaxDescLength
-	if len(v) > max || v == "" {
-		return nil, fmt.Errorf("the length of desc should be between 1 to %d", max)
+	if v == "" {
+		return nil, nil
+	}
+
+	if max := config.MaxDescLength; len(v) > max {
+		return nil, fmt.Errorf(
+			"the length of desc should be between 1 to %d", max,
+		)
 	}
 
 	return resourceDesc(v), nil

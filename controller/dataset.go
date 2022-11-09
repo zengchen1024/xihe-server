@@ -33,6 +33,7 @@ func AddRouterForDatasetController(
 
 	rg.POST("/v1/dataset", ctl.Create)
 	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
+	rg.GET("/v1/dateset/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
 	rg.GET("/v1/dataset/:owner", ctl.List)
 	rg.GET("/v1/dataset", ctl.ListGlobal)
@@ -50,6 +51,52 @@ type DatasetController struct {
 	s    app.DatasetService
 
 	newPlatformRepository func(string, string) platform.Repository
+}
+
+// @Summary Check
+// @Description check whether the name can be applied to create a new dataset
+// @Tags  Dataset
+// @Param	owner	path	string	true	"owner of dataset"
+// @Param	name	path	string	true	"name of dataset"
+// @Accept json
+// @Success 200 {object} canApplyResourceNameResp
+// @Produce json
+// @Router /v1/dataset/{owner}/{name}/check [get]
+func (ctl *DatasetController) Check(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed, "not allowed",
+		))
+
+		return
+	}
+
+	b := ctl.s.CanApplyResourceName(owner, name)
+
+	ctx.JSON(http.StatusOK, newResponseData(canApplyResourceNameResp{b}))
 }
 
 // @Summary Create

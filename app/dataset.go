@@ -88,6 +88,7 @@ type DatasetDetailDTO struct {
 }
 
 type DatasetService interface {
+	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (DatasetDetailDTO, error)
@@ -131,6 +132,10 @@ type datasetService struct {
 	//pr       platform.Repository
 	activity repository.Activity
 	rs       resourceService
+}
+
+func (s datasetService) CanApplyResourceName(owner domain.Account, name domain.ResourceName) bool {
+	return s.rs.canApplyResourceName(owner, name)
 }
 
 func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (dto DatasetDTO, err error) {

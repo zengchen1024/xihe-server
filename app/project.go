@@ -108,6 +108,7 @@ type ProjectDetailDTO struct {
 }
 
 type ProjectService interface {
+	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
@@ -157,6 +158,10 @@ type projectService struct {
 	activity repository.Activity
 	sender   message.Sender
 	rs       resourceService
+}
+
+func (s projectService) CanApplyResourceName(owner domain.Account, name domain.ResourceName) bool {
+	return s.rs.canApplyResourceName(owner, name)
 }
 
 func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (dto ProjectDTO, err error) {

@@ -504,6 +504,11 @@ definitions:
       owner:
         type: string
     type: object
+  controller.canApplyResourceNameResp:
+    properties:
+      can_apply:
+        type: boolean
+    type: object
   controller.codegeexResp:
     properties:
       answer:
@@ -599,12 +604,16 @@ definitions:
         type: string
       owner:
         type: string
+      resource_type:
+        type: string
     type: object
   controller.likeDeleteRequest:
     properties:
       name:
         type: string
       owner:
+        type: string
+      resource_type:
         type: string
     type: object
   controller.luojiaResp:
@@ -787,6 +796,13 @@ definitions:
       type:
         type: string
       updated_at:
+        type: string
+    type: object
+  controller.projectForkRequest:
+    properties:
+      desc:
+        type: string
+      name:
         type: string
     type: object
   controller.projectUpdateRequest:
@@ -1405,6 +1421,32 @@ paths:
       summary: Get
       tags:
       - Dataset
+  /v1/dataset/{owner}/{name}/check:
+    get:
+      consumes:
+      - application/json
+      description: check whether the name can be applied to create a new dataset
+      parameters:
+      - description: owner of dataset
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of dataset
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.canApplyResourceNameResp'
+      summary: Check
+      tags:
+      - Dataset
   /v1/evaluate/project/{pid}/training/{tid}/evaluate:
     post:
       consumes:
@@ -1770,6 +1812,32 @@ paths:
       summary: Get
       tags:
       - Model
+  /v1/model/{owner}/{name}/check:
+    get:
+      consumes:
+      - application/json
+      description: check whether the name can be applied to create a new model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.canApplyResourceNameResp'
+      summary: Check
+      tags:
+      - Model
   /v1/project:
     get:
       consumes:
@@ -1888,6 +1956,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: body of forking project
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.projectForkRequest'
       produces:
       - application/json
       responses: {}
@@ -2089,7 +2163,33 @@ paths:
       summary: Get
       tags:
       - Project
-  /v1/repo/{name}/file/{path}:
+  /v1/project/{owner}/{name}/check:
+    get:
+      consumes:
+      - application/json
+      description: check whether the name can be applied to create a new project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of project
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.canApplyResourceNameResp'
+      summary: Check
+      tags:
+      - Project
+  /v1/repo/:type/{name}/file/{path}:
     delete:
       consumes:
       - application/json
@@ -2197,7 +2297,7 @@ paths:
       summary: Update
       tags:
       - RepoFile
-  /v1/repo/{user}/{name}/file/{path}:
+  /v1/repo/:type/{user}/{name}/file/{path}:
     get:
       consumes:
       - application/json
@@ -2234,7 +2334,7 @@ paths:
       summary: Download
       tags:
       - RepoFile
-  /v1/repo/{user}/{name}/file/{path}/preview:
+  /v1/repo/:type/{user}/{name}/file/{path}/preview:
     get:
       consumes:
       - application/json
@@ -2269,7 +2369,7 @@ paths:
       summary: Preview
       tags:
       - RepoFile
-  /v1/repo/{user}{name}/files:
+  /v1/repo/:type/{user}/{name}/files:
     get:
       consumes:
       - application/json

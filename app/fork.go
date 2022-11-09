@@ -1,22 +1,19 @@
 package app
 
 import (
-	"fmt"
-
-	"k8s.io/apimachinery/pkg/util/sets"
-
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/platform"
-	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type ProjectForkCmd struct {
+	Name      domain.ResourceName
+	Desc      domain.ResourceDesc
 	From      domain.Project
 	Owner     domain.Account
 	ValidTags []domain.DomainTags
 }
 
-func (cmd *ProjectForkCmd) toProject(name domain.ResourceName, r *domain.Project) {
+func (cmd *ProjectForkCmd) toProject(r *domain.Project) {
 	p := &cmd.From
 	*r = domain.Project{
 		Owner:     cmd.Owner,
@@ -26,7 +23,7 @@ func (cmd *ProjectForkCmd) toProject(name domain.ResourceName, r *domain.Project
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
 		ProjectModifiableProperty: domain.ProjectModifiableProperty{
-			Name:     p.Name,
+			Name:     cmd.Name,
 			Desc:     p.Desc,
 			CoverId:  p.CoverId,
 			RepoType: p.RepoType,
@@ -40,22 +37,21 @@ func (cmd *ProjectForkCmd) toProject(name domain.ResourceName, r *domain.Project
 
 	r.TagKinds = h.genTagKinds(p.Tags)
 
+	if cmd.Desc != nil {
+		r.Desc = cmd.Desc
+	}
+
 	return
 }
 
 func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto ProjectDTO, err error) {
-	name, err := s.genForkedRepoName(cmd.Owner, cmd.From.Name)
-	if err != nil {
-		return
-	}
-
-	pid, err := pr.Fork(cmd.From.RepoId, name)
+	pid, err := pr.Fork(cmd.From.RepoId, cmd.Name)
 	if err != nil {
 		return
 	}
 
 	v := new(domain.Project)
-	cmd.toProject(name, v)
+	cmd.toProject(v)
 	v.RepoId = pid
 
 	p, err := s.repo.Save(v)
@@ -79,35 +75,4 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 	})
 
 	return
-}
-
-func (s projectService) genForkedRepoName(
-	owner domain.Account, srcName domain.ResourceName,
-) (domain.ResourceName, error) {
-	v, err := s.repo.ListAndSortByUpdateTime(
-		owner,
-		&repository.ResourceListOption{Name: srcName.ResourceName()},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	items := v.Projects
-	names := sets.NewString()
-	for i := range items {
-		names.Insert(items[i].Name.ResourceName())
-	}
-
-	str := srcName.ResourceName()
-	n := len(items)
-	for {
-		if !names.Has(str) {
-			break
-		}
-
-		str = fmt.Sprintf("%s%d", str, n)
-		n += 1
-	}
-
-	return domain.NewResourceName(str)
 }
