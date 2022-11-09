@@ -4,7 +4,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
-type ModelSummaryListOption struct {
+type ResourceSummaryListOption struct {
 	Owner domain.Account
 	Name  domain.ResourceName
 }
@@ -27,7 +27,7 @@ type Model interface {
 	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)
 
 	FindUserModels([]UserResourceListOption) ([]domain.ModelSummary, error)
-	ListSummary([]ModelSummaryListOption) ([]domain.ResourceSummary, error)
+	ListSummary([]ResourceSummaryListOption) ([]domain.ResourceSummary, error)
 
 	ListAndSortByUpdateTime(domain.Account, *ResourceListOption) (UserModelsInfo, error)
 	ListAndSortByFirstLetter(domain.Account, *ResourceListOption) (UserModelsInfo, error)

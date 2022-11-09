@@ -113,7 +113,7 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 	return r, nil
 }
 
-func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
+func (impl dataset) ListSummary(opts []repository.ResourceSummaryListOption) (
 	[]domain.ResourceSummary, error,
 ) {
 	m := map[string][]string{}

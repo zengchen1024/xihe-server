@@ -141,11 +141,7 @@ type TrainingRef struct {
 }
 
 func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ResourceName, err error) {
-	if err = t.toInput(&r); err != nil {
-		return
-	}
-
-	if name, err = domain.NewResourceName(t.Name); err != nil {
+	if name, err = t.toInput(&r); err != nil {
 		return
 	}
 
@@ -155,11 +151,7 @@ func (t *TrainingRef) toModelInput() (r domain.Input, name domain.ResourceName, 
 }
 
 func (t *TrainingRef) toDatasetInput() (r domain.Input, name domain.ResourceName, err error) {
-	if err = t.toInput(&r); err != nil {
-		return
-	}
-
-	if name, err = domain.NewResourceName(t.Name); err != nil {
+	if name, err = t.toInput(&r); err != nil {
 		return
 	}
 
@@ -168,12 +160,16 @@ func (t *TrainingRef) toDatasetInput() (r domain.Input, name domain.ResourceName
 	return
 }
 
-func (t *TrainingRef) toInput(r *domain.Input) (err error) {
+func (t *TrainingRef) toInput(r *domain.Input) (name domain.ResourceName, err error) {
 	if r.Key, err = domain.NewCustomizedKey(t.Key); err != nil {
 		return
 	}
 
 	if r.User, err = domain.NewAccount(t.Owner); err != nil {
+		return
+	}
+
+	if name, err = domain.NewResourceName(t.Name); err != nil {
 		return
 	}
 
@@ -215,7 +211,7 @@ func (ctl *TrainingController) setModelsInput(
 	ctx *gin.Context, cmd *app.TrainingCreateCmd,
 	inputs []TrainingRef,
 ) (ok bool) {
-	p := make([]repository.ModelSummaryListOption, 0, len(inputs))
+	p := make([]repository.ResourceSummaryListOption, 0, len(inputs))
 	m := sets.NewString()
 	tinputs := make([]domain.Input, len(inputs))
 
@@ -242,7 +238,7 @@ func (ctl *TrainingController) setModelsInput(
 		}
 		m.Insert(s)
 
-		p = append(p, repository.ModelSummaryListOption{
+		p = append(p, repository.ResourceSummaryListOption{
 			Owner: ti.User,
 			Name:  name,
 		})
@@ -285,7 +281,7 @@ func (ctl *TrainingController) setDatasetsInput(
 	ctx *gin.Context, cmd *app.TrainingCreateCmd,
 	inputs []TrainingRef,
 ) (ok bool) {
-	p := make([]repository.DatasetSummaryListOption, 0, len(inputs))
+	p := make([]repository.ResourceSummaryListOption, 0, len(inputs))
 	m := sets.NewString()
 	tinputs := make([]domain.Input, len(inputs))
 
@@ -312,7 +308,7 @@ func (ctl *TrainingController) setDatasetsInput(
 		}
 		m.Insert(s)
 
-		p = append(p, repository.DatasetSummaryListOption{
+		p = append(p, repository.ResourceSummaryListOption{
 			Owner: ti.User,
 			Name:  name,
 		})

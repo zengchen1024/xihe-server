@@ -366,32 +366,19 @@ func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account
 		return
 	}
 
-	n := ctx.Param("name")
-	var name domain.ResourceName
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		return
+	}
 
 	switch rt.ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
-		name, err = domain.NewResourceName(n)
-		if err != nil {
-			return
-		}
-
 		s, err = ctl.model.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeProject.ResourceType():
-		name, err = domain.NewResourceName(n)
-		if err != nil {
-			return
-		}
-
 		s, err = ctl.project.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeDataset.ResourceType():
-		name, err = domain.NewResourceName(n)
-		if err != nil {
-			return
-		}
-
 		s, err = ctl.dataset.GetSummaryByName(user, name)
 	}
 

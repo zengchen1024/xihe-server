@@ -113,7 +113,7 @@ func (impl model) FindUserModels(opts []repository.UserResourceListOption) (
 	return r, nil
 }
 
-func (impl model) ListSummary(opts []repository.ModelSummaryListOption) (
+func (impl model) ListSummary(opts []repository.ResourceSummaryListOption) (
 	[]domain.ResourceSummary, error,
 ) {
 	m := map[string][]string{}
