@@ -20,7 +20,6 @@ type DatasetCreateCmd struct {
 func (cmd *DatasetCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
-		cmd.Desc != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
 
@@ -31,10 +30,10 @@ func (cmd *DatasetCreateCmd) Validate() error {
 	return nil
 }
 
-func (cmd *DatasetCreateCmd) toDataset() domain.Dataset {
+func (cmd *DatasetCreateCmd) toDataset(v *domain.Dataset) {
 	now := utils.Now()
 
-	return domain.Dataset{
+	*v = domain.Dataset{
 		Owner:     cmd.Owner,
 		Protocol:  cmd.Protocol,
 		CreatedAt: now,
@@ -147,10 +146,11 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 		return
 	}
 
-	v := cmd.toDataset()
+	v := new(domain.Dataset)
+	cmd.toDataset(v)
 	v.RepoId = pid
 
-	d, err := s.repo.Save(&v)
+	d, err := s.repo.Save(v)
 	if err != nil {
 		return
 	}

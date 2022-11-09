@@ -21,7 +21,6 @@ type ModelCreateCmd struct {
 func (cmd *ModelCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
-		cmd.Desc != nil &&
 		cmd.RepoType != nil &&
 		cmd.Protocol != nil
 
@@ -32,10 +31,10 @@ func (cmd *ModelCreateCmd) Validate() error {
 	return nil
 }
 
-func (cmd *ModelCreateCmd) toModel() domain.Model {
+func (cmd *ModelCreateCmd) toModel(v *domain.Model) {
 	now := utils.Now()
 
-	return domain.Model{
+	*v = domain.Model{
 		Owner:     cmd.Owner,
 		Protocol:  cmd.Protocol,
 		CreatedAt: now,
@@ -151,10 +150,11 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 		return
 	}
 
-	v := cmd.toModel()
+	v := new(domain.Model)
+	cmd.toModel(v)
 	v.RepoId = pid
 
-	m, err := s.repo.Save(&v)
+	m, err := s.repo.Save(v)
 	if err != nil {
 		return
 	}

@@ -178,7 +178,7 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	cmd.toProject(v)
 	v.RepoId = pid
 
-	p, err := s.repo.Save(&v)
+	p, err := s.repo.Save(v)
 	if err != nil {
 		return
 	}
