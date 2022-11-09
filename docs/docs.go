@@ -655,6 +655,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dataset/{owner}/{name}/check": {
+            "get": {
+                "description": "check whether the name can be applied to create a new dataset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dataset"
+                ],
+                "summary": "Check",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of dataset",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of dataset",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.canApplyResourceNameResp"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/evaluate/project/{pid}/training/{tid}/evaluate": {
             "post": {
                 "description": "create evaluate",
@@ -1203,6 +1242,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/model/{owner}/{name}/check": {
+            "get": {
+                "description": "check whether the name can be applied to create a new model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Check",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of model",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of model",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.canApplyResourceNameResp"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/project": {
             "get": {
                 "description": "list global public project",
@@ -1423,6 +1501,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "body of forking project",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.projectForkRequest"
+                        }
                     }
                 ],
                 "responses": {}
@@ -1679,7 +1766,46 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{name}/file/{path}": {
+        "/v1/project/{owner}/{name}/check": {
+            "get": {
+                "description": "check whether the name can be applied to create a new project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Check",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of project",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of project",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.canApplyResourceNameResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repo/:type/{name}/file/{path}": {
             "put": {
                 "description": "update repo file",
                 "consumes": [
@@ -1840,7 +1966,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{user}/{name}/file/{path}": {
+        "/v1/repo/:type/{user}/{name}/file/{path}": {
             "get": {
                 "description": "Download repo file",
                 "consumes": [
@@ -1895,7 +2021,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{user}/{name}/file/{path}/preview": {
+        "/v1/repo/:type/{user}/{name}/file/{path}/preview": {
             "get": {
                 "description": "preview repo file",
                 "consumes": [
@@ -1947,7 +2073,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/{user}{name}/files": {
+        "/v1/repo/:type/{user}/{name}/files": {
             "get": {
                 "description": "list repo file in a path",
                 "consumes": [
@@ -3736,6 +3862,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.canApplyResourceNameResp": {
+            "type": "object",
+            "properties": {
+                "can_apply": {
+                    "type": "boolean"
+                }
+            }
+        },
         "controller.codegeexResp": {
             "type": "object",
             "properties": {
@@ -3881,6 +4015,9 @@ const docTemplate = `{
                 },
                 "owner": {
                     "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
                 }
             }
         },
@@ -3891,6 +4028,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner": {
+                    "type": "string"
+                },
+                "resource_type": {
                     "type": "string"
                 }
             }
@@ -4171,6 +4311,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.projectForkRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

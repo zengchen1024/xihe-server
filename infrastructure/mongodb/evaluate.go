@@ -200,7 +200,7 @@ func (col evaluate) Get(index *repositories.EvaluateIndexDO) (
 	return
 }
 
-func (col evaluate) List(index *repositories.ResourceIndexDO, lastCommit string) (
+func (col evaluate) List(index *repositories.ResourceIndexDO, trainingId string) (
 	[]repositories.EvaluateSummaryDO, int, error,
 ) {
 	var v dEvaluate
@@ -208,7 +208,7 @@ func (col evaluate) List(index *repositories.ResourceIndexDO, lastCommit string)
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
 			ctx, col.collectionName,
-			evaluateDocFilter(index.Owner, index.Id, lastCommit),
+			evaluateDocFilter(index.Owner, index.Id, trainingId),
 			bson.M{
 				fieldVersion: 1,
 				fieldItems:   1,

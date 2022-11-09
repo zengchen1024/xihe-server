@@ -89,6 +89,7 @@ type ModelDetailDTO struct {
 }
 
 type ModelService interface {
+	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (ModelDetailDTO, error)
@@ -135,6 +136,10 @@ type modelService struct {
 	activity repository.Activity
 	rs       resourceService
 	sender   message.Sender
+}
+
+func (s modelService) CanApplyResourceName(owner domain.Account, name domain.ResourceName) bool {
+	return s.rs.canApplyResourceName(owner, name)
 }
 
 func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto ModelDTO, err error) {

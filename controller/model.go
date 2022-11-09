@@ -36,6 +36,7 @@ func AddRouterForModelController(
 
 	rg.POST("/v1/model", ctl.Create)
 	rg.PUT("/v1/model/:owner/:id", ctl.Update)
+	rg.GET("/v1/model/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/model/:owner/:name", ctl.Get)
 	rg.GET("/v1/model/:owner", ctl.List)
 	rg.GET("/v1/model", ctl.ListGlobal)
@@ -57,6 +58,52 @@ type ModelController struct {
 	s       app.ModelService
 
 	newPlatformRepository func(string, string) platform.Repository
+}
+
+// @Summary Check
+// @Description check whether the name can be applied to create a new model
+// @Tags  Model
+// @Param	owner	path	string	true	"owner of model"
+// @Param	name	path	string	true	"name of model"
+// @Accept json
+// @Success 200 {object} canApplyResourceNameResp
+// @Produce json
+// @Router /v1/model/{owner}/{name}/check [get]
+func (ctl *ModelController) Check(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed, "not allowed",
+		))
+
+		return
+	}
+
+	b := ctl.s.CanApplyResourceName(owner, name)
+
+	ctx.JSON(http.StatusOK, newResponseData(canApplyResourceNameResp{b}))
 }
 
 // @Summary Create

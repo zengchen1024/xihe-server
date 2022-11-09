@@ -41,6 +41,7 @@ func AddRouterForProjectController(
 	rg.POST("/v1/project", ctl.Create)
 	rg.PUT("/v1/project/:owner/:id", ctl.Update)
 	rg.GET("/v1/project/:owner/:name", ctl.Get)
+	rg.GET("/v1/project/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/project/:owner", ctl.List)
 	rg.GET("/v1/project", ctl.ListGlobal)
 
@@ -68,6 +69,52 @@ type ProjectController struct {
 	like    repository.Like
 
 	newPlatformRepository func(string, string) platform.Repository
+}
+
+// @Summary Check
+// @Description check whether the name can be applied to create a new project
+// @Tags  Project
+// @Param	owner	path	string	true	"owner of project"
+// @Param	name	path	string	true	"name of project"
+// @Accept json
+// @Success 200 {object} canApplyResourceNameResp
+// @Produce json
+// @Router /v1/project/{owner}/{name}/check [get]
+func (ctl *ProjectController) Check(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorNotAllowed, "not allowed",
+		))
+
+		return
+	}
+
+	b := ctl.s.CanApplyResourceName(owner, name)
+
+	ctx.JSON(http.StatusOK, newResponseData(canApplyResourceNameResp{b}))
 }
 
 // @Summary Create
@@ -376,12 +423,33 @@ func (ctl *ProjectController) ListGlobal(ctx *gin.Context) {
 // @Summary Fork
 // @Description fork project
 // @Tags  Project
-// @Param	owner	path	string	true	"owner of forked project"
-// @Param	id	path	string	true	"id of forked project"
+// @Param	owner	path	string			true	"owner of forked project"
+// @Param	id	path	string			true	"id of forked project"
+// @Param	body	body 	projectForkRequest	true	"body of forking project"
 // @Accept json
 // @Produce json
 // @Router /v1/project/{owner}/{id} [post]
 func (ctl *ProjectController) Fork(ctx *gin.Context) {
+	req := projectForkRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -420,7 +488,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 
 	// TODO maybe the private project can be forked by special user.
 
-	if proj.RepoType.RepoType() != domain.RepoTypePublic {
+	if proj.IsPrivate() {
 		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
 			errorResourceNotExists,
 			"can't access private project",
@@ -433,11 +501,11 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
 	)
 
-	data, err := ctl.s.Fork(&app.ProjectForkCmd{
-		From:      proj,
-		Owner:     pl.DomainAccount(),
-		ValidTags: tags,
-	}, pr)
+	cmd.From = proj
+	cmd.Owner = pl.DomainAccount()
+	cmd.ValidTags = tags
+
+	data, err := ctl.s.Fork(&cmd, pr)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 

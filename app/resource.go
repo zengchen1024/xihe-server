@@ -352,6 +352,7 @@ func (s resourceService) userMapToList(m map[string]domain.Account) []domain.Acc
 
 	return r
 }
+
 func (s resourceService) findUserAvater(users []domain.Account) ([]string, error) {
 	allUsers, err := s.user.FindUsersInfo(users)
 	if err != nil {
@@ -370,4 +371,20 @@ func (s resourceService) findUserAvater(users []domain.Account) ([]string, error
 	}
 
 	return r, nil
+}
+
+func (s resourceService) canApplyResourceName(owner domain.Account, name domain.ResourceName) bool {
+	if _, err := s.project.GetSummaryByName(owner, name); err == nil {
+		return false
+	}
+
+	if _, err := s.model.GetSummaryByName(owner, name); err == nil {
+		return false
+	}
+
+	if _, err := s.dataset.GetSummaryByName(owner, name); err == nil {
+		return false
+	}
+
+	return true
 }

@@ -101,3 +101,22 @@ type projectsInfo struct {
 
 	*app.ProjectsDTO
 }
+
+type projectForkRequest struct {
+	Name string `json:"name" required:"true"`
+	Desc string `json:"desc"`
+}
+
+func (p *projectForkRequest) toCmd() (cmd app.ProjectForkCmd, err error) {
+	if cmd.Name, err = domain.NewResourceName(p.Name); err != nil {
+		return
+	}
+
+	cmd.Desc, err = domain.NewResourceDesc(p.Desc)
+
+	return
+}
+
+type canApplyResourceNameResp struct {
+	CanApply bool `json:"can_apply"`
+}
