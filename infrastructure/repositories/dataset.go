@@ -165,12 +165,11 @@ func (impl dataset) GetSummaryByName(owner domain.Account, name domain.ResourceN
 }
 
 func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
-	return DatasetDO{
+	do := DatasetDO{
 		Id:        d.Id,
 		Owner:     d.Owner.Account(),
 		Name:      d.Name.ResourceName(),
 		FL:        d.Name.FirstLetterOfName(),
-		Desc:      d.Desc.ResourceDesc(),
 		RepoType:  d.RepoType.RepoType(),
 		Protocol:  d.Protocol.ProtocolName(),
 		Tags:      d.Tags,
@@ -180,6 +179,13 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 		UpdatedAt: d.UpdatedAt,
 		Version:   d.Version,
 	}
+
+	if d.Desc != nil {
+		do.Desc = d.Desc.ResourceDesc()
+	}
+
+	return do
+
 }
 
 type DatasetDO struct {

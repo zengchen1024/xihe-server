@@ -235,12 +235,15 @@ func (s resourceService) projectToResourceDTO(
 			Id:            p.Id,
 			Name:          p.Name.ResourceName(),
 			Type:          domain.ResourceTypeProject.ResourceType(),
-			Desc:          p.Desc.ResourceDesc(),
 			CoverId:       p.CoverId.CoverId(),
 			UpdateAt:      utils.ToDate(p.UpdatedAt),
 			LikeCount:     p.LikeCount,
 			ForkCount:     p.ForkCount,
 			DownloadCount: p.DownloadCount,
+		}
+
+		if p.Desc != nil {
+			v.Desc = p.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
@@ -263,10 +266,13 @@ func (s resourceService) modelToResourceDTO(
 			Id:            d.Id,
 			Name:          d.Name.ResourceName(),
 			Type:          domain.ResourceTypeModel.ResourceType(),
-			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),
 			LikeCount:     d.LikeCount,
 			DownloadCount: d.DownloadCount,
+		}
+
+		if d.Desc != nil {
+			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
@@ -289,10 +295,13 @@ func (s resourceService) datasetToResourceDTO(
 			Id:            d.Id,
 			Name:          d.Name.ResourceName(),
 			Type:          domain.ResourceTypeDataset.ResourceType(),
-			Desc:          d.Desc.ResourceDesc(),
 			UpdateAt:      utils.ToDate(d.UpdatedAt),
 			LikeCount:     d.LikeCount,
 			DownloadCount: d.DownloadCount,
+		}
+
+		if d.Desc != nil {
+			v.Desc = d.Desc.ResourceDesc()
 		}
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {

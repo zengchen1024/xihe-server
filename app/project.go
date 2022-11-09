@@ -24,7 +24,6 @@ type ProjectCreateCmd struct {
 func (cmd *ProjectCreateCmd) Validate() error {
 	b := cmd.Owner != nil &&
 		cmd.Name != nil &&
-		cmd.Desc != nil &&
 		cmd.Type != nil &&
 		cmd.CoverId != nil &&
 		cmd.RepoType != nil &&
@@ -38,10 +37,10 @@ func (cmd *ProjectCreateCmd) Validate() error {
 	return nil
 }
 
-func (cmd *ProjectCreateCmd) toProject() domain.Project {
+func (cmd *ProjectCreateCmd) toProject(r *domain.Project) {
 	now := utils.Now()
 
-	return domain.Project{
+	*r = domain.Project{
 		Owner:     cmd.Owner,
 		Type:      cmd.Type,
 		Protocol:  cmd.Protocol,
@@ -175,10 +174,11 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	}
 
 	// step2: save
-	v := cmd.toProject()
+	v := new(domain.Project)
+	cmd.toProject(v)
 	v.RepoId = pid
 
-	p, err := s.repo.Save(&v)
+	p, err := s.repo.Save(v)
 	if err != nil {
 		return
 	}
@@ -281,7 +281,6 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
 		Name:          p.Name.ResourceName(),
-		Desc:          p.Desc.ResourceDesc(),
 		Type:          p.Type.ProjType(),
 		CoverId:       p.CoverId.CoverId(),
 		Protocol:      p.Protocol.ProtocolName(),
@@ -295,6 +294,11 @@ func (s projectService) toProjectDTO(p *domain.Project, dto *ProjectDTO) {
 		ForkCount:     p.ForkCount,
 		DownloadCount: p.DownloadCount,
 	}
+
+	if p.Desc != nil {
+		dto.Desc = p.Desc.ResourceDesc()
+	}
+
 }
 
 func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *ProjectSummaryDTO) {
@@ -302,7 +306,6 @@ func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *Proje
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
 		Name:          p.Name.ResourceName(),
-		Desc:          p.Desc.ResourceDesc(),
 		CoverId:       p.CoverId.CoverId(),
 		Tags:          p.Tags,
 		UpdatedAt:     utils.ToDate(p.UpdatedAt),
@@ -310,4 +313,9 @@ func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *Proje
 		ForkCount:     p.ForkCount,
 		DownloadCount: p.DownloadCount,
 	}
+
+	if p.Desc != nil {
+		dto.Desc = p.Desc.ResourceDesc()
+	}
+
 }

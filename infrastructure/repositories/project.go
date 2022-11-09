@@ -136,12 +136,11 @@ func (impl project) GetSummaryByName(owner domain.Account, name domain.ResourceN
 }
 
 func (impl project) toProjectDO(p *domain.Project) ProjectDO {
-	return ProjectDO{
+	do := ProjectDO{
 		Id:        p.Id,
 		Owner:     p.Owner.Account(),
 		Name:      p.Name.ResourceName(),
 		FL:        p.Name.FirstLetterOfName(),
-		Desc:      p.Desc.ResourceDesc(),
 		Type:      p.Type.ProjType(),
 		CoverId:   p.CoverId.CoverId(),
 		RepoType:  p.RepoType.RepoType(),
@@ -154,6 +153,12 @@ func (impl project) toProjectDO(p *domain.Project) ProjectDO {
 		UpdatedAt: p.UpdatedAt,
 		Version:   p.Version,
 	}
+
+	if p.Desc != nil {
+		do.Desc = p.Desc.ResourceDesc()
+	}
+
+	return do
 }
 
 type ProjectDO struct {

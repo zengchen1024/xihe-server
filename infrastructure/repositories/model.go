@@ -165,12 +165,11 @@ func (impl model) GetSummaryByName(owner domain.Account, name domain.ResourceNam
 }
 
 func (impl model) toModelDO(m *domain.Model) ModelDO {
-	return ModelDO{
+	do := ModelDO{
 		Id:        m.Id,
 		Owner:     m.Owner.Account(),
 		Name:      m.Name.ResourceName(),
 		FL:        m.Name.FirstLetterOfName(),
-		Desc:      m.Desc.ResourceDesc(),
 		RepoType:  m.RepoType.RepoType(),
 		Protocol:  m.Protocol.ProtocolName(),
 		Tags:      m.Tags,
@@ -180,6 +179,12 @@ func (impl model) toModelDO(m *domain.Model) ModelDO {
 		UpdatedAt: m.UpdatedAt,
 		Version:   m.Version,
 	}
+
+	if m.Desc != nil {
+		do.Desc = m.Desc.ResourceDesc()
+	}
+
+	return do
 }
 
 type ModelDO struct {
