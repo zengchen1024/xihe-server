@@ -91,6 +91,18 @@ type ResourceDesc interface {
 	ResourceDesc() string
 }
 
+func IsSameResourceDesc(a, b ResourceDesc) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a != nil && b != nil {
+		return a.ResourceDesc() == b.ResourceDesc()
+	}
+
+	return false
+}
+
 func NewResourceDesc(v string) (ResourceDesc, error) {
 	if v == "" {
 		return nil, nil
@@ -98,7 +110,7 @@ func NewResourceDesc(v string) (ResourceDesc, error) {
 
 	if max := config.MaxDescLength; len(v) > max {
 		return nil, fmt.Errorf(
-			"the length of desc should be between 1 to %d", max,
+			"the length of desc should be less than %d", max,
 		)
 	}
 

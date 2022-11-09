@@ -243,7 +243,6 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		Id:            d.Id,
 		Owner:         d.Owner.Account(),
 		Name:          d.Name.ResourceName(),
-		Desc:          d.Desc.ResourceDesc(),
 		Protocol:      d.Protocol.ProtocolName(),
 		RepoType:      d.RepoType.RepoType(),
 		RepoId:        d.RepoId,
@@ -253,17 +252,25 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 		LikeCount:     d.LikeCount,
 		DownloadCount: d.DownloadCount,
 	}
+
+	if d.Desc != nil {
+		dto.Desc = d.Desc.ResourceDesc()
+	}
 }
 
-func (s datasetService) toDatasetSummaryDTO(p *domain.DatasetSummary, dto *DatasetSummaryDTO) {
+func (s datasetService) toDatasetSummaryDTO(d *domain.DatasetSummary, dto *DatasetSummaryDTO) {
 	*dto = DatasetSummaryDTO{
-		Id:            p.Id,
-		Owner:         p.Owner.Account(),
-		Name:          p.Name.ResourceName(),
-		Desc:          p.Desc.ResourceDesc(),
-		Tags:          p.Tags,
-		UpdatedAt:     utils.ToDate(p.UpdatedAt),
-		LikeCount:     p.LikeCount,
-		DownloadCount: p.DownloadCount,
+		Id:            d.Id,
+		Owner:         d.Owner.Account(),
+		Name:          d.Name.ResourceName(),
+		Tags:          d.Tags,
+		UpdatedAt:     utils.ToDate(d.UpdatedAt),
+		LikeCount:     d.LikeCount,
+		DownloadCount: d.DownloadCount,
 	}
+
+	if d.Desc != nil {
+		dto.Desc = d.Desc.ResourceDesc()
+	}
+
 }

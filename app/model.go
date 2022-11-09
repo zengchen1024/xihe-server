@@ -247,7 +247,6 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 		Id:            m.Id,
 		Owner:         m.Owner.Account(),
 		Name:          m.Name.ResourceName(),
-		Desc:          m.Desc.ResourceDesc(),
 		Protocol:      m.Protocol.ProtocolName(),
 		RepoType:      m.RepoType.RepoType(),
 		RepoId:        m.RepoId,
@@ -257,17 +256,26 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 		LikeCount:     m.LikeCount,
 		DownloadCount: m.DownloadCount,
 	}
+
+	if m.Desc != nil {
+		dto.Desc = m.Desc.ResourceDesc()
+	}
+
 }
 
-func (s modelService) toModelSummaryDTO(p *domain.ModelSummary, dto *ModelSummaryDTO) {
+func (s modelService) toModelSummaryDTO(m *domain.ModelSummary, dto *ModelSummaryDTO) {
 	*dto = ModelSummaryDTO{
-		Id:            p.Id,
-		Owner:         p.Owner.Account(),
-		Name:          p.Name.ResourceName(),
-		Desc:          p.Desc.ResourceDesc(),
-		Tags:          p.Tags,
-		UpdatedAt:     utils.ToDate(p.UpdatedAt),
-		LikeCount:     p.LikeCount,
-		DownloadCount: p.DownloadCount,
+		Id:            m.Id,
+		Owner:         m.Owner.Account(),
+		Name:          m.Name.ResourceName(),
+		Tags:          m.Tags,
+		UpdatedAt:     utils.ToDate(m.UpdatedAt),
+		LikeCount:     m.LikeCount,
+		DownloadCount: m.DownloadCount,
 	}
+
+	if m.Desc != nil {
+		dto.Desc = m.Desc.ResourceDesc()
+	}
+
 }

@@ -80,11 +80,14 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 
 		FL:       p.Name.FirstLetterOfName(),
 		Name:     p.Name.ResourceName(),
-		Desc:     p.Desc.ResourceDesc(),
 		CoverId:  p.CoverId.CoverId(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
 		TagKinds: p.TagKinds,
+	}
+
+	if p.Desc != nil {
+		do.Desc = p.Desc.ResourceDesc()
 	}
 
 	if err := impl.mapper.UpdateProperty(&do); err != nil {
