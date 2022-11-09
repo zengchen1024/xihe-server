@@ -28,7 +28,7 @@ func (d *Dataset) IsPrivate() bool {
 }
 
 type DatasetModifiableProperty struct {
-	Name     DatasetName
+	Name     ResourceName
 	Desc     ResourceDesc
 	RepoType RepoType
 	Tags     []string
@@ -38,7 +38,7 @@ type DatasetModifiableProperty struct {
 type DatasetSummary struct {
 	Id            string
 	Owner         Account
-	Name          DatasetName
+	Name          ResourceName
 	Desc          ResourceDesc
 	Tags          []string
 	UpdatedAt     int64

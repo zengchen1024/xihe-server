@@ -11,7 +11,7 @@ import (
 )
 
 type ProjectUpdateCmd struct {
-	Name     domain.ProjName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	CoverId  domain.CoverId
@@ -26,7 +26,7 @@ func (cmd *ProjectUpdateCmd) toProject(
 		}
 	}
 
-	if cmd.Name != nil && p.Name.ProjName() != cmd.Name.ProjName() {
+	if cmd.Name != nil && p.Name.ResourceName() != cmd.Name.ResourceName() {
 		p.Name = cmd.Name
 		repo.Name = cmd.Name
 		f()

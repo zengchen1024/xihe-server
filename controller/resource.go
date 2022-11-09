@@ -16,25 +16,25 @@ type relatedResourceAddRequest struct {
 }
 
 func (req *relatedResourceAddRequest) toModelCmd() (
-	owner domain.Account, name domain.ModelName, err error,
+	owner domain.Account, name domain.ResourceName, err error,
 ) {
 	if owner, err = domain.NewAccount(req.Owner); err != nil {
 		return
 	}
 
-	name, err = domain.NewModelName(req.Name)
+	name, err = domain.NewResourceName(req.Name)
 
 	return
 }
 
 func (req *relatedResourceAddRequest) toDatasetCmd() (
-	owner domain.Account, name domain.DatasetName, err error,
+	owner domain.Account, name domain.ResourceName, err error,
 ) {
 	if owner, err = domain.NewAccount(req.Owner); err != nil {
 		return
 	}
 
-	name, err = domain.NewDatasetName(req.Name)
+	name, err = domain.NewResourceName(req.Name)
 
 	return
 }

@@ -30,7 +30,7 @@ type TrainingConfigDO struct {
 }
 
 func (do *TrainingConfigDO) toTrainingConfig() (t domain.TrainingConfig, err error) {
-	if t.ProjectName, err = domain.NewProjName(do.ProjectName); err != nil {
+	if t.ProjectName, err = domain.NewResourceName(do.ProjectName); err != nil {
 		return
 	}
 
@@ -176,7 +176,7 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 
 		TrainingConfigDO: TrainingConfigDO{
 			Name:          t.Name.TrainingName(),
-			ProjectName:   t.ProjectName.ProjName(),
+			ProjectName:   t.ProjectName.ResourceName(),
 			ProjectRepoId: t.ProjectRepoId,
 
 			CodeDir:  t.CodeDir.Directory(),

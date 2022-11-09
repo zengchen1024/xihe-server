@@ -115,7 +115,7 @@ type ResourceSummaryDO struct {
 }
 
 func (do *ResourceSummaryDO) toProject() (s domain.ResourceSummary, err error) {
-	if s.Name, err = domain.NewProjName(do.Name); err != nil {
+	if s.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 
@@ -125,7 +125,7 @@ func (do *ResourceSummaryDO) toProject() (s domain.ResourceSummary, err error) {
 }
 
 func (do *ResourceSummaryDO) toModel() (s domain.ResourceSummary, err error) {
-	if s.Name, err = domain.NewModelName(do.Name); err != nil {
+	if s.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 
@@ -135,7 +135,7 @@ func (do *ResourceSummaryDO) toModel() (s domain.ResourceSummary, err error) {
 }
 
 func (do *ResourceSummaryDO) toDataset() (s domain.ResourceSummary, err error) {
-	if s.Name, err = domain.NewDatasetName(do.Name); err != nil {
+	if s.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

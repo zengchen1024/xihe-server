@@ -11,7 +11,7 @@ import (
 
 type DatasetCreateCmd struct {
 	Owner    domain.Account
-	Name     domain.DatasetName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
@@ -90,7 +90,7 @@ type DatasetDetailDTO struct {
 type DatasetService interface {
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
-	GetByName(domain.Account, domain.DatasetName, bool) (DatasetDetailDTO, error)
+	GetByName(domain.Account, domain.ResourceName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalDatasetsDTO, error)
 
@@ -163,7 +163,7 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 }
 
 func (s datasetService) GetByName(
-	owner domain.Account, name domain.DatasetName,
+	owner domain.Account, name domain.ResourceName,
 	allowPrivacy bool,
 ) (dto DatasetDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
@@ -237,7 +237,7 @@ func (s datasetService) toDatasetDTO(d *domain.Dataset, dto *DatasetDTO) {
 	*dto = DatasetDTO{
 		Id:            d.Id,
 		Owner:         d.Owner.Account(),
-		Name:          d.Name.DatasetName(),
+		Name:          d.Name.ResourceName(),
 		Desc:          d.Desc.ResourceDesc(),
 		Protocol:      d.Protocol.ProtocolName(),
 		RepoType:      d.RepoType.RepoType(),
@@ -254,7 +254,7 @@ func (s datasetService) toDatasetSummaryDTO(p *domain.DatasetSummary, dto *Datas
 	*dto = DatasetSummaryDTO{
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
-		Name:          p.Name.DatasetName(),
+		Name:          p.Name.ResourceName(),
 		Desc:          p.Desc.ResourceDesc(),
 		Tags:          p.Tags,
 		UpdatedAt:     utils.ToDate(p.UpdatedAt),

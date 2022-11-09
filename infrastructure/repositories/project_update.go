@@ -79,7 +79,7 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
 		FL:       p.Name.FirstLetterOfName(),
-		Name:     p.Name.ProjName(),
+		Name:     p.Name.ResourceName(),
 		Desc:     p.Desc.ResourceDesc(),
 		CoverId:  p.CoverId.CoverId(),
 		RepoType: p.RepoType.RepoType(),
@@ -226,7 +226,7 @@ func (do *ProjectSummaryDO) toProjectSummary(r *domain.ProjectSummary) (err erro
 		return
 	}
 
-	if r.Name, err = domain.NewProjName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

@@ -11,7 +11,7 @@ import (
 )
 
 type ModelUpdateCmd struct {
-	Name     domain.ModelName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 }
@@ -25,7 +25,7 @@ func (cmd *ModelUpdateCmd) toModel(
 		}
 	}
 
-	if cmd.Name != nil && p.Name.ModelName() != cmd.Name.ModelName() {
+	if cmd.Name != nil && p.Name.ResourceName() != cmd.Name.ResourceName() {
 		p.Name = cmd.Name
 		repo.Name = cmd.Name
 		f()

@@ -68,7 +68,7 @@ type ResourceSearchResult struct {
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
 	Get(domain.Account, string) (domain.Project, error)
-	GetByName(domain.Account, domain.ProjName) (domain.Project, error)
+	GetByName(domain.Account, domain.ResourceName) (domain.Project, error)
 	GetSummary(domain.Account, string) (domain.ResourceSummary, error)
 	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)
 

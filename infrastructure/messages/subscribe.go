@@ -305,7 +305,7 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 				InferenceIndex: v,
 			}
 
-			info.ProjectName, err = domain.NewProjName(body.ProjectName)
+			info.ProjectName, err = domain.NewResourceName(body.ProjectName)
 			if err != nil {
 				return
 			}

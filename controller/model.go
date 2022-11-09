@@ -210,7 +210,7 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
-	name, err := domain.NewModelName(ctx.Param("name"))
+	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,

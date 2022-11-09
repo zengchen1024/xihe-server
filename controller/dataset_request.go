@@ -18,7 +18,7 @@ func (req *datasetCreateRequest) toCmd() (cmd app.DatasetCreateCmd, err error) {
 		return
 	}
 
-	if cmd.Name, err = domain.GenDatasetName(req.Name); err != nil {
+	if cmd.Name, err = domain.NewResourceName(req.Name); err != nil {
 		return
 	}
 
@@ -47,7 +47,7 @@ type datasetUpdateRequest struct {
 
 func (p *datasetUpdateRequest) toCmd() (cmd app.DatasetUpdateCmd, err error) {
 	if p.Name != nil {
-		if cmd.Name, err = domain.NewDatasetName(*p.Name); err != nil {
+		if cmd.Name, err = domain.NewResourceName(*p.Name); err != nil {
 			return
 		}
 	}

@@ -10,7 +10,7 @@ type Inference struct {
 type InferenceInfo struct {
 	InferenceIndex
 
-	ProjectName ProjName
+	ProjectName ResourceName
 }
 
 type InferenceDetail struct {

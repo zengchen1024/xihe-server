@@ -12,7 +12,7 @@ import (
 
 type ModelCreateCmd struct {
 	Owner    domain.Account
-	Name     domain.ModelName
+	Name     domain.ResourceName
 	Desc     domain.ResourceDesc
 	RepoType domain.RepoType
 	Protocol domain.ProtocolName
@@ -91,7 +91,7 @@ type ModelDetailDTO struct {
 type ModelService interface {
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
-	GetByName(domain.Account, domain.ModelName, bool) (ModelDetailDTO, error)
+	GetByName(domain.Account, domain.ResourceName, bool) (ModelDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalModelsDTO, error)
 
@@ -167,7 +167,7 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 }
 
 func (s modelService) GetByName(
-	owner domain.Account, name domain.ModelName,
+	owner domain.Account, name domain.ResourceName,
 	allowPrivacy bool,
 ) (dto ModelDetailDTO, err error) {
 	v, err := s.repo.GetByName(owner, name)
@@ -241,7 +241,7 @@ func (s modelService) toModelDTO(m *domain.Model, dto *ModelDTO) {
 	*dto = ModelDTO{
 		Id:            m.Id,
 		Owner:         m.Owner.Account(),
-		Name:          m.Name.ModelName(),
+		Name:          m.Name.ResourceName(),
 		Desc:          m.Desc.ResourceDesc(),
 		Protocol:      m.Protocol.ProtocolName(),
 		RepoType:      m.RepoType.RepoType(),
@@ -258,7 +258,7 @@ func (s modelService) toModelSummaryDTO(p *domain.ModelSummary, dto *ModelSummar
 	*dto = ModelSummaryDTO{
 		Id:            p.Id,
 		Owner:         p.Owner.Account(),
-		Name:          p.Name.ModelName(),
+		Name:          p.Name.ResourceName(),
 		Desc:          p.Desc.ResourceDesc(),
 		Tags:          p.Tags,
 		UpdatedAt:     utils.ToDate(p.UpdatedAt),

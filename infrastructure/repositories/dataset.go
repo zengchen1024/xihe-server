@@ -77,10 +77,10 @@ func (impl dataset) Get(owner domain.Account, identity string) (r domain.Dataset
 	return
 }
 
-func (impl dataset) GetByName(owner domain.Account, name domain.DatasetName) (
+func (impl dataset) GetByName(owner domain.Account, name domain.ResourceName) (
 	r domain.Dataset, err error,
 ) {
-	v, err := impl.mapper.GetByName(owner.Account(), name.DatasetName())
+	v, err := impl.mapper.GetByName(owner.Account(), name.ResourceName())
 	if err != nil {
 		err = convertError(err)
 	} else {
@@ -113,7 +113,7 @@ func (impl dataset) FindUserDatasets(opts []repository.UserResourceListOption) (
 	return r, nil
 }
 
-func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
+func (impl dataset) ListSummary(opts []repository.ResourceSummaryListOption) (
 	[]domain.ResourceSummary, error,
 ) {
 	m := map[string][]string{}
@@ -121,7 +121,7 @@ func (impl dataset) ListSummary(opts []repository.DatasetSummaryListOption) (
 
 	for i := range opts {
 		owner := opts[i].Owner.Account()
-		name := opts[i].Name.DatasetName()
+		name := opts[i].Name.ResourceName()
 
 		all.Insert(owner + name)
 
@@ -168,7 +168,7 @@ func (impl dataset) toDatasetDO(d *domain.Dataset) DatasetDO {
 	return DatasetDO{
 		Id:        d.Id,
 		Owner:     d.Owner.Account(),
-		Name:      d.Name.DatasetName(),
+		Name:      d.Name.ResourceName(),
 		FL:        d.Name.FirstLetterOfName(),
 		Desc:      d.Desc.ResourceDesc(),
 		RepoType:  d.RepoType.RepoType(),
@@ -210,7 +210,7 @@ func (do *DatasetDO) toDataset(r *domain.Dataset) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewDatasetName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

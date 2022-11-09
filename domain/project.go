@@ -35,7 +35,7 @@ func (p *Project) IsPrivate() bool {
 }
 
 type ProjectModifiableProperty struct {
-	Name     ProjName
+	Name     ResourceName
 	Desc     ResourceDesc
 	CoverId  CoverId
 	RepoType RepoType
@@ -46,7 +46,7 @@ type ProjectModifiableProperty struct {
 type ProjectSummary struct {
 	Id            string
 	Owner         Account
-	Name          ProjName
+	Name          ResourceName
 	Desc          ResourceDesc
 	CoverId       CoverId
 	Tags          []string

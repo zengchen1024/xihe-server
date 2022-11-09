@@ -70,7 +70,7 @@ func (impl model) UpdateProperty(info *repository.ModelPropertyUpdateInfo) error
 		ResourceToUpdateDO: toResourceToUpdateDO(&info.ResourceToUpdate),
 
 		FL:       p.Name.FirstLetterOfName(),
-		Name:     p.Name.ModelName(),
+		Name:     p.Name.ResourceName(),
 		Desc:     p.Desc.ResourceDesc(),
 		RepoType: p.RepoType.RepoType(),
 		Tags:     p.Tags,
@@ -182,7 +182,7 @@ func (do *ModelSummaryDO) toModelSummary(r *domain.ModelSummary) (err error) {
 		return
 	}
 
-	if r.Name, err = domain.NewModelName(do.Name); err != nil {
+	if r.Name, err = domain.NewResourceName(do.Name); err != nil {
 		return
 	}
 

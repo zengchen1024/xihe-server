@@ -27,12 +27,12 @@ func AddRouterForRepoFileController(
 		dataset: dataset,
 	}
 
-	rg.POST("/v1/repo/:name/file/:path", ctl.Create)
-	rg.PUT("/v1/repo/:name/file/:path", ctl.Update)
-	rg.DELETE("/v1/repo/:name/file/:path", ctl.Delete)
-	rg.GET("/v1/repo/:user/:name/files", ctl.List)
-	rg.GET("/v1/repo/:user/:name/file/:path", ctl.Download)
-	rg.GET("/v1/repo/:user/:name/file/:path/preview", ctl.Preview)
+	rg.GET("/v1/repo/:type/:user/:name/files", ctl.List)
+	rg.GET("/v1/repo/:type/:user/:name/file/:path", ctl.Download)
+	rg.GET("/v1/repo/:type/:user/:name/file/:path/preview", ctl.Preview)
+	rg.PUT("/v1/repo/:type/:name/file/:path", ctl.Update)
+	rg.POST("/v1/repo/:type/:name/file/:path", ctl.Create)
+	rg.DELETE("/v1/repo/:type/:name/file/:path", ctl.Delete)
 }
 
 type RepoFileController struct {
@@ -55,7 +55,7 @@ type RepoFileController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/file/{path} [post]
+// @Router /v1/repo/:type/{name}/file/{path} [post]
 func (ctl *RepoFileController) Create(ctx *gin.Context) {
 	req := RepoFileCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -104,7 +104,7 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/file/{path} [put]
+// @Router /v1/repo/:type/{name}/file/{path} [put]
 func (ctl *RepoFileController) Update(ctx *gin.Context) {
 	req := RepoFileUpdateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -151,7 +151,7 @@ func (ctl *RepoFileController) Update(ctx *gin.Context) {
 // @Success 204
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{name}/file/{path} [delete]
+// @Router /v1/repo/:type/{name}/file/{path} [delete]
 func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -188,7 +188,7 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 // @Success 200 {object} app.RepoFileDownloadDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{user}/{name}/file/{path} [get]
+// @Router /v1/repo/:type/{user}/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
@@ -228,7 +228,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Success 200
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{user}/{name}/file/{path}/preview [get]
+// @Router /v1/repo/:type/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
@@ -268,7 +268,7 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 // @Success 200 {object} app.RepoPathItem
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/{user}{name}/files [get]
+// @Router /v1/repo/:type/{user}/{name}/files [get]
 func (ctl *RepoFileController) List(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
@@ -361,12 +361,17 @@ func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Acc
 func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account) (
 	s domain.ResourceSummary, err error,
 ) {
+	rt, err := domain.NewResourceType(ctx.Param("type"))
+	if err != nil {
+		return
+	}
+
 	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		return
 	}
 
-	switch name.ResourceType().ResourceType() {
+	switch rt.ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
 		s, err = ctl.model.GetSummaryByName(user, name)
 

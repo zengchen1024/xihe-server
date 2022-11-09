@@ -90,7 +90,7 @@ func (s sender) CreateTraining(info *domain.TrainingIndex) error {
 func (s sender) CreateInference(info *domain.InferenceInfo) error {
 	v := s.toInferenceMsg(&info.InferenceIndex)
 	v.Action = actionCreate
-	v.ProjectName = info.ProjectName.ProjName()
+	v.ProjectName = info.ProjectName.ResourceName()
 
 	return s.send(topics.Inference, &v)
 
