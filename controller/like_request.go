@@ -43,32 +43,11 @@ func (req *likeCreateRequest) toCmd(
 		return
 	}
 
-	var name domain.ResourceName
+	name, err := domain.NewResourceName(req.Name)
+	if err != nil {
+		bad()
 
-	switch cmd.ResourceType.ResourceType() {
-	case domain.ResourceTypeProject.ResourceType():
-		name, err = domain.NewResourceName(req.Name)
-		if err != nil {
-			bad()
-
-			return
-		}
-
-	case domain.ResourceTypeDataset.ResourceType():
-		name, err = domain.NewResourceName(req.Name)
-		if err != nil {
-			bad()
-
-			return
-		}
-
-	case domain.ResourceTypeModel.ResourceType():
-		name, err = domain.NewResourceName(req.Name)
-		if err != nil {
-			bad()
-
-			return
-		}
+		return
 	}
 
 	rid, err := getResourceId(cmd.ResourceOwner, cmd.ResourceType, name)
