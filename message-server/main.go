@@ -77,7 +77,7 @@ func main() {
 
 	// mongo
 	m := &cfg.Mongodb
-	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
+	if err := mongodb.Initialize(m.DBConn, m.DBName); err != nil {
 		logrus.Fatalf("initialize mongodb failed, err:%s", err.Error())
 	}
 
@@ -91,8 +91,10 @@ func main() {
 }
 
 func newHandler(cfg *configuration, log *logrus.Entry) *handler {
+	collections := &cfg.Mongodb.Collections
+
 	userRepo := repositories.NewUserRepository(
-		mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+		mongodb.NewUserMapper(collections.User),
 	)
 
 	return &handler{
@@ -105,7 +107,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		project: app.NewProjectService(
 			nil,
 			repositories.NewProjectRepository(
-				mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
+				mongodb.NewProjectMapper(collections.Project),
 			),
 			nil, nil, nil, nil, nil,
 		),
@@ -113,7 +115,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		dataset: app.NewDatasetService(
 			nil,
 			repositories.NewDatasetRepository(
-				mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
+				mongodb.NewDatasetMapper(collections.Dataset),
 			),
 			nil, nil, nil, nil,
 		),
@@ -121,7 +123,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		model: app.NewModelService(
 			nil,
 			repositories.NewModelRepository(
-				mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
+				mongodb.NewModelMapper(collections.Model),
 			),
 			nil, nil, nil, nil, nil,
 		),
@@ -130,14 +132,14 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			log,
 			trainingimpl.NewTraining(&trainingimpl.Config{}),
 			repositories.NewTrainingRepository(
-				mongodb.NewTrainingMapper(cfg.Mongodb.TrainingCollection),
+				mongodb.NewTrainingMapper(collections.Training),
 			),
 			nil, 0,
 		),
 
 		inference: app.NewInferenceMessageService(
 			repositories.NewInferenceRepository(
-				mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
+				mongodb.NewInferenceMapper(collections.Inference),
 			),
 			userRepo,
 			inferenceimpl.NewInference(&cfg.Inference.Config),
@@ -146,7 +148,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 
 		evaluate: app.NewEvaluateMessageService(
 			repositories.NewEvaluateRepository(
-				mongodb.NewEvaluateMapper(cfg.Mongodb.EvaluateCollection),
+				mongodb.NewEvaluateMapper(collections.Evaluate),
 			),
 			evaluateimpl.NewEvaluate(&cfg.Evaluate.Config),
 			cfg.Evaluate.SurvivalTime,

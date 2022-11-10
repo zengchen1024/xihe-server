@@ -74,18 +74,20 @@ func main() {
 
 	// mongo
 	m := &cfg.Mongodb
-	if err := mongodb.Initialize(m.MongodbConn, m.DBName); err != nil {
+	if err := mongodb.Initialize(m.DBConn, m.DBName); err != nil {
 		log.Fatalf("initialize mongodb failed, err:%s", err.Error())
 	}
 
 	defer mongodb.Close()
+
+	collections := &cfg.Mongodb.Collections
 
 	// training
 	train := app.NewTrainingService(
 		log,
 		nil,
 		repositories.NewTrainingRepository(
-			mongodb.NewTrainingMapper(cfg.Mongodb.TrainingCollection),
+			mongodb.NewTrainingMapper(collections.Training),
 		),
 		nil, 0,
 	)
@@ -93,14 +95,14 @@ func main() {
 	// inference
 	inferenceService := app.NewInferenceInternalService(
 		repositories.NewInferenceRepository(
-			mongodb.NewInferenceMapper(cfg.Mongodb.InferenceCollection),
+			mongodb.NewInferenceMapper(collections.Inference),
 		),
 	)
 
 	// inference
 	evaluateService := app.NewEvaluateInternalService(
 		repositories.NewEvaluateRepository(
-			mongodb.NewEvaluateMapper(cfg.Mongodb.EvaluateCollection),
+			mongodb.NewEvaluateMapper(collections.Evaluate),
 		),
 	)
 
