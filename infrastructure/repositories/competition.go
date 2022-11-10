@@ -6,7 +6,7 @@ import (
 )
 
 type CompetitionMapper interface {
-	List(status string) ([]CompetitionSummaryDO, error)
+	List(status, phase string) ([]CompetitionSummaryDO, error)
 	Get(cid, user string) (CompetitionDO, bool, error)
 }
 
@@ -18,7 +18,7 @@ type competition struct {
 	mapper CompetitionMapper
 }
 
-func (impl competition) List(status domain.CompetitionStatus) (
+func (impl competition) List(status domain.CompetitionStatus, phase domain.CompetitionPhase) (
 	[]repository.CompetitionSummary, error,
 ) {
 	s := ""
@@ -26,7 +26,7 @@ func (impl competition) List(status domain.CompetitionStatus) (
 		s = status.CompetitionStatus()
 	}
 
-	v, err := impl.mapper.List(s)
+	v, err := impl.mapper.List(s, phase.CompetitionPhase())
 	if err != nil {
 		return nil, convertError(err)
 	}

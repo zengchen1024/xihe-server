@@ -20,6 +20,11 @@ const (
 	competitionIdentityDeveloper = "developer"
 )
 
+var (
+	CompetitionPhaseFinal       = competitionPhase("final")
+	CompetitionPhasePreliminary = competitionPhase("preliminary")
+)
+
 // CompetitionPhase
 type CompetitionPhase interface {
 	CompetitionPhase() string

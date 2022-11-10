@@ -8,6 +8,10 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
+func NewCompetitionMapper(name string) repositories.CompetitionMapper {
+	return competition{name}
+}
+
 type competition struct {
 	collectionName string
 }

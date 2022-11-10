@@ -15,7 +15,7 @@ type CompetitionInfo struct {
 }
 
 type Competition interface {
-	List(domain.CompetitionStatus) ([]CompetitionSummary, error)
+	List(domain.CompetitionStatus, domain.CompetitionPhase) ([]CompetitionSummary, error)
 	Get(string, domain.Account) (CompetitionInfo, bool, error)
 
 	// list all the record on different phase

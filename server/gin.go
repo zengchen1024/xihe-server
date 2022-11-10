@@ -54,57 +54,63 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		})
 	}
 
+	collections := &cfg.Mongodb.Collections
+
 	proj := repositories.NewProjectRepository(
-		mongodb.NewProjectMapper(cfg.Mongodb.ProjectCollection),
+		mongodb.NewProjectMapper(collections.Project),
 	)
 
 	model := repositories.NewModelRepository(
-		mongodb.NewModelMapper(cfg.Mongodb.ModelCollection),
+		mongodb.NewModelMapper(collections.Model),
 	)
 
 	dataset := repositories.NewDatasetRepository(
-		mongodb.NewDatasetMapper(cfg.Mongodb.DatasetCollection),
+		mongodb.NewDatasetMapper(collections.Dataset),
 	)
 
 	user := repositories.NewUserRepository(
-		mongodb.NewUserMapper(cfg.Mongodb.UserCollection),
+		mongodb.NewUserMapper(collections.User),
 	)
 
 	login := repositories.NewLoginRepository(
-		mongodb.NewLoginMapper(cfg.Mongodb.LoginCollection),
+		mongodb.NewLoginMapper(collections.Login),
 	)
 
 	like := repositories.NewLikeRepository(
-		mongodb.NewLikeMapper(cfg.Mongodb.LikeCollection),
+		mongodb.NewLikeMapper(collections.Like),
 	)
 
 	activity := repositories.NewActivityRepository(
 		mongodb.NewActivityMapper(
-			cfg.Mongodb.ActivityCollection,
+			collections.Activity,
 			cfg.ActivityKeepNum,
 		),
 	)
 
 	training := repositories.NewTrainingRepository(
 		mongodb.NewTrainingMapper(
-			cfg.Mongodb.TrainingCollection,
+			collections.Training,
 		),
 	)
 
 	inference := repositories.NewInferenceRepository(
 		mongodb.NewInferenceMapper(
-			cfg.Mongodb.InferenceCollection,
+			collections.Inference,
 		),
 	)
 
 	evaluate := repositories.NewEvaluateRepository(
 		mongodb.NewEvaluateMapper(
-			cfg.Mongodb.EvaluateCollection,
+			collections.Evaluate,
 		),
 	)
 
 	tags := repositories.NewTagsRepository(
-		mongodb.NewTagsMapper(cfg.Mongodb.TagCollection),
+		mongodb.NewTagsMapper(collections.Tag),
+	)
+
+	competition := repositories.NewCompetitionRepository(
+		mongodb.NewCompetitionMapper(collections.Competition),
 	)
 
 	bigmodel := bigmodels.NewBigModelService()
@@ -170,10 +176,14 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		controller.AddRouterForEvaluateController(
 			v1, evaluate, training, sender,
 		)
+
 		controller.AddRouterForSearchController(
 			v1, user, proj, model, dataset,
 		)
 
+		controller.AddRouterForCompetitionController(
+			v1, competition,
+		)
 	}
 
 	engine.UseRawPath = true
