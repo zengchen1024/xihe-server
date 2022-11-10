@@ -347,9 +347,9 @@ type DCompetition struct {
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
 
-	Teams       []dTeam       `bson:"teams"       json:"teams"`
-	Competitors []dCompetitor `bson:"competitors" json:"competitors"`
-	Submissions []dSubmission `bson:"submissions" json:"submissions"`
+	Teams       []dTeam       `bson:"teams"       json:"-"`
+	Competitors []dCompetitor `bson:"competitors" json:"-"`
+	Submissions []dSubmission `bson:"submissions" json:"-"`
 }
 
 type dCompetitor struct {

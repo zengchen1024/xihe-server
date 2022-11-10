@@ -94,7 +94,14 @@ func (col competition) get(
 		fields = bson.M{}
 	}
 
-	fields[fieldCount] = bson.M{"$size": "$" + fieldCompetitors}
+	key := "$" + fieldCompetitors
+	fields[fieldCount] = bson.M{
+		"$cond": bson.M{
+			"if":   bson.M{"$isArray": key},
+			"then": bson.M{"$size": key},
+			"else": 0,
+		},
+	}
 
 	f := func(ctx context.Context) error {
 		pipeline := bson.A{
