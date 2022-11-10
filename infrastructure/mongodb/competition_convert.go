@@ -5,7 +5,7 @@ import "github.com/opensourceways/xihe-server/infrastructure/repositories"
 func (col competition) toCompetitionSummaryDO(
 	doc *DCompetition, do *repositories.CompetitionSummaryDO,
 ) {
-	do.Id = doc.Id
+	do.Id = doc.Id.Hex()
 	do.Name = doc.Name
 	do.Desc = doc.Desc
 	do.Host = doc.Host

@@ -29,7 +29,10 @@ func (col competition) Get(cid, user string) (
 		CompetitorsCount int  `bson:"competitors_count"`
 	}
 
-	filter := bson.M{fieldId: cid}
+	filter, err := objectIdFilter(cid)
+	if err != nil {
+		return
+	}
 
 	fields := bson.M{}
 	if user != "" {
@@ -39,7 +42,13 @@ func (col competition) Get(cid, user string) (
 	}
 
 	err = col.get(filter, fieldCount, fields, &v)
-	if err != nil || len(v) == 0 {
+	if err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+
 		return
 	}
 

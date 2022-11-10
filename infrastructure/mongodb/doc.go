@@ -334,7 +334,8 @@ type evaluateItem struct {
 }
 
 type DCompetition struct {
-	Id         string `bson:"id"              json:"id"`
+	Id primitive.ObjectID `bson:"_id"         json:"-"`
+
 	Name       string `bson:"name"            json:"name"`
 	Desc       string `bson:"desc"            json:"desc"`
 	Host       string `bson:"host"            json:"host"`
