@@ -8,6 +8,54 @@ definitions:
       type:
         type: string
     type: object
+  app.CompetitionDTO:
+    properties:
+      bonus:
+        type: integer
+      count:
+        type: integer
+      dataset_doc:
+        type: string
+      dataset_url:
+        type: string
+      desc:
+        type: string
+      doc:
+        type: string
+      duration:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      poster:
+        type: string
+      status:
+        type: string
+    type: object
+  app.CompetitionSummaryDTO:
+    properties:
+      bonus:
+        type: integer
+      count:
+        type: integer
+      desc:
+        type: string
+      duration:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      poster:
+        type: string
+      status:
+        type: string
+    type: object
   app.ComputeDTO:
     properties:
       flavor:
@@ -1232,6 +1280,45 @@ paths:
             type: system_error
       tags:
       - BigModel
+  /v1/competition:
+    get:
+      consumes:
+      - application/json
+      description: list competitions
+      parameters:
+      - description: competition status, such as done, preparing, in-progress
+        in: query
+        name: status
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitionSummaryDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+  /v1/competition/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get detail of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitionDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
   /v1/dataset:
     get:
       consumes:

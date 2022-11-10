@@ -1,5 +1,7 @@
 package app
 
+import "github.com/opensourceways/xihe-server/domain"
+
 type CompetitionSummaryDTO struct {
 	CompetitorCount int    `json:"count"`
 	Bonus           int    `json:"bonus"`
@@ -15,9 +17,9 @@ type CompetitionSummaryDTO struct {
 type CompetitionDTO struct {
 	CompetitionSummaryDTO
 
-	Doc                 string `json:"doc"`
-	DatasetDoc          string `json:"dataset_doc"`
-	DatasetDownloadAddr string `json:"dataset_download_addr"`
+	Doc        string `json:"doc"`
+	DatasetDoc string `json:"dataset_doc"`
+	DatasetURL string `json:"dataset_url"`
 }
 
 // ranking
@@ -50,4 +52,32 @@ type CompetitionResultDetailDTO struct {
 	FileName string  `json:"project"`
 	Status   string  `json:"status"`
 	Score    float32 `json:"score"`
+}
+
+func (s competitionService) toCompetitionSummaryDTO(
+	c *domain.CompetitionSummary, dto *CompetitionSummaryDTO,
+) {
+	*dto = CompetitionSummaryDTO{
+		Bonus:    c.Bonus.CompetitionBonus(),
+		Id:       c.Id,
+		Name:     c.Name.CompetitionName(),
+		Host:     c.Host.CompetitionHost(),
+		Desc:     c.Desc.CompetitionDesc(),
+		Status:   c.Status.CompetitionStatus(),
+		Poster:   c.Poster.URL(),
+		Duration: c.Duration.CompetitionDuration(),
+	}
+}
+
+func (s competitionService) toCompetitionDTO(
+	c *domain.Competition, dto *CompetitionDTO,
+) {
+	s.toCompetitionSummaryDTO(
+		&c.CompetitionSummary,
+		&dto.CompetitionSummaryDTO,
+	)
+
+	dto.Doc = c.Doc.URL()
+	dto.DatasetDoc = c.DatasetDoc.URL()
+	dto.DatasetURL = c.DatasetURL.URL()
 }

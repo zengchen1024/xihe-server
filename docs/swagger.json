@@ -358,6 +358,67 @@
                 }
             }
         },
+        "/v1/competition": {
+            "get": {
+                "description": "list competitions",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition status, such as done, preparing, in-progress",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CompetitionSummaryDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/competition/{id}": {
+            "get": {
+                "description": "get detail of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CompetitionDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dataset": {
             "get": {
                 "description": "list global public dataset",
@@ -3084,6 +3145,79 @@
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionDTO": {
+            "type": "object",
+            "properties": {
+                "bonus": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "dataset_doc": {
+                    "type": "string"
+                },
+                "dataset_url": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "doc": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "poster": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "bonus": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "poster": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

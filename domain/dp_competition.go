@@ -45,6 +45,10 @@ type CompetitionStatus interface {
 }
 
 func NewCompetitionStatus(v string) (CompetitionStatus, error) {
+	if v == "" {
+		return nil, nil
+	}
+
 	b := v == competitionStatusPreparing ||
 		v == competitionStatusInProgress ||
 		v == competitionStatusDone
