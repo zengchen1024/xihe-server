@@ -2,9 +2,11 @@ package app
 
 import (
 	//"io"
+	"sort"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 type CompetitionService interface {
@@ -21,7 +23,7 @@ type CompetitionService interface {
 
 	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
 
-	//GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
+	GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
 }
 
 func NewCompetitionService(repo repository.Competition) CompetitionService {
@@ -37,7 +39,12 @@ type competitionService struct {
 func (s competitionService) Get(cid string, competitor domain.Account) (
 	dto CompetitionDTO, err error,
 ) {
-	v, b, err := s.repo.Get(cid, competitor)
+	index := domain.CompetitionIndex{
+		Id:    cid,
+		Phase: domain.CompetitionPhasePreliminary,
+	}
+
+	v, b, err := s.repo.Get(&index, competitor)
 	if err != nil {
 		return
 	}
@@ -75,7 +82,12 @@ func (s competitionService) List(status domain.CompetitionStatus) (
 func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 	dto CompetitionTeamDTO, err error,
 ) {
-	v, err := s.repo.GetTeam(cid, competitor)
+	index := domain.CompetitionIndex{
+		Id:    cid,
+		Phase: domain.CompetitionPhasePreliminary,
+	}
+
+	v, err := s.repo.GetTeam(&index, competitor)
 	if err != nil {
 		return
 	}
@@ -95,6 +107,68 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 
 		if item.TeamRole != nil {
 			members[i].Role = item.TeamRole.TeamRole()
+		}
+	}
+
+	return
+}
+
+func (s competitionService) GetRankingList(cid string, phase domain.CompetitionPhase) (
+	dtos []RankingDTO, err error,
+) {
+	index := domain.CompetitionIndex{
+		Id:    cid,
+		Phase: domain.CompetitionPhasePreliminary,
+	}
+
+	order, teams, results, err := s.repo.GetResult(&index)
+	if err != nil || len(results) == 0 {
+		return
+	}
+
+	rs := map[string]*domain.CompetitionResult{}
+
+	for i := range results {
+		item := &results[i]
+
+		k := item.Key()
+
+		if v, ok := rs[k]; !ok || order.IsBetterThanB(item.Score, v.Score) {
+			rs[k] = item
+		}
+	}
+
+	// sort
+	i := 0
+	rl := make([]*domain.CompetitionResult, len(rs))
+	for _, v := range rs {
+		rl[i] = v
+		i++
+	}
+
+	sort.Slice(rl, func(i, j int) bool {
+		return order.IsBetterThanB(rl[i].Score, rl[j].Score)
+	})
+
+	// result
+	tm := map[string]string{}
+	for i := range teams {
+		tm[teams[i].Id] = teams[i].Name.TeamName()
+	}
+
+	dtos = make([]RankingDTO, len(rl))
+	for i := range rl {
+		item := rl[i]
+
+		dtos[i] = RankingDTO{
+			Score:    item.Score,
+			SubmitAt: utils.ToDate(item.SubmitAt),
+		}
+
+		if item.IsTeamWork() {
+			dtos[i].TeamName = tm[item.TeamId]
+		} else {
+			dtos[i].TeamName = item.Individual.CompetitorName()
 		}
 	}
 

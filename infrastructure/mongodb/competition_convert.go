@@ -6,7 +6,7 @@ func (col competition) toCompetitionSummaryDO(
 	doc *DCompetition, do *repositories.CompetitionSummaryDO,
 ) {
 	*do = repositories.CompetitionSummaryDO{
-		Id:       doc.Id.Hex(),
+		Id:       doc.Id,
 		Name:     doc.Name,
 		Desc:     doc.Desc,
 		Host:     doc.Host,
@@ -42,5 +42,28 @@ func (col competition) toCompetitorDO(
 		TeamId:   doc.TeamId,
 		TeamName: teamName,
 		TeamRole: doc.TeamRole,
+	}
+}
+
+func (col competition) toCompetitionResultDO(
+	doc *dSubmission, do *repositories.CompetitionResultDO,
+) {
+	*do = repositories.CompetitionResultDO{
+		Id:         doc.Id,
+		Status:     doc.Status,
+		OBSPath:    doc.OBSPath,
+		SubmitAt:   doc.SubmitAt,
+		Score:      doc.Score,
+		TeamId:     doc.TeamId,
+		Individual: doc.Individual,
+	}
+}
+
+func (col competition) toCompetitionTeamDO(
+	doc *dTeam, do *repositories.CompetitionTeamDO,
+) {
+	*do = repositories.CompetitionTeamDO{
+		Id:   doc.Id,
+		Name: doc.Name,
 	}
 }

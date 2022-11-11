@@ -7,8 +7,9 @@ import (
 
 type CompetitionMapper interface {
 	List(status, phase string) ([]CompetitionSummaryDO, error)
-	Get(cid, user string) (CompetitionDO, bool, error)
-	GetTeam(cid, user string) ([]CompetitorDO, error)
+	Get(index *CompetitionIndexDO, user string) (CompetitionDO, bool, error)
+	GetTeam(index *CompetitionIndexDO, user string) ([]CompetitorDO, error)
+	GetResult(*CompetitionIndexDO) (bool, []CompetitionTeamDO, []CompetitionResultDO, error)
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -50,7 +51,7 @@ func (impl competition) List(status domain.CompetitionStatus, phase domain.Compe
 	return r, nil
 }
 
-func (impl competition) Get(cid string, user domain.Account) (
+func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account) (
 	r repository.CompetitionInfo, b bool, err error,
 ) {
 	s := ""
@@ -58,7 +59,8 @@ func (impl competition) Get(cid string, user domain.Account) (
 		s = user.Account()
 	}
 
-	v, b, err := impl.mapper.Get(cid, s)
+	do := impl.toCompetitionIndexDO(index)
+	v, b, err := impl.mapper.Get(&do, s)
 	if err != nil {
 		return
 	}
@@ -72,8 +74,12 @@ func (impl competition) Get(cid string, user domain.Account) (
 	return
 }
 
-func (impl competition) GetTeam(cid string, user domain.Account) ([]domain.Competitor, error) {
-	v, err := impl.mapper.GetTeam(cid, user.Account())
+func (impl competition) GetTeam(index *domain.CompetitionIndex, user domain.Account) (
+	[]domain.Competitor, error,
+) {
+	do := impl.toCompetitionIndexDO(index)
+
+	v, err := impl.mapper.GetTeam(&do, user.Account())
 	if err != nil {
 		return nil, err
 	}
@@ -84,4 +90,32 @@ func (impl competition) GetTeam(cid string, user domain.Account) ([]domain.Compe
 	}
 
 	return r, nil
+}
+
+func (impl competition) GetResult(index *domain.CompetitionIndex) (
+	order domain.CompetitionScoreOrder,
+	teams []domain.CompetitionTeam,
+	results []domain.CompetitionResult, err error,
+) {
+
+	do := impl.toCompetitionIndexDO(index)
+
+	b, ts, rs, err := impl.mapper.GetResult(&do)
+	if err != nil || len(rs) == 0 {
+		return
+	}
+
+	order = domain.NewCompetitionScoreOrder(b)
+
+	teams = make([]domain.CompetitionTeam, len(ts))
+	for i := range ts {
+		ts[i].toTeam(&teams[i])
+	}
+
+	results = make([]domain.CompetitionResult, len(rs))
+	for i := range rs {
+		rs[i].toCompetitionResult(&results[i])
+	}
+
+	return
 }

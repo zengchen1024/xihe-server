@@ -16,9 +16,13 @@ type CompetitionInfo struct {
 
 type Competition interface {
 	List(domain.CompetitionStatus, domain.CompetitionPhase) ([]CompetitionSummary, error)
-	Get(string, domain.Account) (CompetitionInfo, bool, error)
+	Get(*domain.CompetitionIndex, domain.Account) (CompetitionInfo, bool, error)
 
-	GetTeam(string, domain.Account) ([]domain.Competitor, error)
-	// list all the record on different phase
-	//GetCompetitor(cid string, competitor domain.Account)
+	GetTeam(*domain.CompetitionIndex, domain.Account) ([]domain.Competitor, error)
+
+	GetResult(*domain.CompetitionIndex) (
+		order domain.CompetitionScoreOrder,
+		teams []domain.CompetitionTeam,
+		results []domain.CompetitionResult, err error,
+	)
 }

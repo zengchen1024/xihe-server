@@ -16,7 +16,14 @@ type competition struct {
 	collectionName string
 }
 
-func (col competition) Get(cid, user string) (
+func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) bson.M {
+	return bson.M{
+		fieldId:    index.Id,
+		fieldPhase: index.Phase,
+	}
+}
+
+func (col competition) Get(index *repositories.CompetitionIndexDO, user string) (
 	r repositories.CompetitionDO, isCompetitor bool, err error,
 ) {
 	fieldCount := "competitors_count"
@@ -29,11 +36,6 @@ func (col competition) Get(cid, user string) (
 		CompetitorsCount int  `bson:"competitors_count"`
 	}
 
-	filter, err := objectIdFilter(cid)
-	if err != nil {
-		return
-	}
-
 	fields := bson.M{}
 	if user != "" {
 		fields[fieldIsCompetitor] = bson.M{
@@ -41,7 +43,7 @@ func (col competition) Get(cid, user string) (
 		}
 	}
 
-	err = col.get(filter, fieldCount, fields, &v)
+	err = col.get(col.indexToDocFilter(index), fieldCount, fields, &v)
 	if err != nil {
 		return
 	}
@@ -134,11 +136,10 @@ func (col competition) get(
 	return withContext(f)
 }
 
-func (col competition) GetTeam(cid, user string) ([]repositories.CompetitorDO, error) {
-	filter, err := objectIdFilter(cid)
-	if err != nil {
-		return nil, err
-	}
+func (col competition) GetTeam(index *repositories.CompetitionIndexDO, user string) (
+	[]repositories.CompetitorDO, error,
+) {
+	filter := col.indexToDocFilter(index)
 
 	member, err := col.getCompetitor(filter, user)
 	if err != nil {
@@ -166,7 +167,9 @@ func (col competition) GetTeam(cid, user string) ([]repositories.CompetitorDO, e
 	return r, nil
 }
 
-func (col competition) getCompetitor(docFilter bson.M, user string) (r dCompetitor, err error) {
+func (col competition) getCompetitor(docFilter bson.M, user string) (
+	r dCompetitor, err error,
+) {
 	var v []DCompetition
 
 	f := func(ctx context.Context) error {
@@ -196,7 +199,9 @@ func (col competition) getCompetitor(docFilter bson.M, user string) (r dCompetit
 	return
 }
 
-func (col competition) getTeam(docFilter bson.M, tid string) (r dTeam, members []dCompetitor, err error) {
+func (col competition) getTeam(docFilter bson.M, tid string) (
+	r dTeam, members []dCompetitor, err error,
+) {
 	var v []DCompetition
 
 	f := func(ctx context.Context) error {
@@ -226,6 +231,56 @@ func (col competition) getTeam(docFilter bson.M, tid string) (r dTeam, members [
 		err = errDocNotExists
 	} else {
 		r = teams[0]
+	}
+
+	return
+}
+
+func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
+	smallerOk bool,
+	teams []repositories.CompetitionTeamDO,
+	results []repositories.CompetitionResultDO, err error,
+) {
+	var v []DCompetition
+
+	f := func(ctx context.Context) error {
+		return cli.getDoc(
+			ctx, col.collectionName, col.indexToDocFilter(index),
+			bson.M{
+				fieldOrder:       1,
+				fieldTeams:       1,
+				fieldSubmissions: 1,
+			}, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = errDocNotExists
+
+		return
+	}
+
+	rs := v[0].Submissions
+	if len(rs) == 0 {
+		return
+	}
+
+	results = make([]repositories.CompetitionResultDO, len(rs))
+	for i := range rs {
+		col.toCompetitionResultDO(&rs[i], &results[i])
+	}
+
+	smallerOk = v[0].SmallerOk
+
+	if ts := v[0].Teams; len(ts) > 0 {
+		teams = make([]repositories.CompetitionTeamDO, len(ts))
+		for i := range ts {
+			col.toCompetitionTeamDO(&ts[i], &teams[i])
+		}
 	}
 
 	return
