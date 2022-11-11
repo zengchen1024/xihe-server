@@ -74,3 +74,25 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, newResponseData(data))
 	}
 }
+
+// @Title GetTeam
+// @Description get team of competition
+// @Competition  Competition
+// @Param	id	path	string	true	"competition id"
+// @Accept json
+// @Success 200 {object} app.CompetitionTeamDTO
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/team [get]
+func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	data, err := ctl.s.GetTeam(ctx.Param("id"), pl.DomainAccount())
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(data))
+	}
+}

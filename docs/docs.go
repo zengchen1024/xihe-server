@@ -431,6 +431,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/team": {
+            "get": {
+                "description": "get team of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CompetitionTeamDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dataset": {
             "get": {
                 "description": "list global public dataset",
@@ -3230,6 +3261,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionTeamDTO": {
+            "type": "object",
+            "properties": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.CompetitionTeamMemberDTO"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionTeamMemberDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 }
             }

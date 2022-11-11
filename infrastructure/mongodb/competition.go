@@ -133,3 +133,100 @@ func (col competition) get(
 
 	return withContext(f)
 }
+
+func (col competition) GetTeam(cid, user string) ([]repositories.CompetitorDO, error) {
+	filter, err := objectIdFilter(cid)
+	if err != nil {
+		return nil, err
+	}
+
+	member, err := col.getCompetitor(filter, user)
+	if err != nil {
+		return nil, err
+	}
+
+	if member.TeamId == "" {
+		do := repositories.CompetitorDO{}
+		col.toCompetitorDO(&member, "", &do)
+
+		return []repositories.CompetitorDO{do}, nil
+	}
+
+	team, members, err := col.getTeam(filter, member.TeamId)
+	if err != nil {
+		return nil, err
+	}
+
+	r := make([]repositories.CompetitorDO, len(members))
+
+	for i := range members {
+		col.toCompetitorDO(&members[i], team.Name, &r[i])
+	}
+
+	return r, nil
+}
+
+func (col competition) getCompetitor(docFilter bson.M, user string) (r dCompetitor, err error) {
+	var v []DCompetition
+
+	f := func(ctx context.Context) error {
+		return cli.getArrayElem(
+			ctx, col.collectionName, fieldCompetitors,
+			docFilter, bson.M{fieldAccount: user}, nil, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = errDocNotExists
+
+		return
+	}
+
+	items := v[0].Competitors
+	if len(items) == 0 {
+		err = errDocNotExists
+	} else {
+		r = items[0]
+	}
+
+	return
+}
+
+func (col competition) getTeam(docFilter bson.M, tid string) (r dTeam, members []dCompetitor, err error) {
+	var v []DCompetition
+
+	f := func(ctx context.Context) error {
+		return cli.getArraysElem(
+			ctx, col.collectionName, docFilter,
+			map[string]bson.M{
+				fieldTeams:       {fieldId: tid},
+				fieldCompetitors: {fieldTId: tid},
+			}, nil, &v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = errDocNotExists
+
+		return
+	}
+
+	teams := v[0].Teams
+	members = v[0].Competitors
+
+	if len(members) == 0 || len(teams) == 0 {
+		err = errDocNotExists
+	} else {
+		r = teams[0]
+	}
+
+	return
+}
