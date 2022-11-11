@@ -144,7 +144,6 @@ func (impl *trainingImpl) toInput(v []domain.Input) []sdk.Input {
 			Key: item.Key.CustomizedKey(),
 			Value: sdk.ResourceRef{
 				Owner:  item.User.Account(),
-				Type:   item.Type.ResourceType(),
 				RepoId: item.RepoId,
 				File:   item.File,
 			},

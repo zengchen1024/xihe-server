@@ -11,7 +11,7 @@ require (
 	github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95
 	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221101123717-861bb4a4b5bb
 	github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102031424-b6e01d2ebc0e
-	github.com/opensourceways/xihe-training-center v0.0.0-20221104162917-55c13d9fd0b9
+	github.com/opensourceways/xihe-training-center v0.0.0-20221110123326-8a74c4f70a27
 	github.com/sirupsen/logrus v1.9.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.3
