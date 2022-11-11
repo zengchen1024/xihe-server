@@ -17,11 +17,11 @@ type CompetitionService interface {
 		Submit(cid string, fileName string, file io.Reader) error
 
 		ListSubmitts(cid string, competitor domain.Account) (CompetitionResultDTO, error)
-
-		GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
-
-		GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
 	*/
+
+	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
+
+	//GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
 }
 
 func NewCompetitionService(repo repository.Competition) CompetitionService {
@@ -67,6 +67,35 @@ func (s competitionService) List(status domain.CompetitionStatus) (
 		s.toCompetitionSummaryDTO(&v[i].CompetitionSummary, &dtos[i])
 
 		dtos[i].CompetitorCount = v[i].CompetitorCount
+	}
+
+	return
+}
+
+func (s competitionService) GetTeam(cid string, competitor domain.Account) (
+	dto CompetitionTeamDTO, err error,
+) {
+	v, err := s.repo.GetTeam(cid, competitor)
+	if err != nil {
+		return
+	}
+
+	if name := v[0].Team.Name; name != nil {
+		dto.Name = name.TeamName()
+	}
+
+	members := make([]CompetitionTeamMemberDTO, len(v))
+	for i := range v {
+		item := &v[i]
+
+		members[i] = CompetitionTeamMemberDTO{
+			Name:  item.Name.CompetitorName(),
+			Email: item.Email.Email(),
+		}
+
+		if item.TeamRole != nil {
+			members[i].Role = item.TeamRole.TeamRole()
+		}
 	}
 
 	return

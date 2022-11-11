@@ -56,6 +56,24 @@ definitions:
       status:
         type: string
     type: object
+  app.CompetitionTeamDTO:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/app.CompetitionTeamMemberDTO'
+        type: array
+      name:
+        type: string
+    type: object
+  app.CompetitionTeamMemberDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
   app.ComputeDTO:
     properties:
       flavor:
@@ -1315,6 +1333,26 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/app.CompetitionDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+  /v1/competition/{id}/team:
+    get:
+      consumes:
+      - application/json
+      description: get team of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitionTeamDTO'
         "500":
           description: Internal Server Error
           schema:

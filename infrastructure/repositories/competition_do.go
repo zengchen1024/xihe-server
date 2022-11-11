@@ -78,3 +78,66 @@ func (do *CompetitionDO) toCompetition(
 
 	return
 }
+
+type CompetitorDO struct {
+	Account  string
+	Name     string
+	City     string
+	Email    string
+	Phone    string
+	Identity string
+	Province string
+	Detail   map[string]string
+
+	TeamId   string
+	TeamRole string
+	TeamName string
+}
+
+func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
+	if c.Account, err = domain.NewAccount(do.Account); err != nil {
+		return
+	}
+
+	if c.Name, err = domain.NewCompetitorName(do.Name); err != nil {
+		return
+	}
+
+	if c.City, err = domain.NewCity(do.City); err != nil {
+		return
+	}
+
+	if c.Email, err = domain.NewEmail(do.Email); err != nil {
+		return
+	}
+
+	if c.Phone, err = domain.NewPhone(do.Phone); err != nil {
+		return
+	}
+
+	if c.Identity, err = domain.NewcompetitionIdentity(do.Identity); err != nil {
+		return
+	}
+
+	if c.Province, err = domain.NewProvince(do.Province); err != nil {
+		return
+	}
+
+	c.Detail = do.Detail
+
+	if do.TeamId == "" {
+		return
+	}
+
+	c.Team.Id = do.TeamId
+
+	if c.Team.Name, err = domain.NewTeamName(do.TeamName); err != nil {
+		return
+	}
+
+	if c.TeamRole, err = domain.NewTeamRole(do.TeamRole); err != nil {
+		return
+	}
+
+	return
+}

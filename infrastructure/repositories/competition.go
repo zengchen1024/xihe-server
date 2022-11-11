@@ -8,6 +8,7 @@ import (
 type CompetitionMapper interface {
 	List(status, phase string) ([]CompetitionSummaryDO, error)
 	Get(cid, user string) (CompetitionDO, bool, error)
+	GetTeam(cid, user string) ([]CompetitorDO, error)
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -69,4 +70,18 @@ func (impl competition) Get(cid string, user domain.Account) (
 	r.CompetitorCount = v.CompetitorsCount
 
 	return
+}
+
+func (impl competition) GetTeam(cid string, user domain.Account) ([]domain.Competitor, error) {
+	v, err := impl.mapper.GetTeam(cid, user.Account())
+	if err != nil {
+		return nil, err
+	}
+
+	r := make([]domain.Competitor, len(v))
+	for i := range v {
+		v[i].toCompetitor(&r[i])
+	}
+
+	return r, nil
 }

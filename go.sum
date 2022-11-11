@@ -338,6 +338,8 @@ github.com/opensourceways/xihe-training-center v0.0.0-20221031102124-01279bbaf60
 github.com/opensourceways/xihe-training-center v0.0.0-20221031102124-01279bbaf60e/go.mod h1:6gi9VkmzKON56f6ys2KwWSZJuAdob534uA+8y/3HRf8=
 github.com/opensourceways/xihe-training-center v0.0.0-20221104162917-55c13d9fd0b9 h1:iAYhQNI5bx5U7/YU17VKePlFl0uaf6RiIkst8JUjXbs=
 github.com/opensourceways/xihe-training-center v0.0.0-20221104162917-55c13d9fd0b9/go.mod h1:gyEh610ywG4UrOv8nbAnqZA71h9zQgx3zAF0fsE1+oE=
+github.com/opensourceways/xihe-training-center v0.0.0-20221110123326-8a74c4f70a27 h1:zXQeEVdq1125pgB6mbcDK49zuZNvekWUgP5asiiWmYw=
+github.com/opensourceways/xihe-training-center v0.0.0-20221110123326-8a74c4f70a27/go.mod h1:gyEh610ywG4UrOv8nbAnqZA71h9zQgx3zAF0fsE1+oE=
 github.com/otiai10/copy v1.7.0/go.mod h1:rmRl6QPdJj6EiUqXQ/4Nn2lLXoNQjFCQbbNrxgc/t3U=
 github.com/otiai10/curr v0.0.0-20150429015615-9b4961190c95/go.mod h1:9qAhocn7zKJG+0mI8eUu6xqkFDYS2kb2saOteoSB3cE=
 github.com/otiai10/curr v1.0.0/go.mod h1:LskTG5wDwr8Rs+nNQ+1LlxRjAtTZZjtJW4rMXl6j4vs=
