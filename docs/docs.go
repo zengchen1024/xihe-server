@@ -431,6 +431,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/ranking/{phase}": {
+            "get": {
+                "description": "get ranking list of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "competition phase, such as preliminary, final",
+                        "name": "phase",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.RankingDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition/{id}/team": {
             "get": {
                 "description": "get team of competition",
@@ -3741,6 +3779,20 @@ const docTemplate = `{
                     }
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.RankingDTO": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "type": "number"
+                },
+                "submit_at": {
+                    "type": "string"
+                },
+                "team_name": {
                     "type": "string"
                 }
             }

@@ -369,6 +369,15 @@ definitions:
       updated_at:
         type: string
     type: object
+  app.RankingDTO:
+    properties:
+      score:
+        type: number
+      submit_at:
+        type: string
+      team_name:
+        type: string
+    type: object
   app.RepoFileDownloadDTO:
     properties:
       content:
@@ -1333,6 +1342,31 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/app.CompetitionDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+  /v1/competition/{id}/ranking/{phase}:
+    get:
+      consumes:
+      - application/json
+      description: get ranking list of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: competition phase, such as preliminary, final
+        in: path
+        name: phase
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.RankingDTO'
         "500":
           description: Internal Server Error
           schema:

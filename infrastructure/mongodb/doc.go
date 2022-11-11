@@ -46,6 +46,7 @@ const (
 	fieldFirstLetter    = "fl"
 	fieldPhase          = "phase"
 	fieldTeams          = "teams"
+	fieldOrder          = "order"
 	fieldCompetitors    = "competitors"
 	fieldSubmissions    = "submissions"
 )
@@ -334,8 +335,7 @@ type evaluateItem struct {
 }
 
 type DCompetition struct {
-	Id primitive.ObjectID `bson:"_id"         json:"-"`
-
+	Id         string `bson:"id"              json:"id"`
 	Name       string `bson:"name"            json:"name"`
 	Desc       string `bson:"desc"            json:"desc"`
 	Host       string `bson:"host"            json:"host"`
@@ -347,6 +347,7 @@ type DCompetition struct {
 	Poster     string `bson:"poster"          json:"poster"`
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
+	SmallerOk  bool   `bson:"order"           json:"order"`
 
 	Teams       []dTeam       `bson:"teams"       json:"-"`
 	Competitors []dCompetitor `bson:"competitors" json:"-"`
@@ -372,10 +373,11 @@ type dTeam struct {
 }
 
 type dSubmission struct {
-	Id       string  `bson:"id"          json:"id"`
-	TeamId   string  `bson:"tid"         json:"tid"`
-	Status   string  `bson:"status"      json:"status"`
-	OBSPath  string  `bson:"path"        json:"path"`
-	SubmitAt string  `bson:"submit_at"   json:"submit_at"`
-	Score    float32 `bson:"score"       json:"score"`
+	Id         string  `bson:"id"          json:"id"`
+	TeamId     string  `bson:"tid"         json:"tid"`  // if it is submitted by team, set it.
+	Individual string  `bson:"name"        json:"name"` // if it is submitted by individual, set it.
+	Status     string  `bson:"status"      json:"status"`
+	OBSPath    string  `bson:"path"        json:"path"`
+	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
+	Score      float32 `bson:"score"       json:"score"`
 }

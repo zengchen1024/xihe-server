@@ -1,14 +1,15 @@
 package domain
 
 type CompetitionSummary struct {
-	Id       string
-	Name     CompetitionName
-	Desc     CompetitionDesc
-	Host     CompetitionHost
-	Bonus    CompetitionBonus
-	Status   CompetitionStatus
-	Duration CompetitionDuration
-	Poster   URL
+	Id         string
+	Name       CompetitionName
+	Desc       CompetitionDesc
+	Host       CompetitionHost
+	Bonus      CompetitionBonus
+	Status     CompetitionStatus
+	Duration   CompetitionDuration
+	Poster     URL
+	ScoreOrder CompetitionScoreOrder
 }
 
 type Competition struct {
@@ -17,13 +18,6 @@ type Competition struct {
 	Doc        URL
 	DatasetDoc URL
 	DatasetURL URL
-}
-
-type CompetitionOnPhase struct {
-	phaseId string
-	Phase   CompetitionPhase
-
-	Competition
 }
 
 type Competitor struct {
@@ -36,18 +30,58 @@ type Competitor struct {
 	Province Province
 	Detail   map[string]string
 
-	Team     Team
+	Team     CompetitionTeam
 	TeamRole TeamRole
 }
 
-type Team struct {
+type CompetitionTeam struct {
 	Id   string
 	Name TeamName
 }
 
 type CompetitionResult struct {
+	Id string
+
+	TeamId     string
+	Individual CompetitorName
+
 	SubmitAt int64
 	OBSPath  string
 	Status   string
 	Score    float32
+}
+
+func (r *CompetitionResult) IsTeamWork() bool {
+	return r.TeamId != ""
+}
+
+func (r *CompetitionResult) Key() string {
+	if r.TeamId != "" {
+		return r.TeamId
+	}
+
+	return r.Individual.CompetitorName()
+}
+
+type CompetitionIndex struct {
+	Id    string
+	Phase CompetitionPhase
+}
+
+type CompetitionScoreOrder interface {
+	IsBetterThanB(a, b float32) bool
+}
+
+func NewCompetitionScoreOrder(b bool) CompetitionScoreOrder {
+	return smallerIsBetter(b)
+}
+
+type smallerIsBetter bool
+
+func (order smallerIsBetter) IsBetterThanB(a, b float32) bool {
+	if order {
+		return a <= b
+	}
+
+	return a >= b
 }

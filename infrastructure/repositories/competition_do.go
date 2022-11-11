@@ -141,3 +141,58 @@ func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
 
 	return
 }
+
+type CompetitionResultDO struct {
+	Id         string
+	TeamId     string
+	Individual string
+
+	SubmitAt int64
+	OBSPath  string
+	Status   string
+	Score    float32
+}
+
+func (do *CompetitionResultDO) toCompetitionResult(r *domain.CompetitionResult) (err error) {
+	*r = domain.CompetitionResult{
+		Id:       do.Id,
+		SubmitAt: do.SubmitAt,
+		OBSPath:  do.OBSPath,
+		Status:   do.Status,
+		Score:    do.Score,
+		TeamId:   do.TeamId,
+	}
+
+	if do.Individual != "" {
+		r.Individual, err = domain.NewCompetitorName(do.Individual)
+	}
+
+	return
+}
+
+type CompetitionTeamDO struct {
+	Id   string
+	Name string
+}
+
+func (do *CompetitionTeamDO) toTeam(r *domain.CompetitionTeam) (err error) {
+	r.Id = do.Id
+
+	if do.Name != "" {
+		r.Name, err = domain.NewTeamName(do.Name)
+	}
+
+	return
+}
+
+type CompetitionIndexDO struct {
+	Id    string
+	Phase string
+}
+
+func (impl competition) toCompetitionIndexDO(index *domain.CompetitionIndex) CompetitionIndexDO {
+	return CompetitionIndexDO{
+		Id:    index.Id,
+		Phase: index.Phase.CompetitionPhase(),
+	}
+}
