@@ -4,6 +4,12 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+type CompetitionListOption struct {
+	Status     domain.CompetitionStatus
+	Phase      domain.CompetitionPhase
+	Competitor domain.Account
+}
+
 type CompetitionSummary struct {
 	domain.CompetitionSummary
 	CompetitorCount int
@@ -15,7 +21,7 @@ type CompetitionInfo struct {
 }
 
 type Competition interface {
-	List(domain.CompetitionStatus, domain.CompetitionPhase) ([]CompetitionSummary, error)
+	List(*CompetitionListOption) ([]CompetitionSummary, error)
 	Get(*domain.CompetitionIndex, domain.Account) (CompetitionInfo, bool, error)
 
 	GetTeam(*domain.CompetitionIndex, domain.Account) ([]domain.Competitor, error)

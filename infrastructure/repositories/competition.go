@@ -6,7 +6,7 @@ import (
 )
 
 type CompetitionMapper interface {
-	List(status, phase string) ([]CompetitionSummaryDO, error)
+	List(*CompetitionListOptionDO) ([]CompetitionSummaryDO, error)
 	Get(index *CompetitionIndexDO, user string) (CompetitionDO, bool, error)
 	GetTeam(index *CompetitionIndexDO, user string) ([]CompetitorDO, error)
 	GetResult(*CompetitionIndexDO) (bool, []CompetitionTeamDO, []CompetitionResultDO, error)
@@ -20,15 +20,13 @@ type competition struct {
 	mapper CompetitionMapper
 }
 
-func (impl competition) List(status domain.CompetitionStatus, phase domain.CompetitionPhase) (
+func (impl competition) List(opt *repository.CompetitionListOption) (
 	[]repository.CompetitionSummary, error,
 ) {
-	s := ""
-	if status != nil {
-		s = status.CompetitionStatus()
-	}
+	do := new(CompetitionListOptionDO)
+	impl.toCompetitionListOptionDO(opt, do)
 
-	v, err := impl.mapper.List(s, phase.CompetitionPhase())
+	v, err := impl.mapper.List(do)
 	if err != nil {
 		return nil, convertError(err)
 	}
