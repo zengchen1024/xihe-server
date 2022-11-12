@@ -2,7 +2,30 @@ package repositories
 
 import (
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
+
+type CompetitionListOptionDO struct {
+	Phase      string
+	Status     string
+	Competitor string
+}
+
+func (impl competition) toCompetitionListOptionDO(
+	opt *repository.CompetitionListOption, do *CompetitionListOptionDO,
+) {
+	if opt.Phase != nil {
+		do.Phase = opt.Phase.CompetitionPhase()
+	}
+
+	if opt.Status != nil {
+		do.Status = opt.Status.CompetitionStatus()
+	}
+
+	if opt.Competitor != nil {
+		do.Competitor = opt.Competitor.Account()
+	}
+}
 
 type CompetitionSummaryDO struct {
 	Bonus    int

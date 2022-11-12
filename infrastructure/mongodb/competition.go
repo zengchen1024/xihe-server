@@ -23,23 +23,26 @@ func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) 
 	}
 }
 
-func (col competition) Get(index *repositories.CompetitionIndexDO, user string) (
+func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
 	r repositories.CompetitionDO, isCompetitor bool, err error,
 ) {
 	fieldCount := "competitors_count"
-	fieldIsCompetitor := "is_competitor"
+	fieldCompetitor := "competitor"
 
 	var v []struct {
 		DCompetition `bson:",inline"`
 
-		IsCompetitor     bool `bson:"is_competitor"`
-		CompetitorsCount int  `bson:"competitors_count"`
+		Competitor       []dCompetitor `bson:"competitor"`
+		CompetitorsCount int           `bson:"competitors_count"`
 	}
 
 	fields := bson.M{}
-	if user != "" {
-		fields[fieldIsCompetitor] = bson.M{
-			"$in": bson.A{user, "$" + fieldCompetitors},
+	if competitor != "" {
+		fields[fieldCompetitor] = bson.M{
+			"$filter": bson.M{
+				"input": "$" + fieldCompetitors,
+				"cond":  eqCondForArrayElem(fieldAccount, competitor),
+			},
 		}
 	}
 
@@ -58,40 +61,58 @@ func (col competition) Get(index *repositories.CompetitionIndexDO, user string) 
 	col.toCompetitionDO(&item.DCompetition, &r)
 	r.CompetitorsCount = item.CompetitorsCount
 
-	isCompetitor = item.IsCompetitor
+	isCompetitor = len(item.Competitor) > 0
 
 	return
 }
 
-func (col competition) List(status, phase string) (
+func (col competition) List(opt *repositories.CompetitionListOptionDO) (
 	r []repositories.CompetitionSummaryDO, err error,
 ) {
 	fieldCount := "competitors_count"
+	fieldCompetitor := "competitor"
 
 	var v []struct {
 		DCompetition `bson:",inline"`
 
-		CompetitorsCount int `bson:"competitors_count"`
+		Competitor       []dCompetitor `bson:"competitor"`
+		CompetitorsCount int           `bson:"competitors_count"`
+	}
+
+	fields := bson.M{}
+	if opt.Competitor != "" {
+		fields[fieldCompetitor] = bson.M{
+			"$filter": bson.M{
+				"input": "$" + fieldCompetitors,
+				"cond":  eqCondForArrayElem(fieldAccount, opt.Competitor),
+			},
+		}
 	}
 
 	filter := bson.M{
-		fieldPhase: phase,
+		fieldPhase: opt.Phase,
 	}
-	if status != "" {
-		filter[fieldStatus] = status
+	if opt.Status != "" {
+		filter[fieldStatus] = opt.Status
 	}
 
-	err = col.get(filter, fieldCount, nil, &v)
+	err = col.get(filter, fieldCount, fields, &v)
 	if err != nil || len(v) == 0 {
 		return
 	}
 
-	r = make([]repositories.CompetitionSummaryDO, len(v))
+	r = make([]repositories.CompetitionSummaryDO, 0, len(v))
 
 	for i := range v {
-		col.toCompetitionSummaryDO(&v[i].DCompetition, &r[i])
+		item := &v[i]
 
-		r[i].CompetitorsCount = v[i].CompetitorsCount
+		if opt.Competitor != "" && len(item.Competitor) == 0 {
+			continue
+		}
+
+		col.toCompetitionSummaryDO(&item.DCompetition, &r[i])
+
+		r[i].CompetitorsCount = item.CompetitorsCount
 	}
 
 	return

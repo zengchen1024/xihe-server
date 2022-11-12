@@ -63,7 +63,8 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 func (s competitionService) List(status domain.CompetitionStatus) (
 	dtos []CompetitionSummaryDTO, err error,
 ) {
-	v, err := s.repo.List(status, domain.CompetitionPhasePreliminary)
+	//v, err := s.repo.List(status, domain.CompetitionPhasePreliminary)
+	v, err := s.repo.List(nil)
 	if err != nil || len(v) == 0 {
 		return
 	}
