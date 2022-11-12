@@ -128,7 +128,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 		return
 	}
 
-	rs := map[string]*domain.CompetitionResult{}
+	rs := map[string]*domain.CompetitionSubmission{}
 
 	for i := range results {
 		item := &results[i]
@@ -142,7 +142,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 
 	// sort
 	i := 0
-	rl := make([]*domain.CompetitionResult, len(rs))
+	rl := make([]*domain.CompetitionSubmission, len(rs))
 	for _, v := range rs {
 		rl[i] = v
 		i++
@@ -182,7 +182,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 func (s competitionService) GetSubmissions(cid string, competitor domain.Account) (
 	dto CompetitionResultDTO, err error,
 ) {
-	repo, results, err := s.repo.GetResultOfCompetitor(cid, competitor)
+	repo, results, err := s.repo.GetSubmisstions(cid, competitor)
 	if err != nil {
 		return
 	}
@@ -195,7 +195,7 @@ func (s competitionService) GetSubmissions(cid string, competitor domain.Account
 		return
 	}
 
-	v := make([]*domain.CompetitionResult, len(results))
+	v := make([]*domain.CompetitionSubmission, len(results))
 	for i := range results {
 		v[i] = &results[i]
 	}
@@ -204,9 +204,9 @@ func (s competitionService) GetSubmissions(cid string, competitor domain.Account
 		return v[i].SubmitAt >= v[i].SubmitAt
 	})
 
-	items := make([]CompetitionResultDetailDTO, len(v))
+	items := make([]CompetitionSubmissionDTO, len(v))
 	for i := range v {
-		s.toCompetitionResultDetailDTO(v[i], &items[i])
+		s.toCompetitionSubmissionDTO(v[i], &items[i])
 	}
 
 	dto.Details = items

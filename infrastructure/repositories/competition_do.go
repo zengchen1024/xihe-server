@@ -165,7 +165,7 @@ func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
 	return
 }
 
-type CompetitionResultDO struct {
+type CompetitionSubmissionDO struct {
 	Id         string
 	TeamId     string
 	Individual string
@@ -176,8 +176,8 @@ type CompetitionResultDO struct {
 	Score    float32
 }
 
-func (do *CompetitionResultDO) toCompetitionResult(r *domain.CompetitionResult) (err error) {
-	*r = domain.CompetitionResult{
+func (do *CompetitionSubmissionDO) toCompetitionResult(r *domain.CompetitionSubmission) (err error) {
+	*r = domain.CompetitionSubmission{
 		Id:       do.Id,
 		SubmitAt: do.SubmitAt,
 		OBSPath:  do.OBSPath,

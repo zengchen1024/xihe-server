@@ -48,21 +48,21 @@ type CompetitionTeamMemberDTO struct {
 
 // result
 type CompetitionResultDTO struct {
-	RelatedProject string                       `json:"project"`
-	Details        []CompetitionResultDetailDTO `json:"details"`
+	RelatedProject string                     `json:"project"`
+	Details        []CompetitionSubmissionDTO `json:"details"`
 }
 
-type CompetitionResultDetailDTO struct {
+type CompetitionSubmissionDTO struct {
 	SubmitAt string  `json:"submit_at"`
 	FileName string  `json:"project"`
 	Status   string  `json:"status"`
 	Score    float32 `json:"score"`
 }
 
-func (s competitionService) toCompetitionResultDetailDTO(
-	v *domain.CompetitionResult, dto *CompetitionResultDetailDTO,
+func (s competitionService) toCompetitionSubmissionDTO(
+	v *domain.CompetitionSubmission, dto *CompetitionSubmissionDTO,
 ) {
-	*dto = CompetitionResultDetailDTO{
+	*dto = CompetitionSubmissionDTO{
 		SubmitAt: utils.ToDate(v.SubmitAt),
 		FileName: filepath.Base(v.OBSPath),
 		Status:   v.Status,

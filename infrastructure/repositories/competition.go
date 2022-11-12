@@ -10,10 +10,10 @@ type CompetitionMapper interface {
 	Get(index *CompetitionIndexDO, competitor string) (CompetitionDO, bool, error)
 	GetTeam(index *CompetitionIndexDO, competitor string) ([]CompetitorDO, error)
 	GetResult(*CompetitionIndexDO) (
-		bool, []CompetitionTeamDO, []CompetitionResultDO, error,
+		bool, []CompetitionTeamDO, []CompetitionSubmissionDO, error,
 	)
-	GetResultOfCompetitor(cid, competitor string) (
-		CompetitionRepoDO, []CompetitionResultDO, error,
+	GetSubmisstions(cid, competitor string) (
+		CompetitionRepoDO, []CompetitionSubmissionDO, error,
 	)
 }
 
@@ -100,7 +100,7 @@ func (impl competition) GetTeam(index *domain.CompetitionIndex, user domain.Acco
 func (impl competition) GetResult(index *domain.CompetitionIndex) (
 	order domain.CompetitionScoreOrder,
 	teams []domain.CompetitionTeam,
-	results []domain.CompetitionResult, err error,
+	results []domain.CompetitionSubmission, err error,
 ) {
 
 	do := impl.toCompetitionIndexDO(index)
@@ -119,7 +119,7 @@ func (impl competition) GetResult(index *domain.CompetitionIndex) (
 		}
 	}
 
-	results = make([]domain.CompetitionResult, len(rs))
+	results = make([]domain.CompetitionSubmission, len(rs))
 	for i := range rs {
 		if err = rs[i].toCompetitionResult(&results[i]); err != nil {
 			return
@@ -129,23 +129,25 @@ func (impl competition) GetResult(index *domain.CompetitionIndex) (
 	return
 }
 
-func (impl competition) GetResultOfCompetitor(cid string, c domain.Account) (
+func (impl competition) GetSubmisstions(cid string, c domain.Account) (
 	repo domain.CompetitionRepo,
-	results []domain.CompetitionResult, err error,
+	results []domain.CompetitionSubmission, err error,
 ) {
-	r, rs, err := impl.mapper.GetResultOfCompetitor(cid, c.Account())
+	r, rs, err := impl.mapper.GetSubmisstions(cid, c.Account())
 	if err != nil || len(rs) == 0 {
 		return
 	}
 
-	results = make([]domain.CompetitionResult, len(rs))
+	results = make([]domain.CompetitionSubmission, len(rs))
 	for i := range rs {
 		if err = rs[i].toCompetitionResult(&results[i]); err != nil {
 			return
 		}
 	}
 
-	err = r.toCompetitionRepo(&repo)
+	if r.Owner != "" {
+		err = r.toCompetitionRepo(&repo)
+	}
 
 	return
 }

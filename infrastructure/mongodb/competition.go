@@ -250,7 +250,7 @@ func (col competition) getTeam(docFilter bson.M, tid string) (
 func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 	smallerOk bool,
 	teams []repositories.CompetitionTeamDO,
-	results []repositories.CompetitionResultDO, err error,
+	results []repositories.CompetitionSubmissionDO, err error,
 ) {
 	var v []DCompetition
 
@@ -280,9 +280,9 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 		return
 	}
 
-	results = make([]repositories.CompetitionResultDO, len(rs))
+	results = make([]repositories.CompetitionSubmissionDO, len(rs))
 	for i := range rs {
-		col.toCompetitionResultDO(&rs[i], &results[i])
+		col.toCompetitionSubmissionDO(&rs[i], &results[i])
 	}
 
 	smallerOk = v[0].SmallerOk
@@ -297,9 +297,9 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 	return
 }
 
-func (col competition) GetResultOfCompetitor(cid, competitor string) (
+func (col competition) GetSubmisstions(cid, competitor string) (
 	repo repositories.CompetitionRepoDO,
-	results []repositories.CompetitionResultDO, err error,
+	results []repositories.CompetitionSubmissionDO, err error,
 ) {
 	filter := col.idToDocFilter(cid)
 
@@ -321,7 +321,7 @@ func (col competition) GetResultOfCompetitor(cid, competitor string) (
 
 func (col competition) getResultOfCompetitor(docFilter, resultFilter bson.M) (
 	repo repositories.CompetitionRepoDO,
-	results []repositories.CompetitionResultDO, err error,
+	results []repositories.CompetitionSubmissionDO, err error,
 ) {
 	var v []DCompetition
 
@@ -349,9 +349,9 @@ func (col competition) getResultOfCompetitor(docFilter, resultFilter bson.M) (
 		return
 	}
 
-	results = make([]repositories.CompetitionResultDO, len(rs))
+	results = make([]repositories.CompetitionSubmissionDO, len(rs))
 	for i := range rs {
-		col.toCompetitionResultDO(&rs[i], &results[i])
+		col.toCompetitionSubmissionDO(&rs[i], &results[i])
 	}
 
 	if ts := v[0].Repos; len(ts) > 0 {

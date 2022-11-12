@@ -45,10 +45,10 @@ func (col competition) toCompetitorDO(
 	}
 }
 
-func (col competition) toCompetitionResultDO(
-	doc *dSubmission, do *repositories.CompetitionResultDO,
+func (col competition) toCompetitionSubmissionDO(
+	doc *dSubmission, do *repositories.CompetitionSubmissionDO,
 ) {
-	*do = repositories.CompetitionResultDO{
+	*do = repositories.CompetitionSubmissionDO{
 		Id:         doc.Id,
 		Status:     doc.Status,
 		OBSPath:    doc.OBSPath,

@@ -22,11 +22,6 @@ type Competition struct {
 	Enabled bool
 }
 
-type CompetitorInfo struct {
-	Account Account
-	Name    CompetitorName
-}
-
 type Competitor struct {
 	Account  Account
 	Name     CompetitorName
@@ -46,7 +41,7 @@ type CompetitionTeam struct {
 	Name TeamName
 }
 
-type CompetitionResult struct {
+type CompetitionSubmission struct {
 	Id string
 
 	TeamId     string
@@ -66,11 +61,11 @@ type CompetitionRepo struct {
 	Repo  ResourceName
 }
 
-func (r *CompetitionResult) IsTeamWork() bool {
+func (r *CompetitionSubmission) IsTeamWork() bool {
 	return r.TeamId != ""
 }
 
-func (r *CompetitionResult) Key() string {
+func (r *CompetitionSubmission) Key() string {
 	if r.TeamId != "" {
 		return r.TeamId
 	}
