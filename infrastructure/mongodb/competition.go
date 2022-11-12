@@ -26,28 +26,9 @@ func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) 
 func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
 	r repositories.CompetitionDO, isCompetitor bool, err error,
 ) {
-	fieldCount := "competitors_count"
-	fieldCompetitor := "competitor"
+	var v []competitionInfo
 
-	var v []struct {
-		DCompetition `bson:",inline"`
-
-		Competitor       []dCompetitor `bson:"competitor"`
-		CompetitorsCount int           `bson:"competitors_count"`
-	}
-
-	fields := bson.M{}
-	if competitor != "" {
-		fields[fieldCompetitor] = bson.M{
-			"$filter": bson.M{
-				"input": "$" + fieldCompetitors,
-				"cond":  eqCondForArrayElem(fieldAccount, competitor),
-			},
-		}
-	}
-
-	err = col.get(col.indexToDocFilter(index), fieldCount, fields, &v)
-	if err != nil {
+	if err = col.get(col.indexToDocFilter(index), competitor, &v); err != nil {
 		return
 	}
 
@@ -69,26 +50,6 @@ func (col competition) Get(index *repositories.CompetitionIndexDO, competitor st
 func (col competition) List(opt *repositories.CompetitionListOptionDO) (
 	r []repositories.CompetitionSummaryDO, err error,
 ) {
-	fieldCount := "competitors_count"
-	fieldCompetitor := "competitor"
-
-	var v []struct {
-		DCompetition `bson:",inline"`
-
-		Competitor       []dCompetitor `bson:"competitor"`
-		CompetitorsCount int           `bson:"competitors_count"`
-	}
-
-	fields := bson.M{}
-	if opt.Competitor != "" {
-		fields[fieldCompetitor] = bson.M{
-			"$filter": bson.M{
-				"input": "$" + fieldCompetitors,
-				"cond":  eqCondForArrayElem(fieldAccount, opt.Competitor),
-			},
-		}
-	}
-
 	filter := bson.M{
 		fieldPhase: opt.Phase,
 	}
@@ -96,37 +57,59 @@ func (col competition) List(opt *repositories.CompetitionListOptionDO) (
 		filter[fieldStatus] = opt.Status
 	}
 
-	err = col.get(filter, fieldCount, fields, &v)
+	var v []competitionInfo
+
+	err = col.get(filter, opt.Competitor, &v)
 	if err != nil || len(v) == 0 {
 		return
 	}
 
-	r = make([]repositories.CompetitionSummaryDO, 0, len(v))
+	b := opt.Competitor != ""
+	j := 0
+	r = make([]repositories.CompetitionSummaryDO, len(v))
 
 	for i := range v {
 		item := &v[i]
 
-		if opt.Competitor != "" && len(item.Competitor) == 0 {
+		if b && len(item.Competitor) == 0 {
 			continue
 		}
 
-		col.toCompetitionSummaryDO(&item.DCompetition, &r[i])
+		col.toCompetitionSummaryDO(&item.DCompetition, &r[j])
 
-		r[i].CompetitorsCount = item.CompetitorsCount
+		r[j].CompetitorsCount = item.CompetitorsCount
+		j++
 	}
+
+	r = r[:j]
 
 	return
 }
 
+type competitionInfo struct {
+	DCompetition `bson:",inline"`
+
+	Competitor       []dCompetitor `bson:"competitor"`
+	CompetitorsCount int           `bson:"competitors_count"`
+}
+
 func (col competition) get(
-	filter bson.M, fieldCount string,
-	fields bson.M, result interface{},
+	filter bson.M, competitor string, result *[]competitionInfo,
 ) error {
-	if fields == nil {
-		fields = bson.M{}
+	key := "$" + fieldCompetitors
+	fieldCount := "competitors_count"
+	fieldCompetitor := "competitor"
+
+	fields := bson.M{}
+	if competitor != "" {
+		fields[fieldCompetitor] = bson.M{
+			"$filter": bson.M{
+				"input": key,
+				"cond":  eqCondForArrayElem(fieldAccount, competitor),
+			},
+		}
 	}
 
-	key := "$" + fieldCompetitors
 	fields[fieldCount] = bson.M{
 		"$cond": bson.M{
 			"if":   bson.M{"$isArray": key},
