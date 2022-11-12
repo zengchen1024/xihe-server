@@ -31,4 +31,8 @@ type Competition interface {
 		teams []domain.CompetitionTeam,
 		results []domain.CompetitionResult, err error,
 	)
+
+	GetResultOfCompetitor(cid string, c domain.Account) (
+		domain.CompetitionRepo, []domain.CompetitionResult, error,
+	)
 }

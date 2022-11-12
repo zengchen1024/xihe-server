@@ -187,7 +187,7 @@ func (do *CompetitionResultDO) toCompetitionResult(r *domain.CompetitionResult) 
 	}
 
 	if do.Individual != "" {
-		r.Individual, err = domain.NewCompetitorName(do.Individual)
+		r.Individual, err = domain.NewAccount(do.Individual)
 	}
 
 	return
@@ -218,4 +218,30 @@ func (impl competition) toCompetitionIndexDO(index *domain.CompetitionIndex) Com
 		Id:    index.Id,
 		Phase: index.Phase.CompetitionPhase(),
 	}
+}
+
+type CompetitionRepoDO struct {
+	TeamId     string
+	Individual string
+
+	Owner string
+	Repo  string
+}
+
+func (do *CompetitionRepoDO) toCompetitionRepo(r *domain.CompetitionRepo) (err error) {
+	r.TeamId = do.TeamId
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	if r.Repo, err = domain.NewResourceName(do.Repo); err != nil {
+		return
+	}
+
+	if do.Individual != "" {
+		r.Individual, err = domain.NewAccount(do.Individual)
+	}
+
+	return
 }

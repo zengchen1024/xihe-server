@@ -67,3 +67,14 @@ func (col competition) toCompetitionTeamDO(
 		Name: doc.Name,
 	}
 }
+
+func (col competition) toCompetitionRepoDO(
+	doc *dCompetitionRepo, do *repositories.CompetitionRepoDO,
+) {
+	*do = repositories.CompetitionRepoDO{
+		TeamId:     doc.TeamId,
+		Individual: doc.Individual,
+		Owner:      doc.Owner,
+		Repo:       doc.Repo,
+	}
+}

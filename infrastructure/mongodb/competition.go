@@ -23,6 +23,13 @@ func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) 
 	}
 }
 
+func (col competition) idToDocFilter(cid string) bson.M {
+	return bson.M{
+		fieldId:      cid,
+		fieldEnabled: true,
+	}
+}
+
 func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
 	r repositories.CompetitionDO, isCompetitor bool, err error,
 ) {
@@ -285,6 +292,70 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 		for i := range ts {
 			col.toCompetitionTeamDO(&ts[i], &teams[i])
 		}
+	}
+
+	return
+}
+
+func (col competition) GetResultOfCompetitor(cid, competitor string) (
+	repo repositories.CompetitionRepoDO,
+	results []repositories.CompetitionResultDO, err error,
+) {
+	filter := col.idToDocFilter(cid)
+
+	member, err := col.getCompetitor(filter, competitor)
+	if err != nil {
+		return
+	}
+
+	if member.TeamId == "" {
+		return col.getResultOfCompetitor(filter, bson.M{
+			fieldAccount: member.Account,
+		})
+	}
+
+	return col.getResultOfCompetitor(filter, bson.M{
+		fieldTId: member.TeamId,
+	})
+}
+
+func (col competition) getResultOfCompetitor(docFilter, resultFilter bson.M) (
+	repo repositories.CompetitionRepoDO,
+	results []repositories.CompetitionResultDO, err error,
+) {
+	var v []DCompetition
+
+	f := func(ctx context.Context) error {
+		return cli.getArraysElem(
+			ctx, col.collectionName, docFilter,
+			map[string]bson.M{
+				fieldRepos:       resultFilter,
+				fieldSubmissions: resultFilter,
+			}, nil, &v)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	if len(v) == 0 {
+		err = errDocNotExists
+
+		return
+	}
+
+	rs := v[0].Submissions
+	if len(rs) == 0 {
+		return
+	}
+
+	results = make([]repositories.CompetitionResultDO, len(rs))
+	for i := range rs {
+		col.toCompetitionResultDO(&rs[i], &results[i])
+	}
+
+	if ts := v[0].Repos; len(ts) > 0 {
+		col.toCompetitionRepoDO(&ts[0], &repo)
 	}
 
 	return
