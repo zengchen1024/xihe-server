@@ -9,9 +9,11 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+type CompetitionListCMD = repository.CompetitionListOption
+
 type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (CompetitionDTO, error)
-	List(domain.CompetitionStatus) ([]CompetitionSummaryDTO, error)
+	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
 	/*
 		// get the phase first, then check if can submit,
@@ -60,11 +62,12 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 	return
 }
 
-func (s competitionService) List(status domain.CompetitionStatus) (
+func (s competitionService) List(cmd *CompetitionListCMD) (
 	dtos []CompetitionSummaryDTO, err error,
 ) {
-	//v, err := s.repo.List(status, domain.CompetitionPhasePreliminary)
-	v, err := s.repo.List(nil)
+	cmd.Phase = domain.CompetitionPhasePreliminary
+
+	v, err := s.repo.List(cmd)
 	if err != nil || len(v) == 0 {
 		return
 	}

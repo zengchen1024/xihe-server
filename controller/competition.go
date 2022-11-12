@@ -61,12 +61,16 @@ func (ctl *CompetitionController) Get(ctx *gin.Context) {
 // @Description list competitions
 // @Competition  Competition
 // @Param	status	query	string	false	"competition status, such as done, preparing, in-progress"
+// @Param	mine	query	string	false	"just list competitions of competitor, if it is set"
 // @Accept json
 // @Success 200 {object} app.CompetitionSummaryDTO
 // @Failure 500 system_error        system error
 // @Router /v1/competition [get]
 func (ctl *CompetitionController) List(ctx *gin.Context) {
-	s, err := domain.NewCompetitionStatus(ctl.getQueryParameter(ctx, "status"))
+	cmd := app.CompetitionListCMD{}
+	var err error
+
+	cmd.Status, err = domain.NewCompetitionStatus(ctl.getQueryParameter(ctx, "status"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -75,7 +79,16 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 		return
 	}
 
-	if data, err := ctl.s.List(s); err != nil {
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
+	if !ok {
+		return
+	}
+
+	if !visitor && ctl.getQueryParameter(ctx, "mine") != "" {
+		cmd.Competitor = pl.DomainAccount()
+	}
+
+	if data, err := ctl.s.List(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))

@@ -382,6 +382,12 @@ const docTemplate = `{
                         "description": "competition status, such as done, preparing, in-progress",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "just list competitions of competitor, if it is set",
+                        "name": "mine",
+                        "in": "query"
                     }
                 ],
                 "responses": {

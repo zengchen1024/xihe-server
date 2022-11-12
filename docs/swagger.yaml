@@ -1317,6 +1317,10 @@ paths:
         in: query
         name: status
         type: string
+      - description: just list competitions of competitor, if it is set
+        in: query
+        name: mine
+        type: string
       responses:
         "200":
           description: OK
