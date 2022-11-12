@@ -18,6 +18,8 @@ type Competition struct {
 	Doc        URL
 	DatasetDoc URL
 	DatasetURL URL
+
+	Enabled bool
 }
 
 type Competitor struct {
@@ -39,11 +41,11 @@ type CompetitionTeam struct {
 	Name TeamName
 }
 
-type CompetitionResult struct {
+type CompetitionSubmission struct {
 	Id string
 
 	TeamId     string
-	Individual CompetitorName
+	Individual Account
 
 	SubmitAt int64
 	OBSPath  string
@@ -51,16 +53,24 @@ type CompetitionResult struct {
 	Score    float32
 }
 
-func (r *CompetitionResult) IsTeamWork() bool {
+type CompetitionRepo struct {
+	TeamId     string
+	Individual Account
+
+	Owner Account
+	Repo  ResourceName
+}
+
+func (r *CompetitionSubmission) IsTeamWork() bool {
 	return r.TeamId != ""
 }
 
-func (r *CompetitionResult) Key() string {
+func (r *CompetitionSubmission) Key() string {
 	if r.TeamId != "" {
 		return r.TeamId
 	}
 
-	return r.Individual.CompetitorName()
+	return r.Individual.Account()
 }
 
 type CompetitionIndex struct {

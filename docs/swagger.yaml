@@ -1375,6 +1375,26 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
+  /v1/competition/{id}/submissions:
+    get:
+      consumes:
+      - application/json
+      description: get submissions
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.RankingDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
   /v1/competition/{id}/team:
     get:
       consumes:

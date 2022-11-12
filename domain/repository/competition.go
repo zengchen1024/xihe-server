@@ -29,6 +29,10 @@ type Competition interface {
 	GetResult(*domain.CompetitionIndex) (
 		order domain.CompetitionScoreOrder,
 		teams []domain.CompetitionTeam,
-		results []domain.CompetitionResult, err error,
+		results []domain.CompetitionSubmission, err error,
+	)
+
+	GetSubmisstions(cid string, c domain.Account) (
+		domain.CompetitionRepo, []domain.CompetitionSubmission, error,
 	)
 }

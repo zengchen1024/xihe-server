@@ -165,7 +165,7 @@ func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
 	return
 }
 
-type CompetitionResultDO struct {
+type CompetitionSubmissionDO struct {
 	Id         string
 	TeamId     string
 	Individual string
@@ -176,8 +176,8 @@ type CompetitionResultDO struct {
 	Score    float32
 }
 
-func (do *CompetitionResultDO) toCompetitionResult(r *domain.CompetitionResult) (err error) {
-	*r = domain.CompetitionResult{
+func (do *CompetitionSubmissionDO) toCompetitionResult(r *domain.CompetitionSubmission) (err error) {
+	*r = domain.CompetitionSubmission{
 		Id:       do.Id,
 		SubmitAt: do.SubmitAt,
 		OBSPath:  do.OBSPath,
@@ -187,7 +187,7 @@ func (do *CompetitionResultDO) toCompetitionResult(r *domain.CompetitionResult) 
 	}
 
 	if do.Individual != "" {
-		r.Individual, err = domain.NewCompetitorName(do.Individual)
+		r.Individual, err = domain.NewAccount(do.Individual)
 	}
 
 	return
@@ -218,4 +218,30 @@ func (impl competition) toCompetitionIndexDO(index *domain.CompetitionIndex) Com
 		Id:    index.Id,
 		Phase: index.Phase.CompetitionPhase(),
 	}
+}
+
+type CompetitionRepoDO struct {
+	TeamId     string
+	Individual string
+
+	Owner string
+	Repo  string
+}
+
+func (do *CompetitionRepoDO) toCompetitionRepo(r *domain.CompetitionRepo) (err error) {
+	r.TeamId = do.TeamId
+
+	if r.Owner, err = domain.NewAccount(do.Owner); err != nil {
+		return
+	}
+
+	if r.Repo, err = domain.NewResourceName(do.Repo); err != nil {
+		return
+	}
+
+	if do.Individual != "" {
+		r.Individual, err = domain.NewAccount(do.Individual)
+	}
+
+	return
 }

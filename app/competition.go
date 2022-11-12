@@ -15,13 +15,11 @@ type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (CompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
-	/*
-		// get the phase first, then check if can submit,
-		// check the role of submitter
-		Submit(cid string, fileName string, file io.Reader) error
+	// get the phase first, then check if can submit,
+	// check the role of submitter
+	//Submit(cid string, fileName string, file io.Reader) error
 
-		ListSubmitts(cid string, competitor domain.Account) (CompetitionResultDTO, error)
-	*/
+	GetSubmissions(cid string, competitor domain.Account) (CompetitionResultDTO, error)
 
 	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
 
@@ -130,7 +128,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 		return
 	}
 
-	rs := map[string]*domain.CompetitionResult{}
+	rs := map[string]*domain.CompetitionSubmission{}
 
 	for i := range results {
 		item := &results[i]
@@ -144,7 +142,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 
 	// sort
 	i := 0
-	rl := make([]*domain.CompetitionResult, len(rs))
+	rl := make([]*domain.CompetitionSubmission, len(rs))
 	for _, v := range rs {
 		rl[i] = v
 		i++
@@ -172,9 +170,46 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 		if item.IsTeamWork() {
 			dtos[i].TeamName = tm[item.TeamId]
 		} else {
-			dtos[i].TeamName = item.Individual.CompetitorName()
+			// If it is individual, just show its account instead of name.
+			// Because the name maybe duplicate, but the account will not.
+			dtos[i].TeamName = item.Individual.Account()
 		}
 	}
+
+	return
+}
+
+func (s competitionService) GetSubmissions(cid string, competitor domain.Account) (
+	dto CompetitionResultDTO, err error,
+) {
+	repo, results, err := s.repo.GetSubmisstions(cid, competitor)
+	if err != nil {
+		return
+	}
+
+	if repo.Owner != nil {
+		dto.RelatedProject = repo.Owner.Account() + "/" + repo.Repo.ResourceName()
+	}
+
+	if len(results) == 0 {
+		return
+	}
+
+	v := make([]*domain.CompetitionSubmission, len(results))
+	for i := range results {
+		v[i] = &results[i]
+	}
+
+	sort.Slice(v, func(i, j int) bool {
+		return v[i].SubmitAt >= v[i].SubmitAt
+	})
+
+	items := make([]CompetitionSubmissionDTO, len(v))
+	for i := range v {
+		s.toCompetitionSubmissionDTO(v[i], &items[i])
+	}
+
+	dto.Details = items
 
 	return
 }

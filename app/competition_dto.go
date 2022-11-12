@@ -1,6 +1,11 @@
 package app
 
-import "github.com/opensourceways/xihe-server/domain"
+import (
+	"path/filepath"
+
+	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/utils"
+)
 
 type CompetitionSummaryDTO struct {
 	CompetitorCount int    `json:"count"`
@@ -43,15 +48,26 @@ type CompetitionTeamMemberDTO struct {
 
 // result
 type CompetitionResultDTO struct {
-	RelatedProject string                       `json:"project"`
-	Details        []CompetitionResultDetailDTO `json:"details"`
+	RelatedProject string                     `json:"project"`
+	Details        []CompetitionSubmissionDTO `json:"details"`
 }
 
-type CompetitionResultDetailDTO struct {
+type CompetitionSubmissionDTO struct {
 	SubmitAt string  `json:"submit_at"`
 	FileName string  `json:"project"`
 	Status   string  `json:"status"`
 	Score    float32 `json:"score"`
+}
+
+func (s competitionService) toCompetitionSubmissionDTO(
+	v *domain.CompetitionSubmission, dto *CompetitionSubmissionDTO,
+) {
+	*dto = CompetitionSubmissionDTO{
+		SubmitAt: utils.ToDate(v.SubmitAt),
+		FileName: filepath.Base(v.OBSPath),
+		Status:   v.Status,
+		Score:    v.Score,
+	}
 }
 
 func (s competitionService) toCompetitionSummaryDTO(

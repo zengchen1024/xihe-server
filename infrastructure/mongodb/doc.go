@@ -46,7 +46,9 @@ const (
 	fieldFirstLetter    = "fl"
 	fieldPhase          = "phase"
 	fieldTeams          = "teams"
+	fieldRepos          = "repos"
 	fieldOrder          = "order"
+	fieldEnabled        = "enabled"
 	fieldCompetitors    = "competitors"
 	fieldSubmissions    = "submissions"
 )
@@ -348,10 +350,12 @@ type DCompetition struct {
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
 	SmallerOk  bool   `bson:"order"           json:"order"`
+	Enabled    bool   `bson:"enabled"         json:"enabled"`
 
-	Teams       []dTeam       `bson:"teams"       json:"-"`
-	Competitors []dCompetitor `bson:"competitors" json:"-"`
-	Submissions []dSubmission `bson:"submissions" json:"-"`
+	Teams       []dTeam            `bson:"teams"       json:"-"`
+	Repos       []dCompetitionRepo `bson:"repos"       json:"-"`
+	Competitors []dCompetitor      `bson:"competitors" json:"-"`
+	Submissions []dSubmission      `bson:"submissions" json:"-"`
 }
 
 type dCompetitor struct {
@@ -374,10 +378,17 @@ type dTeam struct {
 
 type dSubmission struct {
 	Id         string  `bson:"id"          json:"id"`
-	TeamId     string  `bson:"tid"         json:"tid"`  // if it is submitted by team, set it.
-	Individual string  `bson:"name"        json:"name"` // if it is submitted by individual, set it.
+	TeamId     string  `bson:"tid"         json:"tid"`     // if it is submitted by team, set it.
+	Individual string  `bson:"account"     json:"account"` // if it is submitted by individual, set it.
 	Status     string  `bson:"status"      json:"status"`
 	OBSPath    string  `bson:"path"        json:"path"`
 	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
 	Score      float32 `bson:"score"       json:"score"`
+}
+
+type dCompetitionRepo struct {
+	TeamId     string `bson:"tid"         json:"tid"`     // if it is submitted by team, set it.
+	Individual string `bson:"account"     json:"account"` // if it is submitted by individual, set it.
+	Owner      string `bson:"owner"       json:"owner"`
+	Repo       string `bson:"repo"        json:"repo"`
 }
