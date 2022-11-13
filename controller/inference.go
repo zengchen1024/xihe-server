@@ -187,7 +187,9 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		log.Debugf("info dto:%v", dto)
 
 		if dto.Error != "" || dto.AccessURL != "" {
-			ws.WriteJSON(newResponseData(dto))
+			err = ws.WriteJSON(newResponseData(dto))
+
+			log.Errorf("write json failed, err:%s", err.Error())
 
 			return
 		}
