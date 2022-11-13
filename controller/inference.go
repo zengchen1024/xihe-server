@@ -57,11 +57,20 @@ type InferenceController struct {
 // @Failure 500 system_error        system error
 // @Router /v1/inference/project/{owner}/{pid} [get]
 func (ctl *InferenceController) Create(ctx *gin.Context) {
-	pl := oldUserTokenPayload{}
 	token := ctx.GetHeader(headerSecWebsocket)
-	visitor := true
+	if token == "" {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "no token",
+		))
 
-	if token != "" {
+		return
+	}
+
+	pl := oldUserTokenPayload{}
+	visitor := true
+	projectId := ctx.Param("pid")
+
+	if token != "visitor-"+projectId {
 		visitor = false
 
 		if ok := ctl.checkApiToken(ctx, token, &pl, false); !ok {
@@ -70,19 +79,11 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	}
 
 	// setup websocket
-	upgrader := websocket.Upgrader{}
-
-	if token != "" {
-		upgrader.Subprotocols = []string{token}
-		upgrader.CheckOrigin = func(r *http.Request) bool {
+	upgrader := websocket.Upgrader{
+		Subprotocols: []string{token},
+		CheckOrigin: func(r *http.Request) bool {
 			return r.Header.Get(headerSecWebsocket) == token
-		}
-	} else {
-		log.Debugf("no token to inference")
-		// TODO check
-		upgrader.CheckOrigin = func(r *http.Request) bool {
-			return true
-		}
+		},
 	}
 
 	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
@@ -104,18 +105,16 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			newResponseCodeError(errorBadRequestParam, err),
 		)
 
-		log.Errorf("exit new account, err:%s", err.Error())
+		log.Errorf("inference failed: new account, err:%s", err.Error())
 
 		return
 	}
-
-	projectId := ctx.Param("pid")
 
 	v, err := ctl.project.GetSummary(owner, projectId)
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
 
-		log.Errorf("exit get summary, err:%s", err.Error())
+		log.Errorf("inference failed: get summary, err:%s", err.Error())
 
 		return
 	}
@@ -130,7 +129,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			),
 		)
 
-		log.Debug("exit for project is private")
+		log.Debug("inference failed: project is private")
 
 		return
 	}
@@ -154,7 +153,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
 
-		log.Errorf("exit for create, err:%s", err.Error())
+		log.Errorf("inference failed: create, err:%s", err.Error())
 
 		return
 	}
@@ -179,7 +178,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		if err != nil {
 			ws.WriteJSON(newResponseError(err))
 
-			log.Errorf("exit when get, err:%s", err.Error())
+			log.Errorf("inference failed: get status, err:%s", err.Error())
 
 			return
 		}
@@ -187,9 +186,9 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		log.Debugf("info dto:%v", dto)
 
 		if dto.Error != "" || dto.AccessURL != "" {
-			err = ws.WriteJSON(newResponseData(dto))
+			ws.WriteJSON(newResponseData(dto))
 
-			log.Errorf("write json failed, err:%s", err.Error())
+			log.Debug("inference done")
 
 			return
 		}
@@ -197,7 +196,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		time.Sleep(time.Second)
 	}
 
-	log.Errorf("inference(%#v) timeout", info)
+	log.Error("inference timeout")
 
 	ws.WriteJSON(newResponseCodeMsg(errorSystemError, "timeout"))
 }
