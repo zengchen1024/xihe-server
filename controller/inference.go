@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -79,7 +78,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			return r.Header.Get(headerSecWebsocket) == token
 		}
 	} else {
-		logrus.Debugf("no token to inference")
+		log.Debugf("no token to inference")
 		// TODO check
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
@@ -105,6 +104,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			newResponseCodeError(errorBadRequestParam, err),
 		)
 
+		log.Errorf("exit new account, err:%s", err.Error())
+
 		return
 	}
 
@@ -113,6 +114,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	v, err := ctl.project.GetSummary(owner, projectId)
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
+
+		log.Errorf("exit get summary, err:%s", err.Error())
 
 		return
 	}
@@ -126,6 +129,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 				"project is not found",
 			),
 		)
+
+		log.Debug("exit for project is private")
 
 		return
 	}
@@ -148,6 +153,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	dto, lastCommit, err := ctl.s.Create(&u, &cmd)
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
+
+		log.Errorf("exit for create, err:%s", err.Error())
 
 		return
 	}
@@ -172,8 +179,12 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		if err != nil {
 			ws.WriteJSON(newResponseError(err))
 
+			log.Errorf("exit when get, err:%s", err.Error())
+
 			return
 		}
+
+		log.Debugf("info dto:%v", dto)
 
 		if dto.Error != "" || dto.AccessURL != "" {
 			ws.WriteJSON(newResponseData(dto))
@@ -183,6 +194,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 
 		time.Sleep(time.Second)
 	}
+
+	log.Errorf("inference(%#v) timeout", info)
 
 	ws.WriteJSON(newResponseCodeMsg(errorSystemError, "timeout"))
 }
