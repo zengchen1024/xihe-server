@@ -33,7 +33,7 @@ func AddRouterForDatasetController(
 
 	rg.POST("/v1/dataset", ctl.Create)
 	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
-	rg.GET("/v1/dateset/:owner/:name/check", ctl.Check)
+	rg.GET("/v1/dataset/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
 	rg.GET("/v1/dataset/:owner", ctl.List)
 	rg.GET("/v1/dataset", ctl.ListGlobal)
