@@ -13,7 +13,7 @@ func (col competition) toCompetitionSummaryDO(
 		Bonus:    doc.Bonus,
 		Status:   doc.Status,
 		Poster:   doc.Poster,
-		Duration: doc.DatasetURL,
+		Duration: doc.Duration,
 	}
 }
 
