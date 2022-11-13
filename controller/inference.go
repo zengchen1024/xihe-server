@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -79,7 +78,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			return r.Header.Get(headerSecWebsocket) == token
 		}
 	} else {
-		logrus.Debugf("no token to inference")
+		log.Debugf("no token to inference")
 		// TODO check
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
@@ -175,6 +174,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			return
 		}
 
+		log.Debugf("info dto:%v", dto)
+
 		if dto.Error != "" || dto.AccessURL != "" {
 			ws.WriteJSON(newResponseData(dto))
 
@@ -183,6 +184,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 
 		time.Sleep(time.Second)
 	}
+
+	log.Errorf("inference(%#v) timeout", info)
 
 	ws.WriteJSON(newResponseCodeMsg(errorSystemError, "timeout"))
 }
