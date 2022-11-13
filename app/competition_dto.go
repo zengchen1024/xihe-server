@@ -47,7 +47,7 @@ type CompetitionTeamMemberDTO struct {
 }
 
 // result
-type CompetitionResultDTO struct {
+type CompetitionSubmissionsDTO struct {
 	RelatedProject string                     `json:"project"`
 	Details        []CompetitionSubmissionDTO `json:"details"`
 }

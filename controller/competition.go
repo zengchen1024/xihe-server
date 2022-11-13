@@ -31,9 +31,9 @@ type CompetitionController struct {
 	s app.CompetitionService
 }
 
-// @Title Get
+// @Summary Get
 // @Description get detail of competition
-// @Competition  Competition
+// @Tags  Competition
 // @Param	id	path	string	true	"competition id"
 // @Accept json
 // @Success 200 {object} app.CompetitionDTO
@@ -58,9 +58,9 @@ func (ctl *CompetitionController) Get(ctx *gin.Context) {
 	}
 }
 
-// @Title List
+// @Summary List
 // @Description list competitions
-// @Competition  Competition
+// @Tags  Competition
 // @Param	status	query	string	false	"competition status, such as done, preparing, in-progress"
 // @Param	mine	query	string	false	"just list competitions of competitor, if it is set"
 // @Accept json
@@ -96,9 +96,9 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 	}
 }
 
-// @Title GetTeam
+// @Summary GetTeam
 // @Description get team of competition
-// @Competition  Competition
+// @Tags  Competition
 // @Param	id	path	string	true	"competition id"
 // @Accept json
 // @Success 200 {object} app.CompetitionTeamDTO
@@ -118,9 +118,9 @@ func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
 	}
 }
 
-// @Title GetRankingList
+// @Summary GetRankingList
 // @Description get ranking list of competition
-// @Competition  Competition
+// @Tags  Competition
 // @Param	id	path	string	true	"competition id"
 // @Param	phase	path	string	true	"competition phase, such as preliminary, final"
 // @Accept json
@@ -145,12 +145,12 @@ func (ctl *CompetitionController) GetRankingList(ctx *gin.Context) {
 	}
 }
 
-// @Title GetSubmissions
+// @Summary GetSubmissions
 // @Description get submissions
-// @Competition  Competition
+// @Tags  Competition
 // @Param	id	path	string	true	"competition id"
 // @Accept json
-// @Success 200 {object} app.RankingDTO
+// @Success 200 {object} app.CompetitionSubmissionsDTO
 // @Failure 500 system_error        system error
 // @Router /v1/competition/{id}/submissions [get]
 func (ctl *CompetitionController) GetSubmissions(ctx *gin.Context) {
