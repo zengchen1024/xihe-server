@@ -85,15 +85,15 @@ type CompetitionDO struct {
 func (do *CompetitionDO) toCompetition(
 	c *domain.Competition,
 ) (err error) {
-	if c.Doc, err = domain.NewURL(do.Poster); err != nil {
+	if c.Doc, err = domain.NewURL(do.Doc); err != nil {
 		return
 	}
 
-	if c.DatasetDoc, err = domain.NewURL(do.Poster); err != nil {
+	if c.DatasetDoc, err = domain.NewURL(do.DatasetDoc); err != nil {
 		return
 	}
 
-	if c.DatasetURL, err = domain.NewURL(do.Poster); err != nil {
+	if c.DatasetURL, err = domain.NewURL(do.DatasetURL); err != nil {
 		return
 	}
 
