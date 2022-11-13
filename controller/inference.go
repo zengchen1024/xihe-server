@@ -104,6 +104,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 			newResponseCodeError(errorBadRequestParam, err),
 		)
 
+		log.Errorf("exit new account, err:%s", err.Error())
+
 		return
 	}
 
@@ -112,6 +114,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	v, err := ctl.project.GetSummary(owner, projectId)
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
+
+		log.Errorf("exit get summary, err:%s", err.Error())
 
 		return
 	}
@@ -125,6 +129,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 				"project is not found",
 			),
 		)
+
+		log.Debug("exit for project is private")
 
 		return
 	}
@@ -148,6 +154,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 	if err != nil {
 		ws.WriteJSON(newResponseError(err))
 
+		log.Errorf("exit for create, err:%s", err.Error())
+
 		return
 	}
 
@@ -170,6 +178,8 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		dto, err = ctl.s.Get(&info)
 		if err != nil {
 			ws.WriteJSON(newResponseError(err))
+
+			log.Errorf("exit when get, err:%s", err.Error())
 
 			return
 		}
