@@ -376,6 +376,10 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "List",
                 "parameters": [
                     {
                         "type": "string",
@@ -412,6 +416,10 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "Get",
                 "parameters": [
                     {
                         "type": "string",
@@ -443,6 +451,10 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "GetRankingList",
                 "parameters": [
                     {
                         "type": "string",
@@ -481,6 +493,10 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "GetSubmissions",
                 "parameters": [
                     {
                         "type": "string",
@@ -494,7 +510,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.RankingDTO"
+                            "$ref": "#/definitions/app.CompetitionSubmissionsDTO"
                         }
                     },
                     "500": {
@@ -512,6 +528,10 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "GetTeam",
                 "parameters": [
                     {
                         "type": "string",
@@ -3304,6 +3324,37 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionSubmissionDTO": {
+            "type": "object",
+            "properties": {
+                "project": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submit_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompetitionSubmissionsDTO": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.CompetitionSubmissionDTO"
+                    }
+                },
+                "project": {
                     "type": "string"
                 }
             }

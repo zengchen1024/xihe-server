@@ -35,6 +35,26 @@ definitions:
       status:
         type: string
     type: object
+  app.CompetitionSubmissionDTO:
+    properties:
+      project:
+        type: string
+      score:
+        type: number
+      status:
+        type: string
+      submit_at:
+        type: string
+    type: object
+  app.CompetitionSubmissionsDTO:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/app.CompetitionSubmissionDTO'
+        type: array
+      project:
+        type: string
+    type: object
   app.CompetitionSummaryDTO:
     properties:
       bonus:
@@ -1330,6 +1350,9 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
+      summary: List
+      tags:
+      - Competition
   /v1/competition/{id}:
     get:
       consumes:
@@ -1350,6 +1373,9 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
+      summary: Get
+      tags:
+      - Competition
   /v1/competition/{id}/ranking/{phase}:
     get:
       consumes:
@@ -1375,6 +1401,9 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
+      summary: GetRankingList
+      tags:
+      - Competition
   /v1/competition/{id}/submissions:
     get:
       consumes:
@@ -1390,11 +1419,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.RankingDTO'
+            $ref: '#/definitions/app.CompetitionSubmissionsDTO'
         "500":
           description: Internal Server Error
           schema:
             type: system_error
+      summary: GetSubmissions
+      tags:
+      - Competition
   /v1/competition/{id}/team:
     get:
       consumes:
@@ -1415,6 +1447,9 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
+      summary: GetTeam
+      tags:
+      - Competition
   /v1/dataset:
     get:
       consumes:

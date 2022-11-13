@@ -19,7 +19,7 @@ type CompetitionService interface {
 	// check the role of submitter
 	//Submit(cid string, fileName string, file io.Reader) error
 
-	GetSubmissions(cid string, competitor domain.Account) (CompetitionResultDTO, error)
+	GetSubmissions(cid string, competitor domain.Account) (CompetitionSubmissionsDTO, error)
 
 	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
 
@@ -180,7 +180,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 }
 
 func (s competitionService) GetSubmissions(cid string, competitor domain.Account) (
-	dto CompetitionResultDTO, err error,
+	dto CompetitionSubmissionsDTO, err error,
 ) {
 	repo, results, err := s.repo.GetSubmisstions(cid, competitor)
 	if err != nil {
