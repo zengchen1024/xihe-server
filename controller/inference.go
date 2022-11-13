@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -76,6 +77,12 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		upgrader.Subprotocols = []string{token}
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return r.Header.Get(headerSecWebsocket) == token
+		}
+	} else {
+		logrus.Debugf("no token to inference")
+		// TODO check
+		upgrader.CheckOrigin = func(r *http.Request) bool {
+			return true
 		}
 	}
 
