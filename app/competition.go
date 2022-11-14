@@ -1,7 +1,6 @@
 package app
 
 import (
-	//"io"
 	"sort"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -100,6 +99,8 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 
 	if name := v[0].Team.Name; name != nil {
 		dto.Name = name.TeamName()
+	} else {
+		dto.Name = v[0].Account.Account()
 	}
 
 	members := make([]CompetitionTeamMemberDTO, len(v))
@@ -115,6 +116,8 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 			members[i].Role = item.TeamRole.TeamRole()
 		}
 	}
+
+	dto.Members = members
 
 	return
 }
