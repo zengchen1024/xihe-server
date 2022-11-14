@@ -1,7 +1,6 @@
 package app
 
 import (
-	//"io"
 	"sort"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -12,7 +11,7 @@ import (
 type CompetitionListCMD = repository.CompetitionListOption
 
 type CompetitionService interface {
-	Get(cid string, competitor domain.Account) (CompetitionDTO, error)
+	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
 	// get the phase first, then check if can submit,
@@ -37,7 +36,7 @@ type competitionService struct {
 }
 
 func (s competitionService) Get(cid string, competitor domain.Account) (
-	dto CompetitionDTO, err error,
+	dto UserCompetitionDTO, err error,
 ) {
 	index := domain.CompetitionIndex{
 		Id:    cid,
@@ -49,12 +48,16 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 		return
 	}
 
-	s.toCompetitionDTO(&v.Competition, &dto)
+	s.toCompetitionDTO(&v.Competition, &dto.CompetitionDTO)
 
 	dto.CompetitorCount = v.CompetitorCount
-
+	dto.IsCompetitor = b
 	if !b {
 		dto.DatasetURL = ""
+	}
+
+	if !v.Enabled {
+		dto.Phase = domain.CompetitionPhaseFinal.CompetitionPhase()
 	}
 
 	return
@@ -96,6 +99,8 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 
 	if name := v[0].Team.Name; name != nil {
 		dto.Name = name.TeamName()
+	} else {
+		dto.Name = v[0].Account.Account()
 	}
 
 	members := make([]CompetitionTeamMemberDTO, len(v))
@@ -111,6 +116,8 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 			members[i].Role = item.TeamRole.TeamRole()
 		}
 	}
+
+	dto.Members = members
 
 	return
 }

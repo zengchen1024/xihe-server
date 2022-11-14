@@ -252,7 +252,7 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 	teams []repositories.CompetitionTeamDO,
 	results []repositories.CompetitionSubmissionDO, err error,
 ) {
-	var v []DCompetition
+	var v DCompetition
 
 	f := func(ctx context.Context) error {
 		return cli.getDoc(
@@ -269,13 +269,7 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 		return
 	}
 
-	if len(v) == 0 {
-		err = errDocNotExists
-
-		return
-	}
-
-	rs := v[0].Submissions
+	rs := v.Submissions
 	if len(rs) == 0 {
 		return
 	}
@@ -285,9 +279,9 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 		col.toCompetitionSubmissionDO(&rs[i], &results[i])
 	}
 
-	smallerOk = v[0].SmallerOk
+	smallerOk = v.SmallerOk
 
-	if ts := v[0].Teams; len(ts) > 0 {
+	if ts := v.Teams; len(ts) > 0 {
 		teams = make([]repositories.CompetitionTeamDO, len(ts))
 		for i := range ts {
 			col.toCompetitionTeamDO(&ts[i], &teams[i])

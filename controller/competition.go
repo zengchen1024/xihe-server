@@ -36,7 +36,7 @@ type CompetitionController struct {
 // @Tags  Competition
 // @Param	id	path	string	true	"competition id"
 // @Accept json
-// @Success 200 {object} app.CompetitionDTO
+// @Success 200 {object} app.UserCompetitionDTO
 // @Failure 500 system_error        system error
 // @Router /v1/competition/{id} [get]
 func (ctl *CompetitionController) Get(ctx *gin.Context) {
