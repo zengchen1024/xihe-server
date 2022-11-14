@@ -183,18 +183,15 @@ func (col model) Search(do *repositories.GlobalResourceListDO, topNum int) (
 
 	total = len(items)
 
-	r = make([]repositories.ResourceSummaryDO, total)
+	if total < topNum {
+		topNum = total
+	}
 
-	j := 0
-	for i := range items {
+	r = make([]repositories.ResourceSummaryDO, topNum)
+
+	for i := range r {
 		r[i].Owner = items[i].owner
 		r[i].Name = items[i].modelItem.Name
-
-		if j++; j >= topNum {
-			r = r[:topNum]
-
-			break
-		}
 	}
 
 	return

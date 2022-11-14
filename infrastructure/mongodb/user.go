@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"errors"
+	"sort"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -200,6 +201,81 @@ func (col user) ListUsersInfo(accounts []string) ([]repositories.UserInfoDO, err
 	}
 
 	return r, nil
+}
+
+type userInfo struct {
+	DUser `bson:",inline"`
+
+	Count int `bson:"count"`
+}
+
+func (col user) Search(do *repositories.UserSearchOptionDO) (
+	r []string, total int, err error,
+) {
+	key := "$" + fieldFollower
+	fieldCount := "count"
+	fields := bson.M{fieldCount: bson.M{
+		"$cond": bson.M{
+			"if":   bson.M{"$isArray": key},
+			"then": bson.M{"$size": key},
+			"else": 0,
+		},
+	}}
+
+	pipeline := bson.A{
+		bson.M{mongoCmdMatch: bson.M{
+			"$expr": bson.M{
+				"$regexMatch": bson.M{
+					"input": "$" + fieldName,
+					"regex": do.Name,
+				},
+			},
+		}},
+		bson.M{"$addFields": fields},
+		bson.M{"$project": bson.M{
+			fieldName:  1,
+			fieldCount: 1,
+		}},
+	}
+
+	var v []userInfo
+
+	f := func(ctx context.Context) error {
+		col := cli.collection(col.collectionName)
+		cursor, err := col.Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
+	}
+
+	if err = withContext(f); err != nil || len(v) == 0 {
+		return
+	}
+
+	total = len(v)
+
+	items := make([]*userInfo, total)
+	for i := range v {
+		items[i] = &v[i]
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Count >= items[j].Count
+	})
+
+	n := do.TopNum
+	if total < n {
+		n = total
+	}
+
+	r = make([]string, n)
+	for i := range r {
+		r[i] = items[i].Name
+	}
+
+	return
 }
 
 func (col user) toUserDoc(do *repositories.UserDO) (bson.M, error) {
