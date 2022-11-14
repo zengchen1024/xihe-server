@@ -20,6 +20,8 @@ func (col competition) toCompetitionSummaryDO(
 func (col competition) toCompetitionDO(
 	doc *DCompetition, do *repositories.CompetitionDO,
 ) {
+	do.Enabled = doc.Enabled
+	do.Phase = doc.Phase
 	do.Doc = doc.Doc
 	do.DatasetDoc = doc.DatasetDoc
 	do.DatasetURL = doc.DatasetURL

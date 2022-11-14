@@ -22,9 +22,16 @@ type CompetitionSummaryDTO struct {
 type CompetitionDTO struct {
 	CompetitionSummaryDTO
 
+	Phase      string `json:"phase"`
 	Doc        string `json:"doc"`
 	DatasetDoc string `json:"dataset_doc"`
 	DatasetURL string `json:"dataset_url"`
+}
+
+type UserCompetitionDTO struct {
+	IsCompetitor bool `json:"is_competitor"`
+
+	CompetitionDTO
 }
 
 // ranking

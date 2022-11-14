@@ -433,7 +433,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.CompetitionDTO"
+                            "$ref": "#/definitions/app.UserCompetitionDTO"
                         }
                     },
                     "500": {
@@ -3287,47 +3287,6 @@ const docTemplate = `{
                 }
             }
         },
-        "app.CompetitionDTO": {
-            "type": "object",
-            "properties": {
-                "bonus": {
-                    "type": "integer"
-                },
-                "count": {
-                    "type": "integer"
-                },
-                "dataset_doc": {
-                    "type": "string"
-                },
-                "dataset_url": {
-                    "type": "string"
-                },
-                "desc": {
-                    "type": "string"
-                },
-                "doc": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "poster": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "app.CompetitionSubmissionDTO": {
             "type": "object",
             "properties": {
@@ -4014,6 +3973,53 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UserCompetitionDTO": {
+            "type": "object",
+            "properties": {
+                "bonus": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "dataset_doc": {
+                    "type": "string"
+                },
+                "dataset_url": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "doc": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_competitor": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phase": {
+                    "type": "string"
+                },
+                "poster": {
                     "type": "string"
                 },
                 "status": {

@@ -77,6 +77,8 @@ func (do *CompetitionSummaryDO) toCompetitionSummary(
 type CompetitionDO struct {
 	CompetitionSummaryDO
 
+	Enabled    bool
+	Phase      string
 	Doc        string
 	DatasetDoc string
 	DatasetURL string
@@ -85,6 +87,12 @@ type CompetitionDO struct {
 func (do *CompetitionDO) toCompetition(
 	c *domain.Competition,
 ) (err error) {
+	c.Enabled = do.Enabled
+
+	if c.Phase, err = domain.NewCompetitionPhase(do.Phase); err != nil {
+		return
+	}
+
 	if c.Doc, err = domain.NewURL(do.Doc); err != nil {
 		return
 	}

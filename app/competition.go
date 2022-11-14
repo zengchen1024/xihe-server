@@ -12,7 +12,7 @@ import (
 type CompetitionListCMD = repository.CompetitionListOption
 
 type CompetitionService interface {
-	Get(cid string, competitor domain.Account) (CompetitionDTO, error)
+	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
 	// get the phase first, then check if can submit,
@@ -37,7 +37,7 @@ type competitionService struct {
 }
 
 func (s competitionService) Get(cid string, competitor domain.Account) (
-	dto CompetitionDTO, err error,
+	dto UserCompetitionDTO, err error,
 ) {
 	index := domain.CompetitionIndex{
 		Id:    cid,
@@ -49,12 +49,16 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 		return
 	}
 
-	s.toCompetitionDTO(&v.Competition, &dto)
+	s.toCompetitionDTO(&v.Competition, &dto.CompetitionDTO)
 
 	dto.CompetitorCount = v.CompetitorCount
-
+	dto.IsCompetitor = b
 	if !b {
 		dto.DatasetURL = ""
+	}
+
+	if !v.Enabled {
+		dto.Phase = domain.CompetitionPhaseFinal.CompetitionPhase()
 	}
 
 	return
