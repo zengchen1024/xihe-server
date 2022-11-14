@@ -25,6 +25,8 @@ type TrainingConfigDO struct {
 	Hypeparameters []KeyValueDO
 	Env            []KeyValueDO
 	Inputs         []InputDO
+	EnableAim      bool
+	EnableOutput   bool
 
 	Compute ComputeDO
 }
@@ -64,7 +66,12 @@ func (do *TrainingConfigDO) toTrainingConfig() (t domain.TrainingConfig, err err
 		return
 	}
 
-	t.Inputs, err = do.toInputs()
+	if t.Inputs, err = do.toInputs(); err != nil {
+		return
+	}
+
+	t.EnableOutput = do.EnableOutput
+	t.EnableAim = do.EnableAim
 
 	return
 }
@@ -185,6 +192,8 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 			Hypeparameters: impl.toKeyValueDOs(t.Hypeparameters),
 			Env:            impl.toKeyValueDOs(t.Env),
 			Inputs:         impl.toInputDOs(t.Inputs),
+			EnableAim:      t.EnableAim,
+			EnableOutput:   t.EnableOutput,
 
 			Compute: ComputeDO{
 				Type:    c.Type.ComputeType(),

@@ -18,6 +18,8 @@ func (col training) toTrainingDoc(do *repositories.UserTrainingDO) (bson.M, erro
 		BootFile:       cfg.BootFile,
 		CreatedAt:      do.CreatedAt,
 		Inputs:         col.toInputDoc(cfg.Inputs),
+		EnableAim:      do.EnableAim,
+		EnableOutput:   do.EnableOutput,
 		Env:            col.toKeyValueDoc(cfg.Env),
 		Hypeparameters: col.toKeyValueDoc(cfg.Hypeparameters),
 		Compute: dCompute{
@@ -91,6 +93,8 @@ func (col training) toTrainingConfigDO(doc *dTraining) repositories.TrainingConf
 		CodeDir:        item.CodeDir,
 		BootFile:       item.BootFile,
 		Inputs:         col.toInputs(item.Inputs),
+		EnableAim:      item.EnableAim,
+		EnableOutput:   item.EnableOutput,
 		Env:            col.toKeyValues(item.Env),
 		Hypeparameters: col.toKeyValues(item.Hypeparameters),
 		Compute: repositories.ComputeDO{
