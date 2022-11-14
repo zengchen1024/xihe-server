@@ -40,6 +40,8 @@ func (impl *trainingImpl) CreateJob(endpoint string, info *domain.TrainingIndex,
 		Compute:        impl.toCompute(&t.Compute),
 		Env:            impl.toKeyValue(t.Env),
 		Inputs:         impl.toInput(t.Inputs),
+		EnableAim:      t.EnableAim,
+		EnableOutput:   t.EnableOutput,
 		Hypeparameters: impl.toKeyValue(t.Hypeparameters),
 	}
 

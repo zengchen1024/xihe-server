@@ -4155,6 +4155,12 @@ const docTemplate = `{
                 "desc": {
                     "type": "string"
                 },
+                "enable_aim": {
+                    "type": "boolean"
+                },
+                "enable_output": {
+                    "type": "boolean"
+                },
                 "env": {
                     "type": "array",
                     "items": {
@@ -4765,6 +4771,9 @@ const docTemplate = `{
         "controller.trainingDetail": {
             "type": "object",
             "properties": {
+                "aim_path": {
+                    "type": "string"
+                },
                 "compute": {
                     "$ref": "#/definitions/app.ComputeDTO"
                 },
@@ -4776,6 +4785,9 @@ const docTemplate = `{
                 },
                 "duration": {
                     "type": "integer"
+                },
+                "enable_aim": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"

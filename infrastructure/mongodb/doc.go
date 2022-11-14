@@ -255,6 +255,8 @@ type trainingItem struct {
 	BootFile       string      `bson:"boot_file"     json:"boot_file"`
 	Compute        dCompute    `bson:"compute"       json:"compute"`
 	Inputs         []dInput    `bson:"inputs"        json:"inputs"`
+	EnableAim      bool        `bson:"aim"           json:"aim"`
+	EnableOutput   bool        `bson:"output"        json:"output"`
 	Env            []dKeyValue `bson:"env"           json:"env"`
 	Hypeparameters []dKeyValue `bson:"parameters"    json:"parameters"`
 	CreatedAt      int64       `bson:"created_at"    json:"created_at"`

@@ -113,9 +113,11 @@ type TrainingDTO struct {
 	Duration  int        `json:"duration"`
 	CreatedAt string     `json:"created_at"`
 	Compute   ComputeDTO `json:"compute"`
+	AimPath   string     `json:"aim_path"`
+	EnableAim bool       `json:"enable_aim"`
 
-	JobEndpoint string `json:"-"`
 	JobId       string `json:"-"`
+	JobEndpoint string `json:"-"`
 }
 
 type ComputeDTO struct {
@@ -148,6 +150,8 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 			Flavor:  c.Flavor.ComputeFlavor(),
 			Version: c.Version.ComputeVersion(),
 		},
+		EnableAim: t.EnableAim,
+		AimPath:   ut.JobDetail.AimPath,
 
 		JobEndpoint: ut.Job.Endpoint,
 		JobId:       ut.Job.JobId,
