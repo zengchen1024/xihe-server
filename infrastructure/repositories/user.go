@@ -19,6 +19,8 @@ type UserMapper interface {
 	AddFollower(FollowerInfoDO) error
 	RemoveFollower(FollowerInfoDO) error
 	ListFollower(*FollowerUserInfoListDO) ([]FollowerUserInfoDO, int, error)
+
+	Search(do *UserSearchOptionDO) ([]string, int, error)
 }
 
 // TODO: mapper can be mysql
@@ -130,6 +132,29 @@ func (impl user) toUserDO(u *domain.User) UserDO {
 
 	return do
 }
+
+func (impl user) Search(opt *repository.UserSearchOption) (
+	r repository.UserSearchResult, err error,
+) {
+	v, n, err := impl.mapper.Search(opt)
+	if err != nil || len(v) == 0 {
+		return
+	}
+
+	users := make([]domain.Account, len(v))
+	for i := range v {
+		if users[i], err = domain.NewAccount(v[i]); err != nil {
+			return
+		}
+	}
+
+	r.Top = users
+	r.Total = n
+
+	return
+}
+
+type UserSearchOptionDO = repository.UserSearchOption
 
 type UserInfoDO struct {
 	Account  string

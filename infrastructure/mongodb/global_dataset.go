@@ -183,18 +183,14 @@ func (col dataset) Search(do *repositories.GlobalResourceListDO, topNum int) (
 
 	total = len(items)
 
-	r = make([]repositories.ResourceSummaryDO, total)
+	if total < topNum {
+		topNum = total
+	}
+	r = make([]repositories.ResourceSummaryDO, topNum)
 
-	j := 0
-	for i := range items {
+	for i := range r {
 		r[i].Owner = items[i].owner
 		r[i].Name = items[i].datasetItem.Name
-
-		if j++; j >= topNum {
-			r = r[:topNum]
-
-			break
-		}
 	}
 
 	return

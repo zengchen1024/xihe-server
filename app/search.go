@@ -6,9 +6,15 @@ import (
 )
 
 type SearchDTO struct {
+	User    UserSearchDTO     `json:"user"`
 	Model   ResourceSearchDTO `json:"model"`
 	Project ResourceSearchDTO `json:"project"`
 	Dataset ResourceSearchDTO `json:"dataset"`
+}
+
+type UserSearchDTO struct {
+	Top   []string `json:"top"`
+	Total int      `json:"total"`
 }
 
 type ResourceSearchDTO struct {
@@ -36,11 +42,13 @@ type SearchService interface {
 }
 
 func NewSearchService(
+	user repository.User,
 	model repository.Model,
 	project repository.Project,
 	dataset repository.Dataset,
 ) SearchService {
 	return searchService{
+		user:    user,
 		model:   model,
 		project: project,
 		dataset: dataset,
@@ -48,6 +56,7 @@ func NewSearchService(
 }
 
 type searchService struct {
+	user    repository.User
 	model   repository.Model
 	project repository.Project
 	dataset repository.Dataset
@@ -55,6 +64,10 @@ type searchService struct {
 
 func (s searchService) Search(name string) (dto SearchDTO) {
 	option := newResourceSearchOption(name)
+
+	if u, err := s.searchUser(name); err == nil {
+		dto.User = u
+	}
 
 	v, err := s.search(&option, s.project.Search)
 	if err == nil {
@@ -81,7 +94,7 @@ func (s searchService) search(
 	dto ResourceSearchDTO, err error,
 ) {
 	v, err := f(option)
-	if err != nil {
+	if err != nil || v.Total == 0 {
 		return
 	}
 
@@ -91,6 +104,28 @@ func (s searchService) search(
 
 		items[i].Owner = item.Owner.Account()
 		items[i].Name = item.Name.ResourceName()
+	}
+
+	dto.Top = items
+	dto.Total = v.Total
+
+	return
+}
+
+func (s searchService) searchUser(name string) (
+	dto UserSearchDTO, err error,
+) {
+	v, err := s.user.Search(&repository.UserSearchOption{
+		Name:   name,
+		TopNum: 3,
+	})
+	if err != nil || v.Total == 0 {
+		return
+	}
+
+	items := make([]string, len(v.Top))
+	for i := range v.Top {
+		items[i] = v.Top[i].Account()
 	}
 
 	dto.Top = items

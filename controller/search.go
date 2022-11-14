@@ -17,7 +17,7 @@ func AddRouterForSearchController(
 	dataset repository.Dataset,
 ) {
 	ctl := SearchController{
-		s: app.NewSearchService(model, proj, dataset),
+		s: app.NewSearchService(user, model, proj, dataset),
 	}
 
 	rg.GET("/v1/search", ctl.List)
