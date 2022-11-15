@@ -3,6 +3,8 @@ package app
 import (
 	"encoding/base64"
 	"errors"
+	"io"
+	"sort"
 
 	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
@@ -21,6 +23,7 @@ type RepoFileService interface {
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
+	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
 
 func NewRepoFileService(rf platform.RepoFile, sender message.Sender) RepoFileService {
@@ -122,7 +125,27 @@ func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd)
 }
 
 func (s *repoFileService) List(u *UserInfo, d *RepoFileListCmd) ([]RepoPathItem, error) {
-	return s.rf.List(u, d)
+	r, err := s.rf.List(u, d)
+	if err != nil || len(r) == 0 {
+		return nil, err
+	}
+
+	sort.Slice(r, func(i, j int) bool {
+		a := &r[i]
+		b := &r[j]
+
+		if a.IsDir != b.IsDir {
+			return a.IsDir
+		}
+
+		return a.Name < b.Name
+	})
+
+	return r, nil
+}
+
+func (s *repoFileService) DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error {
+	return s.rf.DownloadRepo(u, repoId, handle)
 }
 
 type RepoFileDownloadDTO struct {

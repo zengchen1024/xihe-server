@@ -2462,7 +2462,7 @@ paths:
       summary: Check
       tags:
       - Project
-  /v1/repo/:type/{name}/file/{path}:
+  /v1/repo/{type}/{name}/file/{path}:
     delete:
       consumes:
       - application/json
@@ -2570,7 +2570,37 @@ paths:
       summary: Update
       tags:
       - RepoFile
-  /v1/repo/:type/{user}/{name}/file/{path}:
+  /v1/repo/{type}/{user}/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Download repo
+      parameters:
+      - description: user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: repo name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: DownloadRepo
+      tags:
+      - RepoFile
+  /v1/repo/{type}/{user}/{name}/file/{path}:
     get:
       consumes:
       - application/json
@@ -2607,7 +2637,7 @@ paths:
       summary: Download
       tags:
       - RepoFile
-  /v1/repo/:type/{user}/{name}/file/{path}/preview:
+  /v1/repo/{type}/{user}/{name}/file/{path}/preview:
     get:
       consumes:
       - application/json
@@ -2642,7 +2672,7 @@ paths:
       summary: Preview
       tags:
       - RepoFile
-  /v1/repo/:type/{user}/{name}/files:
+  /v1/repo/{type}/{user}/{name}/files:
     get:
       consumes:
       - application/json

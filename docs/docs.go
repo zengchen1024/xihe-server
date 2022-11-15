@@ -2015,7 +2015,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/:type/{name}/file/{path}": {
+        "/v1/repo/{type}/{name}/file/{path}": {
             "put": {
                 "description": "update repo file",
                 "consumes": [
@@ -2176,7 +2176,52 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/:type/{user}/{name}/file/{path}": {
+        "/v1/repo/{type}/{user}/{name}": {
+            "get": {
+                "description": "Download repo",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RepoFile"
+                ],
+                "summary": "DownloadRepo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repo/{type}/{user}/{name}/file/{path}": {
             "get": {
                 "description": "Download repo file",
                 "consumes": [
@@ -2231,7 +2276,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/:type/{user}/{name}/file/{path}/preview": {
+        "/v1/repo/{type}/{user}/{name}/file/{path}/preview": {
             "get": {
                 "description": "preview repo file",
                 "consumes": [
@@ -2283,7 +2328,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/repo/:type/{user}/{name}/files": {
+        "/v1/repo/{type}/{user}/{name}/files": {
             "get": {
                 "description": "list repo file in a path",
                 "consumes": [
