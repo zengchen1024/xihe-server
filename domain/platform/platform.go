@@ -54,6 +54,11 @@ type RepoDir struct {
 	Path     domain.Directory
 }
 
+type RepoDirInfo struct {
+	RepoDir
+	RepoId string
+}
+
 type RepoDirFile struct {
 	RepoName domain.ResourceName
 	Dir      domain.Directory
@@ -72,6 +77,7 @@ type RepoFile interface {
 	Create(u *UserInfo, f *RepoFileInfo, content *RepoFileContent) error
 	Update(u *UserInfo, f *RepoFileInfo, content *RepoFileContent) error
 	Delete(u *UserInfo, f *RepoFileInfo) error
+	DeleteDir(u *UserInfo, f *RepoDirInfo) error
 	Download(u *UserInfo, f *RepoFileInfo) (data []byte, notFound bool, err error)
 	IsLFSFile(data []byte) (is bool, sha string)
 	GenLFSDownloadURL(sha string) (string, error)

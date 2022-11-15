@@ -43,7 +43,7 @@ func (impl *repoFile) Update(
 func (impl *repoFile) Delete(u *platform.UserInfo, info *platform.RepoFileInfo) error {
 	opt := impl.toCommitInfo(u, "delete file: "+info.Path.FilePath())
 
-	req, err := impl.newRequest(u.Token, info, http.MethodDelete, &opt)
+	req, err := impl.newRequest(u.Token, impl.baseURL(info), http.MethodDelete, &opt)
 	if err != nil {
 		return err
 	}
@@ -117,8 +117,7 @@ func (impl *repoFile) baseURL(info *platform.RepoFileInfo) string {
 }
 
 func (impl *repoFile) newRequest(
-	token string, info *platform.RepoFileInfo,
-	method string, param interface{},
+	token, url, method string, param interface{},
 ) (*http.Request, error) {
 	var body io.Reader
 
@@ -131,7 +130,7 @@ func (impl *repoFile) newRequest(
 		body = bytes.NewReader(v)
 	}
 
-	req, err := http.NewRequest(method, impl.baseURL(info), body)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +163,7 @@ func (impl *repoFile) modify(
 		opt.Encoding = "base64"
 	}
 
-	req, err := impl.newRequest(u.Token, info, method, &opt)
+	req, err := impl.newRequest(u.Token, impl.baseURL(info), method, &opt)
 	if err != nil {
 		return err
 	}
@@ -227,6 +226,87 @@ func (impl *repoFile) List(u *platform.UserInfo, info *platform.RepoDir) (
 	r = v.toRepoPathItems()
 
 	return
+}
+
+func (impl *repoFile) DeleteDir(u *platform.UserInfo, info *platform.RepoDirInfo) (err error) {
+	body := `
+{
+	"query":"query {
+		project(fullPath: \"%s\") {
+			repository {
+				tree(ref: \"%s\", recursive: true, path: \"%s\") {
+					blobs {
+						nodes {
+							path
+						}
+					},
+				}
+			}
+		}
+	}"
+}
+`
+	data := fmt.Sprintf(
+		body,
+		u.User.Account()+"/"+info.RepoName.ResourceName(),
+		defaultBranch, info.Path.Directory(),
+	)
+
+	data = strings.ReplaceAll(data, "\n", "")
+	data = strings.ReplaceAll(data, "\t", "")
+
+	req, err := http.NewRequest(http.MethodPost, graphql_endpoint, strings.NewReader(data))
+	if err != nil {
+		return
+	}
+
+	h := &req.Header
+	if u.Token != "" {
+		h.Add("Authorization", "Bearer "+u.Token)
+	}
+	h.Add("Content-Type", "application/json")
+
+	v := graphqlResult{}
+	if _, err = impl.cli.ForwardTo(req, &v); err != nil {
+		return
+	}
+
+	files := v.allFiles()
+	if len(files) == 0 {
+		return
+	}
+
+	return impl.deleteMultiFiles(u, info, files)
+}
+
+func (impl *repoFile) deleteMultiFiles(
+	u *platform.UserInfo, info *platform.RepoDirInfo, files []string,
+) error {
+	actions := make([]Action, len(files))
+	for i := range files {
+		actions[i] = Action{
+			Action:   "delete",
+			FilePath: files[i],
+		}
+	}
+
+	opt := impl.toCommitInfo(u, "delete dir: "+info.Path.Directory())
+
+	commit := Commits{
+		CommitInfo: opt,
+		Actions:    actions,
+	}
+
+	url := endpoint + fmt.Sprintf("/projects/%s/repository/commits", info.RepoId)
+
+	req, err := impl.newRequest(u.Token, url, http.MethodPost, &commit)
+	if err != nil {
+		return err
+	}
+
+	_, err = impl.cli.ForwardTo(req, nil)
+
+	return err
 }
 
 func (impl *repoFile) GetDirFileInfo(u *platform.UserInfo, info *platform.RepoDirFile) (
