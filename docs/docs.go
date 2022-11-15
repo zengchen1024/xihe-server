@@ -4047,6 +4047,9 @@ const docTemplate = `{
                 "duration": {
                     "type": "string"
                 },
+                "forum": {
+                    "type": "string"
+                },
                 "host": {
                     "type": "string"
                 },
