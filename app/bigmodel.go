@@ -13,11 +13,7 @@ import (
 type CodeGeexCmd bigmodel.CodeGeexReq
 
 func (cmd *CodeGeexCmd) Validate() error {
-	b := cmd.Content != "" &&
-		cmd.Lang != "" &&
-		cmd.ResultNum > 0
-
-	if !b {
+	if cmd.Content == "" || cmd.Lang == "" {
 		return errors.New("invalid cmd")
 	}
 

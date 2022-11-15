@@ -2,7 +2,6 @@ package bigmodels
 
 import (
 	"bytes"
-	"errors"
 	"net/http"
 
 	"github.com/opensourceways/community-robot-lib/utils"
@@ -12,8 +11,6 @@ import (
 
 type codegeexInfo struct {
 	endpoints chan string
-	ak        string
-	sk        string
 }
 
 func newCodeGeexInfo(cfg *Config) codegeexInfo {
@@ -28,9 +25,6 @@ func newCodeGeexInfo(cfg *Config) codegeexInfo {
 	for _, e := range es {
 		v.endpoints <- e
 	}
-
-	v.ak = cfg.CodeGeex.AK
-	v.sk = cfg.CodeGeex.SK
 
 	return v
 }
@@ -49,11 +43,8 @@ func (s *service) sendReqToCodeGeex(
 	endpoint string, question *bigmodel.CodeGeexReq,
 ) (answer string, err error) {
 	opt := codegeexReq{
-		Prompt:    question.Content,
-		N:         question.ResultNum,
-		Lang:      question.Lang,
-		Apikey:    s.codegeexInfo.ak,
-		Apisecret: s.codegeexInfo.sk,
+		Samples: question.Content,
+		Lang:    question.Lang,
 	}
 
 	body, err := utils.JsonMarshal(&opt)
@@ -68,47 +59,27 @@ func (s *service) sendReqToCodeGeex(
 		return
 	}
 
+	t, err := s.token()
+	if err != nil {
+		return "", err
+	}
+
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Auth-Token", t)
 
 	r := new(codegeexResp)
-	if _, err = s.hc.ForwardTo(req, r); err != nil {
-		return
-	}
-
-	if r.Status != 0 {
-		err = errors.New("failed")
-
-		return
-	}
-
-	if len(r.Result.OutPut.Code) > 0 {
-		answer = r.Result.OutPut.Code[0]
-
-		return
-	}
-
-	if question.Lang == "Python" {
-		answer = `\n# Code generation finished, modify this comment to continue the generation.`
-	} else {
-		answer = `\n// Code generation finished, modify this comment to continue the generation.`
+	if _, err = s.hc.ForwardTo(req, r); err == nil {
+		answer = r.Result
 	}
 
 	return
 }
 
 type codegeexReq struct {
-	Prompt    string `json:"prompt"`
-	N         int    `json:"n"`
-	Lang      string `json:"lang"`
-	Apikey    string `json:"apikey"`
-	Apisecret string `json:"apisecret"`
+	Samples string `json:"samples"`
+	Lang    string `json:"language"`
 }
 
 type codegeexResp struct {
-	Status int `json:"status"`
-	Result struct {
-		OutPut struct {
-			Code []string `json:"code"`
-		} `json:"output"`
-	} `json:"result"`
+	Result string `json:"result"`
 }
