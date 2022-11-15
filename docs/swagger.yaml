@@ -2462,6 +2462,36 @@ paths:
       summary: Check
       tags:
       - Project
+  /v1/repo/{type}/{name}/dir/{path}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete repo directory
+      parameters:
+      - description: repo name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: repo dir
+        in: path
+        name: path
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: bad_request_param
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: DeleteDir
+      tags:
+      - RepoFile
   /v1/repo/{type}/{name}/file/{path}:
     delete:
       consumes:

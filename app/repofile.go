@@ -12,6 +12,7 @@ import (
 
 type RepoDir = platform.RepoDir
 type UserInfo = platform.UserInfo
+type RepoDirInfo = platform.RepoDirInfo
 type RepoFileInfo = platform.RepoFileInfo
 type RepoPathItem = platform.RepoPathItem
 type RepoFileContent = platform.RepoFileContent
@@ -22,6 +23,7 @@ type RepoFileService interface {
 	Update(*UserInfo, *RepoFileUpdateCmd) error
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
+	DeleteDir(*UserInfo, *RepoDirDeleteCmd) error
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
@@ -39,6 +41,7 @@ type repoFileService struct {
 }
 
 type RepoFileListCmd = RepoDir
+type RepoDirDeleteCmd = RepoDirInfo
 type RepoFileDeleteCmd = RepoFileInfo
 type RepoFilePreviewCmd = RepoFileInfo
 type RepoFileDownloadCmd = RepoFileInfo
@@ -72,6 +75,10 @@ func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) e
 
 func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) error {
 	return s.rf.Delete(u, cmd)
+}
+
+func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd) error {
+	return s.rf.DeleteDir(u, cmd)
 }
 
 func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (

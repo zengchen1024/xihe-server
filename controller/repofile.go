@@ -36,6 +36,7 @@ func AddRouterForRepoFileController(
 	rg.PUT("/v1/repo/:type/:name/file/:path", ctl.Update)
 	rg.POST("/v1/repo/:type/:name/file/:path", ctl.Create)
 	rg.DELETE("/v1/repo/:type/:name/file/:path", ctl.Delete)
+	rg.DELETE("/v1/repo/:type/:name/dir/:path", ctl.DeleteDir)
 }
 
 type RepoFileController struct {
@@ -173,6 +174,42 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 	u := pl.PlatformUserInfo()
 
 	if err = ctl.s.Delete(&u, &info); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, newResponseData("successful"))
+}
+
+// @Summary DeleteDir
+// @Description Delete repo directory
+// @Tags  RepoFile
+// @Param	name	path 	string			true	"repo name"
+// @Param	path	path 	string			true	"repo dir"
+// @Accept json
+// @Success 204
+// @Failure 400 bad_request_param   some parameter of body is invalid
+// @Failure 500 system_error        system error
+// @Router /v1/repo/{type}/{name}/dir/{path} [delete]
+func (ctl *RepoFileController) DeleteDir(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	info, err := ctl.getRepoDirInfo(ctx, pl.DomainAccount())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	u := pl.PlatformUserInfo()
+
+	if err = ctl.s.DeleteDir(&u, &info); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
 		return
@@ -372,6 +409,22 @@ func (ctl *RepoFileController) checkForView(ctx *gin.Context) (u platform.UserIn
 	}
 
 	ok = true
+
+	return
+}
+
+func (ctl *RepoFileController) getRepoDirInfo(ctx *gin.Context, user domain.Account) (
+	info app.RepoDirInfo, err error,
+) {
+	v, err := ctl.getRepoInfo(ctx, user)
+	if err != nil {
+		return
+	}
+
+	info.RepoId = v.RepoId
+	info.RepoName = v.Name
+
+	info.Path, err = domain.NewDirectory(ctx.Param("path"))
 
 	return
 }

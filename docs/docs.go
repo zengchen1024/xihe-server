@@ -2015,6 +2015,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/repo/{type}/{name}/dir/{path}": {
+            "delete": {
+                "description": "Delete repo directory",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RepoFile"
+                ],
+                "summary": "DeleteDir",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "repo name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo dir",
+                        "name": "path",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "bad_request_param"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/repo/{type}/{name}/file/{path}": {
             "put": {
                 "description": "update repo file",
