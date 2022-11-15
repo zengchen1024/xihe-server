@@ -3637,6 +3637,9 @@
                 "id": {
                     "type": "string"
                 },
+                "level": {
+                    "type": "string"
+                },
                 "like_count": {
                     "type": "integer"
                 },
@@ -3798,6 +3801,9 @@
                 "id": {
                     "type": "string"
                 },
+                "level": {
+                    "type": "string"
+                },
                 "like_count": {
                     "type": "integer"
                 },
@@ -3939,6 +3945,9 @@
                 },
                 "project": {
                     "$ref": "#/definitions/app.ResourceSearchDTO"
+                },
+                "user": {
+                    "$ref": "#/definitions/app.UserSearchDTO"
                 }
             }
         },
@@ -4038,6 +4047,20 @@
                 },
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "app.UserSearchDTO": {
+            "type": "object",
+            "properties": {
+                "top": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

@@ -10,6 +10,7 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+// only admin user can update level of project
 type ProjectUpdateCmd struct {
 	Name     domain.ResourceName
 	Desc     domain.ResourceDesc

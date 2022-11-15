@@ -168,6 +168,7 @@ type ProjectDO struct {
 	FL            byte
 	Desc          string
 	Type          string
+	Level         int
 	CoverId       string
 	Protocol      string
 	Training      string
@@ -229,6 +230,7 @@ func (do *ProjectDO) toProject(r *domain.Project) (err error) {
 		return
 	}
 
+	r.Level = domain.NewResourceLevelByNum(do.Level)
 	r.RepoId = do.RepoId
 	r.Tags = do.Tags
 	r.Version = do.Version

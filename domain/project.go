@@ -41,6 +41,7 @@ type ProjectModifiableProperty struct {
 	RepoType RepoType
 	Tags     []string
 	TagKinds []string
+	Level    ResourceLevel
 }
 
 type ProjectSummary struct {
@@ -48,6 +49,7 @@ type ProjectSummary struct {
 	Owner         Account
 	Name          ResourceName
 	Desc          ResourceDesc
+	Level         ResourceLevel
 	CoverId       CoverId
 	Tags          []string
 	UpdatedAt     int64

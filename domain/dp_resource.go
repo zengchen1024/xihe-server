@@ -14,14 +14,16 @@ const (
 	SortTypeUpdateTime    = "update_time"
 	SortTypeFirstLetter   = "first_letter"
 	SortTypeDownloadCount = "download_count"
-
-	resourceLevelOfficial = "official"
-	resourceLevelGood     = "good"
 )
 
 var (
 	reName         = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 	reResourceName = reName
+
+	resourceLevelMap = map[string]int{
+		"official": 2,
+		"good":     1,
+	}
 
 	ResourceTypeProject = resourceType(resourceProject)
 	ResourceTypeModel   = resourceType(resourceModel)
@@ -130,20 +132,30 @@ type ResourceLevel interface {
 }
 
 func NewResourceLevel(v string) ResourceLevel {
-	switch v {
-	case resourceLevelOfficial:
-		return resourceLevel{
-			level: 2,
-			desc:  v,
+	for k, n := range resourceLevelMap {
+		if k == v {
+			return resourceLevel{
+				level: n,
+				desc:  k,
+			}
 		}
-	case resourceLevelGood:
-		return resourceLevel{
-			level: 1,
-			desc:  v,
-		}
-	default:
-		return resourceLevel{}
 	}
+
+	return nil
+
+}
+
+func NewResourceLevelByNum(v int) ResourceLevel {
+	for k, n := range resourceLevelMap {
+		if n == v {
+			return resourceLevel{
+				level: n,
+				desc:  k,
+			}
+		}
+	}
+
+	return nil
 }
 
 type resourceLevel struct {
