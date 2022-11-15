@@ -30,6 +30,23 @@ var (
 	ResourceTypeDataset = resourceType(resourceDataset)
 )
 
+// DomainValue
+type DomainValue interface {
+	DomainValue() string
+}
+
+func IsSameDomainValue(a, b DomainValue) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a != nil && b != nil {
+		return a.DomainValue() == b.DomainValue()
+	}
+
+	return false
+}
+
 // Name
 type ResourceName interface {
 	ResourceName() string
@@ -91,18 +108,8 @@ func (r resourceType) PrefixToName() string {
 // ResourceDesc
 type ResourceDesc interface {
 	ResourceDesc() string
-}
 
-func IsSameResourceDesc(a, b ResourceDesc) bool {
-	if a == nil && b == nil {
-		return true
-	}
-
-	if a != nil && b != nil {
-		return a.ResourceDesc() == b.ResourceDesc()
-	}
-
-	return false
+	DomainValue
 }
 
 func NewResourceDesc(v string) (ResourceDesc, error) {
@@ -122,6 +129,10 @@ func NewResourceDesc(v string) (ResourceDesc, error) {
 type resourceDesc string
 
 func (r resourceDesc) ResourceDesc() string {
+	return string(r)
+}
+
+func (r resourceDesc) DomainValue() string {
 	return string(r)
 }
 

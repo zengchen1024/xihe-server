@@ -248,7 +248,9 @@ func (s resourceService) projectToResourceDTO(
 
 		if u, ok := userInfos[p.Owner.Account()]; ok {
 			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
+			if u.AvatarId != nil {
+				v.Owner.AvatarId = u.AvatarId.AvatarId()
+			}
 		}
 
 		dtos[i] = v
@@ -277,7 +279,9 @@ func (s resourceService) modelToResourceDTO(
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
 			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
+			if u.AvatarId != nil {
+				v.Owner.AvatarId = u.AvatarId.AvatarId()
+			}
 		}
 
 		dtos[i] = v
@@ -306,7 +310,9 @@ func (s resourceService) datasetToResourceDTO(
 
 		if u, ok := userInfos[d.Owner.Account()]; ok {
 			v.Owner.Name = u.Account.Account()
-			v.Owner.AvatarId = u.AvatarId.AvatarId()
+			if u.AvatarId != nil {
+				v.Owner.AvatarId = u.AvatarId.AvatarId()
+			}
 		}
 
 		dtos[i] = v
@@ -370,8 +376,9 @@ func (s resourceService) findUserAvater(users []domain.Account) ([]string, error
 
 	userInfos := make(map[string]string)
 	for i := range allUsers {
-		item := &allUsers[i]
-		userInfos[item.Account.Account()] = item.AvatarId.AvatarId()
+		if item := &allUsers[i]; item.AvatarId != nil {
+			userInfos[item.Account.Account()] = item.AvatarId.AvatarId()
+		}
 	}
 
 	r := make([]string, len(users))

@@ -72,11 +72,14 @@ func (s userService) ListFollowing(cmd *FollowsListCmd) (
 func (s userService) toFollowDTO(f *domain.FollowerUserInfo, dto *FollowDTO) {
 	*dto = FollowDTO{
 		Account:    f.Account.Account(),
-		AvatarId:   f.AvatarId.AvatarId(),
 		IsFollower: f.IsFollower,
 	}
 
 	if f.Bio != nil {
 		dto.Bio = f.Bio.Bio()
+	}
+
+	if f.AvatarId != nil {
+		dto.AvatarId = f.AvatarId.AvatarId()
 	}
 }

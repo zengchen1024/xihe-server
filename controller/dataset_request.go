@@ -68,7 +68,8 @@ func (p *datasetUpdateRequest) toCmd() (cmd app.DatasetUpdateCmd, err error) {
 }
 
 type datasetDetail struct {
-	Liked bool `json:"liked"`
+	Liked    bool   `json:"liked"`
+	AvatarId string `json:"avatar_id"`
 
 	*app.DatasetDetailDTO
 }

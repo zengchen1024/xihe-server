@@ -265,6 +265,15 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		return
 	}
 
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -308,10 +317,15 @@ func (ctl *ProjectController) Get(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(projectDetail{
+	detail := projectDetail{
 		Liked:            liked,
 		ProjectDetailDTO: &proj,
-	}))
+	}
+	if avatar != nil {
+		detail.AvatarId = avatar.AvatarId()
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(detail))
 }
 
 // @Summary List
@@ -379,8 +393,10 @@ func (ctl *ProjectController) List(ctx *gin.Context) {
 
 	result := projectsInfo{
 		Owner:       owner.Account(),
-		AvatarId:    avatar.AvatarId(),
 		ProjectsDTO: &projs,
+	}
+	if avatar != nil {
+		result.AvatarId = avatar.AvatarId()
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))

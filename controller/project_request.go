@@ -90,7 +90,8 @@ func (p *projectUpdateRequest) toCmd() (cmd app.ProjectUpdateCmd, err error) {
 }
 
 type projectDetail struct {
-	Liked bool `json:"liked"`
+	Liked    bool   `json:"liked"`
+	AvatarId string `json:"avatar_id"`
 
 	*app.ProjectDetailDTO
 }
