@@ -7,9 +7,8 @@ import (
 )
 
 type CodeGeexReq struct {
-	Lang      string
-	Content   string
-	ResultNum int
+	Lang    string
+	Content string
 }
 
 type BigModel interface {

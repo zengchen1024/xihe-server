@@ -79,9 +79,8 @@ type luojiaResp struct {
 }
 
 type CodeGeexRequest struct {
-	Lang      string `json:"lang"`
-	Content   string `json:"content"`
-	ResultNum int    `json:"result_num"`
+	Lang    string `json:"lang"`
+	Content string `json:"content"`
 }
 
 func (req *CodeGeexRequest) toCmd() (
@@ -89,7 +88,6 @@ func (req *CodeGeexRequest) toCmd() (
 ) {
 	cmd.Lang = req.Lang
 	cmd.Content = req.Content
-	cmd.ResultNum = req.ResultNum
 
 	err = cmd.Validate()
 

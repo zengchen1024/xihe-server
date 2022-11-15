@@ -535,8 +535,6 @@ definitions:
         type: string
       lang:
         type: string
-      result_num:
-        type: integer
     type: object
   controller.Compute:
     properties:
