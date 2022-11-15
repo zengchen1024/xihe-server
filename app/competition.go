@@ -99,8 +99,6 @@ func (s competitionService) GetTeam(cid string, competitor domain.Account) (
 
 	if name := v[0].Team.Name; name != nil {
 		dto.Name = name.TeamName()
-	} else {
-		dto.Name = v[0].Account.Account()
 	}
 
 	members := make([]CompetitionTeamMemberDTO, len(v))

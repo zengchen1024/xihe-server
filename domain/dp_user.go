@@ -94,9 +94,15 @@ func (r dpNickname) Nickname() string {
 // Bio
 type Bio interface {
 	Bio() string
+
+	DomainValue
 }
 
 func NewBio(v string) (Bio, error) {
+	if v == "" {
+		return nil, nil
+	}
+
 	if len(v) > config.MaxBioLength {
 		return nil, errors.New("invalid bio")
 	}
@@ -107,6 +113,10 @@ func NewBio(v string) (Bio, error) {
 type dpBio string
 
 func (r dpBio) Bio() string {
+	return string(r)
+}
+
+func (r dpBio) DomainValue() string {
 	return string(r)
 }
 
@@ -132,11 +142,13 @@ func (r dpEmail) Email() string {
 // AvatarId
 type AvatarId interface {
 	AvatarId() string
+
+	DomainValue
 }
 
 func NewAvatarId(v string) (AvatarId, error) {
 	if v == "" {
-		return nil, errors.New("invalid avatar")
+		return nil, nil
 	}
 
 	if _, err := url.Parse(v); err != nil {
@@ -149,5 +161,9 @@ func NewAvatarId(v string) (AvatarId, error) {
 type dpAvatarId string
 
 func (r dpAvatarId) AvatarId() string {
+	return string(r)
+}
+
+func (r dpAvatarId) DomainValue() string {
 	return string(r)
 }

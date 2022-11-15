@@ -10,12 +10,12 @@ type UpdateUserBasicInfoCmd struct {
 }
 
 func (cmd *UpdateUserBasicInfoCmd) toUser(u *domain.User) (changed bool) {
-	if cmd.AvatarId != nil && cmd.AvatarId.AvatarId() != u.AvatarId.AvatarId() {
+	if !domain.IsSameDomainValue(cmd.AvatarId, u.AvatarId) {
 		u.AvatarId = cmd.AvatarId
 		changed = true
 	}
 
-	if cmd.Bio != nil && cmd.Bio.Bio() != u.Bio.Bio() {
+	if !domain.IsSameDomainValue(cmd.Bio, u.Bio) {
 		u.Bio = cmd.Bio
 		changed = true
 	}

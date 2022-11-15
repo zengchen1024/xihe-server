@@ -250,6 +250,15 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		return
 	}
 
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -293,10 +302,15 @@ func (ctl *DatasetController) Get(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(datasetDetail{
+	detail := datasetDetail{
 		Liked:            liked,
 		DatasetDetailDTO: &d,
-	}))
+	}
+	if avatar != nil {
+		detail.AvatarId = avatar.AvatarId()
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(detail))
 }
 
 // @Summary List
@@ -364,8 +378,10 @@ func (ctl *DatasetController) List(ctx *gin.Context) {
 
 	result := datasetsInfo{
 		Owner:       owner.Account(),
-		AvatarId:    avatar.AvatarId(),
 		DatasetsDTO: &data,
+	}
+	if avatar != nil {
+		result.AvatarId = avatar.AvatarId()
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))

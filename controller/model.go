@@ -257,6 +257,15 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		return
 	}
 
+	avatar, err := ctl.user.GetUserAvatarId(owner)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
 	name, err := domain.NewResourceName(ctx.Param("name"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
@@ -300,10 +309,15 @@ func (ctl *ModelController) Get(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(modelDetail{
+	detail := modelDetail{
 		Liked:          liked,
 		ModelDetailDTO: &m,
-	}))
+	}
+	if avatar != nil {
+		detail.AvatarId = avatar.AvatarId()
+	}
+
+	ctx.JSON(http.StatusOK, newResponseData(detail))
 }
 
 // @Summary List
@@ -371,8 +385,10 @@ func (ctl *ModelController) List(ctx *gin.Context) {
 
 	result := modelsInfo{
 		Owner:     owner.Account(),
-		AvatarId:  avatar.AvatarId(),
 		ModelsDTO: &data,
+	}
+	if avatar != nil {
+		result.AvatarId = avatar.AvatarId()
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(&result))

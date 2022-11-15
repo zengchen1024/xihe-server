@@ -31,7 +31,7 @@ func (cmd *ModelUpdateCmd) toModel(
 		f()
 	}
 
-	if !domain.IsSameResourceDesc(cmd.Desc, p.Desc) {
+	if !domain.IsSameDomainValue(cmd.Desc, p.Desc) {
 		p.Desc = cmd.Desc
 		f()
 	}
