@@ -72,6 +72,7 @@ type ProjectSummaryDTO struct {
 	Owner         string   `json:"owner"`
 	Name          string   `json:"name"`
 	Desc          string   `json:"desc"`
+	Level         string   `json:"level"`
 	CoverId       string   `json:"cover_id"`
 	Tags          []string `json:"tags"`
 	UpdatedAt     string   `json:"updated_at"`
@@ -318,4 +319,7 @@ func (s projectService) toProjectSummaryDTO(p *domain.ProjectSummary, dto *Proje
 		dto.Desc = p.Desc.ResourceDesc()
 	}
 
+	if p.Level != nil {
+		dto.Level = p.Level.ResourceLevel()
+	}
 }

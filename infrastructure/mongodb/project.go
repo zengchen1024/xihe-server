@@ -75,6 +75,7 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 	p := &ProjectPropertyItem{
+		Level:    do.Level,
 		Name:     do.Name,
 		FL:       do.FL,
 		Desc:     do.Desc,
@@ -238,6 +239,7 @@ func (col project) toProjectDO(owner string, item *projectItem, do *repositories
 		Name:          item.Name,
 		Desc:          item.Desc,
 		Type:          item.Type,
+		Level:         item.Level,
 		CoverId:       item.CoverId,
 		Protocol:      item.Protocol,
 		Training:      item.Training,

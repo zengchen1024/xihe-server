@@ -3649,6 +3649,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "level": {
+                    "type": "string"
+                },
                 "like_count": {
                     "type": "integer"
                 },
@@ -3810,6 +3813,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "level": {
+                    "type": "string"
+                },
                 "like_count": {
                     "type": "integer"
                 },
@@ -3951,6 +3957,9 @@ const docTemplate = `{
                 },
                 "project": {
                     "$ref": "#/definitions/app.ResourceSearchDTO"
+                },
+                "user": {
+                    "$ref": "#/definitions/app.UserSearchDTO"
                 }
             }
         },
@@ -4050,6 +4059,20 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "app.UserSearchDTO": {
+            "type": "object",
+            "properties": {
+                "top": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

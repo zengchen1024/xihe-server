@@ -90,6 +90,10 @@ func (impl project) UpdateProperty(info *repository.ProjectPropertyUpdateInfo) e
 		do.Desc = p.Desc.ResourceDesc()
 	}
 
+	if p.Level != nil {
+		do.Level = p.Level.Int()
+	}
+
 	if err := impl.mapper.UpdateProperty(&do); err != nil {
 		return convertError(err)
 	}
@@ -103,6 +107,7 @@ type ProjectPropertyDO struct {
 	FL       byte
 	Name     string
 	Desc     string
+	Level    int
 	CoverId  string
 	RepoType string
 	Tags     []string
@@ -214,6 +219,7 @@ type ProjectSummaryDO struct {
 	Owner         string
 	Name          string
 	Desc          string
+	Level         int
 	CoverId       string
 	Tags          []string
 	UpdatedAt     int64
@@ -241,6 +247,7 @@ func (do *ProjectSummaryDO) toProjectSummary(r *domain.ProjectSummary) (err erro
 		return
 	}
 
+	r.Level = domain.NewResourceLevelByNum(do.Level)
 	r.Tags = do.Tags
 	r.UpdatedAt = do.UpdatedAt
 	r.LikeCount = do.LikeCount

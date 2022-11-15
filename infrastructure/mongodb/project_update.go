@@ -204,6 +204,7 @@ func (col project) toProjectSummaryDO(owner string, item *projectItem, do *repos
 		Owner:         owner,
 		Name:          item.Name,
 		Desc:          item.Desc,
+		Level:         item.Level,
 		CoverId:       item.CoverId,
 		Tags:          item.Tags,
 		UpdatedAt:     item.UpdatedAt,
