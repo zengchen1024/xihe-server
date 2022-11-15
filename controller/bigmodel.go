@@ -8,14 +8,16 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain/bigmodel"
+	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForBigModelController(
 	rg *gin.RouterGroup,
 	bm bigmodel.BigModel,
+	luojia repository.LuoJia,
 ) {
 	ctl := BigModelController{
-		s: app.NewBigModelService(bm),
+		s: app.NewBigModelService(bm, luojia),
 	}
 
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
@@ -27,6 +29,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/pangu", ctl.PanGu)
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
+	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
 
 type BigModelController struct {
@@ -234,10 +237,30 @@ func (ctl *BigModelController) LuoJia(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.LuoJia(pl.Account); err != nil {
+	if v, err := ctl.s.LuoJia(pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
+	}
+}
+
+// @Title ListLuoJiaRecord
+// @Description list luo-jia big model records
+// @Tags  BigModel
+// @Accept json
+// @Success 200 {object} app.LuoJiaRecordDTO
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/luojia [get]
+func (ctl *BigModelController) ListLuoJiaRecord(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if v, err := ctl.s.ListLuoJiaRecord(pl.DomainAccount()); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData(v))
 	}
 }
 

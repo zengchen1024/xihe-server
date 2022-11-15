@@ -113,6 +113,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		mongodb.NewCompetitionMapper(collections.Competition),
 	)
 
+	luojia := repositories.NewLuoJiaRepository(
+		mongodb.NewLuoJiaMapper(collections.LuoJia),
+	)
+
 	bigmodel := bigmodels.NewBigModelService()
 	gitlabUser := gitlab.NewUserSerivce()
 	gitlabRepo := gitlab.NewRepoFile()
@@ -158,7 +162,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForBigModelController(
-			v1, bigmodel,
+			v1, bigmodel, luojia,
 		)
 
 		controller.AddRouterForTrainingController(

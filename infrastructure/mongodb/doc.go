@@ -394,3 +394,13 @@ type dCompetitionRepo struct {
 	Owner      string `bson:"owner"       json:"owner"`
 	Repo       string `bson:"repo"        json:"repo"`
 }
+
+type dLuoJia struct {
+	Owner string       `bson:"owner" json:"owner"`
+	Items []luojiaItem `bson:"items" json:"-"`
+}
+
+type luojiaItem struct {
+	Id        string `bson:"id"         json:"id"`
+	CreatedAt int64  `bson:"created_at" json:"created_at"`
+}
