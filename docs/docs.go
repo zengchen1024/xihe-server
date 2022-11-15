@@ -170,6 +170,29 @@ const docTemplate = `{
             }
         },
         "/v1/bigmodel/luojia": {
+            "get": {
+                "description": "list luo-jia big model records",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LuoJiaRecordDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "luo-jia big model",
                 "consumes": [
@@ -3719,6 +3742,17 @@ const docTemplate = `{
                 }
             }
         },
+        "app.LuoJiaRecordDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "app.ModelDTO": {
             "type": "object",
             "properties": {
@@ -4269,6 +4303,9 @@ const docTemplate = `{
         "controller.datasetDetail": {
             "type": "object",
             "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -4434,6 +4471,9 @@ const docTemplate = `{
         "controller.modelDetail": {
             "type": "object",
             "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -4615,6 +4655,9 @@ const docTemplate = `{
         "controller.projectDetail": {
             "type": "object",
             "properties": {
+                "avatar_id": {
+                    "type": "string"
+                },
                 "cover_id": {
                     "type": "string"
                 },

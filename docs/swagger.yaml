@@ -289,6 +289,13 @@ definitions:
       info:
         type: string
     type: object
+  app.LuoJiaRecordDTO:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+    type: object
   app.ModelDTO:
     properties:
       created_at:
@@ -647,6 +654,8 @@ definitions:
     type: object
   controller.datasetDetail:
     properties:
+      avatar_id:
+        type: string
       created_at:
         type: string
       desc:
@@ -754,6 +763,8 @@ definitions:
     type: object
   controller.modelDetail:
     properties:
+      avatar_id:
+        type: string
       created_at:
         type: string
       desc:
@@ -871,6 +882,8 @@ definitions:
     type: object
   controller.projectDetail:
     properties:
+      avatar_id:
+        type: string
       cover_id:
         type: string
       created_at:
@@ -1226,6 +1239,21 @@ paths:
       tags:
       - BigModel
   /v1/bigmodel/luojia:
+    get:
+      consumes:
+      - application/json
+      description: list luo-jia big model records
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LuoJiaRecordDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
     post:
       consumes:
       - application/json
