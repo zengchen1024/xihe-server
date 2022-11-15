@@ -4118,9 +4118,6 @@ const docTemplate = `{
                 },
                 "lang": {
                     "type": "string"
-                },
-                "result_num": {
-                    "type": "integer"
                 }
             }
         },
