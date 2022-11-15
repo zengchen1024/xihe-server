@@ -348,6 +348,7 @@ type DCompetition struct {
 	Status     string `bson:"status"          json:"status"`
 	Duration   string `bson:"duration"        json:"duration"`
 	Doc        string `bson:"doc"             json:"doc"`
+	Forum      string `bson:"forum"             json:"forum"`
 	Poster     string `bson:"poster"          json:"poster"`
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`

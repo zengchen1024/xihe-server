@@ -80,6 +80,7 @@ type CompetitionDO struct {
 	Enabled    bool
 	Phase      string
 	Doc        string
+	Forum      string
 	DatasetDoc string
 	DatasetURL string
 }
@@ -94,6 +95,10 @@ func (do *CompetitionDO) toCompetition(
 	}
 
 	if c.Doc, err = domain.NewURL(do.Doc); err != nil {
+		return
+	}
+
+	if c.Forum, err = domain.NewURL(do.Forum); err != nil {
 		return
 	}
 

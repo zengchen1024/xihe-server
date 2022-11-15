@@ -23,6 +23,7 @@ func (col competition) toCompetitionDO(
 	do.Enabled = doc.Enabled
 	do.Phase = doc.Phase
 	do.Doc = doc.Doc
+	do.Forum = doc.Forum
 	do.DatasetDoc = doc.DatasetDoc
 	do.DatasetURL = doc.DatasetURL
 
