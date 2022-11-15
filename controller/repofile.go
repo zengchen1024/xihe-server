@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +29,7 @@ func AddRouterForRepoFileController(
 		dataset: dataset,
 	}
 
+	rg.GET("/v1/repo/:type/:user/:name", ctl.DownloadRepo)
 	rg.GET("/v1/repo/:type/:user/:name/files", ctl.List)
 	rg.GET("/v1/repo/:type/:user/:name/file/:path", ctl.Download)
 	rg.GET("/v1/repo/:type/:user/:name/file/:path/preview", ctl.Preview)
@@ -55,7 +58,7 @@ type RepoFileController struct {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{name}/file/{path} [post]
+// @Router /v1/repo/{type}/{name}/file/{path} [post]
 func (ctl *RepoFileController) Create(ctx *gin.Context) {
 	req := RepoFileCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -104,7 +107,7 @@ func (ctl *RepoFileController) Create(ctx *gin.Context) {
 // @Failure 400 bad_request_body    can't parse request body
 // @Failure 401 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{name}/file/{path} [put]
+// @Router /v1/repo/{type}/{name}/file/{path} [put]
 func (ctl *RepoFileController) Update(ctx *gin.Context) {
 	req := RepoFileUpdateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -151,7 +154,7 @@ func (ctl *RepoFileController) Update(ctx *gin.Context) {
 // @Success 204
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{name}/file/{path} [delete]
+// @Router /v1/repo/{type}/{name}/file/{path} [delete]
 func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
@@ -188,7 +191,7 @@ func (ctl *RepoFileController) Delete(ctx *gin.Context) {
 // @Success 200 {object} app.RepoFileDownloadDTO
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{user}/{name}/file/{path} [get]
+// @Router /v1/repo/{type}/{user}/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
@@ -218,6 +221,36 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(v))
 }
 
+// @Summary DownloadRepo
+// @Description Download repo
+// @Tags  RepoFile
+// @Param	user	path 	string			true	"user"
+// @Param	name	path 	string			true	"repo name"
+// @Accept json
+// @Success 200
+// @Failure 400 bad_request_param   some parameter of body is invalid
+// @Failure 500 system_error        system error
+// @Router /v1/repo/{type}/{user}/{name} [get]
+func (ctl *RepoFileController) DownloadRepo(ctx *gin.Context) {
+	u, repoInfo, ok := ctl.checkForView(ctx)
+	if !ok {
+		return
+	}
+
+	ctl.s.DownloadRepo(&u, repoInfo.RepoId, func(data io.Reader, n int64) {
+		ctx.DataFromReader(
+			http.StatusOK, n, "application/octet-stream", data,
+			map[string]string{
+				"Content-Disposition": fmt.Sprintf(
+					"attachment; filename=%s.zip",
+					repoInfo.Name.ResourceName(),
+				),
+				"Content-Transfer-Encoding": "binary",
+			},
+		)
+	})
+}
+
 // @Summary Preview
 // @Description preview repo file
 // @Tags  RepoFile
@@ -228,7 +261,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Success 200
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{user}/{name}/file/{path}/preview [get]
+// @Router /v1/repo/{type}/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
@@ -268,7 +301,7 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 // @Success 200 {object} app.RepoPathItem
 // @Failure 400 bad_request_param   some parameter of body is invalid
 // @Failure 500 system_error        system error
-// @Router /v1/repo/:type/{user}/{name}/files [get]
+// @Router /v1/repo/{type}/{user}/{name}/files [get]
 func (ctl *RepoFileController) List(ctx *gin.Context) {
 	u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {

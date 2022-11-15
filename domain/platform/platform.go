@@ -1,6 +1,8 @@
 package platform
 
 import (
+	"io"
+
 	"github.com/opensourceways/xihe-server/domain"
 )
 
@@ -74,4 +76,5 @@ type RepoFile interface {
 	IsLFSFile(data []byte) (is bool, sha string)
 	GenLFSDownloadURL(sha string) (string, error)
 	GetDirFileInfo(u *UserInfo, d *RepoDirFile) (sha string, exist bool, err error)
+	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }

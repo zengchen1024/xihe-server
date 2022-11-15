@@ -284,3 +284,31 @@ func (impl *repoFile) GetDirFileInfo(u *platform.UserInfo, info *platform.RepoDi
 
 	return
 }
+
+func (impl *repoFile) DownloadRepo(
+	u *platform.UserInfo, repoId string,
+	handle func(io.Reader, int64),
+) error {
+	url := endpoint + fmt.Sprintf("/projects/%s/repository/archive.zip", repoId)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
+	if u.Token != "" {
+		h := &req.Header
+		h.Add("PRIVATE-TOKEN", u.Token)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	handle(resp.Body, resp.ContentLength)
+
+	return nil
+}
