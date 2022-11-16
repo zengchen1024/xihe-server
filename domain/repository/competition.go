@@ -22,7 +22,7 @@ type CompetitionInfo struct {
 
 type Competition interface {
 	List(*CompetitionListOption) ([]CompetitionSummary, error)
-	Get(*domain.CompetitionIndex, domain.Account) (CompetitionInfo, bool, error)
+	Get(*domain.CompetitionIndex, domain.Account) (CompetitionInfo, domain.CompetitorInfo, error)
 
 	GetTeam(*domain.CompetitionIndex, domain.Account) ([]domain.Competitor, error)
 
@@ -35,4 +35,6 @@ type Competition interface {
 	GetSubmisstions(cid string, c domain.Account) (
 		domain.CompetitionRepo, []domain.CompetitionSubmission, error,
 	)
+
+	SaveSubmission(*domain.CompetitionIndex, *domain.CompetitionSubmission) (string, error)
 }

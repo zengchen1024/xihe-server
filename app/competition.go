@@ -1,22 +1,33 @@
 package app
 
 import (
+	"errors"
+	"fmt"
+	"io"
 	"sort"
+	"strconv"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/competition"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
 type CompetitionListCMD = repository.CompetitionListOption
 
+type CompetitionSubmitCMD struct {
+	FileName   string
+	Data       io.Reader
+	Index      domain.CompetitionIndex
+	Competitor domain.Account
+}
+
 type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
-	// get the phase first, then check if can submit,
-	// check the role of submitter
-	//Submit(cid string, fileName string, file io.Reader) error
+	Submit(*CompetitionSubmitCMD) error
 
 	GetSubmissions(cid string, competitor domain.Account) (CompetitionSubmissionsDTO, error)
 
@@ -25,14 +36,20 @@ type CompetitionService interface {
 	GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
 }
 
-func NewCompetitionService(repo repository.Competition) CompetitionService {
+func NewCompetitionService(
+	repo repository.Competition,
+	sender message.Sender,
+) CompetitionService {
 	return competitionService{
-		repo: repo,
+		repo:   repo,
+		sender: sender,
 	}
 }
 
 type competitionService struct {
-	repo repository.Competition
+	repo     repository.Competition
+	sender   message.Sender
+	uploader competition.Competition
 }
 
 func (s competitionService) Get(cid string, competitor domain.Account) (
@@ -51,8 +68,8 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 	s.toCompetitionDTO(&v.Competition, &dto.CompetitionDTO)
 
 	dto.CompetitorCount = v.CompetitorCount
-	dto.IsCompetitor = b
-	if !b {
+	dto.IsCompetitor = b.IsCompetitor
+	if !b.IsCompetitor {
 		dto.DatasetURL = ""
 	}
 
@@ -217,4 +234,63 @@ func (s competitionService) GetSubmissions(cid string, competitor domain.Account
 	dto.Details = items
 
 	return
+}
+
+func (s competitionService) Submit(cmd *CompetitionSubmitCMD) error {
+	index := &cmd.Index
+
+	// check permission
+	v, b, err := s.repo.Get(index, cmd.Competitor)
+	if err != nil {
+		return err
+	}
+
+	if !b.IsCompetitor || (b.TeamId != "" && !b.TeamRole.IsLeader()) {
+		return errors.New("no permission to submit")
+	}
+
+	if !v.Enabled {
+		return errors.New("competition is over for this phase")
+	}
+
+	// upload file
+	user := b.TeamId
+	if b.TeamId == "" {
+		user = cmd.Competitor.Account()
+	}
+	now := utils.Now()
+	obspath := fmt.Sprintf(
+		"%s/%s/%s/%s_%s",
+		index.Id, index.Phase.CompetitionPhase(),
+		user, strconv.FormatInt(now, 10), cmd.FileName,
+	)
+	if err := s.uploader.UploadSubmissionFile(cmd.Data, obspath); err != nil {
+		return err
+	}
+
+	// save
+	submission := domain.CompetitionSubmission{
+		SubmitAt: now,
+		OBSPath:  obspath,
+		Status:   "calculating",
+	}
+	if b.TeamId == "" {
+		submission.Individual = cmd.Competitor
+	} else {
+		submission.TeamId = b.TeamId
+	}
+
+	sid, err := s.repo.SaveSubmission(index, &submission)
+	if err != nil {
+		return err
+	}
+
+	// send mq
+	info := message.SubmissionInfo{
+		Id:      sid,
+		Index:   *index,
+		OBSPath: obspath,
+	}
+
+	return s.sender.CalcScore(&info)
 }

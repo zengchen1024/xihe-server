@@ -15,6 +15,12 @@ type InferenceExtendInfo struct {
 	Expiry int64
 }
 
+type SubmissionInfo struct {
+	Index   domain.CompetitionIndex
+	Id      string
+	OBSPath string
+}
+
 type Sender interface {
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
@@ -33,6 +39,8 @@ type Sender interface {
 	ExtendInferenceSurvivalTime(*InferenceExtendInfo) error
 
 	CreateEvaluate(*EvaluateInfo) error
+
+	CalcScore(*SubmissionInfo) error
 }
 
 type EventHandler interface {

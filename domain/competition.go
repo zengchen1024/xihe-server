@@ -20,6 +20,7 @@ type Competition struct {
 	DatasetDoc URL
 	DatasetURL URL
 
+	Meta    map[string]string
 	Phase   CompetitionPhase
 	Enabled bool
 }
@@ -36,6 +37,12 @@ type Competitor struct {
 
 	Team     CompetitionTeam
 	TeamRole TeamRole
+}
+
+type CompetitorInfo struct {
+	IsCompetitor bool
+	TeamId       string
+	TeamRole     TeamRole
 }
 
 type CompetitionTeam struct {
