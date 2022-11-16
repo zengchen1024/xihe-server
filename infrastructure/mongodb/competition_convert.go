@@ -81,3 +81,19 @@ func (col competition) toCompetitionRepoDO(
 		Repo:       doc.Repo,
 	}
 }
+
+func (col competition) toSubmissionDoc(
+	do *repositories.CompetitionSubmissionDO,
+	doc *dSubmission, dateTag string,
+) {
+	*doc = dSubmission{
+		Id:         do.Id,
+		TeamId:     do.TeamId,
+		Individual: do.Individual,
+		Status:     do.Status,
+		OBSPath:    do.OBSPath,
+		SubmitAt:   do.SubmitAt,
+		Score:      do.Score,
+		DateTag:    dateTag,
+	}
+}

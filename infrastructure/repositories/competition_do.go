@@ -189,7 +189,7 @@ type CompetitionSubmissionDO struct {
 	Score    float32
 }
 
-func (do *CompetitionSubmissionDO) toCompetitionResult(r *domain.CompetitionSubmission) (err error) {
+func (do *CompetitionSubmissionDO) toCompetitionSubmission(r *domain.CompetitionSubmission) (err error) {
 	*r = domain.CompetitionSubmission{
 		Id:       do.Id,
 		SubmitAt: do.SubmitAt,
@@ -204,6 +204,23 @@ func (do *CompetitionSubmissionDO) toCompetitionResult(r *domain.CompetitionSubm
 	}
 
 	return
+}
+
+func (impl competition) toCompetitionSubmissionDO(
+	r *domain.CompetitionSubmission,
+	do *CompetitionSubmissionDO,
+) {
+	*do = CompetitionSubmissionDO{
+		TeamId:   r.TeamId,
+		SubmitAt: r.SubmitAt,
+		OBSPath:  r.OBSPath,
+		Status:   r.Status,
+		Score:    r.Score,
+	}
+
+	if r.Individual != nil {
+		do.Individual = r.Individual.Account()
+	}
 }
 
 type CompetitionTeamDO struct {
@@ -255,6 +272,20 @@ func (do *CompetitionRepoDO) toCompetitionRepo(r *domain.CompetitionRepo) (err e
 	if do.Individual != "" {
 		r.Individual, err = domain.NewAccount(do.Individual)
 	}
+
+	return
+}
+
+type CompetitorInfoDO struct {
+	IsCompetitor bool
+	TeamId       string
+	TeamRole     string
+}
+
+func (do *CompetitorInfoDO) toCompetitorInfo(r *domain.CompetitorInfo) (err error) {
+	r.IsCompetitor = do.IsCompetitor
+	r.TeamId = do.TeamId
+	r.TeamRole, err = domain.NewTeamRole(do.TeamRole)
 
 	return
 }

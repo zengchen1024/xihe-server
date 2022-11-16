@@ -1431,6 +1431,39 @@ paths:
       summary: Get
       tags:
       - Competition
+  /v1/competition/{id}/{phase}/submissions:
+    post:
+      consumes:
+      - application/json
+      description: submit
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: competition phase
+        in: path
+        name: phase
+        required: true
+        type: string
+      - description: result file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.CompetitionSubmissionDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Submit
+      tags:
+      - Competition
   /v1/competition/{id}/ranking/{phase}:
     get:
       consumes:

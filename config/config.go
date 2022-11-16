@@ -11,6 +11,7 @@ import (
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
@@ -48,14 +49,15 @@ type Config struct {
 	MaxRetry        int `json:"max_retry"`
 	ActivityKeepNum int `json:"activity_keep_num"`
 
-	Training trainingimpl.Config  `json:"training"  required:"true"`
-	BigModel bigmodels.Config     `json:"bigmodel"  required:"true"`
-	Authing  AuthingService       `json:"authing"   required:"true"`
-	Mongodb  Mongodb              `json:"mongodb"   required:"true"`
-	Gitlab   gitlab.Config        `json:"gitlab"    required:"true"`
-	Domain   domain.Config        `json:"domain"    required:"true"`
-	API      controller.APIConfig `json:"api"       required:"true"`
-	MQ       MQ                   `json:"mq"        required:"true"`
+	Competition competitionimpl.Config `json:"competition"  required:"true"`
+	Training    trainingimpl.Config    `json:"training"  required:"true"`
+	BigModel    bigmodels.Config       `json:"bigmodel"  required:"true"`
+	Authing     AuthingService         `json:"authing"   required:"true"`
+	Mongodb     Mongodb                `json:"mongodb"   required:"true"`
+	Gitlab      gitlab.Config          `json:"gitlab"    required:"true"`
+	Domain      domain.Config          `json:"domain"    required:"true"`
+	API         controller.APIConfig   `json:"api"       required:"true"`
+	MQ          MQ                     `json:"mq"        required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
@@ -66,6 +68,7 @@ func (cfg *Config) GetMQConfig() mq.MQConfig {
 
 func (cfg *Config) configItems() []interface{} {
 	return []interface{}{
+		&cfg.Competition,
 		&cfg.Training,
 		&cfg.BigModel,
 		&cfg.Authing,

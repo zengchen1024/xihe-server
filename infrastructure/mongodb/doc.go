@@ -8,6 +8,7 @@ const (
 	fieldBio            = "bio"
 	fieldJob            = "job"
 	fieldDesc           = "desc"
+	fieldDate           = "date"
 	fieldLevel          = "level"
 	fieldDetail         = "detail"
 	fieldCoverId        = "cover_id"
@@ -387,6 +388,7 @@ type dSubmission struct {
 	OBSPath    string  `bson:"path"        json:"path"`
 	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
 	Score      float32 `bson:"score"       json:"score"`
+	DateTag    string  `bson:"date"         json:"date"`
 }
 
 type dCompetitionRepo struct {

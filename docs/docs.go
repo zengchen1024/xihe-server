@@ -580,6 +580,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/{phase}/submissions": {
+            "post": {
+                "description": "submit",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "Submit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "competition phase",
+                        "name": "phase",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "result file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/app.CompetitionSubmissionDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dataset": {
             "get": {
                 "description": "list global public dataset",

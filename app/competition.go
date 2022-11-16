@@ -27,7 +27,7 @@ type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
-	Submit(*CompetitionSubmitCMD) error
+	Submit(*CompetitionSubmitCMD) (CompetitionSubmissionDTO, error)
 
 	GetSubmissions(cid string, competitor domain.Account) (CompetitionSubmissionsDTO, error)
 
@@ -39,10 +39,12 @@ type CompetitionService interface {
 func NewCompetitionService(
 	repo repository.Competition,
 	sender message.Sender,
+	uploader competition.Competition,
 ) CompetitionService {
 	return competitionService{
-		repo:   repo,
-		sender: sender,
+		repo:     repo,
+		sender:   sender,
+		uploader: uploader,
 	}
 }
 
@@ -236,21 +238,27 @@ func (s competitionService) GetSubmissions(cid string, competitor domain.Account
 	return
 }
 
-func (s competitionService) Submit(cmd *CompetitionSubmitCMD) error {
+func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
+	dto CompetitionSubmissionDTO, err error,
+) {
 	index := &cmd.Index
 
 	// check permission
 	v, b, err := s.repo.Get(index, cmd.Competitor)
 	if err != nil {
-		return err
+		return
 	}
 
 	if !b.IsCompetitor || (b.TeamId != "" && !b.TeamRole.IsLeader()) {
-		return errors.New("no permission to submit")
+		err = errors.New("no permission to submit")
+
+		return
 	}
 
 	if !v.Enabled {
-		return errors.New("competition is over for this phase")
+		err = errors.New("competition is over for this phase")
+
+		return
 	}
 
 	// upload file
@@ -264,8 +272,8 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) error {
 		index.Id, index.Phase.CompetitionPhase(),
 		user, strconv.FormatInt(now, 10), cmd.FileName,
 	)
-	if err := s.uploader.UploadSubmissionFile(cmd.Data, obspath); err != nil {
-		return err
+	if err = s.uploader.UploadSubmissionFile(cmd.Data, obspath); err != nil {
+		return
 	}
 
 	// save
@@ -282,7 +290,7 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) error {
 
 	sid, err := s.repo.SaveSubmission(index, &submission)
 	if err != nil {
-		return err
+		return
 	}
 
 	// send mq
@@ -292,5 +300,13 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) error {
 		OBSPath: obspath,
 	}
 
-	return s.sender.CalcScore(&info)
+	if err = s.sender.CalcScore(&info); err != nil {
+		return
+	}
+
+	dto.FileName = cmd.FileName
+	dto.SubmitAt = utils.ToDate(now)
+	dto.Status = submission.Status
+
+	return
 }

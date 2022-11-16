@@ -20,7 +20,6 @@ type Competition struct {
 	DatasetDoc URL
 	DatasetURL URL
 
-	Meta    map[string]string
 	Phase   CompetitionPhase
 	Enabled bool
 }

@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 func NewCompetitionMapper(name string) repositories.CompetitionMapper {
@@ -31,7 +32,7 @@ func (col competition) idToDocFilter(cid string) bson.M {
 }
 
 func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
-	r repositories.CompetitionDO, isCompetitor bool, err error,
+	r repositories.CompetitionDO, info repositories.CompetitorInfoDO, err error,
 ) {
 	var v []competitionInfo
 
@@ -49,7 +50,14 @@ func (col competition) Get(index *repositories.CompetitionIndexDO, competitor st
 	col.toCompetitionDO(&item.DCompetition, &r)
 	r.CompetitorsCount = item.CompetitorsCount
 
-	isCompetitor = len(item.Competitor) > 0
+	if len(item.Competitor) > 0 {
+		info.IsCompetitor = true
+
+		if c := item.Competitor[0]; c.TeamId != "" {
+			info.TeamId = c.TeamId
+			info.TeamRole = c.TeamRole
+		}
+	}
 
 	return
 }
@@ -353,4 +361,43 @@ func (col competition) getResultOfCompetitor(docFilter, resultFilter bson.M) (
 	}
 
 	return
+}
+
+func (col competition) SaveSubmission(
+	index *repositories.CompetitionIndexDO,
+	do *repositories.CompetitionSubmissionDO,
+) (string, error) {
+	dateTag := utils.ToDate(do.SubmitAt)
+	v := new(dSubmission)
+	do.Id = newId()
+	col.toSubmissionDoc(do, v, dateTag)
+
+	doc, err := genDoc(v)
+	if err != nil {
+		return "", err
+	}
+
+	docFilter := col.indexToDocFilter(index)
+
+	sf := bson.M{fieldDate: dateTag}
+	if do.TeamId != "" {
+		sf[fieldTId] = do.TeamId
+	} else {
+		sf[fieldAccount] = do.Individual
+	}
+	appendElemMatchToFilter(fieldSubmissions, false, sf, docFilter)
+
+	f := func(ctx context.Context) error {
+		return cli.pushArrayElem(
+			ctx, col.collectionName, fieldSubmissions, docFilter, doc,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		if isDocNotExists(err) {
+			err = repositories.NewErrorDuplicateCreating(err)
+		}
+	}
+
+	return do.Id, err
 }

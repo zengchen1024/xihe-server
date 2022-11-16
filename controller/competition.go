@@ -7,15 +7,19 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/competition"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForCompetitionController(
 	rg *gin.RouterGroup,
 	repo repository.Competition,
+	sender message.Sender,
+	uploader competition.Competition,
 ) {
 	ctl := CompetitionController{
-		s: app.NewCompetitionService(repo),
+		s: app.NewCompetitionService(repo, sender, uploader),
 	}
 
 	rg.GET("/v1/competition", ctl.List)
@@ -23,6 +27,7 @@ func AddRouterForCompetitionController(
 	rg.GET("/v1/competition/:id/team", ctl.GetTeam)
 	rg.GET("/v1/competition/:id/submissions", ctl.GetSubmissions)
 	rg.GET("/v1/competition/:id/ranking/:phase", ctl.GetRankingList)
+	rg.POST("/v1/competition/:id/:phase/submissions", ctl.Submit)
 }
 
 type CompetitionController struct {
@@ -164,5 +169,66 @@ func (ctl *CompetitionController) GetSubmissions(ctx *gin.Context) {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))
+	}
+}
+
+// @Summary Submit
+// @Description submit
+// @Tags  Competition
+// @Param	id	path		string	true	"competition id"
+// @Param	phase	path		string	true	"competition phase"
+// @Param	file	formData	file	true	"result file"
+// @Accept json
+// @Success 201 {object} app.CompetitionSubmissionDTO
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/{phase}/submissions [post]
+func (ctl *CompetitionController) Submit(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
+	if err != nil {
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+	}
+
+	f, err := ctx.FormFile("file")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody, err.Error(),
+		))
+
+		return
+	}
+
+	p, err := f.Open()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestParam, "can't get picture",
+		))
+
+		return
+	}
+
+	defer p.Close()
+
+	cmd := &app.CompetitionSubmitCMD{}
+	cmd.Index.Id = ctx.Param("id")
+	cmd.Index.Phase = phase
+	cmd.Competitor = pl.DomainAccount()
+	cmd.FileName = f.Filename
+	cmd.Data = p
+
+	if v, err := ctl.s.Submit(cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(v))
 	}
 }
