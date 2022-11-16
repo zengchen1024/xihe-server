@@ -24,13 +24,6 @@ func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) 
 	}
 }
 
-func (col competition) idToDocFilter(cid string) bson.M {
-	return bson.M{
-		fieldId:      cid,
-		fieldEnabled: true,
-	}
-}
-
 func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
 	r repositories.CompetitionDO, info repositories.CompetitorInfoDO, err error,
 ) {
@@ -299,11 +292,11 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 	return
 }
 
-func (col competition) GetSubmisstions(cid, competitor string) (
+func (col competition) GetSubmisstions(index *repositories.CompetitionIndexDO, competitor string) (
 	repo repositories.CompetitionRepoDO,
 	results []repositories.CompetitionSubmissionDO, err error,
 ) {
-	filter := col.idToDocFilter(cid)
+	filter := col.indexToDocFilter(index)
 
 	member, err := col.getCompetitor(filter, competitor)
 	if err != nil {

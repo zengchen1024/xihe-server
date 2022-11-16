@@ -12,7 +12,7 @@ type CompetitionMapper interface {
 	GetResult(*CompetitionIndexDO) (
 		bool, []CompetitionTeamDO, []CompetitionSubmissionDO, error,
 	)
-	GetSubmisstions(cid, competitor string) (
+	GetSubmisstions(index *CompetitionIndexDO, competitor string) (
 		CompetitionRepoDO, []CompetitionSubmissionDO, error,
 	)
 
@@ -135,11 +135,13 @@ func (impl competition) GetResult(index *domain.CompetitionIndex) (
 	return
 }
 
-func (impl competition) GetSubmisstions(cid string, c domain.Account) (
+func (impl competition) GetSubmisstions(index *domain.CompetitionIndex, c domain.Account) (
 	repo domain.CompetitionRepo,
 	results []domain.CompetitionSubmission, err error,
 ) {
-	r, rs, err := impl.mapper.GetSubmisstions(cid, c.Account())
+	do := impl.toCompetitionIndexDO(index)
+
+	r, rs, err := impl.mapper.GetSubmisstions(&do, c.Account())
 	if err != nil || len(rs) == 0 {
 		return
 	}

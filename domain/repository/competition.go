@@ -32,7 +32,7 @@ type Competition interface {
 		results []domain.CompetitionSubmission, err error,
 	)
 
-	GetSubmisstions(cid string, c domain.Account) (
+	GetSubmisstions(*domain.CompetitionIndex, domain.Account) (
 		domain.CompetitionRepo, []domain.CompetitionSubmission, error,
 	)
 

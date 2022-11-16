@@ -25,8 +25,8 @@ func AddRouterForCompetitionController(
 	rg.GET("/v1/competition", ctl.List)
 	rg.GET("/v1/competition/:id", ctl.Get)
 	rg.GET("/v1/competition/:id/team", ctl.GetTeam)
-	rg.GET("/v1/competition/:id/submissions", ctl.GetSubmissions)
 	rg.GET("/v1/competition/:id/ranking/:phase", ctl.GetRankingList)
+	rg.GET("/v1/competition/:id/:phase/submissions", ctl.GetSubmissions)
 	rg.POST("/v1/competition/:id/:phase/submissions", ctl.Submit)
 }
 
@@ -154,17 +154,33 @@ func (ctl *CompetitionController) GetRankingList(ctx *gin.Context) {
 // @Description get submissions
 // @Tags  Competition
 // @Param	id	path	string	true	"competition id"
+// @Param	phase	path	string	true	"competition phase"
 // @Accept json
 // @Success 200 {object} app.CompetitionSubmissionsDTO
 // @Failure 500 system_error        system error
-// @Router /v1/competition/{id}/submissions [get]
+// @Router /v1/competition/{id}/{phase}/submissions [get]
 func (ctl *CompetitionController) GetSubmissions(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	data, err := ctl.s.GetSubmissions(ctx.Param("id"), pl.DomainAccount())
+	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
+	if err != nil {
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+	}
+
+	index := app.CompetitionIndex{
+		Id:    ctx.Param("id"),
+		Phase: phase,
+	}
+	data, err := ctl.s.GetSubmissions(&index, pl.DomainAccount())
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {

@@ -14,12 +14,13 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+type CompetitionIndex = domain.CompetitionIndex
 type CompetitionListCMD = repository.CompetitionListOption
 
 type CompetitionSubmitCMD struct {
 	FileName   string
 	Data       io.Reader
-	Index      domain.CompetitionIndex
+	Index      CompetitionIndex
 	Competitor domain.Account
 }
 
@@ -29,7 +30,7 @@ type CompetitionService interface {
 
 	Submit(*CompetitionSubmitCMD) (CompetitionSubmissionDTO, error)
 
-	GetSubmissions(cid string, competitor domain.Account) (CompetitionSubmissionsDTO, error)
+	GetSubmissions(*CompetitionIndex, domain.Account) (CompetitionSubmissionsDTO, error)
 
 	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
 
@@ -70,9 +71,15 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 	s.toCompetitionDTO(&v.Competition, &dto.CompetitionDTO)
 
 	dto.CompetitorCount = v.CompetitorCount
+
 	dto.IsCompetitor = b.IsCompetitor
 	if !b.IsCompetitor {
 		dto.DatasetURL = ""
+	}
+
+	dto.TeamId = b.TeamId
+	if b.TeamRole != nil {
+		dto.TeamRole = b.TeamRole.TeamRole()
 	}
 
 	if !v.Enabled {
@@ -203,10 +210,10 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 	return
 }
 
-func (s competitionService) GetSubmissions(cid string, competitor domain.Account) (
+func (s competitionService) GetSubmissions(index *CompetitionIndex, competitor domain.Account) (
 	dto CompetitionSubmissionsDTO, err error,
 ) {
-	repo, results, err := s.repo.GetSubmisstions(cid, competitor)
+	repo, results, err := s.repo.GetSubmisstions(index, competitor)
 	if err != nil {
 		return
 	}
