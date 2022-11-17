@@ -356,7 +356,7 @@ func (col competition) getResultOfCompetitor(docFilter, resultFilter bson.M) (
 	return
 }
 
-func (col competition) SaveSubmission(
+func (col competition) InsertSubmission(
 	index *repositories.CompetitionIndexDO,
 	do *repositories.CompetitionSubmissionDO,
 ) (string, error) {
@@ -393,4 +393,24 @@ func (col competition) SaveSubmission(
 	}
 
 	return do.Id, err
+}
+
+func (col competition) UpdateSubmission(
+	index *repositories.CompetitionIndexDO,
+	do *repositories.CompetitionSubmissionInfoDO,
+) error {
+	f := func(ctx context.Context) error {
+		_, err := cli.modifyArrayElemWithoutVersion(
+			ctx, col.collectionName, fieldSubmissions,
+			col.indexToDocFilter(index), resourceIdFilter(do.Id),
+			bson.M{
+				fieldStatus: do.Status,
+				"score":     do.Score,
+			}, mongoCmdSet,
+		)
+
+		return err
+	}
+
+	return withContext(f)
 }

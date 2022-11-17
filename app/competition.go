@@ -16,6 +16,7 @@ import (
 
 type CompetitionIndex = domain.CompetitionIndex
 type CompetitionListCMD = repository.CompetitionListOption
+type CompetitionSubmissionInfo = domain.CompetitionSubmissionInfo
 
 type CompetitionSubmitCMD struct {
 	FileName   string
@@ -316,4 +317,25 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 	dto.Status = submission.Status
 
 	return
+}
+
+// Internal Service
+type CompetitionInternalService interface {
+	UpdateSubmission(*CompetitionIndex, *CompetitionSubmissionInfo) error
+}
+
+func NewCompetitionInternalService(repo repository.Competition) CompetitionInternalService {
+	return competitionInternalService{
+		repo: repo,
+	}
+}
+
+type competitionInternalService struct {
+	repo repository.Competition
+}
+
+func (s competitionInternalService) UpdateSubmission(
+	index *CompetitionIndex, info *CompetitionSubmissionInfo,
+) error {
+	return s.repo.UpdateSubmission(index, info)
 }

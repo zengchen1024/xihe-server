@@ -37,4 +37,6 @@ type Competition interface {
 	)
 
 	SaveSubmission(*domain.CompetitionIndex, *domain.CompetitionSubmission) (string, error)
+
+	UpdateSubmission(*domain.CompetitionIndex, *domain.CompetitionSubmissionInfo) error
 }

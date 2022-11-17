@@ -16,7 +16,8 @@ type CompetitionMapper interface {
 		CompetitionRepoDO, []CompetitionSubmissionDO, error,
 	)
 
-	SaveSubmission(*CompetitionIndexDO, *CompetitionSubmissionDO) (string, error)
+	InsertSubmission(*CompetitionIndexDO, *CompetitionSubmissionDO) (string, error)
+	UpdateSubmission(*CompetitionIndexDO, *CompetitionSubmissionInfoDO) error
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -168,10 +169,22 @@ func (impl competition) SaveSubmission(
 
 	indexDO := impl.toCompetitionIndexDO(index)
 
-	v, err := impl.mapper.SaveSubmission(&indexDO, do)
+	v, err := impl.mapper.InsertSubmission(&indexDO, do)
 	if err != nil {
 		err = convertError(err)
 	}
 
 	return v, err
+}
+
+func (impl competition) UpdateSubmission(
+	index *domain.CompetitionIndex, info *domain.CompetitionSubmissionInfo,
+) error {
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	if err := impl.mapper.UpdateSubmission(&indexDO, info); err != nil {
+		return convertError(err)
+	}
+
+	return nil
 }

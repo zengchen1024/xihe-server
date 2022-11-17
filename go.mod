@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95
-	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221101123717-861bb4a4b5bb
+	github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117023542-9a5d8c2ffb68
 	github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102031424-b6e01d2ebc0e
 	github.com/opensourceways/xihe-training-center v0.0.0-20221114074011-a71b989702b5
 	github.com/sirupsen/logrus v1.9.0

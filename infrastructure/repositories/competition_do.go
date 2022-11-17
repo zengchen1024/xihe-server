@@ -289,3 +289,5 @@ func (do *CompetitorInfoDO) toCompetitorInfo(r *domain.CompetitorInfo) (err erro
 
 	return
 }
+
+type CompetitionSubmissionInfoDO = domain.CompetitionSubmissionInfo

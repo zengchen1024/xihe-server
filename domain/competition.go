@@ -49,6 +49,12 @@ type CompetitionTeam struct {
 	Name TeamName
 }
 
+type CompetitionSubmissionInfo struct {
+	Id     string
+	Status string
+	Score  float32
+}
+
 type CompetitionSubmission struct {
 	Id string
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
+	"github.com/opensourceways/xihe-grpc-protocol/grpc/competition"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/evaluate"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/inference"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/server"
@@ -106,6 +107,13 @@ func main() {
 		),
 	)
 
+	// competition
+	competitionService := app.NewCompetitionInternalService(
+		repositories.NewCompetitionRepository(
+			mongodb.NewCompetitionMapper(collections.Competition),
+		),
+	)
+
 	// cfg
 	cfg.initDomainConfig()
 
@@ -115,6 +123,7 @@ func main() {
 	s.RegisterTrainingServer(trainingServer{train})
 	s.RegisterEvaluateServer(evaluateServer{evaluateService})
 	s.RegisterInferenceServer(inferenceServer{inferenceService})
+	s.RegisterCompetitionServer(competitionServer{competitionService})
 
 	if err := s.Run(strconv.Itoa(o.service.Port)); err != nil {
 		log.Errorf("start server failed, err:%s", err.Error())
@@ -199,6 +208,32 @@ func (t evaluateServer) SetEvaluateInfo(index *evaluate.EvaluateIndex, v *evalua
 		&app.EvaluateDetail{
 			Error:     v.Error,
 			AccessURL: v.AccessURL,
+		},
+	)
+}
+
+// competition
+type competitionServer struct {
+	service app.CompetitionInternalService
+}
+
+func (t competitionServer) SetSubmissionInfo(
+	index *competition.SubmissionIndex, v *competition.SubmissionInfo,
+) error {
+	phase, err := domain.NewCompetitionPhase(index.Phase)
+	if err != nil {
+		return nil
+	}
+
+	return t.service.UpdateSubmission(
+		&domain.CompetitionIndex{
+			Id:    index.Id,
+			Phase: phase,
+		},
+		&app.CompetitionSubmissionInfo{
+			Id:     index.CompetitionId,
+			Status: v.Status,
+			Score:  v.Score,
 		},
 	)
 }
