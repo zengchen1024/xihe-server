@@ -29,11 +29,11 @@ func newCodeGeexInfo(cfg *Config) codegeexInfo {
 	return v
 }
 
-func (s *service) CodeGeex(question *bigmodel.CodeGeexReq) (answer string, err error) {
+func (s *service) CodeGeex(question *bigmodel.CodeGeexReq) (r bigmodel.CodeGeexResp, err error) {
 	s.doIfFree(s.codegeexInfo.endpoints, func(e string) error {
-		answer, err = s.sendReqToCodeGeex(e, question)
+		r, err = s.sendReqToCodeGeex(e, question)
 
-		return err
+		return nil
 	})
 
 	return
@@ -41,7 +41,7 @@ func (s *service) CodeGeex(question *bigmodel.CodeGeexReq) (answer string, err e
 
 func (s *service) sendReqToCodeGeex(
 	endpoint string, question *bigmodel.CodeGeexReq,
-) (answer string, err error) {
+) (r bigmodel.CodeGeexResp, err error) {
 	opt := codegeexReq{
 		Samples: question.Content,
 		Lang:    question.Lang,
@@ -61,16 +61,13 @@ func (s *service) sendReqToCodeGeex(
 
 	t, err := s.token()
 	if err != nil {
-		return "", err
+		return
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Auth-Token", t)
 
-	r := new(codegeexResp)
-	if _, err = s.hc.ForwardTo(req, r); err == nil {
-		answer = r.Result
-	}
+	_, err = s.hc.ForwardTo(req, &r)
 
 	return
 }
@@ -78,8 +75,4 @@ func (s *service) sendReqToCodeGeex(
 type codegeexReq struct {
 	Samples string `json:"samples"`
 	Lang    string `json:"language"`
-}
-
-type codegeexResp struct {
-	Result string `json:"result"`
 }

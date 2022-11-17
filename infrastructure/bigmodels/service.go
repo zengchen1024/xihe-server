@@ -20,10 +20,13 @@ func Init(cfg *Config) error {
 		return err
 	}
 
+	check := initTextCheck(&cfg.Moderation)
+
 	fm = &service{
-		obs: obs,
-		cfg: cfg.Cloud,
-		hc:  utils.NewHttpClient(3),
+		obs:   obs,
+		check: check,
+		cfg:   cfg.Cloud,
+		hc:    utils.NewHttpClient(3),
 	}
 
 	http.DefaultClient.Transport = &http.Transport{
@@ -45,8 +48,9 @@ func NewBigModelService() bigmodel.BigModel {
 }
 
 type service struct {
-	cfg CloudConfig
-	obs obsService
+	cfg   CloudConfig
+	obs   obsService
+	check textCheckService
 
 	hc utils.HttpClient
 

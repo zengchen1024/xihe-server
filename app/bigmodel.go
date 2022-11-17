@@ -10,6 +10,8 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+type CodeGeexDTO = bigmodel.CodeGeexResp
+
 type CodeGeexCmd bigmodel.CodeGeexReq
 
 func (cmd *CodeGeexCmd) Validate() error {
@@ -33,7 +35,7 @@ type BigModelService interface {
 	VQAUploadPicture(io.Reader, domain.Account, string) error
 	LuoJiaUploadPicture(io.Reader, domain.Account) error
 	PanGu(string) (string, error)
-	CodeGeex(*CodeGeexCmd) (string, error)
+	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, error)
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
 }
@@ -123,6 +125,6 @@ func (s bigModelService) ListLuoJiaRecord(user domain.Account) (
 	return
 }
 
-func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (string, error) {
+func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (CodeGeexDTO, error) {
 	return s.fm.CodeGeex((*bigmodel.CodeGeexReq)(cmd))
 }

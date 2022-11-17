@@ -8,6 +8,13 @@ definitions:
       type:
         type: string
     type: object
+  app.CodeGeexDTO:
+    properties:
+      finish:
+        type: string
+      result:
+        type: string
+    type: object
   app.CompetitionSubmissionDTO:
     properties:
       project:
@@ -638,11 +645,6 @@ definitions:
       can_apply:
         type: boolean
     type: object
-  controller.codegeexResp:
-    properties:
-      answer:
-        type: string
-    type: object
   controller.datasetCreateRequest:
     properties:
       desc:
@@ -1213,7 +1215,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controller.codegeexResp'
+            $ref: '#/definitions/app.CodeGeexDTO'
         "500":
           description: Internal Server Error
           schema:

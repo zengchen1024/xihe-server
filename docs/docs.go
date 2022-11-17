@@ -123,7 +123,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controller.codegeexResp"
+                            "$ref": "#/definitions/app.CodeGeexDTO"
                         }
                     },
                     "500": {
@@ -3454,6 +3454,17 @@ const docTemplate = `{
                 }
             }
         },
+        "app.CodeGeexDTO": {
+            "type": "object",
+            "properties": {
+                "finish": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                }
+            }
+        },
         "app.CompetitionSubmissionDTO": {
             "type": "object",
             "properties": {
@@ -4419,14 +4430,6 @@ const docTemplate = `{
             "properties": {
                 "can_apply": {
                     "type": "boolean"
-                }
-            }
-        },
-        "controller.codegeexResp": {
-            "type": "object",
-            "properties": {
-                "answer": {
-                    "type": "string"
                 }
             }
         },

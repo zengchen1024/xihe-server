@@ -269,7 +269,7 @@ func (ctl *BigModelController) ListLuoJiaRecord(ctx *gin.Context) {
 // @Tags  BigModel
 // @Param	body	body 	CodeGeexRequest		true	"codegeex body"
 // @Accept json
-// @Success 201 {object} codegeexResp
+// @Success 201 {object} app.CodeGeexDTO
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/codegeex [post]
 func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
@@ -296,7 +296,7 @@ func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
 	if v, err := ctl.s.CodeGeex(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(codegeexResp{v}))
+		ctx.JSON(http.StatusCreated, newResponseData(v))
 	}
 }
 

@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	OBS       OBSConfig   `json:"obs"             required:"true"`
-	Cloud     CloudConfig `json:"cloud"           required:"true"`
-	Endpoints Endpoints   `json:"endpoints"       required:"true"`
+	OBS        OBSConfig   `json:"obs"             required:"true"`
+	Cloud      CloudConfig `json:"cloud"           required:"true"`
+	Endpoints  Endpoints   `json:"endpoints"       required:"true"`
+	Moderation Moderation  `json:"moderation"      required:"true"`
 
 	MaxPictureSizeToDescribe int64 `json:"max_picture_size_to_describe"`
 	MaxPictureSizeToVQA      int64 `json:"max_picture_size_to_vqa"`
@@ -94,4 +95,12 @@ func (e *Endpoints) parse(s string) ([]string, error) {
 	}
 
 	return v, nil
+}
+
+type Moderation struct {
+	Endpoint   string `json:"endpoint"       required:"true"`
+	AccessKey  string `json:"access_key"     required:"true"`
+	SecretKey  string `json:"secret_key"     required:"true"`
+	IAMEndpint string `json:"iam_endpoint"   required:"true"`
+	Region     string `json:"region"         required:"true"`
 }

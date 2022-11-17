@@ -38,6 +38,10 @@ func newPictureGenInfo(cfg *Config) pictureGenInfo {
 }
 
 func (s *service) GenPicture(user domain.Account, desc string) (string, error) {
+	if err := s.check.check(desc); err != nil {
+		return "", err
+	}
+
 	r := new(singlePicture)
 
 	err := s.genPicture(user, desc, s.pictureGenInfo.singlePictures, r)
@@ -49,6 +53,10 @@ func (s *service) GenPicture(user domain.Account, desc string) (string, error) {
 }
 
 func (s *service) GenPictures(user domain.Account, desc string) ([]string, error) {
+	if err := s.check.check(desc); err != nil {
+		return nil, err
+	}
+
 	r := new(multiplePictures)
 
 	err := s.genPicture(user, desc, s.pictureGenInfo.multiplePictures, r)
