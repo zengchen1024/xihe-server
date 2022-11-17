@@ -5,7 +5,7 @@ type Config struct {
 }
 
 type OBSConfig struct {
-	Prefix    string `json:"bucket"`
+	Prefix    string `json:"prefix"`
 	Bucket    string `json:"bucket"         required:"true"`
 	Endpoint  string `json:"endpoint"       required:"true"`
 	AccessKey string `json:"access_key"     required:"true"`
