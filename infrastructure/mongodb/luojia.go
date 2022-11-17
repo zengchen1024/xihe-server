@@ -92,7 +92,15 @@ func (col luojia) List(user string) (
 		)
 	}
 
-	if err = withContext(f); err != nil || len(v.Items) == 0 {
+	if err = withContext(f); err != nil {
+		if isDocNotExists(err) {
+			err = nil
+		}
+
+		return
+	}
+
+	if len(v.Items) == 0 {
 		return
 	}
 

@@ -504,6 +504,10 @@ definitions:
         type: string
       status:
         type: string
+      team_id:
+        type: string
+      team_role:
+        type: string
     type: object
   app.UserDTO:
     properties:
@@ -1431,6 +1435,66 @@ paths:
       summary: Get
       tags:
       - Competition
+  /v1/competition/{id}/{phase}/submissions:
+    get:
+      consumes:
+      - application/json
+      description: get submissions
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: competition phase
+        in: path
+        name: phase
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitionSubmissionsDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetSubmissions
+      tags:
+      - Competition
+    post:
+      consumes:
+      - application/json
+      description: submit
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: competition phase
+        in: path
+        name: phase
+        required: true
+        type: string
+      - description: result file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/app.CompetitionSubmissionDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Submit
+      tags:
+      - Competition
   /v1/competition/{id}/ranking/{phase}:
     get:
       consumes:
@@ -1457,29 +1521,6 @@ paths:
           schema:
             type: system_error
       summary: GetRankingList
-      tags:
-      - Competition
-  /v1/competition/{id}/submissions:
-    get:
-      consumes:
-      - application/json
-      description: get submissions
-      parameters:
-      - description: competition id
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.CompetitionSubmissionsDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: GetSubmissions
       tags:
       - Competition
   /v1/competition/{id}/team:

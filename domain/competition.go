@@ -38,9 +38,21 @@ type Competitor struct {
 	TeamRole TeamRole
 }
 
+type CompetitorInfo struct {
+	IsCompetitor bool
+	TeamId       string
+	TeamRole     TeamRole
+}
+
 type CompetitionTeam struct {
 	Id   string
 	Name TeamName
+}
+
+type CompetitionSubmissionInfo struct {
+	Id     string
+	Status string
+	Score  float32
 }
 
 type CompetitionSubmission struct {

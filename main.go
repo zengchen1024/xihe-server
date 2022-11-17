@@ -12,6 +12,7 @@ import (
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -72,6 +73,11 @@ func main() {
 	// gitlab
 	if err := gitlab.Init(&cfg.Gitlab); err != nil {
 		logrus.Fatalf("initialize gitlab failed, err:%s", err.Error())
+	}
+
+	// competition
+	if err := competitionimpl.Init(&cfg.Competition); err != nil {
+		logrus.Fatalf("initialize competition failed, err:%s", err.Error())
 	}
 
 	// authing

@@ -17,6 +17,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -123,6 +124,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	authingUser := authing.NewAuthingUser()
 	sender := messages.NewMessageSender()
 	trainingAdapter := trainingimpl.NewTraining(&cfg.Training)
+	uploader := competitionimpl.NewCompetitionService()
 
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
@@ -186,7 +188,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForCompetitionController(
-			v1, competition,
+			v1, competition, sender, uploader,
 		)
 	}
 

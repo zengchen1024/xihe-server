@@ -7,14 +7,17 @@ import (
 
 type CompetitionMapper interface {
 	List(*CompetitionListOptionDO) ([]CompetitionSummaryDO, error)
-	Get(index *CompetitionIndexDO, competitor string) (CompetitionDO, bool, error)
+	Get(index *CompetitionIndexDO, competitor string) (CompetitionDO, CompetitorInfoDO, error)
 	GetTeam(index *CompetitionIndexDO, competitor string) ([]CompetitorDO, error)
 	GetResult(*CompetitionIndexDO) (
 		bool, []CompetitionTeamDO, []CompetitionSubmissionDO, error,
 	)
-	GetSubmisstions(cid, competitor string) (
+	GetSubmisstions(index *CompetitionIndexDO, competitor string) (
 		CompetitionRepoDO, []CompetitionSubmissionDO, error,
 	)
+
+	InsertSubmission(*CompetitionIndexDO, *CompetitionSubmissionDO) (string, error)
+	UpdateSubmission(*CompetitionIndexDO, *CompetitionSubmissionInfoDO) error
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -55,7 +58,7 @@ func (impl competition) List(opt *repository.CompetitionListOption) (
 }
 
 func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account) (
-	r repository.CompetitionInfo, b bool, err error,
+	r repository.CompetitionInfo, b domain.CompetitorInfo, err error,
 ) {
 	s := ""
 	if user != nil {
@@ -63,7 +66,7 @@ func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account)
 	}
 
 	do := impl.toCompetitionIndexDO(index)
-	v, b, err := impl.mapper.Get(&do, s)
+	v, c, err := impl.mapper.Get(&do, s)
 	if err != nil {
 		return
 	}
@@ -73,6 +76,8 @@ func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account)
 	}
 
 	r.CompetitorCount = v.CompetitorsCount
+
+	err = c.toCompetitorInfo(&b)
 
 	return
 }
@@ -121,7 +126,7 @@ func (impl competition) GetResult(index *domain.CompetitionIndex) (
 
 	results = make([]domain.CompetitionSubmission, len(rs))
 	for i := range rs {
-		if err = rs[i].toCompetitionResult(&results[i]); err != nil {
+		if err = rs[i].toCompetitionSubmission(&results[i]); err != nil {
 			return
 		}
 	}
@@ -129,18 +134,20 @@ func (impl competition) GetResult(index *domain.CompetitionIndex) (
 	return
 }
 
-func (impl competition) GetSubmisstions(cid string, c domain.Account) (
+func (impl competition) GetSubmisstions(index *domain.CompetitionIndex, c domain.Account) (
 	repo domain.CompetitionRepo,
 	results []domain.CompetitionSubmission, err error,
 ) {
-	r, rs, err := impl.mapper.GetSubmisstions(cid, c.Account())
+	do := impl.toCompetitionIndexDO(index)
+
+	r, rs, err := impl.mapper.GetSubmisstions(&do, c.Account())
 	if err != nil || len(rs) == 0 {
 		return
 	}
 
 	results = make([]domain.CompetitionSubmission, len(rs))
 	for i := range rs {
-		if err = rs[i].toCompetitionResult(&results[i]); err != nil {
+		if err = rs[i].toCompetitionSubmission(&results[i]); err != nil {
 			return
 		}
 	}
@@ -150,4 +157,32 @@ func (impl competition) GetSubmisstions(cid string, c domain.Account) (
 	}
 
 	return
+}
+
+func (impl competition) SaveSubmission(
+	index *domain.CompetitionIndex, submission *domain.CompetitionSubmission,
+) (string, error) {
+	do := new(CompetitionSubmissionDO)
+	impl.toCompetitionSubmissionDO(submission, do)
+
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	v, err := impl.mapper.InsertSubmission(&indexDO, do)
+	if err != nil {
+		err = convertError(err)
+	}
+
+	return v, err
+}
+
+func (impl competition) UpdateSubmission(
+	index *domain.CompetitionIndex, info *domain.CompetitionSubmissionInfo,
+) error {
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	if err := impl.mapper.UpdateSubmission(&indexDO, info); err != nil {
+		return convertError(err)
+	}
+
+	return nil
 }

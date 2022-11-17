@@ -19,6 +19,7 @@ type Topics struct {
 	Following       string `json:"following"        required:"true"`
 	Inference       string `json:"inference"        required:"true"`
 	Evaluate        string `json:"evaluate"         required:"true"`
+	Submission      string `json:"submission"       required:"true"`
 	RelatedResource string `json:"related_resource" required:"true"`
 }
 
@@ -144,6 +145,18 @@ func (s sender) sendRelatedResource(msg *message.RelatedResource, action string)
 	}
 
 	return s.send(topics.RelatedResource, &v)
+}
+
+// Competition
+func (s sender) CalcScore(info *message.SubmissionInfo) error {
+	v := msgSubmission{
+		CId:   info.Index.Id,
+		Phase: info.Index.Phase.CompetitionPhase(),
+		SId:   info.Id,
+		Path:  info.OBSPath,
+	}
+
+	return s.send(topics.Submission, &v)
 }
 
 // send

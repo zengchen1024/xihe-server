@@ -30,7 +30,9 @@ type CompetitionDTO struct {
 }
 
 type UserCompetitionDTO struct {
-	IsCompetitor bool `json:"is_competitor"`
+	IsCompetitor bool   `json:"is_competitor"`
+	TeamId       string `json:"team_id"`
+	TeamRole     string `json:"team_role"`
 
 	CompetitionDTO
 }

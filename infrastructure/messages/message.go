@@ -103,3 +103,10 @@ func toMsgResourceObject(r *domain.ResourceObject) resourceObject {
 		Id:    r.Id,
 	}
 }
+
+type msgSubmission struct {
+	CId   string `json:"competition_id"`
+	Phase string `json:"phase"`
+	SId   string `json:"submission_id"`
+	Path  string `json:"path"`
+}

@@ -47,6 +47,7 @@ func (r competitionPhase) CompetitionPhase() string {
 // CompetitionStatus
 type CompetitionStatus interface {
 	CompetitionStatus() string
+	IsDone() bool
 }
 
 func NewCompetitionStatus(v string) (CompetitionStatus, error) {
@@ -69,6 +70,10 @@ type competitionStatus string
 
 func (r competitionStatus) CompetitionStatus() string {
 	return string(r)
+}
+
+func (r competitionStatus) IsDone() bool {
+	return string(r) == competitionStatusDone
 }
 
 // CompetitionName
@@ -311,6 +316,7 @@ func (r teamName) TeamName() string {
 // TeamRole
 type TeamRole interface {
 	TeamRole() string
+	IsLeader() bool
 }
 
 func NewTeamRole(v string) (TeamRole, error) {
@@ -325,4 +331,8 @@ type teamRole string
 
 func (r teamRole) TeamRole() string {
 	return string(r)
+}
+
+func (r teamRole) IsLeader() bool {
+	return string(r) == competitionTeamRoleLeader
 }
