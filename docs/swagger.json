@@ -111,7 +111,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controller.codegeexResp"
+                            "$ref": "#/definitions/app.CodeGeexDTO"
                         }
                     },
                     "500": {
@@ -3442,6 +3442,17 @@
                 }
             }
         },
+        "app.CodeGeexDTO": {
+            "type": "object",
+            "properties": {
+                "finish": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                }
+            }
+        },
         "app.CompetitionSubmissionDTO": {
             "type": "object",
             "properties": {
@@ -4407,14 +4418,6 @@
             "properties": {
                 "can_apply": {
                     "type": "boolean"
-                }
-            }
-        },
-        "controller.codegeexResp": {
-            "type": "object",
-            "properties": {
-                "answer": {
-                    "type": "string"
                 }
             }
         },

@@ -93,7 +93,3 @@ func (req *CodeGeexRequest) toCmd() (
 
 	return
 }
-
-type codegeexResp struct {
-	Answer string `json:"answer"`
-}

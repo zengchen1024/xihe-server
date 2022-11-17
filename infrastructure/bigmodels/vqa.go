@@ -55,6 +55,10 @@ func newVQAInfo(cfg *Config) vqaInfo {
 }
 
 func (s *service) Ask(q domain.Question, f string) (string, error) {
+	if err := s.check.check(q.Question()); err != nil {
+		return "", err
+	}
+
 	opt := questionOpt{
 		Picture:  f,
 		Question: q.Question(),
