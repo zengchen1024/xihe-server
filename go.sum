@@ -328,6 +328,8 @@ github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117015405-b1c705acfa47 
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117015405-b1c705acfa47/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117023542-9a5d8c2ffb68 h1:S64MjeN6XZhKqu/wO6Z88YqiUMXP+0rysajZocYbzUI=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117023542-9a5d8c2ffb68/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
+github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117063933-0f2786747d81 h1:6jVM7QIhEzxzmbjcB5LCC/OoOOwxBq79iUY57oZdaS0=
+github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117063933-0f2786747d81/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101003204-046bfc1a48b7 h1:uP8/sd3tdiGiADpkWeq9qFcsGEcT7oknHmu0b2H/AC8=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101003204-046bfc1a48b7/go.mod h1:AOhkDQhNT6henO9D06vZWQfEY33KjPtfEz8HdO3tW+w=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221101020938-37d1c5c8b8e4 h1:0WHEq82ZXHWR/hJzRbBLj/oLZtXfSNRpXF1MBS7chXQ=

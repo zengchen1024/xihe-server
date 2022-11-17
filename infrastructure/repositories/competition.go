@@ -77,9 +77,7 @@ func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account)
 
 	r.CompetitorCount = v.CompetitorsCount
 
-	if err = c.toCompetitorInfo(&b); err != nil {
-		return
-	}
+	err = c.toCompetitorInfo(&b)
 
 	return
 }

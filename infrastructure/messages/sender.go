@@ -19,8 +19,8 @@ type Topics struct {
 	Following       string `json:"following"        required:"true"`
 	Inference       string `json:"inference"        required:"true"`
 	Evaluate        string `json:"evaluate"         required:"true"`
-	RelatedResource string `json:"related_resource" required:"true"`
 	Submission      string `json:"submission"       required:"true"`
+	RelatedResource string `json:"related_resource" required:"true"`
 }
 
 func NewMessageSender() message.Sender {

@@ -11,6 +11,7 @@ const (
 	fieldDate           = "date"
 	fieldLevel          = "level"
 	fieldDetail         = "detail"
+	fieldScore          = "score"
 	fieldCoverId        = "cover_id"
 	fieldCommit         = "commit"
 	fieldExpiry         = "expiry"

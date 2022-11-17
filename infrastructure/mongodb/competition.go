@@ -405,7 +405,7 @@ func (col competition) UpdateSubmission(
 			col.indexToDocFilter(index), resourceIdFilter(do.Id),
 			bson.M{
 				fieldStatus: do.Status,
-				"score":     do.Score,
+				fieldScore:  do.Score,
 			}, mongoCmdSet,
 		)
 

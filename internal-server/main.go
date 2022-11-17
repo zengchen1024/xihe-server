@@ -218,7 +218,7 @@ type competitionServer struct {
 }
 
 func (t competitionServer) SetSubmissionInfo(
-	index *competition.SubmissionIndex, v *competition.SubmissionInfo,
+	index *competition.CompetitionIndex, v *competition.SubmissionInfo,
 ) error {
 	phase, err := domain.NewCompetitionPhase(index.Phase)
 	if err != nil {
@@ -231,7 +231,7 @@ func (t competitionServer) SetSubmissionInfo(
 			Phase: phase,
 		},
 		&app.CompetitionSubmissionInfo{
-			Id:     index.CompetitionId,
+			Id:     v.Id,
 			Status: v.Status,
 			Score:  v.Score,
 		},
