@@ -65,6 +65,8 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	}
 	doc[fieldVersion] = 0
 	doc[fieldLikeCount] = 0
+	doc[fieldForkCount] = 0
+	doc[fieldDownloadCount] = 0
 	doc[fieldModels] = bson.A{}
 	doc[fieldDatasets] = bson.A{}
 
