@@ -83,6 +83,8 @@ func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
 		TagKinds: do.TagKinds,
 	}
 
+	p.setDefault()
+
 	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
@@ -228,11 +230,7 @@ func (col dataset) toDatasetDoc(do *repositories.DatasetDO) (bson.M, error) {
 		},
 	}
 
-	// The serach by the tag want the tags exist.
-	if docObj.Tags == nil {
-		docObj.Tags = []string{}
-		docObj.TagKinds = []string{}
-	}
+	docObj.DatasetPropertyItem.setDefault()
 
 	return genDoc(docObj)
 }

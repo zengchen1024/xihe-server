@@ -85,6 +85,8 @@ func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 		TagKinds: do.TagKinds,
 	}
 
+	p.setDefault()
+
 	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
@@ -223,11 +225,7 @@ func (col project) toProjectDoc(do *repositories.ProjectDO) (bson.M, error) {
 		},
 	}
 
-	// The serach by the tag want the tags exist.
-	if docObj.Tags == nil {
-		docObj.Tags = []string{}
-		docObj.TagKinds = []string{}
-	}
+	docObj.ProjectPropertyItem.setDefault()
 
 	return genDoc(docObj)
 }

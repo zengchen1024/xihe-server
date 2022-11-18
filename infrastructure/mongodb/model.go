@@ -83,6 +83,8 @@ func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
 		TagKinds: do.TagKinds,
 	}
 
+	p.setDefault()
+
 	return updateResourceProperty(col.collectionName, &do.ResourceToUpdateDO, p)
 }
 
@@ -229,11 +231,7 @@ func (col model) toModelDoc(do *repositories.ModelDO) (bson.M, error) {
 		},
 	}
 
-	// The serach by the tag want the tags exist.
-	if docObj.Tags == nil {
-		docObj.Tags = []string{}
-		docObj.TagKinds = []string{}
-	}
+	docObj.ModelPropertyItem.setDefault()
 
 	return genDoc(docObj)
 }
