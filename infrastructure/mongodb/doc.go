@@ -176,7 +176,7 @@ type datasetItem struct {
 	// So, don't marshal it to avoid setting it occasionally.
 	Version       int `bson:"version"               json:"-"`
 	LikeCount     int `bson:"like_count"            json:"-"`
-	DownloadCount int `bson:"download_count"    json:"-"`
+	DownloadCount int `bson:"download_count"        json:"-"`
 }
 
 type DatasetPropertyItem struct {
