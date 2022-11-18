@@ -5,7 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/opensourceways/community-robot-lib/utils"
+	libutil "github.com/opensourceways/community-robot-lib/utils"
+
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 // Account
@@ -103,7 +105,7 @@ func NewBio(v string) (Bio, error) {
 		return nil, nil
 	}
 
-	if len(v) > config.MaxBioLength {
+	if utils.StrLen(v) > config.MaxBioLength {
 		return nil, errors.New("invalid bio")
 	}
 
@@ -126,7 +128,7 @@ type Email interface {
 }
 
 func NewEmail(v string) (Email, error) {
-	if v == "" || !utils.IsValidEmail(v) {
+	if v == "" || !libutil.IsValidEmail(v) {
 		return nil, errors.New("invalid email")
 	}
 

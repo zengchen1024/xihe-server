@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
+	"unicode/utf8"
 
 	"sigs.k8s.io/yaml"
 )
@@ -33,4 +34,8 @@ func ToDate(n int64) string {
 
 func Expiry(expiry int64) int64 {
 	return time.Now().Add(time.Second * time.Duration(expiry)).Unix()
+}
+
+func StrLen(s string) int {
+	return utf8.RuneCountInString(s)
 }

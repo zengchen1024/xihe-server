@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 const (
@@ -117,7 +119,7 @@ func NewResourceDesc(v string) (ResourceDesc, error) {
 		return nil, nil
 	}
 
-	if max := config.MaxDescLength; len(v) > max {
+	if max := config.MaxDescLength; utils.StrLen(v) > max {
 		return nil, fmt.Errorf(
 			"the length of desc should be less than %d", max,
 		)
