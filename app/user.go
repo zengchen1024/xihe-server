@@ -97,23 +97,17 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 
 	v := cmd.toUser()
 
-	// new user
-	u, err := s.repo.Save(&v)
-	if err != nil {
-		return
-	}
-
 	// new code platform user
 	pu, err := s.ps.New(platform.UserOption{
-		Email:    u.Email,
-		Name:     u.Account,
+		Email:    v.Email,
+		Name:     v.Account,
 		Password: cmd.Password,
 	})
 	if err != nil {
 		return
 	}
 
-	u.PlatformUser = pu
+	v.PlatformUser = pu
 
 	// apply token
 	token, err := s.ps.NewToken(pu)
@@ -121,10 +115,10 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 		return
 	}
 
-	u.PlatformToken = token
+	v.PlatformToken = token
 
 	// update user
-	u, err = s.repo.Save(&u)
+	u, err := s.repo.Save(&v)
 	if err != nil {
 		return
 	}
