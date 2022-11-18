@@ -5,13 +5,17 @@ import (
 )
 
 const (
+	activityTypeFork   = "fork"
 	activityTypeLike   = "like"
 	activityTypeCreate = "create"
+	activityTypeDelete = "delete"
 )
 
 var (
+	ActivityTypeFork   = activityType(activityTypeFork)
 	ActivityTypeLike   = activityType(activityTypeLike)
 	ActivityTypeCreate = activityType(activityTypeCreate)
+	ActivityTypeDelete = activityType(activityTypeDelete)
 )
 
 // ActivityType
@@ -20,7 +24,12 @@ type ActivityType interface {
 }
 
 func NewActivityType(v string) (ActivityType, error) {
-	if v != activityTypeLike && v != activityTypeCreate {
+	b := v != activityTypeLike &&
+		v != activityTypeCreate &&
+		v != activityTypeDelete &&
+		v != activityTypeFork
+
+	if b {
 		return nil, errors.New("unknown activity type")
 	}
 

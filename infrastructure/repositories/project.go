@@ -9,6 +9,7 @@ import (
 
 type ProjectMapper interface {
 	Insert(ProjectDO) (string, error)
+	Delete(*ResourceIndexDO) error
 	Get(string, string) (ProjectDO, error)
 	GetByName(string, string) (ProjectDO, error)
 	GetSummary(string, string) (ResourceSummaryDO, error)
@@ -61,6 +62,16 @@ func (impl project) Save(p *domain.Project) (r domain.Project, err error) {
 	} else {
 		r = *p
 		r.Id = v
+	}
+
+	return
+}
+
+func (impl project) Delete(index *domain.ResourceIndex) (err error) {
+	do := toResourceIndexDO(index)
+
+	if err = impl.mapper.Delete(&do); err != nil {
+		err = convertError(err)
 	}
 
 	return

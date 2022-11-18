@@ -17,6 +17,7 @@ type UserDatasetsInfo struct {
 
 type Dataset interface {
 	Save(*domain.Dataset) (domain.Dataset, error)
+	Delete(*domain.ResourceIndex) error
 	Get(domain.Account, string) (domain.Dataset, error)
 	GetByName(domain.Account, domain.ResourceName) (domain.Dataset, error)
 	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)

@@ -11,6 +11,7 @@ import (
 
 type DatasetMapper interface {
 	Insert(DatasetDO) (string, error)
+	Delete(*ResourceIndexDO) error
 	Get(string, string) (DatasetDO, error)
 	GetByName(string, string) (DatasetDO, error)
 	GetSummaryByName(string, string) (ResourceSummaryDO, error)
@@ -61,6 +62,16 @@ func (impl dataset) Save(d *domain.Dataset) (r domain.Dataset, err error) {
 	} else {
 		r = *d
 		r.Id = v
+	}
+
+	return
+}
+
+func (impl dataset) Delete(index *domain.ResourceIndex) (err error) {
+	do := toResourceIndexDO(index)
+
+	if err = impl.mapper.Delete(&do); err != nil {
+		err = convertError(err)
 	}
 
 	return

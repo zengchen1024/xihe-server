@@ -61,3 +61,10 @@ type ResourceSummary struct {
 func (s *ResourceSummary) IsPrivate() bool {
 	return s.RepoType.RepoType() == RepoTypePrivate
 }
+
+func (s *ResourceSummary) ResourceIndex() ResourceIndex {
+	return ResourceIndex{
+		Owner: s.Owner,
+		Id:    s.Id,
+	}
+}

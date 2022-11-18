@@ -22,6 +22,7 @@ type UserModelsInfo struct {
 
 type Model interface {
 	Save(*domain.Model) (domain.Model, error)
+	Delete(*domain.ResourceIndex) error
 	Get(domain.Account, string) (domain.Model, error)
 	GetByName(domain.Account, domain.ResourceName) (domain.Model, error)
 	GetSummaryByName(domain.Account, domain.ResourceName) (domain.ResourceSummary, error)

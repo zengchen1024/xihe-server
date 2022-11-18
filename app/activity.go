@@ -108,3 +108,19 @@ func genActivityForCreatingResource(
 		},
 	}
 }
+
+func genActivityForDeletingResource(
+	s *domain.ResourceSummary, t domain.ResourceType,
+) domain.UserActivity {
+	obj := domain.ResourceObject{Type: t}
+	obj.ResourceIndex = s.ResourceIndex()
+
+	return domain.UserActivity{
+		Owner: s.Owner,
+		Activity: domain.Activity{
+			Type:           domain.ActivityTypeDelete,
+			Time:           utils.Now(),
+			ResourceObject: obj,
+		},
+	}
+}

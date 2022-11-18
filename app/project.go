@@ -110,6 +110,7 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
+	Delete(*domain.ResourceSummary, platform.Repository) error
 	GetByName(domain.Account, domain.ResourceName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalProjectsDTO, error)
@@ -190,6 +191,27 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	ua := genActivityForCreatingResource(
 		p.Owner, domain.ResourceTypeProject, p.Id,
 	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
+
+	return
+}
+
+func (s projectService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+	// step1: delete repo on gitlab
+	if err = pr.Delete(r.RepoId); err != nil {
+		return
+	}
+
+	// step2: save
+	index := r.ResourceIndex()
+	if err = s.repo.Delete(&index); err != nil {
+		return
+	}
+
+	// add activity
+	ua := genActivityForDeletingResource(r, domain.ResourceTypeProject)
+
 	// ignore the error
 	_ = s.activity.Save(&ua)
 

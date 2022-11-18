@@ -89,6 +89,7 @@ type DatasetDetailDTO struct {
 type DatasetService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
+	Delete(*domain.ResourceSummary, platform.Repository) error
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
@@ -161,6 +162,27 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 	ua := genActivityForCreatingResource(
 		d.Owner, domain.ResourceTypeDataset, d.Id,
 	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
+
+	return
+}
+
+func (s datasetService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+	// step1: delete repo on gitlab
+	if err = pr.Delete(r.RepoId); err != nil {
+		return
+	}
+
+	// step2: save
+	index := r.ResourceIndex()
+	if err = s.repo.Delete(&index); err != nil {
+		return
+	}
+
+	// add activity
+	ua := genActivityForDeletingResource(r, domain.ResourceTypeDataset)
+
 	// ignore the error
 	_ = s.activity.Save(&ua)
 

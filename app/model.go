@@ -90,6 +90,7 @@ type ModelDetailDTO struct {
 type ModelService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
+	Delete(*domain.ResourceSummary, platform.Repository) error
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (ModelDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
@@ -165,6 +166,27 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 	ua := genActivityForCreatingResource(
 		m.Owner, domain.ResourceTypeModel, m.Id,
 	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
+
+	return
+}
+
+func (s modelService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+	// step1: delete repo on gitlab
+	if err = pr.Delete(r.RepoId); err != nil {
+		return
+	}
+
+	// step2: save
+	index := r.ResourceIndex()
+	if err = s.repo.Delete(&index); err != nil {
+		return
+	}
+
+	// add activity
+	ua := genActivityForDeletingResource(r, domain.ResourceTypeModel)
+
 	// ignore the error
 	_ = s.activity.Save(&ua)
 
