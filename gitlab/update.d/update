@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Script to limit the size of a push to git repository.
+# Git repo has issues with big pushes, and we shouldn't have a real need for those
+#
+# eis/02.02.2012
+
+# --- Safety check, should not be run from command line
+if [ -z "$GIT_DIR" ]; then
+        echo "Don't run this script from the command line." >&2
+        echo " (if you want, you could supply GIT_DIR then run" >&2
+        echo "  $0 <ref> <oldrev> <newrev>)" >&2
+        exit 1
+fi
+
+# Test that tab replacement works, issue in some Solaris envs at least
+testvariable=`echo -e "\t" | sed 's/\s//'`
+if [ "$testvariable" != "" ]; then
+        echo "Environment check failed - please contact git hosting." >&2
+        exit 1
+fi
+
+if [ "$1" != "refs/heads/main" ]; then
+        echo "GL-HOOK-ERR: XiHe: Only allow to push to main branch." >&2	
+        exit 1
+fi
+
+n=$(git rev-list --count $2...$3)
+if [ $n -ne 1 ]; then
+        echo "GL-HOOK-ERR: XiHe: There are $n commits. Only allow to push 1 commit once. Please squash the commits."
+        exit 1
+fi
+
+#v=$(env)
+#av=$@
+#echo -e "Environment check failed - fuck.argv=${av}\nenv = ${v}.\nrefname=$GIT_PUSH_OPTION_COUNT, $GIT_PUSH_OPTION_0" >&2
+#exit 1
+
+# File size limit is meant to be configured through 'hooks.filesizelimit' setting
+filesizelimit=$(git config hooks.filesizelimit)
+
+# If we haven't configured a file size limit, use default value of about 100M
+if [ -z "$filesizelimit" ]; then
+        filesizelimit=50000
+fi
+filesizelimit=5000
+
+# Reference to incoming checkin can be found at $3
+refname=$3
+
+# With this command, we can find information about the file coming in that has biggest size
+# We also normalize the line for excess whitespace
+biggest_checkin_normalized=$(git ls-tree --full-tree -r -l $refname | sort -k 4 -n -r | head -1 | sed 's/^ *//;s/ *$//;s/\s\{1,\}/ /g' )
+
+# Based on that, we can find what we are interested about
+filesize=`echo $biggest_checkin_normalized | cut -d ' ' -f4,4`
+
+# Actual comparison
+# To cancel a push, we exit with status code 1
+# It is also a good idea to print out some info about the cause of rejection
+if [ $filesize -gt $filesizelimit ]; then
+
+        # To be more user-friendly, we also look up the name of the offending file
+        filename=`echo $biggest_checkin_normalized | cut -d ' ' -f5,5`
+
+        echo "GL-HOOK-ERR: XiHe: File size limit is $filesizelimit, and you tried to push file named $filename of size $filesize." >&2
+        exit 1
+fi
+
+exit 0
