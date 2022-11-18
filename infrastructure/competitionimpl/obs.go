@@ -13,6 +13,8 @@ func initOBS(cfg *OBSConfig) (s obsService, err error) {
 	}
 
 	s.cli = cli
+	s.bucket = cfg.Bucket
+	s.prefix = cfg.Prefix
 
 	return
 }
