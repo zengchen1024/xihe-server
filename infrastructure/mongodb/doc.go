@@ -92,8 +92,20 @@ type ProjectPropertyItem struct {
 	CoverId  string `bson:"cover_id"   json:"cover_id"`
 	RepoType string `bson:"repo_type"  json:"repo_type"`
 	// set omitempty to avoid set it to null occasionally.
-	Tags     []string `bson:"tags"       json:"tags,omitempty"`
-	TagKinds []string `bson:"kinds"      json:"kinds,omitempty"`
+	// don't depend on the magic to guarantee the correctness.
+	Tags     []string `bson:"tags"     json:"tags"`
+	TagKinds []string `bson:"kinds"    json:"kinds"`
+}
+
+func (doc *ProjectPropertyItem) setDefault() {
+	// The serach by the tag want the tags exist.
+	if doc.Tags == nil {
+		doc.Tags = []string{}
+	}
+
+	if doc.TagKinds == nil {
+		doc.TagKinds = []string{}
+	}
 }
 
 type dModel struct {
@@ -128,8 +140,19 @@ type ModelPropertyItem struct {
 	Name     string   `bson:"name"       json:"name"`
 	Desc     string   `bson:"desc"       json:"desc"`
 	RepoType string   `bson:"repo_type"  json:"repo_type"`
-	Tags     []string `bson:"tags"       json:"tags,omitempty"`
-	TagKinds []string `bson:"kinds"      json:"kinds,omitempty"`
+	Tags     []string `bson:"tags"       json:"tags"`
+	TagKinds []string `bson:"kinds"      json:"kinds"`
+}
+
+func (doc *ModelPropertyItem) setDefault() {
+	// The serach by the tag want the tags exist.
+	if doc.Tags == nil {
+		doc.Tags = []string{}
+	}
+
+	if doc.TagKinds == nil {
+		doc.TagKinds = []string{}
+	}
 }
 
 type dDataset struct {
@@ -162,8 +185,19 @@ type DatasetPropertyItem struct {
 	Name     string   `bson:"name"       json:"name"`
 	Desc     string   `bson:"desc"       json:"desc"`
 	RepoType string   `bson:"repo_type"  json:"repo_type"`
-	Tags     []string `bson:"tags"       json:"tags,omitempty"`
-	TagKinds []string `bson:"kinds"      json:"kinds,omitempty"`
+	Tags     []string `bson:"tags"       json:"tags"`
+	TagKinds []string `bson:"kinds"      json:"kinds"`
+}
+
+func (doc *DatasetPropertyItem) setDefault() {
+	// The serach by the tag want the tags exist.
+	if doc.Tags == nil {
+		doc.Tags = []string{}
+	}
+
+	if doc.TagKinds == nil {
+		doc.TagKinds = []string{}
+	}
 }
 
 type DUser struct {
