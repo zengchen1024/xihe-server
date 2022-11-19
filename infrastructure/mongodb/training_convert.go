@@ -156,6 +156,7 @@ func (col training) toTrainingJobInfoDO(doc *dJobInfo) repositories.TrainingJobI
 
 func (col training) toTrainingJobDetailDO(doc *dJobDetail) repositories.TrainingJobDetailDO {
 	return repositories.TrainingJobDetailDO{
+		Error:      doc.Error,
 		Status:     doc.Status,
 		Duration:   doc.Duration,
 		LogPath:    doc.LogPath,

@@ -71,6 +71,7 @@ type TrainingSummaryDTO struct {
 	Id        string `json:"id"`
 	Name      string `json:"name"`
 	Desc      string `json:"desc"`
+	Error     string `json:"error"`
 	Status    string `json:"status"`
 	CreatedAt string `json:"created_at"`
 	IsDone    bool   `json:"is_done"`
@@ -80,7 +81,7 @@ type TrainingSummaryDTO struct {
 func (s trainingService) toTrainingSummaryDTO(
 	t *domain.TrainingSummary, dto *TrainingSummaryDTO,
 ) {
-	status := t.JobDetail.Status
+	status := t.Status
 	if status == "" {
 		status = trainingStatusScheduling
 	}
@@ -90,9 +91,10 @@ func (s trainingService) toTrainingSummaryDTO(
 	*dto = TrainingSummaryDTO{
 		Id:        t.Id,
 		Name:      t.Name.TrainingName(),
+		Error:     t.Error,
 		Status:    status,
 		IsDone:    done,
-		Duration:  t.JobDetail.Duration,
+		Duration:  t.Duration,
 		CreatedAt: utils.ToDate(t.CreatedAt),
 	}
 
@@ -109,6 +111,7 @@ type TrainingDTO struct {
 	Desc string `json:"desc"`
 
 	IsDone    bool       `json:"is_done"`
+	Error     string     `json:"error"`
 	Status    string     `json:"status"`
 	Duration  int        `json:"duration"`
 	CreatedAt string     `json:"created_at"`
@@ -142,6 +145,7 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 
 		Name:      t.Name.TrainingName(),
 		IsDone:    s.isJobDone(detail.Status),
+		Error:     detail.Error,
 		Status:    status,
 		Duration:  detail.Duration,
 		CreatedAt: utils.ToDate(ut.CreatedAt),

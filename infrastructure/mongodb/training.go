@@ -259,6 +259,7 @@ func (col training) UpdateJobInfo(info *repositories.TrainingIndexDO, job *repos
 func (col training) UpdateJobDetail(info *repositories.TrainingIndexDO, detail *repositories.TrainingJobDetailDO) error {
 	v := dJobDetail{
 		Duration:   detail.Duration,
+		Error:      detail.Error,
 		Status:     detail.Status,
 		LogPath:    detail.LogPath,
 		AimPath:    detail.AimPath,
@@ -322,6 +323,7 @@ func (col training) toTrainingSummary(t *trainingItem, s *repositories.TrainingS
 		Name:      t.Name,
 		Desc:      t.Desc,
 		JobId:     t.Job.JobId,
+		Error:     t.JobDetail.Error,
 		Status:    t.JobDetail.Status,
 		Duration:  t.JobDetail.Duration,
 		CreatedAt: t.CreatedAt,

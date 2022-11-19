@@ -66,6 +66,7 @@ type JobInfo struct {
 
 type JobDetail struct {
 	Status     string
+	Error      string
 	LogPath    string
 	AimPath    string
 	OutputPath string
@@ -78,7 +79,9 @@ type TrainingSummary struct {
 	Desc      TrainingDesc
 	JobId     string
 	Endpoint  string
-	JobDetail JobDetail
+	Error     string
+	Status    string
+	Duration  int
 	CreatedAt int64
 }
 

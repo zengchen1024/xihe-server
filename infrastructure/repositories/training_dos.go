@@ -267,8 +267,9 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	t.JobId = do.JobId
 	t.Endpoint = do.Endpoint
 	t.CreatedAt = do.CreatedAt
-	t.JobDetail.Status = do.Status
-	t.JobDetail.Duration = do.Duration
+	t.Error = do.Error
+	t.Status = do.Status
+	t.Duration = do.Duration
 
 	return
 }
@@ -286,6 +287,7 @@ type TrainingSummaryDO struct {
 	Name      string
 	Desc      string
 	JobId     string
+	Error     string
 	Status    string
 	Endpoint  string
 	Duration  int
