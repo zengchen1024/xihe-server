@@ -100,7 +100,7 @@ func (s trainingService) create(
 	}
 
 	for i := range v {
-		if !s.isJobDone(v[i].JobDetail.Status) {
+		if !s.isJobDone(v[i].Status) {
 			return "", ErrorOnlyOneRunningTraining{
 				errors.New("a training is running"),
 			}
@@ -245,6 +245,7 @@ func (s trainingService) CreateTrainingJob(
 	if lastChance {
 		s.repo.UpdateJobDetail(info, &JobDetail{
 			Status: trainingStatusScheduleFailed,
+			Error:  err.Error(),
 		})
 	}
 

@@ -330,6 +330,7 @@ type dJobInfo struct {
 
 type dJobDetail struct {
 	Duration   int    `bson:"duration"   json:"duration,omitempty"`
+	Error      string `bson:"error"      json:"error,omitempty"`
 	Status     string `bson:"status"     json:"status,omitempty"`
 	LogPath    string `bson:"log"        json:"log,omitempty"`
 	AimPath    string `bson:"aim"        json:"aim,omitempty"`
