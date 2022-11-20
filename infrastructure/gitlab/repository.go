@@ -61,6 +61,22 @@ func (r *repository) New(repo *platform.RepoOption) (string, error) {
 	return strconv.Itoa(v.ID), nil
 }
 
+func (r *repository) Delete(repoId string) error {
+	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))
+	if err != nil {
+		return err
+	}
+
+	v, err := cli.Projects.DeleteProject(repoId)
+	if err != nil {
+		if v.StatusCode == 404 {
+			err = nil
+		}
+	}
+
+	return err
+}
+
 // TODO admin fork repo instead
 func (r *repository) Fork(srcRepoId string, repoName domain.ResourceName) (string, error) {
 	cli, err := sdk.NewClient(r.user.Token, sdk.WithBaseURL(endpoint))

@@ -75,6 +75,10 @@ func (col project) insert(do repositories.ProjectDO) (identity string, err error
 	return
 }
 
+func (col project) Delete(do *repositories.ResourceIndexDO) error {
+	return deleteResource(col.collectionName, do)
+}
+
 func (col project) UpdateProperty(do *repositories.ProjectPropertyDO) error {
 	p := &ProjectPropertyItem{
 		Level:    do.Level,

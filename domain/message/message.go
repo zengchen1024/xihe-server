@@ -68,7 +68,6 @@ type ForkHandler interface {
 type RelatedResourceHandler interface {
 	HandleEventAddRelatedResource(*RelatedResource) error
 	HandleEventRemoveRelatedResource(*RelatedResource) error
-	HandleEventRemoveRelatedResources(*RelatedResources) error
 }
 
 type RelatedResource struct {
