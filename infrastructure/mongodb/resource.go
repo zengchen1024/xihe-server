@@ -190,6 +190,17 @@ func insertResource(collection, owner, name string, doc bson.M) error {
 	return withContext(f)
 }
 
+func deleteResource(collection string, do *repositories.ResourceIndexDO) error {
+	f := func(ctx context.Context) error {
+		return cli.pullArrayElem(
+			ctx, collection, fieldItems,
+			resourceOwnerFilter(do.Owner), resourceIdFilter(do.Id),
+		)
+	}
+
+	return withContext(f)
+}
+
 func updateResourceProperty(
 	collection string, obj *repositories.ResourceToUpdateDO,
 	property interface{},

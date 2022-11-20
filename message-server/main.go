@@ -104,28 +104,22 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 
 		user: app.NewUserService(userRepo, nil, nil),
 
-		project: app.NewProjectService(
-			nil,
+		project: app.NewProjectMessageService(
 			repositories.NewProjectRepository(
 				mongodb.NewProjectMapper(collections.Project),
 			),
-			nil, nil, nil, nil, nil,
 		),
 
-		dataset: app.NewDatasetService(
-			nil,
+		dataset: app.NewDatasetMessageService(
 			repositories.NewDatasetRepository(
 				mongodb.NewDatasetMapper(collections.Dataset),
 			),
-			nil, nil, nil, nil,
 		),
 
-		model: app.NewModelService(
-			nil,
+		model: app.NewModelMessageService(
 			repositories.NewModelRepository(
 				mongodb.NewModelMapper(collections.Model),
 			),
-			nil, nil, nil, nil, nil,
 		),
 
 		training: app.NewTrainingService(

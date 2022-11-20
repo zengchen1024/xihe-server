@@ -67,6 +67,7 @@ type ResourceSearchResult struct {
 
 type Project interface {
 	Save(*domain.Project) (domain.Project, error)
+	Delete(*domain.ResourceIndex) error
 	Get(domain.Account, string) (domain.Project, error)
 	GetByName(domain.Account, domain.ResourceName) (domain.Project, error)
 	GetSummary(domain.Account, string) (domain.ResourceSummary, error)

@@ -139,7 +139,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForDatasetController(
-			v1, user, dataset, model, proj, activity, tags, like, newPlatformRepository,
+			v1, user, dataset, model, proj, activity, tags, like, sender,
+			newPlatformRepository,
 		)
 
 		controller.AddRouterForUserController(

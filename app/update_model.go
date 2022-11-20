@@ -91,14 +91,6 @@ func (s modelService) SetTags(m *domain.Model, cmd *ResourceTagsUpdateCmd) error
 	return s.repo.UpdateProperty(&info)
 }
 
-func (s modelService) AddLike(r *domain.ResourceIndex) error {
-	return s.repo.AddLike(r)
-}
-
-func (s modelService) RemoveLike(r *domain.ResourceIndex) error {
-	return s.repo.RemoveLike(r)
-}
-
 func (s modelService) AddRelatedDataset(
 	m *domain.Model, index *domain.ResourceIndex,
 ) error {
@@ -169,18 +161,6 @@ func (s modelService) RemoveRelatedDataset(
 	})
 
 	return nil
-}
-
-func (s modelService) AddRelatedProject(
-	info *domain.ReverselyRelatedResourceInfo,
-) error {
-	return s.repo.AddRelatedProject(info)
-}
-
-func (s modelService) RemoveRelatedProject(
-	info *domain.ReverselyRelatedResourceInfo,
-) error {
-	return s.repo.RemoveRelatedProject(info)
 }
 
 func (s modelService) toResourceToUpdate(m *domain.Model) repository.ResourceToUpdate {

@@ -32,6 +32,7 @@ type Sender interface {
 
 	AddRelatedResource(*RelatedResource) error
 	RemoveRelatedResource(*RelatedResource) error
+	RemoveRelatedResources(*RelatedResources) error
 
 	CreateTraining(*domain.TrainingIndex) error
 
@@ -72,6 +73,11 @@ type RelatedResourceHandler interface {
 type RelatedResource struct {
 	Promoter *domain.ResourceObject
 	Resource *domain.ResourceObject
+}
+
+type RelatedResources struct {
+	Promoter  domain.ResourceObject
+	Resources []domain.ResourceObjects
 }
 
 type TrainingHandler interface {

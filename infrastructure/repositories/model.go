@@ -11,6 +11,7 @@ import (
 
 type ModelMapper interface {
 	Insert(ModelDO) (string, error)
+	Delete(*ResourceIndexDO) error
 	Get(string, string) (ModelDO, error)
 	GetByName(string, string) (ModelDO, error)
 	GetSummaryByName(string, string) (ResourceSummaryDO, error)
@@ -61,6 +62,16 @@ func (impl model) Save(m *domain.Model) (r domain.Model, err error) {
 	} else {
 		r = *m
 		r.Id = v
+	}
+
+	return
+}
+
+func (impl model) Delete(index *domain.ResourceIndex) (err error) {
+	do := toResourceIndexDO(index)
+
+	if err = impl.mapper.Delete(&do); err != nil {
+		err = convertError(err)
 	}
 
 	return

@@ -159,21 +159,25 @@ func (s likeService) List(owner domain.Account) (
 	}
 
 	dtos = make([]LikeDTO, len(likes))
-	err = sortAndSet(orders, func(i, j int) error {
+	j := 0
+	_ = sortAndSet(orders, func(i int) error {
 		item := &likes[i]
 
-		r, ok := rm[item.String()]
-		if !ok {
-			return errors.New("no matched resource")
-		}
+		if r, ok := rm[item.String()]; ok {
+			dtos[j] = LikeDTO{
+				Time:     utils.ToDate(item.CreatedAt),
+				Resource: *r,
+			}
 
-		dtos[j] = LikeDTO{
-			Time:     utils.ToDate(item.CreatedAt),
-			Resource: *r,
+			j++
 		}
 
 		return nil
 	})
+
+	if j < len(dtos) {
+		dtos = dtos[:j]
+	}
 
 	return
 }

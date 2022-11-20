@@ -110,16 +110,12 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
+	Delete(*domain.Project, platform.Repository) error
 	GetByName(domain.Account, domain.ResourceName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalProjectsDTO, error)
 	Update(*domain.Project, *ProjectUpdateCmd, platform.Repository) (ProjectDTO, error)
 	Fork(*ProjectForkCmd, platform.Repository) (ProjectDTO, error)
-
-	IncreaseFork(*domain.ResourceIndex) error
-
-	AddLike(*domain.ResourceIndex) error
-	RemoveLike(*domain.ResourceIndex) error
 
 	AddRelatedModel(*domain.Project, *domain.ResourceIndex) error
 	RemoveRelatedModel(*domain.Project, *domain.ResourceIndex) error
@@ -190,6 +186,39 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	ua := genActivityForCreatingResource(
 		p.Owner, domain.ResourceTypeProject, p.Id,
 	)
+	// ignore the error
+	_ = s.activity.Save(&ua)
+
+	return
+}
+
+func (s projectService) Delete(r *domain.Project, pr platform.Repository) (err error) {
+	// step1: delete repo on gitlab
+	if err = pr.Delete(r.RepoId); err != nil {
+		return
+	}
+
+	obj := r.ResourceObject()
+
+	// step2:
+	if resources := r.RelatedResources(); len(resources) > 0 {
+		err = s.sender.RemoveRelatedResources(&message.RelatedResources{
+			Promoter:  obj,
+			Resources: resources,
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	// step3: delete
+	if err = s.repo.Delete(&obj.ResourceIndex); err != nil {
+		return
+	}
+
+	// add activity
+	ua := genActivityForDeletingResource(&obj)
+
 	// ignore the error
 	_ = s.activity.Save(&ua)
 

@@ -28,6 +28,7 @@ func (r *RepoOption) IsNotEmpty() bool {
 
 type Repository interface {
 	New(repo *RepoOption) (string, error)
+	Delete(string) error
 	Fork(srcRepoId string, Name domain.ResourceName) (string, error)
 	Update(repoId string, repo *RepoOption) error
 }

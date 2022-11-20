@@ -74,6 +74,10 @@ func (col dataset) insert(do repositories.DatasetDO) (identity string, err error
 	return
 }
 
+func (col dataset) Delete(do *repositories.ResourceIndexDO) error {
+	return deleteResource(col.collectionName, do)
+}
+
 func (col dataset) UpdateProperty(do *repositories.DatasetPropertyDO) error {
 	p := &DatasetPropertyItem{
 		FL:       do.FL,

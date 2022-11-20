@@ -74,6 +74,10 @@ func (col model) insert(do repositories.ModelDO) (identity string, err error) {
 	return
 }
 
+func (col model) Delete(do *repositories.ResourceIndexDO) error {
+	return deleteResource(col.collectionName, do)
+}
+
 func (col model) UpdateProperty(do *repositories.ModelPropertyDO) error {
 	p := &ModelPropertyItem{
 		FL:       do.FL,

@@ -34,9 +34,9 @@ type handler struct {
 	trainingEndpoint string
 
 	user      app.UserService
-	model     app.ModelService
-	dataset   app.DatasetService
-	project   app.ProjectService
+	model     app.ModelMessageService
+	dataset   app.DatasetMessageService
+	project   app.ProjectMessageService
 	training  app.TrainingService
 	evaluate  app.EvaluateMessageService
 	inference app.InferenceMessageService
@@ -82,22 +82,42 @@ func (h *handler) getHandlerForEventRelatedResource(
 ) (v relatedResourceHanler) {
 	pt := info.Promoter.Type.ResourceType()
 
+	model := domain.ResourceTypeModel.ResourceType()
+	project := domain.ResourceTypeProject.ResourceType()
+	dataset := domain.ResourceTypeDataset.ResourceType()
+
 	switch info.Resource.Type.ResourceType() {
-	case domain.ResourceTypeDataset.ResourceType():
+	case dataset:
 		switch pt {
-		case domain.ResourceTypeModel.ResourceType():
+		case model:
 			v.Add = h.dataset.AddRelatedModel
 			v.Remove = h.dataset.RemoveRelatedModel
 
-		case domain.ResourceTypeProject.ResourceType():
+		case project:
 			v.Add = h.dataset.AddRelatedProject
 			v.Remove = h.dataset.RemoveRelatedProject
 		}
 
-	case domain.ResourceTypeModel.ResourceType():
-		if pt == domain.ResourceTypeProject.ResourceType() {
+	case model:
+		switch pt {
+		case project:
 			v.Add = h.model.AddRelatedProject
 			v.Remove = h.model.RemoveRelatedProject
+
+		case dataset:
+			v.Add = h.model.AddRelatedDataset
+			v.Remove = h.model.RemoveRelatedDataset
+		}
+
+	case project:
+		switch pt {
+		case model:
+			v.Add = h.project.AddRelatedModel
+			v.Remove = h.project.RemoveRelatedModel
+
+		case dataset:
+			v.Add = h.project.AddRelatedDataset
+			v.Remove = h.project.RemoveRelatedDataset
 		}
 	}
 

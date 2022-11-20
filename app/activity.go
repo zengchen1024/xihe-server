@@ -1,8 +1,6 @@
 package app
 
 import (
-	"errors"
-
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -72,22 +70,26 @@ func (s activityService) List(owner domain.Account) (
 	}
 
 	dtos = make([]ActivityDTO, total)
-	err = sortAndSet(orders, func(i, j int) error {
+	j := 0
+	_ = sortAndSet(orders, func(i int) error {
 		item := &activities[i]
 
-		r, ok := rm[item.String()]
-		if !ok {
-			return errors.New("no matched resource")
-		}
+		if r, ok := rm[item.String()]; ok {
+			dtos[j] = ActivityDTO{
+				Type:     item.Type.ActivityType(),
+				Time:     utils.ToDate(item.Time),
+				Resource: *r,
+			}
 
-		dtos[j] = ActivityDTO{
-			Type:     item.Type.ActivityType(),
-			Time:     utils.ToDate(item.Time),
-			Resource: *r,
+			j++
 		}
 
 		return nil
 	})
+
+	if j < total {
+		dtos = dtos[:j]
+	}
 
 	return
 }
@@ -105,6 +107,17 @@ func genActivityForCreatingResource(
 			Type:           domain.ActivityTypeCreate,
 			Time:           utils.Now(),
 			ResourceObject: obj,
+		},
+	}
+}
+
+func genActivityForDeletingResource(obj *domain.ResourceObject) domain.UserActivity {
+	return domain.UserActivity{
+		Owner: obj.Owner,
+		Activity: domain.Activity{
+			Type:           domain.ActivityTypeDelete,
+			Time:           utils.Now(),
+			ResourceObject: *obj,
 		},
 	}
 }

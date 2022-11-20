@@ -6,6 +6,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
+type ResourceObjects struct {
+	Type    ResourceType
+	Objects []ResourceIndex
+}
+
 // ResourceObject
 type ResourceObject struct {
 	Type ResourceType
@@ -60,4 +65,11 @@ type ResourceSummary struct {
 
 func (s *ResourceSummary) IsPrivate() bool {
 	return s.RepoType.RepoType() == RepoTypePrivate
+}
+
+func (s *ResourceSummary) ResourceIndex() ResourceIndex {
+	return ResourceIndex{
+		Owner: s.Owner,
+		Id:    s.Id,
+	}
 }
