@@ -35,6 +35,7 @@ func AddRouterForDatasetController(
 
 	rg.POST("/v1/dataset", ctl.Create)
 	rg.PUT("/v1/dataset/:owner/:id", ctl.Update)
+	rg.DELETE("/v1/dataset/:owner/:name", ctl.Delete)
 	rg.GET("/v1/dataset/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/dataset/:owner/:name", ctl.Get)
 	rg.GET("/v1/dataset/:owner", ctl.List)
@@ -158,6 +159,64 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, newResponseData(d))
+}
+
+// @Summary Delete
+// @Description delete dataset
+// @Tags  Dataset
+// @Param	owner	path	string	true	"owner of dataset"
+// @Param	name	path	string	true	"name of dataset"
+// @Accept json
+// @Success 204
+// @Produce json
+// @Router /v1/dataset/{owner}/{name} [get]
+func (ctl *DatasetController) Delete(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access other's dataset",
+		))
+	}
+
+	proj, err := ctl.repo.GetByName(owner, name)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	pr := ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	)
+
+	if err := ctl.s.Delete(&proj, pr); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusNoContent, newResponseData("success"))
+	}
 }
 
 // @Summary Update

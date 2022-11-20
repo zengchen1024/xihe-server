@@ -4152,6 +4152,9 @@
                 "duration": {
                     "type": "integer"
                 },
+                "error": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5001,6 +5004,9 @@
                 },
                 "enable_aim": {
                     "type": "boolean"
+                },
+                "error": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"

@@ -4164,6 +4164,9 @@ const docTemplate = `{
                 "duration": {
                     "type": "integer"
                 },
+                "error": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5013,6 +5016,9 @@ const docTemplate = `{
                 },
                 "enable_aim": {
                     "type": "boolean"
+                },
+                "error": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"

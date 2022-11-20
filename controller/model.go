@@ -36,6 +36,7 @@ func AddRouterForModelController(
 
 	rg.POST("/v1/model", ctl.Create)
 	rg.PUT("/v1/model/:owner/:id", ctl.Update)
+	rg.DELETE("/v1/model/:owner/:name", ctl.Delete)
 	rg.GET("/v1/model/:owner/:name/check", ctl.Check)
 	rg.GET("/v1/model/:owner/:name", ctl.Get)
 	rg.GET("/v1/model/:owner", ctl.List)
@@ -163,6 +164,64 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, newResponseData(d))
+}
+
+// @Summary Delete
+// @Description delete model
+// @Tags  Model
+// @Param	owner	path	string	true	"owner of model"
+// @Param	name	path	string	true	"name of model"
+// @Accept json
+// @Success 204
+// @Produce json
+// @Router /v1/model/{owner}/{name} [get]
+func (ctl *ModelController) Delete(ctx *gin.Context) {
+	owner, err := domain.NewAccount(ctx.Param("owner"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	name, err := domain.NewResourceName(ctx.Param("name"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	if pl.isNotMe(owner) {
+		ctx.JSON(http.StatusNotFound, newResponseCodeMsg(
+			errorResourceNotExists,
+			"can't access other's model",
+		))
+	}
+
+	proj, err := ctl.repo.GetByName(owner, name)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	pr := ctl.newPlatformRepository(
+		pl.PlatformToken, pl.PlatformUserNamespaceId,
+	)
+
+	if err := ctl.s.Delete(&proj, pr); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusNoContent, newResponseData("success"))
+	}
 }
 
 // @Summary Update

@@ -470,6 +470,8 @@ definitions:
         type: string
       duration:
         type: integer
+      error:
+        type: string
       id:
         type: string
       is_done:
@@ -1022,6 +1024,8 @@ definitions:
         type: integer
       enable_aim:
         type: boolean
+      error:
+        type: string
       id:
         type: string
       is_done:
