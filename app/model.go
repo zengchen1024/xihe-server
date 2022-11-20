@@ -96,14 +96,8 @@ type ModelService interface {
 	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalModelsDTO, error)
 
-	AddLike(*domain.ResourceIndex) error
-	RemoveLike(*domain.ResourceIndex) error
-
 	AddRelatedDataset(*domain.Model, *domain.ResourceIndex) error
 	RemoveRelatedDataset(*domain.Model, *domain.ResourceIndex) error
-
-	AddRelatedProject(*domain.ReverselyRelatedResourceInfo) error
-	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
 
 	SetTags(*domain.Model, *ResourceTagsUpdateCmd) error
 }

@@ -103,18 +103,6 @@ func (s projectService) SetTags(p *domain.Project, cmd *ResourceTagsUpdateCmd) e
 	return s.repo.UpdateProperty(&info)
 }
 
-func (s projectService) IncreaseFork(index *domain.ResourceIndex) error {
-	return s.repo.IncreaseFork(index)
-}
-
-func (s projectService) AddLike(r *domain.ResourceIndex) error {
-	return s.repo.AddLike(r)
-}
-
-func (s projectService) RemoveLike(r *domain.ResourceIndex) error {
-	return s.repo.RemoveLike(r)
-}
-
 func (s projectService) AddRelatedModel(
 	p *domain.Project, index *domain.ResourceIndex,
 ) error {
