@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
@@ -89,7 +90,7 @@ type DatasetDetailDTO struct {
 type DatasetService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*DatasetCreateCmd, platform.Repository) (DatasetDTO, error)
-	Delete(*domain.ResourceSummary, platform.Repository) error
+	Delete(*domain.Dataset, platform.Repository) error
 	Update(*domain.Dataset, *DatasetUpdateCmd, platform.Repository) (DatasetDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (DatasetDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (DatasetsDTO, error)
@@ -114,10 +115,12 @@ func NewDatasetService(
 	model repository.Model,
 	activity repository.Activity,
 	pr platform.Repository,
+	sender message.Sender,
 ) DatasetService {
 	return datasetService{
 		repo:     repo,
 		activity: activity,
+		sender:   sender,
 		rs: resourceService{
 			user:    user,
 			model:   model,
@@ -131,6 +134,7 @@ type datasetService struct {
 	repo repository.Dataset
 	//pr       platform.Repository
 	activity repository.Activity
+	sender   message.Sender
 	rs       resourceService
 }
 
@@ -168,20 +172,32 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 	return
 }
 
-func (s datasetService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+func (s datasetService) Delete(r *domain.Dataset, pr platform.Repository) (err error) {
 	// step1: delete repo on gitlab
 	if err = pr.Delete(r.RepoId); err != nil {
 		return
 	}
 
-	// step2: save
-	index := r.ResourceIndex()
-	if err = s.repo.Delete(&index); err != nil {
+	obj := r.ResourceObject()
+
+	// step2: message
+	if resources := r.RelatedResources(); len(resources) > 0 {
+		err = s.sender.RemoveRelatedResources(&message.RelatedResources{
+			Promoter:  obj,
+			Resources: resources,
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	// step3: delete
+	if err = s.repo.Delete(&obj.ResourceIndex); err != nil {
 		return
 	}
 
 	// add activity
-	ua := genActivityForDeletingResource(r, domain.ResourceTypeDataset)
+	ua := genActivityForDeletingResource(&obj)
 
 	// ignore the error
 	_ = s.activity.Save(&ua)

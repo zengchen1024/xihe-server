@@ -6,6 +6,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
+type ResourceObjects struct {
+	Type    ResourceType
+	Objects []ResourceIndex
+}
+
 // ResourceObject
 type ResourceObject struct {
 	Type ResourceType

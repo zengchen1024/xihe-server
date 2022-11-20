@@ -117,7 +117,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			repositories.NewDatasetRepository(
 				mongodb.NewDatasetMapper(collections.Dataset),
 			),
-			nil, nil, nil, nil,
+			nil, nil, nil, nil, nil,
 		),
 
 		model: app.NewModelService(

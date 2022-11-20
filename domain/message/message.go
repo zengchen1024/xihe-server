@@ -77,12 +77,7 @@ type RelatedResource struct {
 
 type RelatedResources struct {
 	Promoter  domain.ResourceObject
-	Resources []ResourceObjects
-}
-
-type ResourceObjects struct {
-	Type    domain.ResourceType
-	Objects []domain.ResourceIndex
+	Resources []domain.ResourceObjects
 }
 
 type TrainingHandler interface {

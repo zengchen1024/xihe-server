@@ -110,7 +110,7 @@ type ProjectDetailDTO struct {
 type ProjectService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ProjectCreateCmd, platform.Repository) (ProjectDTO, error)
-	Delete(*domain.ResourceSummary, platform.Repository) error
+	Delete(*domain.Project, platform.Repository) error
 	GetByName(domain.Account, domain.ResourceName, bool) (ProjectDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ProjectsDTO, error)
 	ListGlobal(*GlobalResourceListCmd) (GlobalProjectsDTO, error)
@@ -197,20 +197,32 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	return
 }
 
-func (s projectService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+func (s projectService) Delete(r *domain.Project, pr platform.Repository) (err error) {
 	// step1: delete repo on gitlab
 	if err = pr.Delete(r.RepoId); err != nil {
 		return
 	}
 
-	// step2: save
-	index := r.ResourceIndex()
-	if err = s.repo.Delete(&index); err != nil {
+	obj := r.ResourceObject()
+
+	// step2:
+	if resources := r.RelatedResources(); len(resources) > 0 {
+		err = s.sender.RemoveRelatedResources(&message.RelatedResources{
+			Promoter:  obj,
+			Resources: resources,
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	// step3: delete
+	if err = s.repo.Delete(&obj.ResourceIndex); err != nil {
 		return
 	}
 
 	// add activity
-	ua := genActivityForDeletingResource(r, domain.ResourceTypeProject)
+	ua := genActivityForDeletingResource(&obj)
 
 	// ignore the error
 	_ = s.activity.Save(&ua)

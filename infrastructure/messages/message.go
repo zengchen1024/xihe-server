@@ -123,7 +123,7 @@ func (r *resourceObjects) handle(f func(*domain.ResourceObject) error) error {
 	return nil
 }
 
-func toMsgResourceObjects(v *message.ResourceObjects, r *resourceObjects) {
+func toMsgResourceObjects(v *domain.ResourceObjects, r *resourceObjects) {
 	r.Type = v.Type.ResourceType()
 
 	r.Objects = make([]resourceIndex, len(v.Objects))

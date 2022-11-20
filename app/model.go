@@ -90,7 +90,7 @@ type ModelDetailDTO struct {
 type ModelService interface {
 	CanApplyResourceName(domain.Account, domain.ResourceName) bool
 	Create(*ModelCreateCmd, platform.Repository) (ModelDTO, error)
-	Delete(*domain.ResourceSummary, platform.Repository) error
+	Delete(*domain.Model, platform.Repository) error
 	Update(*domain.Model, *ModelUpdateCmd, platform.Repository) (ModelDTO, error)
 	GetByName(domain.Account, domain.ResourceName, bool) (ModelDetailDTO, error)
 	List(domain.Account, *ResourceListCmd) (ModelsDTO, error)
@@ -172,20 +172,32 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 	return
 }
 
-func (s modelService) Delete(r *domain.ResourceSummary, pr platform.Repository) (err error) {
+func (s modelService) Delete(r *domain.Model, pr platform.Repository) (err error) {
 	// step1: delete repo on gitlab
 	if err = pr.Delete(r.RepoId); err != nil {
 		return
 	}
 
-	// step2: save
-	index := r.ResourceIndex()
-	if err = s.repo.Delete(&index); err != nil {
+	obj := r.ResourceObject()
+
+	// step2: message
+	if resources := r.RelatedResources(); len(resources) > 0 {
+		err = s.sender.RemoveRelatedResources(&message.RelatedResources{
+			Promoter:  obj,
+			Resources: resources,
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	// step3: delete
+	if err = s.repo.Delete(&obj.ResourceIndex); err != nil {
 		return
 	}
 
 	// add activity
-	ua := genActivityForDeletingResource(r, domain.ResourceTypeModel)
+	ua := genActivityForDeletingResource(&obj)
 
 	// ignore the error
 	_ = s.activity.Save(&ua)
