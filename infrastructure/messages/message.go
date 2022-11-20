@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/opensourceways/xihe-server/domain"
+import (
+	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/message"
+)
 
 const (
 	actionAdd    = "add"
@@ -66,7 +69,7 @@ type msgRelatedResource struct {
 	Resource resourceObject `json:"resource"`
 }
 
-func (msg *msgRelatedResource) toResources(
+func (msg *msgRelatedResource) toResource(
 	promoter, resource *domain.ResourceObject,
 ) error {
 	if err := msg.Promoter.toResourceObject(promoter); err != nil {
@@ -76,14 +79,37 @@ func (msg *msgRelatedResource) toResources(
 	return msg.Resource.toResourceObject(resource)
 }
 
+type msgRelatedResources struct {
+	Promoter  resourceObject    `json:"promoter"`
+	Resources []resourceObjects `json:"resources"`
+}
+
+func (msg *msgRelatedResources) toResources(
+	promoter domain.ResourceObject, resources []message.Resources, err error,
+) {
+	if err := msg.Promoter.toResourceObject(&promoter); err != nil {
+		return
+	}
+
+	resources = make([]message.Resources, len(msg.Resources))
+
+	for i := range msg.Resources {
+		if err = msg.Resources[i].toResources(&resources[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 type resourceObject struct {
-	Owner string `json:"owner"`
-	Type  string `json:"type"`
-	Id    string `json:"id"`
+	Type string `json:"type"`
+
+	resourceIndex
 }
 
 func (r *resourceObject) toResourceObject(obj *domain.ResourceObject) (err error) {
-	if obj.Owner, err = domain.NewAccount(r.Owner); err != nil {
+	if err = r.resourceIndex.toResourceIndex(&obj.ResourceIndex); err != nil {
 		return
 	}
 
@@ -91,16 +117,60 @@ func (r *resourceObject) toResourceObject(obj *domain.ResourceObject) (err error
 		return
 	}
 
-	obj.Id = r.Id
+	return
+}
+
+func toMsgResourceObject(v *domain.ResourceObject, r *resourceObject) {
+	r.Type = v.Type.ResourceType()
+
+	toMsgResourceIndex(&v.ResourceIndex, &r.resourceIndex)
+}
+
+type resourceObjects struct {
+	Type    string          `json:"type"`
+	Objects []resourceIndex `json:"objects"`
+}
+
+func (r *resourceObjects) toResources(obj *message.Resources) (err error) {
+	if obj.Type, err = domain.NewResourceType(r.Type); err != nil {
+		return
+	}
+
+	obj.Objects = make([]domain.ResourceIndex, len(r.Objects))
+	for i := range r.Objects {
+		if err = r.Objects[i].toResourceIndex(&obj.Objects[i]); err != nil {
+			return
+		}
+	}
 
 	return
 }
 
-func toMsgResourceObject(r *domain.ResourceObject) resourceObject {
-	return resourceObject{
-		Owner: r.Owner.Account(),
-		Type:  r.Type.ResourceType(),
-		Id:    r.Id,
+func toMsgResourceObjects(v *message.Resources, r *resourceObjects) {
+	r.Type = v.Type.ResourceType()
+
+	r.Objects = make([]resourceIndex, len(v.Objects))
+	for i := range v.Objects {
+		toMsgResourceIndex(&v.Objects[i], &r.Objects[i])
+	}
+}
+
+type resourceIndex struct {
+	Owner string `json:"owner"`
+	Id    string `json:"id"`
+}
+
+func (r *resourceIndex) toResourceIndex(obj *domain.ResourceIndex) (err error) {
+	obj.Id = r.Id
+	obj.Owner, err = domain.NewAccount(r.Owner)
+
+	return
+}
+
+func toMsgResourceIndex(v *domain.ResourceIndex, index *resourceIndex) {
+	*index = resourceIndex{
+		Owner: v.Owner.Account(),
+		Id:    v.Id,
 	}
 }
 
