@@ -204,9 +204,11 @@ func (ctl *ModelController) Delete(ctx *gin.Context) {
 			errorResourceNotExists,
 			"can't access other's model",
 		))
+
+		return
 	}
 
-	proj, err := ctl.repo.GetByName(owner, name)
+	m, err := ctl.repo.GetByName(owner, name)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -217,7 +219,7 @@ func (ctl *ModelController) Delete(ctx *gin.Context) {
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
 	)
 
-	if err := ctl.s.Delete(&proj, pr); err != nil {
+	if err := ctl.s.Delete(&m, pr); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusNoContent, newResponseData("success"))

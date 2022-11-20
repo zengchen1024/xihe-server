@@ -137,7 +137,7 @@ func (s sender) RemoveRelatedResource(msg *message.RelatedResource) error {
 }
 
 func (s sender) RemoveRelatedResources(msg *message.RelatedResources) error {
-	v := msgRelatedResources{Action: actionBatchRemove}
+	v := msgRelatedResources{Action: actionRemove}
 
 	toMsgResourceObject(&msg.Promoter, &v.Promoter)
 

@@ -199,9 +199,11 @@ func (ctl *DatasetController) Delete(ctx *gin.Context) {
 			errorResourceNotExists,
 			"can't access other's dataset",
 		))
+
+		return
 	}
 
-	proj, err := ctl.repo.GetByName(owner, name)
+	d, err := ctl.repo.GetByName(owner, name)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 
@@ -212,7 +214,7 @@ func (ctl *DatasetController) Delete(ctx *gin.Context) {
 		pl.PlatformToken, pl.PlatformUserNamespaceId,
 	)
 
-	if err := ctl.s.Delete(&proj, pr); err != nil {
+	if err := ctl.s.Delete(&d, pr); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusNoContent, newResponseData("success"))

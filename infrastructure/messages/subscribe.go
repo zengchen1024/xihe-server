@@ -218,7 +218,7 @@ func registerHandlerForRelatedResource(handler interface{}) (mq.Subscriber, erro
 		case actionAdd:
 			return body.handle(h.HandleEventAddRelatedResource)
 
-		case actionRemove, actionBatchRemove:
+		case actionRemove:
 			return body.handle(h.HandleEventRemoveRelatedResource)
 		}
 

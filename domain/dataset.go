@@ -27,34 +27,34 @@ func (d *Dataset) IsPrivate() bool {
 	return d.RepoType.RepoType() == RepoTypePrivate
 }
 
-func (p *Dataset) ResourceIndex() ResourceIndex {
+func (d *Dataset) ResourceIndex() ResourceIndex {
 	return ResourceIndex{
-		Owner: p.Owner,
-		Id:    p.Id,
+		Owner: d.Owner,
+		Id:    d.Id,
 	}
 }
 
-func (p *Dataset) ResourceObject() ResourceObject {
+func (d *Dataset) ResourceObject() ResourceObject {
 	return ResourceObject{
 		Type:          ResourceTypeDataset,
-		ResourceIndex: p.ResourceIndex(),
+		ResourceIndex: d.ResourceIndex(),
 	}
 }
 
-func (p *Dataset) RelatedResources() []ResourceObjects {
+func (d *Dataset) RelatedResources() []ResourceObjects {
 	r := make([]ResourceObjects, 0, 2)
 
-	if len(p.RelatedProjects) > 0 {
+	if len(d.RelatedProjects) > 0 {
 		r = append(r, ResourceObjects{
 			Type:    ResourceTypeProject,
-			Objects: p.RelatedProjects,
+			Objects: d.RelatedProjects,
 		})
 	}
 
-	if len(p.RelatedModels) > 0 {
+	if len(d.RelatedModels) > 0 {
 		r = append(r, ResourceObjects{
 			Type:    ResourceTypeModel,
-			Objects: p.RelatedModels,
+			Objects: d.RelatedModels,
 		})
 	}
 

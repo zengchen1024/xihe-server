@@ -6,11 +6,10 @@ import (
 )
 
 const (
-	actionAdd         = "add"
-	actionRemove      = "remove"
-	actionCreate      = "create"
-	actionExtend      = "extend"
-	actionBatchRemove = "batch_remove"
+	actionAdd    = "add"
+	actionRemove = "remove"
+	actionCreate = "create"
+	actionExtend = "extend"
 )
 
 type msgFollower struct {

@@ -211,6 +211,8 @@ func (ctl *ProjectController) Delete(ctx *gin.Context) {
 			errorResourceNotExists,
 			"can't access other's project",
 		))
+
+		return
 	}
 
 	proj, err := ctl.repo.GetByName(owner, name)
