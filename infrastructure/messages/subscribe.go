@@ -209,27 +209,17 @@ func registerHandlerForRelatedResource(handler interface{}) (mq.Subscriber, erro
 			return
 		}
 
-		body := msgRelatedResource{}
+		body := msgRelatedResources{}
 		if err = json.Unmarshal(msg.Body, &body); err != nil {
 			return
 		}
 
-		promoter, resource := &domain.ResourceObject{}, &domain.ResourceObject{}
-		if err = body.toResources(promoter, resource); err != nil {
-			return
-		}
-
-		v := &message.RelatedResource{
-			Promoter: promoter,
-			Resource: resource,
-		}
-
 		switch body.Action {
 		case actionAdd:
-			return h.HandleEventAddRelatedResource(v)
+			return body.handle(h.HandleEventAddRelatedResource)
 
-		case actionRemove:
-			return h.HandleEventRemoveRelatedResource(v)
+		case actionRemove, actionBatchRemove:
+			return body.handle(h.HandleEventRemoveRelatedResource)
 		}
 
 		return nil

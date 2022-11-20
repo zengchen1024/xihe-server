@@ -6,10 +6,11 @@ import (
 )
 
 const (
-	actionAdd    = "add"
-	actionRemove = "remove"
-	actionCreate = "create"
-	actionExtend = "extend"
+	actionAdd         = "add"
+	actionRemove      = "remove"
+	actionCreate      = "create"
+	actionExtend      = "extend"
+	actionBatchRemove = "batch_remove"
 )
 
 type msgFollower struct {
@@ -63,43 +64,72 @@ type msgEvaluate struct {
 	ProjectOwner string `json:"owner"`
 }
 
-type msgRelatedResource struct {
-	Action   string         `json:"action"`
-	Promoter resourceObject `json:"promoter"`
-	Resource resourceObject `json:"resource"`
-}
-
-func (msg *msgRelatedResource) toResource(
-	promoter, resource *domain.ResourceObject,
-) error {
-	if err := msg.Promoter.toResourceObject(promoter); err != nil {
-		return err
-	}
-
-	return msg.Resource.toResourceObject(resource)
-}
-
 type msgRelatedResources struct {
+	Action    string            `json:"action"`
 	Promoter  resourceObject    `json:"promoter"`
 	Resources []resourceObjects `json:"resources"`
 }
 
-func (msg *msgRelatedResources) toResources(
-	promoter domain.ResourceObject, resources []message.Resources, err error,
-) {
+func (msg *msgRelatedResources) handle(f func(*message.RelatedResource) error) error {
+	promoter := domain.ResourceObject{}
 	if err := msg.Promoter.toResourceObject(&promoter); err != nil {
-		return
+		return err
 	}
 
-	resources = make([]message.Resources, len(msg.Resources))
+	relatedResource := message.RelatedResource{
+		Promoter: &promoter,
+	}
+
+	f1 := func(resource *domain.ResourceObject) error {
+		relatedResource.Resource = resource
+
+		return f(&relatedResource)
+	}
 
 	for i := range msg.Resources {
-		if err = msg.Resources[i].toResources(&resources[i]); err != nil {
-			return
+		if err := msg.Resources[i].handle(f1); err != nil {
+			return err
 		}
 	}
 
-	return
+	return nil
+}
+
+type resourceObjects struct {
+	Type    string          `json:"type"`
+	Objects []resourceIndex `json:"objects"`
+}
+
+func (r *resourceObjects) handle(f func(*domain.ResourceObject) error) error {
+	t, err := domain.NewResourceType(r.Type)
+	if err != nil {
+		return err
+	}
+
+	obj := domain.ResourceObject{
+		Type: t,
+	}
+
+	for i := range r.Objects {
+		if err = r.Objects[i].toResourceIndex(&obj.ResourceIndex); err != nil {
+			return err
+		}
+
+		if err := f(&obj); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func toMsgResourceObjects(v *message.ResourceObjects, r *resourceObjects) {
+	r.Type = v.Type.ResourceType()
+
+	r.Objects = make([]resourceIndex, len(v.Objects))
+	for i := range v.Objects {
+		toMsgResourceIndex(&v.Objects[i], &r.Objects[i])
+	}
 }
 
 type resourceObject struct {
@@ -124,35 +154,6 @@ func toMsgResourceObject(v *domain.ResourceObject, r *resourceObject) {
 	r.Type = v.Type.ResourceType()
 
 	toMsgResourceIndex(&v.ResourceIndex, &r.resourceIndex)
-}
-
-type resourceObjects struct {
-	Type    string          `json:"type"`
-	Objects []resourceIndex `json:"objects"`
-}
-
-func (r *resourceObjects) toResources(obj *message.Resources) (err error) {
-	if obj.Type, err = domain.NewResourceType(r.Type); err != nil {
-		return
-	}
-
-	obj.Objects = make([]domain.ResourceIndex, len(r.Objects))
-	for i := range r.Objects {
-		if err = r.Objects[i].toResourceIndex(&obj.Objects[i]); err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-func toMsgResourceObjects(v *message.Resources, r *resourceObjects) {
-	r.Type = v.Type.ResourceType()
-
-	r.Objects = make([]resourceIndex, len(v.Objects))
-	for i := range v.Objects {
-		toMsgResourceIndex(&v.Objects[i], &r.Objects[i])
-	}
 }
 
 type resourceIndex struct {

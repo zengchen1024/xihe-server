@@ -77,11 +77,11 @@ type RelatedResource struct {
 }
 
 type RelatedResources struct {
-	Promoter  *domain.ResourceObject
-	Resources []Resources
+	Promoter  domain.ResourceObject
+	Resources []ResourceObjects
 }
 
-type Resources struct {
+type ResourceObjects struct {
 	Type    domain.ResourceType
 	Objects []domain.ResourceIndex
 }

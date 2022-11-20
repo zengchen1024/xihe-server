@@ -58,10 +58,9 @@ func (s sender) RemoveLike(msg *domain.ResourceObject) error {
 }
 
 func (s sender) sendLike(msg *domain.ResourceObject, action string) error {
-	v := msgLike{
-		Action:   action,
-		Resource: toMsgResourceObject(msg),
-	}
+	v := msgLike{Action: action}
+
+	toMsgResourceObject(msg, &v.Resource)
 
 	return s.send(topics.Like, &v)
 }
@@ -137,11 +136,34 @@ func (s sender) RemoveRelatedResource(msg *message.RelatedResource) error {
 	return s.sendRelatedResource(msg, actionRemove)
 }
 
+func (s sender) RemoveRelatedResources(msg *message.RelatedResources) error {
+	v := msgRelatedResources{Action: actionBatchRemove}
+
+	toMsgResourceObject(&msg.Promoter, &v.Promoter)
+
+	v.Resources = make([]resourceObjects, len(msg.Resources))
+	for i := range msg.Resources {
+		toMsgResourceObjects(&msg.Resources[i], &v.Resources[i])
+	}
+
+	return s.send(topics.RelatedResource, &v)
+}
+
 func (s sender) sendRelatedResource(msg *message.RelatedResource, action string) error {
-	v := msgRelatedResource{
-		Action:   action,
-		Promoter: toMsgResourceObject(msg.Promoter),
-		Resource: toMsgResourceObject(msg.Resource),
+	v := msgRelatedResources{Action: action}
+
+	toMsgResourceObject(msg.Promoter, &v.Promoter)
+
+	v.Resources = []resourceObjects{
+		{
+			Type: msg.Resource.Type.ResourceType(),
+			Objects: []resourceIndex{
+				{
+					Owner: msg.Resource.Owner.Account(),
+					Id:    msg.Resource.Id,
+				},
+			},
+		},
 	}
 
 	return s.send(topics.RelatedResource, &v)
