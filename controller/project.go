@@ -48,11 +48,11 @@ func AddRouterForProjectController(
 
 	rg.POST("/v1/project/:owner/:id", ctl.Fork)
 
-	rg.PUT("/v1/project/:owner/:id/model/relation", ctl.AddRelatedModel)
-	rg.DELETE("/v1/project/:owner/:id/model/relation", ctl.RemoveRelatedModel)
+	rg.PUT("/v1/project/relation/:owner/:id/model", ctl.AddRelatedModel)
+	rg.DELETE("/v1/project/relation/:owner/:id/model", ctl.RemoveRelatedModel)
 
-	rg.PUT("/v1/project/:owner/:id/dataset/relation", ctl.AddRelatedDataset)
-	rg.DELETE("/v1/project/:owner/:id/dataset/relation", ctl.RemoveRelatedDataset)
+	rg.PUT("/v1/project/relation/:owner/:id/dataset", ctl.AddRelatedDataset)
+	rg.DELETE("/v1/project/relation/:owner/:id/dataset", ctl.RemoveRelatedDataset)
 
 	rg.PUT("/v1/project/:owner/:id/tags", ctl.SetTags)
 }
@@ -181,7 +181,7 @@ func (ctl *ProjectController) Create(ctx *gin.Context) {
 // @Accept json
 // @Success 204
 // @Produce json
-// @Router /v1/project/{owner}/{name} [get]
+// @Router /v1/project/{owner}/{name} [delete]
 func (ctl *ProjectController) Delete(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
@@ -599,7 +599,7 @@ func (ctl *ProjectController) Fork(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceAddRequest	true	"body of related model"
 // @Accept json
 // @Success 202 {object} app.ResourceDTO
-// @Router /v1/project/{owner}/{id}/model/relation [put]
+// @Router /v1/project/relation/{owner}/{id}/model [put]
 func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 	req := relatedResourceAddRequest{}
 
@@ -665,7 +665,7 @@ func (ctl *ProjectController) AddRelatedModel(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceRemoveRequest	true	"body of related model"
 // @Accept json
 // @Success 204
-// @Router /v1/project/{owner}/{id}/model/relation [delete]
+// @Router /v1/project/relation/{owner}/{id}/model [delete]
 func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 	req := relatedResourceRemoveRequest{}
 
@@ -713,7 +713,7 @@ func (ctl *ProjectController) RemoveRelatedModel(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceAddRequest	true	"body of related dataset"
 // @Accept json
 // @Success 202 {object} app.ResourceDTO
-// @Router /v1/project/{owner}/{id}/dataset/relation [put]
+// @Router /v1/project/relation/{owner}/{id}/dataset [put]
 func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 	req := relatedResourceAddRequest{}
 
@@ -779,7 +779,7 @@ func (ctl *ProjectController) AddRelatedDataset(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceRemoveRequest	true	"body of related dataset"
 // @Accept json
 // @Success 204
-// @Router /v1/project/{owner}/{id}/dataset/relation [delete]
+// @Router /v1/project/relation/{owner}/{id}/dataset [delete]
 func (ctl *ProjectController) RemoveRelatedDataset(ctx *gin.Context) {
 	req := relatedResourceRemoveRequest{}
 
