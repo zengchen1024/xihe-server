@@ -169,7 +169,7 @@ func (ctl *DatasetController) Create(ctx *gin.Context) {
 // @Accept json
 // @Success 204
 // @Produce json
-// @Router /v1/dataset/{owner}/{name} [get]
+// @Router /v1/dataset/{owner}/{name} [delete]
 func (ctl *DatasetController) Delete(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {

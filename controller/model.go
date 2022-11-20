@@ -42,8 +42,8 @@ func AddRouterForModelController(
 	rg.GET("/v1/model/:owner", ctl.List)
 	rg.GET("/v1/model", ctl.ListGlobal)
 
-	rg.PUT("/v1/model/:owner/:id/dataset/relation", ctl.AddRelatedDataset)
-	rg.DELETE("/v1/model/:owner/:id/dataset/relation", ctl.RemoveRelatedDataset)
+	rg.PUT("/v1/model/relation/:owner/:id/dataset", ctl.AddRelatedDataset)
+	rg.DELETE("/v1/model/relation/:owner/:id/dataset", ctl.RemoveRelatedDataset)
 
 	rg.PUT("/v1/model/:owner/:id/tags", ctl.SetTags)
 }
@@ -174,7 +174,7 @@ func (ctl *ModelController) Create(ctx *gin.Context) {
 // @Accept json
 // @Success 204
 // @Produce json
-// @Router /v1/model/{owner}/{name} [get]
+// @Router /v1/model/{owner}/{name} [delete]
 func (ctl *ModelController) Delete(ctx *gin.Context) {
 	owner, err := domain.NewAccount(ctx.Param("owner"))
 	if err != nil {
@@ -497,7 +497,7 @@ func (ctl *ModelController) ListGlobal(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceAddRequest	true	"body of related dataset"
 // @Accept json
 // @Success 202 {object} app.ResourceDTO
-// @Router /v1/model/{owner}/{id}/dataset/relation [put]
+// @Router /v1/model/relation/{owner}/{id}/dataset [put]
 func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 	req := relatedResourceAddRequest{}
 
@@ -563,7 +563,7 @@ func (ctl *ModelController) AddRelatedDataset(ctx *gin.Context) {
 // @Param	body	body 	relatedResourceRemoveRequest	true	"body of related dataset"
 // @Accept json
 // @Success 204
-// @Router /v1/model/{owner}/{id}/dataset/relation [delete]
+// @Router /v1/model/relation/{owner}/{id}/dataset [delete]
 func (ctl *ModelController) RemoveRelatedDataset(ctx *gin.Context) {
 	req := relatedResourceRemoveRequest{}
 

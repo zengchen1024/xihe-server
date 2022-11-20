@@ -1716,6 +1716,29 @@ paths:
       tags:
       - Dataset
   /v1/dataset/{owner}/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: delete dataset
+      parameters:
+      - description: owner of dataset
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of dataset
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: Delete
+      tags:
+      - Dataset
     get:
       consumes:
       - application/json
@@ -2021,7 +2044,110 @@ paths:
       summary: Update
       tags:
       - Model
-  /v1/model/{owner}/{id}/dataset/relation:
+  /v1/model/{owner}/{id}/tags:
+    put:
+      consumes:
+      - application/json
+      description: set tags for model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of model
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of tags
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
+      responses:
+        "202":
+          description: ""
+      summary: SetTags
+      tags:
+      - Model
+  /v1/model/{owner}/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: delete model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: Delete
+      tags:
+      - Model
+    get:
+      consumes:
+      - application/json
+      description: get model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.modelDetail'
+      summary: Get
+      tags:
+      - Model
+  /v1/model/{owner}/{name}/check:
+    get:
+      consumes:
+      - application/json
+      description: check whether the name can be applied to create a new model
+      parameters:
+      - description: owner of model
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of model
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.canApplyResourceNameResp'
+      summary: Check
+      tags:
+      - Model
+  /v1/model/relation/{owner}/{id}/dataset:
     delete:
       consumes:
       - application/json
@@ -2076,86 +2202,6 @@ paths:
           schema:
             $ref: '#/definitions/app.ResourceDTO'
       summary: AddRelatedDataset
-      tags:
-      - Model
-  /v1/model/{owner}/{id}/tags:
-    put:
-      consumes:
-      - application/json
-      description: set tags for model
-      parameters:
-      - description: owner of model
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: id of model
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: body of tags
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
-      responses:
-        "202":
-          description: ""
-      summary: SetTags
-      tags:
-      - Model
-  /v1/model/{owner}/{name}:
-    get:
-      consumes:
-      - application/json
-      description: get model
-      parameters:
-      - description: owner of model
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: name of model
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.modelDetail'
-      summary: Get
-      tags:
-      - Model
-  /v1/model/{owner}/{name}/check:
-    get:
-      consumes:
-      - application/json
-      description: check whether the name can be applied to create a new model
-      parameters:
-      - description: owner of model
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: name of model
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.canApplyResourceNameResp'
-      summary: Check
       tags:
       - Model
   /v1/project:
@@ -2315,7 +2361,110 @@ paths:
       summary: Update
       tags:
       - Project
-  /v1/project/{owner}/{id}/dataset/relation:
+  /v1/project/{owner}/{id}/tags:
+    put:
+      consumes:
+      - application/json
+      description: set tags for project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: id of project
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of tags
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
+      responses:
+        "202":
+          description: ""
+      summary: SetTags
+      tags:
+      - Project
+  /v1/project/{owner}/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: delete project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of project
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: Delete
+      tags:
+      - Project
+    get:
+      consumes:
+      - application/json
+      description: get project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of project
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.projectDetail'
+      summary: Get
+      tags:
+      - Project
+  /v1/project/{owner}/{name}/check:
+    get:
+      consumes:
+      - application/json
+      description: check whether the name can be applied to create a new project
+      parameters:
+      - description: owner of project
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: name of project
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.canApplyResourceNameResp'
+      summary: Check
+      tags:
+      - Project
+  /v1/project/relation/{owner}/{id}/dataset:
     delete:
       consumes:
       - application/json
@@ -2372,7 +2521,7 @@ paths:
       summary: AddRelatedDataset
       tags:
       - Project
-  /v1/project/{owner}/{id}/model/relation:
+  /v1/project/relation/{owner}/{id}/model:
     delete:
       consumes:
       - application/json
@@ -2427,86 +2576,6 @@ paths:
           schema:
             $ref: '#/definitions/app.ResourceDTO'
       summary: AddRelatedModel
-      tags:
-      - Project
-  /v1/project/{owner}/{id}/tags:
-    put:
-      consumes:
-      - application/json
-      description: set tags for project
-      parameters:
-      - description: owner of project
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: id of project
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: body of tags
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.resourceTagsUpdateRequest'
-      responses:
-        "202":
-          description: ""
-      summary: SetTags
-      tags:
-      - Project
-  /v1/project/{owner}/{name}:
-    get:
-      consumes:
-      - application/json
-      description: get project
-      parameters:
-      - description: owner of project
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: name of project
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.projectDetail'
-      summary: Get
-      tags:
-      - Project
-  /v1/project/{owner}/{name}/check:
-    get:
-      consumes:
-      - application/json
-      description: check whether the name can be applied to create a new project
-      parameters:
-      - description: owner of project
-        in: path
-        name: owner
-        required: true
-        type: string
-      - description: name of project
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.canApplyResourceNameResp'
-      summary: Check
       tags:
       - Project
   /v1/repo/{type}/{name}/dir/{path}:
