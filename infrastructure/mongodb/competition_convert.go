@@ -50,10 +50,10 @@ func (col competition) toCompetitorDO(
 	}
 }
 
-func (col competition) toCompetitorDOC(
-	doc *dCompetitor, do *repositories.CompetitorInfoDO,
+func toCompetitorInfoDOC(
+	doc *DCompetitorInfo, do *repositories.CompetitorInfoDO,
 ) {
-	*doc = dCompetitor{
+	*doc = DCompetitorInfo{
 		Name:     do.Name,
 		City:     do.City,
 		Email:    do.Email,
@@ -101,7 +101,7 @@ func (col competition) toCompetitionRepoDO(
 
 func (col competition) toSubmissionDoc(
 	do *repositories.CompetitionSubmissionDO,
-	doc *dSubmission, dateTag string,
+	doc *dSubmission, date string,
 ) {
 	*doc = dSubmission{
 		Id:         do.Id,
@@ -111,6 +111,6 @@ func (col competition) toSubmissionDoc(
 		OBSPath:    do.OBSPath,
 		SubmitAt:   do.SubmitAt,
 		Score:      do.Score,
-		DateTag:    dateTag,
+		Date:       date,
 	}
 }

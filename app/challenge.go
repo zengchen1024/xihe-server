@@ -8,24 +8,30 @@ import (
 
 type ChallengeService interface {
 	Apply(*CompetitorApplyCmd) error
-	GetCompetitor(domain.Account) (ChallengeCompetitorInfo, error)
+	GetCompetitor(domain.Account) (ChallengeCompetitorInfoDTO, error)
 }
 
 type challengeService struct {
 	comptitions []domain.CompetitionIndex
 	aiQuestion  string
 
-	comptitionRepo repository.Competition
-	aiQuestionRepo repository.AIQuestion
-	helper         challenge.Challenge
+	competitionRepo repository.Competition
+	aiQuestionRepo  repository.AIQuestion
+	helper          challenge.Challenge
 }
 
 func NewChallengeService(
+	competitionRepo repository.Competition,
+	aiQuestionRepo repository.AIQuestion,
 	helper challenge.Challenge,
 ) ChallengeService {
 	v := helper.GetChallenge()
 
-	s := &challengeService{}
+	s := &challengeService{
+		competitionRepo: competitionRepo,
+		aiQuestionRepo:  aiQuestionRepo,
+		helper:          helper,
+	}
 
 	s.comptitions = make([]domain.CompetitionIndex, len(v.Competition))
 
@@ -45,7 +51,7 @@ func (s *challengeService) Apply(cmd *CompetitorApplyCmd) error {
 	c := cmd.toCompetitor()
 	for i := range s.comptitions {
 		// TODO allow re-apply
-		err := s.comptitionRepo.SaveCompetitor(&s.comptitions[i], c)
+		err := s.competitionRepo.SaveCompetitor(&s.comptitions[i], c)
 		if err != nil {
 			return err
 		}
@@ -56,9 +62,9 @@ func (s *challengeService) Apply(cmd *CompetitorApplyCmd) error {
 }
 
 func (s *challengeService) GetCompetitor(user domain.Account) (
-	ChallengeCompetitorInfo, error,
+	ChallengeCompetitorInfoDTO, error,
 ) {
-	dto := ChallengeCompetitorInfo{}
+	dto := ChallengeCompetitorInfoDTO{}
 
 	for i := range s.comptitions {
 		isCompetitor, score, err := s.getCompetitorOfCompetition(
@@ -86,7 +92,7 @@ func (s *challengeService) getCompetitorOfCompetition(
 	index *domain.CompetitionIndex, user domain.Account,
 ) (isCompetitor bool, score int, err error) {
 
-	isCompetitor, submissions, err := s.comptitionRepo.GetCompetitorAndSubmission(
+	isCompetitor, submissions, err := s.competitionRepo.GetCompetitorAndSubmission(
 		index, user,
 	)
 	if err != nil || !isCompetitor {

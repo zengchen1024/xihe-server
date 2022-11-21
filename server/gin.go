@@ -17,6 +17,7 @@ import (
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/infrastructure/authing"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
@@ -114,6 +115,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		mongodb.NewCompetitionMapper(collections.Competition),
 	)
 
+	aiquestion := repositories.NewAIQuestionRepository(
+		mongodb.NewAIQuestionMapper(collections.AIQuestion),
+	)
+
 	luojia := repositories.NewLuoJiaRepository(
 		mongodb.NewLuoJiaMapper(collections.LuoJia),
 	)
@@ -125,6 +130,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	sender := messages.NewMessageSender()
 	trainingAdapter := trainingimpl.NewTraining(&cfg.Training)
 	uploader := competitionimpl.NewCompetitionService()
+	challengeHelper := challengeimpl.NewChallenge(&cfg.Challenge)
 
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
@@ -190,6 +196,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForCompetitionController(
 			v1, competition, sender, uploader,
+		)
+
+		controller.AddRouterForChallengeController(
+			v1, competition, aiquestion, challengeHelper,
 		)
 	}
 

@@ -398,7 +398,7 @@ type DCompetition struct {
 	Submissions []dSubmission      `bson:"submissions" json:"-"`
 }
 
-type dCompetitor struct {
+type DCompetitorInfo struct {
 	Name     string            `bson:"name"      json:"name,omitempty"`
 	City     string            `bson:"city"      json:"city,omitempty"`
 	Email    string            `bson:"email"     json:"email,omitempty"`
@@ -407,8 +407,13 @@ type dCompetitor struct {
 	Identity string            `bson:"identity"  json:"identity,omitempty"`
 	Province string            `bson:"province"  json:"province,omitempty"`
 	Detail   map[string]string `bson:"detail"    json:"detail,omitempty"`
-	TeamId   string            `bson:"tid"       json:"tid,omitempty"`
-	TeamRole string            `bson:"role"      json:"role,omitempty"`
+}
+
+type dCompetitor struct {
+	DCompetitorInfo `bson:",inline"`
+
+	TeamId   string `bson:"tid"       json:"tid,omitempty"`
+	TeamRole string `bson:"role"      json:"role,omitempty"`
 }
 
 type dTeam struct {
@@ -424,7 +429,7 @@ type dSubmission struct {
 	OBSPath    string  `bson:"path"        json:"path"`
 	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
 	Score      float32 `bson:"score"       json:"score"`
-	DateTag    string  `bson:"date"        json:"date"`
+	Date       string  `bson:"date"        json:"date"`
 }
 
 type dCompetitionRepo struct {
@@ -432,6 +437,18 @@ type dCompetitionRepo struct {
 	Individual string `bson:"account"     json:"account"` // if it is submitted by individual, set it.
 	Owner      string `bson:"owner"       json:"owner"`
 	Repo       string `bson:"repo"        json:"repo"`
+}
+
+type dAIQuestion struct {
+	Competitors []DCompetitorInfo     `bson:"competitors"   json:"-"`
+	Submissions []dQuestionSubmission `bson:"submissions"   json:"-"`
+}
+
+type dQuestionSubmission struct {
+	Account string `bson:"account"     json:"account"`
+	Date    string `bson:"date"        json:"date"`
+	Score   int    `bson:"score"       json:"score"`
+	Times   int    `bson:"times"       json:"-"`
 }
 
 type dLuoJia struct {

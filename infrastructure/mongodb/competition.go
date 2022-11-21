@@ -360,10 +360,10 @@ func (col competition) InsertSubmission(
 	index *repositories.CompetitionIndexDO,
 	do *repositories.CompetitionSubmissionDO,
 ) (string, error) {
-	dateTag := utils.ToDate(do.SubmitAt)
+	date := utils.ToDate(do.SubmitAt)
 	v := new(dSubmission)
 	do.Id = newId()
-	col.toSubmissionDoc(do, v, dateTag)
+	col.toSubmissionDoc(do, v, date)
 
 	doc, err := genDoc(v)
 	if err != nil {
@@ -372,7 +372,7 @@ func (col competition) InsertSubmission(
 
 	docFilter := col.indexToDocFilter(index)
 
-	sf := bson.M{fieldDate: dateTag}
+	sf := bson.M{fieldDate: date}
 	if do.TeamId != "" {
 		sf[fieldTId] = do.TeamId
 	} else {
@@ -471,8 +471,8 @@ func (col competition) SaveCompetitor(
 	index *repositories.CompetitionIndexDO,
 	do *repositories.CompetitorInfoDO,
 ) error {
-	v := new(dCompetitor)
-	col.toCompetitorDOC(v, do)
+	v := new(DCompetitorInfo)
+	toCompetitorInfoDOC(v, do)
 
 	doc, err := genDoc(v)
 	if err != nil {

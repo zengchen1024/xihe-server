@@ -25,7 +25,7 @@ func (cmd *CompetitorApplyCmd) toCompetitor() *domain.CompetitorInfo {
 	return (*domain.CompetitorInfo)(cmd)
 }
 
-type ChallengeCompetitorInfo struct {
+type ChallengeCompetitorInfoDTO struct {
 	IsCompetitor bool `json:"is_competitor"`
 	Score        int  `json:"score"`
 }
