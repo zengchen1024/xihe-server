@@ -25,7 +25,7 @@ func (col competition) indexToDocFilter(index *repositories.CompetitionIndexDO) 
 }
 
 func (col competition) Get(index *repositories.CompetitionIndexDO, competitor string) (
-	r repositories.CompetitionDO, info repositories.CompetitorInfoDO, err error,
+	r repositories.CompetitionDO, info repositories.CompetitorSummaryDO, err error,
 ) {
 	var v []competitionInfo
 
@@ -410,6 +410,85 @@ func (col competition) UpdateSubmission(
 		)
 
 		return err
+	}
+
+	return withContext(f)
+}
+
+func (col competition) GetCompetitorAndSubmission(
+	index *repositories.CompetitionIndexDO, competitor string,
+) (
+	IsCompetitor bool,
+	submissions []repositories.CompetitionSubmissionInfoDO,
+	err error,
+) {
+	var v []DCompetition
+
+	f := func(ctx context.Context) error {
+		filter := bson.M{fieldAccount: competitor}
+
+		return cli.getArraysElem(
+			ctx, col.collectionName,
+			col.indexToDocFilter(index),
+			map[string]bson.M{
+				fieldCompetitors: filter,
+				fieldSubmissions: filter,
+			},
+			bson.M{
+				fieldCompetitors + "." + fieldAccount: 1,
+				fieldSubmissions + "." + fieldStatus:  1,
+				fieldSubmissions + "." + fieldScore:   1,
+			},
+			&v,
+		)
+	}
+
+	if err = withContext(f); err != nil || len(v) == 0 {
+		return
+	}
+
+	item := &v[0]
+
+	if len(item.Competitors) == 0 {
+		return
+	}
+
+	IsCompetitor = true
+
+	items := item.Submissions
+	submissions = make([]repositories.CompetitionSubmissionInfoDO, len(items))
+	for i := range items {
+		submissions[i] = repositories.CompetitionSubmissionInfoDO{
+			Status: items[i].Status,
+			Score:  items[i].Score,
+		}
+	}
+
+	return
+}
+
+func (col competition) SaveCompetitor(
+	index *repositories.CompetitionIndexDO,
+	do *repositories.CompetitorInfoDO,
+) error {
+	v := new(dCompetitor)
+	col.toCompetitorDOC(v, do)
+
+	doc, err := genDoc(v)
+	if err != nil {
+		return err
+	}
+
+	docFilter := col.indexToDocFilter(index)
+
+	appendElemMatchToFilter(
+		fieldCompetitors, false, bson.M{fieldAccount: do.Account}, docFilter,
+	)
+
+	f := func(ctx context.Context) error {
+		return cli.pushArrayElem(
+			ctx, col.collectionName, fieldCompetitors, docFilter, doc,
+		)
 	}
 
 	return withContext(f)

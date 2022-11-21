@@ -385,7 +385,7 @@ type DCompetition struct {
 	Status     string `bson:"status"          json:"status"`
 	Duration   string `bson:"duration"        json:"duration"`
 	Doc        string `bson:"doc"             json:"doc"`
-	Forum      string `bson:"forum"             json:"forum"`
+	Forum      string `bson:"forum"           json:"forum"`
 	Poster     string `bson:"poster"          json:"poster"`
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
@@ -399,16 +399,16 @@ type DCompetition struct {
 }
 
 type dCompetitor struct {
-	Name     string            `bson:"name"      json:"name"`
-	City     string            `bson:"city"      json:"city"`
-	Email    string            `bson:"email"     json:"email"`
-	Phone    string            `bson:"phone"     json:"phone"`
-	Account  string            `bson:"account"   json:"account"`
-	Identity string            `bson:"identity"  json:"identity"`
-	Province string            `bson:"province"  json:"province"`
-	Detail   map[string]string `bson:"detail"    json:"detail"`
-	TeamId   string            `bson:"tid"       json:"tid"`
-	TeamRole string            `bson:"role"      json:"role"`
+	Name     string            `bson:"name"      json:"name,omitempty"`
+	City     string            `bson:"city"      json:"city,omitempty"`
+	Email    string            `bson:"email"     json:"email,omitempty"`
+	Phone    string            `bson:"phone"     json:"phone,omitempty"`
+	Account  string            `bson:"account"   json:"account,omitempty"`
+	Identity string            `bson:"identity"  json:"identity,omitempty"`
+	Province string            `bson:"province"  json:"province,omitempty"`
+	Detail   map[string]string `bson:"detail"    json:"detail,omitempty"`
+	TeamId   string            `bson:"tid"       json:"tid,omitempty"`
+	TeamRole string            `bson:"role"      json:"role,omitempty"`
 }
 
 type dTeam struct {
