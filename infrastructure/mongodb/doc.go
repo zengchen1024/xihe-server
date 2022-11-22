@@ -451,6 +451,13 @@ type dQuestionSubmission struct {
 	Times   int    `bson:"times"       json:"-"`
 }
 
+type dChoiceQuestion struct {
+	Num     int      `json:"num"       json:"num"`
+	Desc    string   `json:"desc"      json:"desc"`
+	Answer  string   `json:"answer"    json:"answer"`
+	Options []string `json:"options"   json:"options"`
+}
+
 type dLuoJia struct {
 	Owner string       `bson:"owner" json:"owner"`
 	Items []luojiaItem `bson:"items" json:"-"`

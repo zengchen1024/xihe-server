@@ -29,3 +29,15 @@ type ChallengeCompetitorInfoDTO struct {
 	IsCompetitor bool `json:"is_competitor"`
 	Score        int  `json:"score"`
 }
+
+type ChoiceQuestionDTO struct {
+	Desc    string   `json:"desc"`
+	Options []string `json:"options"`
+}
+
+type AIQuestionDTO struct {
+	Times       int                 `json:"times"`
+	Choices     []ChoiceQuestionDTO `json:"choices"`
+	Completions []string            `json:"completions"`
+	Answers     string              `json:"answers"`
+}

@@ -22,6 +22,7 @@ func AddRouterForChallengeController(
 	}
 
 	rg.GET("/v1/challenge", ctl.Get)
+	rg.GET("/v1/challenge/aiquestions", ctl.GetAIQuestions)
 	rg.POST("/v1/challenge/competitor", ctl.Apply)
 }
 
@@ -88,5 +89,24 @@ func (ctl *ChallengeController) Apply(ctx *gin.Context) {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData("success"))
+	}
+}
+
+// @Summary GetAIQuestions
+// @Description get ai questions
+// @Tags  Challenge
+// @Accept json
+// @Success 200 {object} app.ChallengeCompetitorInfoDTO
+// @Failure 500 system_error        system error
+// @Router /v1/challenge/aiquestions [get]
+func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
+	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
+		return
+	}
+
+	if data, err := ctl.s.GetAIQuestions(); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(data))
 	}
 }

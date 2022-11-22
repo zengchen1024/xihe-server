@@ -10,4 +10,6 @@ type ChallengeInfo struct {
 type Challenge interface {
 	GetChallenge() ChallengeInfo
 	CalcCompetitionScore([]domain.CompetitionSubmissionInfo) int
+
+	GenAIQuestionNums() (choice, completion []int)
 }

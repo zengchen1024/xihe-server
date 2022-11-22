@@ -8,4 +8,8 @@ type AIQuestion interface {
 	GetCompetitorAndScores(string, domain.Account) (bool, []int, error)
 
 	SaveCompetitor(string, *domain.CompetitorInfo) error
+
+	GetQuestions(choice, complition []int) (
+		[]domain.ChoiceQuestion, []domain.CompletionQuestion, error,
+	)
 }
