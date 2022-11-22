@@ -201,7 +201,7 @@ type Phone interface {
 
 func NewPhone(v string) (Phone, error) {
 	if v == "" {
-		return nil, errors.New("empty value")
+		return nil, nil
 	}
 
 	return phone(v), nil
@@ -244,7 +244,7 @@ type Province interface {
 
 func NewProvince(v string) (Province, error) {
 	if v == "" {
-		return nil, errors.New("empty value")
+		return nil, nil
 	}
 
 	return province(v), nil
@@ -263,7 +263,7 @@ type City interface {
 
 func NewCity(v string) (City, error) {
 	if v == "" {
-		return nil, errors.New("empty value")
+		return nil, nil
 	}
 
 	return city(v), nil

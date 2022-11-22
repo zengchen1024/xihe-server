@@ -393,6 +393,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/challenge": {
+            "get": {
+                "description": "get detail of challenge",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Challenge"
+                ],
+                "summary": "Get",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ChallengeCompetitorInfoDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/challenge/competitor": {
+            "post": {
+                "description": "apply the challenge",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Challenge"
+                ],
+                "summary": "Apply",
+                "responses": {
+                    "201": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition": {
             "get": {
                 "description": "list competitions",
@@ -3553,6 +3602,17 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "app.ChallengeCompetitorInfoDTO": {
+            "type": "object",
+            "properties": {
+                "is_competitor": {
+                    "type": "boolean"
+                },
+                "score": {
+                    "type": "integer"
                 }
             }
         },

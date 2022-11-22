@@ -34,17 +34,34 @@ func (col competition) toCompetitorDO(
 	doc *dCompetitor, teamName string, do *repositories.CompetitorDO,
 ) {
 	*do = repositories.CompetitorDO{
-		Name:     doc.Name,
-		City:     doc.City,
-		Email:    doc.Email,
-		Phone:    doc.Phone,
-		Account:  doc.Account,
-		Identity: doc.Identity,
-		Province: doc.Province,
-		Detail:   doc.Detail,
+		CompetitorInfoDO: repositories.CompetitorInfoDO{
+			Name:     doc.Name,
+			City:     doc.City,
+			Email:    doc.Email,
+			Phone:    doc.Phone,
+			Account:  doc.Account,
+			Identity: doc.Identity,
+			Province: doc.Province,
+			Detail:   doc.Detail,
+		},
 		TeamId:   doc.TeamId,
 		TeamName: teamName,
 		TeamRole: doc.TeamRole,
+	}
+}
+
+func toCompetitorInfoDOC(
+	doc *DCompetitorInfo, do *repositories.CompetitorInfoDO,
+) {
+	*doc = DCompetitorInfo{
+		Name:     do.Name,
+		City:     do.City,
+		Email:    do.Email,
+		Phone:    do.Phone,
+		Account:  do.Account,
+		Identity: do.Identity,
+		Province: do.Province,
+		Detail:   do.Detail,
 	}
 }
 
@@ -84,7 +101,7 @@ func (col competition) toCompetitionRepoDO(
 
 func (col competition) toSubmissionDoc(
 	do *repositories.CompetitionSubmissionDO,
-	doc *dSubmission, dateTag string,
+	doc *dSubmission, date string,
 ) {
 	*doc = dSubmission{
 		Id:         do.Id,
@@ -94,6 +111,6 @@ func (col competition) toSubmissionDoc(
 		OBSPath:    do.OBSPath,
 		SubmitAt:   do.SubmitAt,
 		Score:      do.Score,
-		DateTag:    dateTag,
+		Date:       date,
 	}
 }

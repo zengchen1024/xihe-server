@@ -11,6 +11,7 @@ import (
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
+	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
@@ -50,14 +51,15 @@ type Config struct {
 	ActivityKeepNum int `json:"activity_keep_num"`
 
 	Competition competitionimpl.Config `json:"competition"  required:"true"`
-	Training    trainingimpl.Config    `json:"training"  required:"true"`
-	BigModel    bigmodels.Config       `json:"bigmodel"  required:"true"`
-	Authing     AuthingService         `json:"authing"   required:"true"`
-	Mongodb     Mongodb                `json:"mongodb"   required:"true"`
-	Gitlab      gitlab.Config          `json:"gitlab"    required:"true"`
-	Domain      domain.Config          `json:"domain"    required:"true"`
-	API         controller.APIConfig   `json:"api"       required:"true"`
-	MQ          MQ                     `json:"mq"        required:"true"`
+	Challenge   challengeimpl.Config   `json:"challenge"    required:"true"`
+	Training    trainingimpl.Config    `json:"training"     required:"true"`
+	BigModel    bigmodels.Config       `json:"bigmodel"     required:"true"`
+	Authing     AuthingService         `json:"authing"      required:"true"`
+	Mongodb     Mongodb                `json:"mongodb"      required:"true"`
+	Gitlab      gitlab.Config          `json:"gitlab"       required:"true"`
+	Domain      domain.Config          `json:"domain"       required:"true"`
+	API         controller.APIConfig   `json:"api"          required:"true"`
+	MQ          MQ                     `json:"mq"           required:"true"`
 }
 
 func (cfg *Config) GetMQConfig() mq.MQConfig {
@@ -69,6 +71,7 @@ func (cfg *Config) GetMQConfig() mq.MQConfig {
 func (cfg *Config) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Competition,
+		&cfg.Challenge,
 		&cfg.Training,
 		&cfg.BigModel,
 		&cfg.Authing,
@@ -133,6 +136,7 @@ type MongodbCollections struct {
 	Training    string `json:"training"     required:"true"`
 	Evaluate    string `json:"evaluate"     required:"true"`
 	Inference   string `json:"inference"    required:"true"`
+	AIQuestion  string `json:"aiquestion"   required:"true"`
 	Competition string `json:"competition"  required:"true"`
 }
 

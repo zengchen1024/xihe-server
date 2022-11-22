@@ -385,7 +385,7 @@ type DCompetition struct {
 	Status     string `bson:"status"          json:"status"`
 	Duration   string `bson:"duration"        json:"duration"`
 	Doc        string `bson:"doc"             json:"doc"`
-	Forum      string `bson:"forum"             json:"forum"`
+	Forum      string `bson:"forum"           json:"forum"`
 	Poster     string `bson:"poster"          json:"poster"`
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
@@ -398,17 +398,22 @@ type DCompetition struct {
 	Submissions []dSubmission      `bson:"submissions" json:"-"`
 }
 
+type DCompetitorInfo struct {
+	Name     string            `bson:"name"      json:"name,omitempty"`
+	City     string            `bson:"city"      json:"city,omitempty"`
+	Email    string            `bson:"email"     json:"email,omitempty"`
+	Phone    string            `bson:"phone"     json:"phone,omitempty"`
+	Account  string            `bson:"account"   json:"account,omitempty"`
+	Identity string            `bson:"identity"  json:"identity,omitempty"`
+	Province string            `bson:"province"  json:"province,omitempty"`
+	Detail   map[string]string `bson:"detail"    json:"detail,omitempty"`
+}
+
 type dCompetitor struct {
-	Name     string            `bson:"name"      json:"name"`
-	City     string            `bson:"city"      json:"city"`
-	Email    string            `bson:"email"     json:"email"`
-	Phone    string            `bson:"phone"     json:"phone"`
-	Account  string            `bson:"account"   json:"account"`
-	Identity string            `bson:"identity"  json:"identity"`
-	Province string            `bson:"province"  json:"province"`
-	Detail   map[string]string `bson:"detail"    json:"detail"`
-	TeamId   string            `bson:"tid"       json:"tid"`
-	TeamRole string            `bson:"role"      json:"role"`
+	DCompetitorInfo `bson:",inline"`
+
+	TeamId   string `bson:"tid"       json:"tid,omitempty"`
+	TeamRole string `bson:"role"      json:"role,omitempty"`
 }
 
 type dTeam struct {
@@ -424,7 +429,7 @@ type dSubmission struct {
 	OBSPath    string  `bson:"path"        json:"path"`
 	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
 	Score      float32 `bson:"score"       json:"score"`
-	DateTag    string  `bson:"date"        json:"date"`
+	Date       string  `bson:"date"        json:"date"`
 }
 
 type dCompetitionRepo struct {
@@ -432,6 +437,18 @@ type dCompetitionRepo struct {
 	Individual string `bson:"account"     json:"account"` // if it is submitted by individual, set it.
 	Owner      string `bson:"owner"       json:"owner"`
 	Repo       string `bson:"repo"        json:"repo"`
+}
+
+type dAIQuestion struct {
+	Competitors []DCompetitorInfo     `bson:"competitors"   json:"-"`
+	Submissions []dQuestionSubmission `bson:"submissions"   json:"-"`
+}
+
+type dQuestionSubmission struct {
+	Account string `bson:"account"     json:"account"`
+	Date    string `bson:"date"        json:"date"`
+	Score   int    `bson:"score"       json:"score"`
+	Times   int    `bson:"times"       json:"-"`
 }
 
 type dLuoJia struct {

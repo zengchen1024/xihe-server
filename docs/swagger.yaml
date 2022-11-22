@@ -8,6 +8,13 @@ definitions:
       type:
         type: string
     type: object
+  app.ChallengeCompetitorInfoDTO:
+    properties:
+      is_competitor:
+        type: boolean
+      score:
+        type: integer
+    type: object
   app.CodeGeexDTO:
     properties:
       finish:
@@ -1392,6 +1399,38 @@ paths:
             type: system_error
       tags:
       - BigModel
+  /v1/challenge:
+    get:
+      consumes:
+      - application/json
+      description: get detail of challenge
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ChallengeCompetitorInfoDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Get
+      tags:
+      - Challenge
+  /v1/challenge/competitor:
+    post:
+      consumes:
+      - application/json
+      description: apply the challenge
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Apply
+      tags:
+      - Challenge
   /v1/competition:
     get:
       consumes:

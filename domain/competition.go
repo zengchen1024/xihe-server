@@ -24,7 +24,7 @@ type Competition struct {
 	Enabled bool
 }
 
-type Competitor struct {
+type CompetitorInfo struct {
 	Account  Account
 	Name     CompetitorName
 	City     City
@@ -33,12 +33,16 @@ type Competitor struct {
 	Identity CompetitionIdentity
 	Province Province
 	Detail   map[string]string
+}
+
+type Competitor struct {
+	CompetitorInfo
 
 	Team     CompetitionTeam
 	TeamRole TeamRole
 }
 
-type CompetitorInfo struct {
+type CompetitorSummary struct {
 	IsCompetitor bool
 	TeamId       string
 	TeamRole     TeamRole

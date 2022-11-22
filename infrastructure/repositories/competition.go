@@ -7,7 +7,9 @@ import (
 
 type CompetitionMapper interface {
 	List(*CompetitionListOptionDO) ([]CompetitionSummaryDO, error)
-	Get(index *CompetitionIndexDO, competitor string) (CompetitionDO, CompetitorInfoDO, error)
+	Get(index *CompetitionIndexDO, competitor string) (
+		CompetitionDO, CompetitorSummaryDO, error,
+	)
 	GetTeam(index *CompetitionIndexDO, competitor string) ([]CompetitorDO, error)
 	GetResult(*CompetitionIndexDO) (
 		bool, []CompetitionTeamDO, []CompetitionSubmissionDO, error,
@@ -18,6 +20,12 @@ type CompetitionMapper interface {
 
 	InsertSubmission(*CompetitionIndexDO, *CompetitionSubmissionDO) (string, error)
 	UpdateSubmission(*CompetitionIndexDO, *CompetitionSubmissionInfoDO) error
+
+	GetCompetitorAndSubmission(*CompetitionIndexDO, string) (
+		bool, []CompetitionSubmissionInfoDO, error,
+	)
+
+	SaveCompetitor(*CompetitionIndexDO, *CompetitorInfoDO) error
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -58,7 +66,7 @@ func (impl competition) List(opt *repository.CompetitionListOption) (
 }
 
 func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account) (
-	r repository.CompetitionInfo, b domain.CompetitorInfo, err error,
+	r repository.CompetitionInfo, b domain.CompetitorSummary, err error,
 ) {
 	s := ""
 	if user != nil {
@@ -77,7 +85,7 @@ func (impl competition) Get(index *domain.CompetitionIndex, user domain.Account)
 
 	r.CompetitorCount = v.CompetitorsCount
 
-	err = c.toCompetitorInfo(&b)
+	err = c.toCompetitorSummary(&b)
 
 	return
 }
@@ -185,4 +193,25 @@ func (impl competition) UpdateSubmission(
 	}
 
 	return nil
+}
+
+func (impl competition) GetCompetitorAndSubmission(
+	index *domain.CompetitionIndex, competitor domain.Account,
+) (
+	bool, []domain.CompetitionSubmissionInfo, error,
+) {
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	return impl.mapper.GetCompetitorAndSubmission(&indexDO, competitor.Account())
+}
+
+func (impl competition) SaveCompetitor(
+	index *domain.CompetitionIndex, competitor *domain.CompetitorInfo,
+) error {
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	do := new(CompetitorInfoDO)
+	toCompetitorInfoDO(competitor, do)
+
+	return impl.mapper.SaveCompetitor(&indexDO, do)
 }

@@ -115,7 +115,7 @@ func (do *CompetitionDO) toCompetition(
 	return
 }
 
-type CompetitorDO struct {
+type CompetitorInfoDO struct {
 	Account  string
 	Name     string
 	City     string
@@ -124,13 +124,31 @@ type CompetitorDO struct {
 	Identity string
 	Province string
 	Detail   map[string]string
-
-	TeamId   string
-	TeamRole string
-	TeamName string
 }
 
-func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
+func toCompetitorInfoDO(c *domain.CompetitorInfo, do *CompetitorInfoDO) {
+	*do = CompetitorInfoDO{
+		Account:  c.Account.Account(),
+		Name:     c.Name.CompetitorName(),
+		Email:    c.Email.Email(),
+		Identity: c.Identity.CompetitionIdentity(),
+		Detail:   c.Detail,
+	}
+
+	if c.City != nil {
+		do.City = c.City.City()
+	}
+
+	if c.Phone != nil {
+		do.Phone = c.Phone.Phone()
+	}
+
+	if c.Province != nil {
+		do.Province = c.Province.Province()
+	}
+}
+
+func (do *CompetitorInfoDO) toCompetitorInfo(c *domain.CompetitorInfo) (err error) {
 	if c.Account, err = domain.NewAccount(do.Account); err != nil {
 		return
 	}
@@ -160,6 +178,22 @@ func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
 	}
 
 	c.Detail = do.Detail
+
+	return
+}
+
+type CompetitorDO struct {
+	CompetitorInfoDO
+
+	TeamId   string
+	TeamRole string
+	TeamName string
+}
+
+func (do *CompetitorDO) toCompetitor(c *domain.Competitor) (err error) {
+	if err = do.CompetitorInfoDO.toCompetitorInfo(&c.CompetitorInfo); err != nil {
+		return
+	}
 
 	if do.TeamId == "" {
 		return
@@ -276,13 +310,13 @@ func (do *CompetitionRepoDO) toCompetitionRepo(r *domain.CompetitionRepo) (err e
 	return
 }
 
-type CompetitorInfoDO struct {
+type CompetitorSummaryDO struct {
 	IsCompetitor bool
 	TeamId       string
 	TeamRole     string
 }
 
-func (do *CompetitorInfoDO) toCompetitorInfo(r *domain.CompetitorInfo) (err error) {
+func (do *CompetitorSummaryDO) toCompetitorSummary(r *domain.CompetitorSummary) (err error) {
 	r.IsCompetitor = do.IsCompetitor
 	r.TeamId = do.TeamId
 	r.TeamRole, err = domain.NewTeamRole(do.TeamRole)
