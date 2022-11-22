@@ -7,7 +7,9 @@ import (
 
 type CompetitionMapper interface {
 	List(*CompetitionListOptionDO) ([]CompetitionSummaryDO, error)
-	Get(index *CompetitionIndexDO, competitor string) (CompetitionDO, CompetitorSummaryDO, error)
+	Get(index *CompetitionIndexDO, competitor string) (
+		CompetitionDO, CompetitorSummaryDO, error,
+	)
 	GetTeam(index *CompetitionIndexDO, competitor string) ([]CompetitorDO, error)
 	GetResult(*CompetitionIndexDO) (
 		bool, []CompetitionTeamDO, []CompetitionSubmissionDO, error,

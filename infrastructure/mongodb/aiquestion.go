@@ -17,7 +17,8 @@ type aiquestion struct {
 }
 
 func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
-	IsCompetitor bool, scores []int, err error) {
+	IsCompetitor bool, scores []int, err error,
+) {
 	docFilter, err := objectIdFilter(qid)
 	if err != nil {
 		return
