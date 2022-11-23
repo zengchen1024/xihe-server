@@ -14,7 +14,7 @@ type AIQuestionMapper interface {
 	UpdateSubmission(string, *QuestionSubmissionDO) error
 	GetSubmission(qid, competitor, date string) (QuestionSubmissionDO, error)
 
-	GetQuestions(pool string, choice, complition []int) (
+	GetQuestions(pool string, choice, completion []int) (
 		[]ChoiceQuestionDO,
 		[]CompletionQuestionDO, error,
 	)
@@ -41,10 +41,10 @@ func (impl aiquestion) SaveCompetitor(qid string, competitor *domain.CompetitorI
 	return impl.mapper.SaveCompetitor(qid, do)
 }
 
-func (impl aiquestion) GetQuestions(pool string, choice, complition []int) (
+func (impl aiquestion) GetQuestions(pool string, choice, completion []int) (
 	[]domain.ChoiceQuestion, []domain.CompletionQuestion, error,
 ) {
-	return impl.mapper.GetQuestions(pool, choice, complition)
+	return impl.mapper.GetQuestions(pool, choice, completion)
 }
 
 func (impl aiquestion) SaveSubmission(qid string, v *domain.QuestionSubmission) (string, error) {

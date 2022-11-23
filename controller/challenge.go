@@ -18,7 +18,7 @@ func AddRouterForChallengeController(
 
 ) {
 	ctl := ChallengeController{
-		s: app.NewChallengeService(crepo, qrepo, h),
+		s: app.NewChallengeService(crepo, qrepo, h, encryptHelper),
 	}
 
 	rg.GET("/v1/challenge", ctl.Get)

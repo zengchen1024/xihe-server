@@ -230,8 +230,8 @@ func (col aiquestion) GetQuestions(poolId string, choice, completion []int) (
 				return inCondForArrayElem(fieldNum, choice)
 			}(),
 		}},
-		fieldCompetitors: bson.M{"$filter": bson.M{
-			"input": "$" + fieldCompetitors,
+		fieldCompletions: bson.M{"$filter": bson.M{
+			"input": "$" + fieldCompletions,
 			"cond": func() bson.M {
 				return inCondForArrayElem(fieldNum, completion)
 			}(),

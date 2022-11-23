@@ -32,12 +32,14 @@ func NewChallengeService(
 	competitionRepo repository.Competition,
 	aiQuestionRepo repository.AIQuestion,
 	helper challenge.Challenge,
+	encryption utils.SymmetricEncryption,
 ) ChallengeService {
 	v := helper.GetChallenge()
 
 	s := &challengeService{
 		competitionRepo: competitionRepo,
 		aiQuestionRepo:  aiQuestionRepo,
+		encryption:      encryption,
 		helper:          helper,
 		delimiter:       ",",
 	}
@@ -174,20 +176,26 @@ func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd
 	}
 
 	score = s.helper.CalcAIQuestionScore(cmd.Result, answer)
-
 	if score > v.Score {
 		v.Score = score
-		v.Status = domain.AIQuestionStatusEnd
-
-		_, err = s.aiQuestionRepo.SaveSubmission(
-			s.aiQuestion.AIQuestionId, &v,
-		)
 	}
+
+	v.Status = domain.AIQuestionStatusEnd
+
+	_, err = s.aiQuestionRepo.SaveSubmission(
+		s.aiQuestion.AIQuestionId, &v,
+	)
 
 	return
 }
 
 func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQuestionDTO, err error) {
+	// gen question first to avoid occupying a times.
+	if err = s.genAIQuestions(&dto); err != nil {
+		return
+	}
+
+	// do check
 	now := utils.Now()
 	date := utils.ToDate(now)
 	expiry := now + int64((s.aiQuestion.Timeout+10)*60)
@@ -219,12 +227,10 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 			return
 		}
 
-		if v.Status == domain.AIQuestionStatusStart {
-			if now < v.Expiry {
-				err = errors.New("it is in-progress")
+		if v.Status == domain.AIQuestionStatusStart && now < v.Expiry {
+			err = errors.New("it is in-progress")
 
-				return
-			}
+			return
 		}
 
 		v.Status = domain.AIQuestionStatusStart
@@ -237,9 +243,7 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 		}
 	}
 
-	if err = s.genAIQuestions(&dto); err == nil {
-		dto.Times = v.Times
-	}
+	dto.Times = v.Times
 
 	return
 }
