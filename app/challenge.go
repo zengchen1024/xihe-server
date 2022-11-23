@@ -190,12 +190,6 @@ func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd
 }
 
 func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQuestionDTO, err error) {
-	// gen question first to avoid occupying a times.
-	if err = s.genAIQuestions(&dto); err != nil {
-		return
-	}
-
-	// do check
 	now := utils.Now()
 	date := utils.ToDate(now)
 	expiry := now + int64((s.aiQuestion.Timeout+10)*60)
@@ -206,6 +200,11 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 	if err != nil {
 		//return
 
+		// gen question first to avoid occupying a times.
+		if err = s.genAIQuestions(&dto); err != nil {
+			return
+		}
+
 		// new
 		v = domain.QuestionSubmission{
 			Account: competitor,
@@ -215,33 +214,35 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 			Times:   1,
 		}
 
-		v.Id, err = s.aiQuestionRepo.SaveSubmission(s.aiQuestion.AIQuestionId, &v)
-		if err != nil {
-			return
-		}
-
-	} else {
-		if v.Times >= s.aiQuestion.RetryTimes {
-			err = errors.New("exceed max times")
-
-			return
-		}
-
-		if v.Status == domain.AIQuestionStatusStart && now < v.Expiry {
-			err = errors.New("it is in-progress")
-
-			return
-		}
-
-		v.Status = domain.AIQuestionStatusStart
-		v.Expiry = expiry
-		v.Times++
-
 		_, err = s.aiQuestionRepo.SaveSubmission(s.aiQuestion.AIQuestionId, &v)
-		if err != nil {
-			return
-		}
+
+		dto.Times = v.Times
+
+		return
 	}
+
+	if v.Times >= s.aiQuestion.RetryTimes {
+		err = errors.New("exceed max times")
+
+		return
+	}
+
+	if v.Status == domain.AIQuestionStatusStart && now < v.Expiry {
+		err = errors.New("it is in-progress")
+
+		return
+	}
+
+	// gen question first to avoid occupying a times.
+	if err = s.genAIQuestions(&dto); err != nil {
+		return
+	}
+
+	v.Status = domain.AIQuestionStatusStart
+	v.Expiry = expiry
+	v.Times++
+
+	_, err = s.aiQuestionRepo.SaveSubmission(s.aiQuestion.AIQuestionId, &v)
 
 	dto.Times = v.Times
 
