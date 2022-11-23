@@ -17,9 +17,17 @@ type challengeImpl struct {
 }
 
 func (impl *challengeImpl) GetChallenge() challenge.ChallengeInfo {
+	info := &impl.cfg.AIQuestion
+
 	return challenge.ChallengeInfo{
 		Competition: impl.cfg.Competitions,
-		AIQuestion:  impl.cfg.AIQuestion,
+
+		AIQuestionInfo: challenge.AIQuestionInfo{
+			AIQuestionId:   info.AIQuestionId,
+			QuestionPoolId: info.QuestionPoolId,
+			Timeout:        info.Timeout,
+			RetryTimes:     info.RetryTimes,
+		},
 	}
 }
 
@@ -36,10 +44,30 @@ func (impl *challengeImpl) CalcCompetitionScore(
 }
 
 func (impl *challengeImpl) GenAIQuestionNums() (choice, completion []int) {
-	cfg := impl.cfg
+	cfg := impl.cfg.AIQuestion
 
 	choice = impl.genRandoms(cfg.ChoiceQuestionsCount, cfg.ChoiceQuestionsNum)
 	completion = impl.genRandoms(cfg.CompletionQuestionsCount, cfg.CompletionQuestionsNum)
+
+	return
+}
+
+func (impl *challengeImpl) CalcAIQuestionScore(result, answer []string) (score int) {
+	cfg := impl.cfg.AIQuestion
+
+	num := cfg.ChoiceQuestionsNum
+	for i := 0; i < num; i++ {
+		if result[i] == answer[i] {
+			score += cfg.ChoiceQuestionsScore
+		}
+	}
+
+	total := num + cfg.CompletionQuestionsNum
+	for i := num; i < total; i++ {
+		if result[i] == answer[i] {
+			score += cfg.CompletionQuestionsScore
+		}
+	}
 
 	return
 }

@@ -37,7 +37,13 @@ type ChoiceQuestionDTO struct {
 
 type AIQuestionDTO struct {
 	Times       int                 `json:"times"`
+	Answer      string              `json:"answer"`
 	Choices     []ChoiceQuestionDTO `json:"choices"`
 	Completions []string            `json:"completions"`
-	Answers     string              `json:"answers"`
+}
+
+type AIQuestionAnswerSubmitCmd struct {
+	Times  int
+	Result []string
+	Answer string
 }

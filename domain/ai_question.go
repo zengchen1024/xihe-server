@@ -1,12 +1,8 @@
 package domain
 
-type AIQuestion struct {
-	Id string
-}
-
 const (
-	aiquestionStatusStart = "start"
-	aiquestionStatusEnd   = "end"
+	AIQuestionStatusStart = "start"
+	AIQuestionStatusEnd   = "end"
 )
 
 type QuestionSubmission struct {
@@ -14,9 +10,10 @@ type QuestionSubmission struct {
 	Account Account
 	Date    string
 	Status  string
-	Expiry  int64 // add 10 minutes
+	Expiry  int64
 	Score   int
-	Times   int // like version
+	Times   int
+	Version int
 }
 
 // == account && == date && == times && status == start && now < expiry && > score

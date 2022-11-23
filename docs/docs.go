@@ -419,6 +419,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/challenge/aiquestions": {
+            "get": {
+                "description": "get ai questions",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Challenge"
+                ],
+                "summary": "GetAIQuestions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ChallengeCompetitorInfoDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "submit answer of ai question",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Challenge"
+                ],
+                "summary": "Submit",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.aiQuestionAnswerSubmitResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/challenge/competitor": {
             "post": {
                 "description": "apply the challenge",
@@ -4587,6 +4637,14 @@ const docTemplate = `{
                 },
                 "owner": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.aiQuestionAnswerSubmitResp": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "type": "integer"
                 }
             }
         },

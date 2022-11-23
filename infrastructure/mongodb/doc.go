@@ -53,6 +53,9 @@ const (
 	fieldEnabled        = "enabled"
 	fieldCompetitors    = "competitors"
 	fieldSubmissions    = "submissions"
+	fieldNum            = "num"
+	fieldChoices        = "choices"
+	fieldCompletions    = "completions"
 )
 
 type dProject struct {
@@ -445,10 +448,19 @@ type dAIQuestion struct {
 }
 
 type dQuestionSubmission struct {
-	Account string `bson:"account"     json:"account"`
-	Date    string `bson:"date"        json:"date"`
-	Score   int    `bson:"score"       json:"score"`
-	Times   int    `bson:"times"       json:"-"`
+	Id      string `bson:"id"          json:"id,omitempty"`
+	Date    string `bson:"date"        json:"date,omitempty"`
+	Status  string `bson:"status"      json:"status,omitempty"`
+	Account string `bson:"account"     json:"account,omitempty"`
+	Expiry  int64  `bson:"expiry"      json:"expiry,omitempty"`
+	Score   int    `bson:"score"       json:"score,omitempty"`
+	Times   int    `bson:"times"       json:"times,omitempty"`
+	Version int    `bson:"version"     json:"-"`
+}
+
+type dQuestionPool struct {
+	Choices     []dChoiceQuestion     `json:"choices"       json:"choices"`
+	Completions []dCompletionQuestion `json:"completions"   json:"completions"`
 }
 
 type dChoiceQuestion struct {
@@ -456,6 +468,12 @@ type dChoiceQuestion struct {
 	Desc    string   `json:"desc"      json:"desc"`
 	Answer  string   `json:"answer"    json:"answer"`
 	Options []string `json:"options"   json:"options"`
+}
+
+type dCompletionQuestion struct {
+	Num    int    `json:"num"       json:"num"`
+	Desc   string `json:"desc"      json:"desc"`
+	Answer string `json:"answer"    json:"answer"`
 }
 
 type dLuoJia struct {

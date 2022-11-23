@@ -9,7 +9,13 @@ type AIQuestion interface {
 
 	SaveCompetitor(string, *domain.CompetitorInfo) error
 
-	GetQuestions(choice, complition []int) (
+	GetQuestions(pool string, choice, complition []int) (
 		[]domain.ChoiceQuestion, []domain.CompletionQuestion, error,
 	)
+
+	GetSubmission(sid string, user domain.Account, date string) (
+		domain.QuestionSubmission, error,
+	)
+
+	SaveSubmission(sid string, v *domain.QuestionSubmission) (string, error)
 }

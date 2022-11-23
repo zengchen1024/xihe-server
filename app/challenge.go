@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -13,11 +14,12 @@ type ChallengeService interface {
 	Apply(*CompetitorApplyCmd) error
 	GetCompetitor(domain.Account) (ChallengeCompetitorInfoDTO, error)
 	GetAIQuestions(domain.Account) (AIQuestionDTO, error)
+	SubmitAIQuestionAnswer(domain.Account, *AIQuestionAnswerSubmitCmd) (int, error)
 }
 
 type challengeService struct {
 	comptitions []domain.CompetitionIndex
-	aiQuestion  string
+	aiQuestion  challenge.AIQuestionInfo
 	delimiter   string
 
 	competitionRepo repository.Competition
@@ -49,7 +51,7 @@ func NewChallengeService(
 		}
 	}
 
-	s.aiQuestion = v.AIQuestion
+	s.aiQuestion = v.AIQuestionInfo
 
 	return s
 }
@@ -65,7 +67,7 @@ func (s *challengeService) Apply(cmd *CompetitorApplyCmd) error {
 	}
 
 	// TODO allow re-apply
-	return s.aiQuestionRepo.SaveCompetitor(s.aiQuestion, c)
+	return s.aiQuestionRepo.SaveCompetitor(s.aiQuestion.AIQuestionId, c)
 }
 
 func (s *challengeService) GetCompetitor(user domain.Account) (
@@ -85,7 +87,7 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 		dto.Score += score
 	}
 
-	isCompetitor, score, err := s.getCompetitorOfAIQuestion(s.aiQuestion, user)
+	isCompetitor, score, err := s.getCompetitorOfAIQuestion(s.aiQuestion.AIQuestionId, user)
 
 	if err == nil && isCompetitor {
 		dto.IsCompetitor = true
@@ -129,15 +131,124 @@ func (s *challengeService) getCompetitorOfAIQuestion(
 	return
 }
 
-func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQuestionDTO, err error) {
-	// TODO check if can gen questions
+func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd *AIQuestionAnswerSubmitCmd) (
+	score int, err error,
+) {
+	now := utils.Now()
 
-	return s.genAIQuestions()
+	v, err := s.aiQuestionRepo.GetSubmission(
+		s.aiQuestion.AIQuestionId, competitor, utils.ToDate(now),
+	)
+	if err != nil {
+		return
+		// new
+	}
+
+	if v.Status != domain.AIQuestionStatusStart {
+		err = errors.New("can't submit")
+
+		return
+	}
+
+	if now > v.Expiry {
+		err = errors.New("it is timeout")
+
+		return
+	}
+
+	if cmd.Times != v.Times {
+		err = errors.New("unmatched times")
+
+		return
+	}
+
+	answer, err := s.decryptAnswer(cmd.Answer)
+	if err != nil {
+		return
+	}
+
+	if len(cmd.Result) != len(answer) {
+		err = errors.New("invalid result")
+
+		return
+	}
+
+	score = s.helper.CalcAIQuestionScore(cmd.Result, answer)
+
+	if score > v.Score {
+		v.Score = score
+		v.Status = domain.AIQuestionStatusEnd
+
+		_, err = s.aiQuestionRepo.SaveSubmission(
+			s.aiQuestion.AIQuestionId, &v,
+		)
+	}
+
+	return
 }
 
-func (s *challengeService) genAIQuestions() (dto AIQuestionDTO, err error) {
+func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQuestionDTO, err error) {
+	now := utils.Now()
+	date := utils.ToDate(now)
+	expiry := now + int64((s.aiQuestion.Timeout+10)*60)
+
+	v, err := s.aiQuestionRepo.GetSubmission(
+		s.aiQuestion.AIQuestionId, competitor, date,
+	)
+	if err != nil {
+		//return
+
+		// new
+		v = domain.QuestionSubmission{
+			Account: competitor,
+			Date:    date,
+			Status:  domain.AIQuestionStatusStart,
+			Expiry:  expiry,
+			Times:   1,
+		}
+
+		v.Id, err = s.aiQuestionRepo.SaveSubmission(s.aiQuestion.AIQuestionId, &v)
+		if err != nil {
+			return
+		}
+
+	} else {
+		if v.Times >= s.aiQuestion.RetryTimes {
+			err = errors.New("exceed max times")
+
+			return
+		}
+
+		if v.Status == domain.AIQuestionStatusStart {
+			if now < v.Expiry {
+				err = errors.New("it is in-progress")
+
+				return
+			}
+		}
+
+		v.Status = domain.AIQuestionStatusStart
+		v.Expiry = expiry
+		v.Times++
+
+		_, err = s.aiQuestionRepo.SaveSubmission(s.aiQuestion.AIQuestionId, &v)
+		if err != nil {
+			return
+		}
+	}
+
+	if err = s.genAIQuestions(&dto); err == nil {
+		dto.Times = v.Times
+	}
+
+	return
+}
+
+func (s *challengeService) genAIQuestions(dto *AIQuestionDTO) (err error) {
 	choice, completion := s.helper.GenAIQuestionNums()
-	choices, completions, err := s.aiQuestionRepo.GetQuestions(choice, completion)
+	choices, completions, err := s.aiQuestionRepo.GetQuestions(
+		s.aiQuestion.QuestionPoolId, choice, completion,
+	)
 	if err != nil {
 		return
 	}
@@ -168,7 +279,7 @@ func (s *challengeService) genAIQuestions() (dto AIQuestionDTO, err error) {
 
 	str, err := s.encryptAnswer(answers)
 	if err == nil {
-		dto.Answers = str
+		dto.Answer = str
 	}
 
 	return

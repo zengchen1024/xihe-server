@@ -649,6 +649,11 @@ definitions:
       owner:
         type: string
     type: object
+  controller.aiQuestionAnswerSubmitResp:
+    properties:
+      score:
+        type: integer
+    type: object
   controller.canApplyResourceNameResp:
     properties:
       can_apply:
@@ -1414,6 +1419,39 @@ paths:
           schema:
             type: system_error
       summary: Get
+      tags:
+      - Challenge
+  /v1/challenge/aiquestions:
+    get:
+      consumes:
+      - application/json
+      description: get ai questions
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ChallengeCompetitorInfoDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetAIQuestions
+      tags:
+      - Challenge
+    post:
+      consumes:
+      - application/json
+      description: submit answer of ai question
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.aiQuestionAnswerSubmitResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Submit
       tags:
       - Challenge
   /v1/challenge/competitor:

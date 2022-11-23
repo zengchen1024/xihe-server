@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 )
@@ -46,4 +48,26 @@ func (req *competitorApplyRequest) toCmd(user domain.Account) (cmd app.Competito
 	err = cmd.Validate()
 
 	return
+}
+
+type aiQuestionAnswerSubmitRequest struct {
+	Times  int      `json:"times"`
+	Result []string `json:"result"`
+	Answer string   `json:"answer"`
+}
+
+func (req *aiQuestionAnswerSubmitRequest) toCmd() (app.AIQuestionAnswerSubmitCmd, error) {
+	if len(req.Result) == 0 || req.Answer == "" {
+		return app.AIQuestionAnswerSubmitCmd{}, errors.New("invalid cmd")
+	}
+
+	return app.AIQuestionAnswerSubmitCmd{
+		Times:  req.Times,
+		Result: req.Result,
+		Answer: req.Answer,
+	}, nil
+}
+
+type aiQuestionAnswerSubmitResp struct {
+	Score int `json:"score"`
 }

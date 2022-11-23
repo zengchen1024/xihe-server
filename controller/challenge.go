@@ -23,6 +23,7 @@ func AddRouterForChallengeController(
 
 	rg.GET("/v1/challenge", ctl.Get)
 	rg.GET("/v1/challenge/aiquestions", ctl.GetAIQuestions)
+	rg.POST("/v1/challenge/aiquestions", ctl.Submit)
 	rg.POST("/v1/challenge/competitor", ctl.Apply)
 }
 
@@ -100,13 +101,58 @@ func (ctl *ChallengeController) Apply(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/challenge/aiquestions [get]
 func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
-	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
 		return
 	}
 
-	if data, err := ctl.s.GetAIQuestions(); err != nil {
+	if data, err := ctl.s.GetAIQuestions(pl.DomainAccount()); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))
+	}
+}
+
+// @Summary Submit
+// @Description submit answer of ai question
+// @Tags  Challenge
+// @Accept json
+// @Success 201 {object} aiQuestionAnswerSubmitResp
+// @Failure 500 system_error        system error
+// @Router /v1/challenge/aiquestions [post]
+func (ctl *ChallengeController) Submit(ctx *gin.Context) {
+	req := aiQuestionAnswerSubmitRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	score, err := ctl.s.SubmitAIQuestionAnswer(pl.DomainAccount(), &cmd)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(
+			http.StatusCreated,
+			newResponseData(aiQuestionAnswerSubmitResp{score}),
+		)
 	}
 }

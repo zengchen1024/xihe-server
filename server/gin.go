@@ -116,7 +116,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	)
 
 	aiquestion := repositories.NewAIQuestionRepository(
-		mongodb.NewAIQuestionMapper(collections.AIQuestion),
+		mongodb.NewAIQuestionMapper(
+			collections.AIQuestion, collections.QuestionPool,
+		),
 	)
 
 	luojia := repositories.NewLuoJiaRepository(
