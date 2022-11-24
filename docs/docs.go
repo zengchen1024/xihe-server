@@ -433,7 +433,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.ChallengeCompetitorInfoDTO"
+                            "$ref": "#/definitions/app.AIQuestionDTO"
                         }
                     },
                     "500": {
@@ -453,6 +453,17 @@ const docTemplate = `{
                     "Challenge"
                 ],
                 "summary": "Submit",
+                "parameters": [
+                    {
+                        "description": "body of ai question answer",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.aiQuestionAnswerSubmitRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -479,6 +490,17 @@ const docTemplate = `{
                     "Challenge"
                 ],
                 "summary": "Apply",
+                "parameters": [
+                    {
+                        "description": "body of applying",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.competitorApplyRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": ""
@@ -3641,6 +3663,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "app.AIQuestionDTO": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "choices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.ChoiceQuestionDTO"
+                    }
+                },
+                "completions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "times": {
+                    "type": "integer"
+                }
+            }
+        },
         "app.ActivityDTO": {
             "type": "object",
             "properties": {
@@ -3663,6 +3708,20 @@ const docTemplate = `{
                 },
                 "score": {
                     "type": "integer"
+                }
+            }
+        },
+        "app.ChoiceQuestionDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -4640,6 +4699,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.aiQuestionAnswerSubmitRequest": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "times": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.aiQuestionAnswerSubmitResp": {
             "type": "object",
             "properties": {
@@ -4653,6 +4729,35 @@ const docTemplate = `{
             "properties": {
                 "can_apply": {
                     "type": "boolean"
+                }
+            }
+        },
+        "controller.competitorApplyRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "detail": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "province": {
+                    "type": "string"
                 }
             }
         },
