@@ -1,4 +1,19 @@
 definitions:
+  app.AIQuestionDTO:
+    properties:
+      answer:
+        type: string
+      choices:
+        items:
+          $ref: '#/definitions/app.ChoiceQuestionDTO'
+        type: array
+      completions:
+        items:
+          type: string
+        type: array
+      times:
+        type: integer
+    type: object
   app.ActivityDTO:
     properties:
       resource:
@@ -14,6 +29,15 @@ definitions:
         type: boolean
       score:
         type: integer
+    type: object
+  app.ChoiceQuestionDTO:
+    properties:
+      desc:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
     type: object
   app.CodeGeexDTO:
     properties:
@@ -649,6 +673,17 @@ definitions:
       owner:
         type: string
     type: object
+  controller.aiQuestionAnswerSubmitRequest:
+    properties:
+      answer:
+        type: string
+      result:
+        items:
+          type: string
+        type: array
+      times:
+        type: integer
+    type: object
   controller.aiQuestionAnswerSubmitResp:
     properties:
       score:
@@ -658,6 +693,25 @@ definitions:
     properties:
       can_apply:
         type: boolean
+    type: object
+  controller.competitorApplyRequest:
+    properties:
+      city:
+        type: string
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
+        type: string
     type: object
   controller.datasetCreateRequest:
     properties:
@@ -1430,7 +1484,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.ChallengeCompetitorInfoDTO'
+            $ref: '#/definitions/app.AIQuestionDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -1442,6 +1496,13 @@ paths:
       consumes:
       - application/json
       description: submit answer of ai question
+      parameters:
+      - description: body of ai question answer
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.aiQuestionAnswerSubmitRequest'
       responses:
         "201":
           description: Created
@@ -1459,6 +1520,13 @@ paths:
       consumes:
       - application/json
       description: apply the challenge
+      parameters:
+      - description: body of applying
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.competitorApplyRequest'
       responses:
         "201":
           description: ""

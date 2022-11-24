@@ -57,6 +57,7 @@ func (ctl *ChallengeController) Get(ctx *gin.Context) {
 // @Summary Apply
 // @Description apply the challenge
 // @Tags  Challenge
+// @Param	body	body	competitorApplyRequest	true	"body of applying"
 // @Accept json
 // @Success 201
 // @Failure 500 system_error        system error
@@ -97,7 +98,7 @@ func (ctl *ChallengeController) Apply(ctx *gin.Context) {
 // @Description get ai questions
 // @Tags  Challenge
 // @Accept json
-// @Success 200 {object} app.ChallengeCompetitorInfoDTO
+// @Success 200 {object} app.AIQuestionDTO
 // @Failure 500 system_error        system error
 // @Router /v1/challenge/aiquestions [get]
 func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
@@ -116,6 +117,7 @@ func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
 // @Summary Submit
 // @Description submit answer of ai question
 // @Tags  Challenge
+// @Param	body	body	aiQuestionAnswerSubmitRequest	true	"body of ai question answer"
 // @Accept json
 // @Success 201 {object} aiQuestionAnswerSubmitResp
 // @Failure 500 system_error        system error
