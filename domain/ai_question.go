@@ -1,31 +1,31 @@
 package domain
 
-type AIQuestion struct {
-	Id string
-}
+const (
+	AIQuestionStatusStart = "start"
+	AIQuestionStatusEnd   = "end"
+)
 
 type QuestionSubmission struct {
-	Id       string
-	Account  Account
-	SubmitAt string
-	Score    int
-	Times    int // like version
+	Id      string
+	Account Account
+	Date    string
+	Status  string
+	Expiry  int64
+	Score   int
+	Times   int
+	Version int
 }
+
+// == account && == date && == times && status == start && now < expiry && > score
+// status = end , expiry = 0, score = , times++
 
 type ChoiceQuestion struct {
-	Id     int
-	Desc   string
-	Answer string
-	Option []QuestionOption
-}
-
-type QuestionOption struct {
-	Id   string
-	Desc string
+	Desc    string
+	Answer  string
+	Options []string
 }
 
 type CompletionQuestion struct {
-	Id     int
 	Desc   string
 	Answer string
 }
