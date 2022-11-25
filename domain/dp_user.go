@@ -74,25 +74,6 @@ func (r dpPassword) Password() string {
 	return string(r)
 }
 
-// Nickname
-type Nickname interface {
-	Nickname() string
-}
-
-func NewNickname(v string) (Nickname, error) {
-	if len(v) > config.MaxNicknameLength {
-		return nil, errors.New("invalid nickname")
-	}
-
-	return dpNickname(v), nil
-}
-
-type dpNickname string
-
-func (r dpNickname) Nickname() string {
-	return string(r)
-}
-
 // Bio
 type Bio interface {
 	Bio() string
