@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 const rootDirectory = ""
@@ -50,7 +52,7 @@ func NewTrainingDesc(v string) (TrainingDesc, error) {
 	}
 
 	max := config.MaxTrainingDescLength
-	if len(v) > max {
+	if utils.StrLen(v) > max {
 		return nil, fmt.Errorf("the length of desc should be less than %d", max)
 	}
 

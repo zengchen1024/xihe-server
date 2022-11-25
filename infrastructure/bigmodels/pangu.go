@@ -27,6 +27,10 @@ func newPanGuInfo(cfg *Config) panguInfo {
 }
 
 func (s *service) PanGu(question string) (answer string, err error) {
+	if err = s.check.check(question); err != nil {
+		return
+	}
+
 	s.doIfFree(s.panguInfo.endpoints, func(e string) error {
 		answer, err = s.sendReqToPangu(e, question)
 

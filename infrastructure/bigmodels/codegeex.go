@@ -30,6 +30,10 @@ func newCodeGeexInfo(cfg *Config) codegeexInfo {
 }
 
 func (s *service) CodeGeex(question *bigmodel.CodeGeexReq) (r bigmodel.CodeGeexResp, err error) {
+	if err = s.check.check(question.Content); err != nil {
+		return
+	}
+
 	s.doIfFree(s.codegeexInfo.endpoints, func(e string) error {
 		r, err = s.sendReqToCodeGeex(e, question)
 
