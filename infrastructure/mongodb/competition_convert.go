@@ -73,7 +73,7 @@ func (col competition) toCompetitionSubmissionDO(
 		Status:     doc.Status,
 		OBSPath:    doc.OBSPath,
 		SubmitAt:   doc.SubmitAt,
-		Score:      doc.Score,
+		Score:      float32(doc.Score),
 		TeamId:     doc.TeamId,
 		Individual: doc.Individual,
 	}
@@ -110,7 +110,7 @@ func (col competition) toSubmissionDoc(
 		Status:     do.Status,
 		OBSPath:    do.OBSPath,
 		SubmitAt:   do.SubmitAt,
-		Score:      do.Score,
+		Score:      float64(do.Score),
 		Date:       date,
 	}
 }
