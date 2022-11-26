@@ -460,7 +460,7 @@ func (col competition) GetCompetitorAndSubmission(
 	for i := range items {
 		submissions[i] = repositories.CompetitionSubmissionInfoDO{
 			Status: items[i].Status,
-			Score:  items[i].Score,
+			Score:  float32(items[i].Score),
 		}
 	}
 

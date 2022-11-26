@@ -76,13 +76,15 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 	cmd := app.CompetitionListCMD{}
 	var err error
 
-	cmd.Status, err = domain.NewCompetitionStatus(ctl.getQueryParameter(ctx, "status"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+	if str := ctl.getQueryParameter(ctx, "status"); str != "" {
+		cmd.Status, err = domain.NewCompetitionStatus(str)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
 
-		return
+			return
+		}
 	}
 
 	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)

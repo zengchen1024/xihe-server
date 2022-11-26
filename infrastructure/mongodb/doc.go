@@ -431,7 +431,7 @@ type dSubmission struct {
 	Status     string  `bson:"status"      json:"status"`
 	OBSPath    string  `bson:"path"        json:"path"`
 	SubmitAt   int64   `bson:"submit_at"   json:"submit_at"`
-	Score      float32 `bson:"score"       json:"score"`
+	Score      float64 `bson:"score"       json:"score"`
 	Date       string  `bson:"date"        json:"date"`
 }
 
