@@ -612,8 +612,9 @@ func valueInCondForArrayElem(key string, value interface{}) bson.M {
 func matchCondForArrayElem(key string, value interface{}) bson.M {
 	return bson.M{
 		"$regexMatch": bson.M{
-			"input": condFieldOfArrayElem(key),
-			"regex": value,
+			"input":   condFieldOfArrayElem(key),
+			"regex":   value,
+			"options": "i",
 		},
 	}
 }
