@@ -48,7 +48,7 @@ type TrainingDesc interface {
 
 func NewTrainingDesc(v string) (TrainingDesc, error) {
 	if v == "" {
-		return nil, nil
+		return trainingDesc(v), nil
 	}
 
 	max := config.MaxTrainingDescLength
@@ -198,10 +198,6 @@ type CustomizedValue interface {
 }
 
 func NewCustomizedValue(v string) (CustomizedValue, error) {
-	if v == "" {
-		return nil, nil
-	}
-
 	return customizedValue(v), nil
 }
 

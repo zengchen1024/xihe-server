@@ -116,7 +116,7 @@ type ResourceDesc interface {
 
 func NewResourceDesc(v string) (ResourceDesc, error) {
 	if v == "" {
-		return nil, nil
+		return resourceDesc(v), nil
 	}
 
 	if max := config.MaxDescLength; utils.StrLen(v) > max {

@@ -6,20 +6,23 @@ import (
 )
 
 type userBasicInfoUpdateRequest struct {
-	AvatarId string `json:"avatar_id"`
-	Bio      string `json:"bio"`
+	AvatarId *string `json:"avatar_id"`
+	Bio      *string `json:"bio"`
 }
 
 func (req *userBasicInfoUpdateRequest) toCmd() (
 	cmd app.UpdateUserBasicInfoCmd,
 	err error,
 ) {
-	cmd.Bio, err = domain.NewBio(req.Bio)
-	if err != nil {
-		return
+	if req.Bio != nil {
+		if cmd.Bio, err = domain.NewBio(*req.Bio); err != nil {
+			return
+		}
 	}
 
-	cmd.AvatarId, err = domain.NewAvatarId(req.AvatarId)
+	if req.AvatarId != nil {
+		cmd.AvatarId, err = domain.NewAvatarId(*req.AvatarId)
+	}
 
 	return
 }

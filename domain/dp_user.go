@@ -83,7 +83,7 @@ type Bio interface {
 
 func NewBio(v string) (Bio, error) {
 	if v == "" {
-		return nil, nil
+		return dpBio(v), nil
 	}
 
 	if utils.StrLen(v) > config.MaxBioLength {
@@ -131,7 +131,7 @@ type AvatarId interface {
 
 func NewAvatarId(v string) (AvatarId, error) {
 	if v == "" {
-		return nil, nil
+		return dpAvatarId(v), nil
 	}
 
 	if _, err := url.Parse(v); err != nil {
