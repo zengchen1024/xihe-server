@@ -51,10 +51,6 @@ type CompetitionStatus interface {
 }
 
 func NewCompetitionStatus(v string) (CompetitionStatus, error) {
-	if v == "" {
-		return nil, nil
-	}
-
 	b := v == competitionStatusPreparing ||
 		v == competitionStatusInProgress ||
 		v == competitionStatusDone
@@ -200,10 +196,6 @@ type Phone interface {
 }
 
 func NewPhone(v string) (Phone, error) {
-	if v == "" {
-		return nil, nil
-	}
-
 	return phone(v), nil
 }
 
@@ -243,10 +235,6 @@ type Province interface {
 }
 
 func NewProvince(v string) (Province, error) {
-	if v == "" {
-		return nil, nil
-	}
-
 	return province(v), nil
 }
 
@@ -262,10 +250,6 @@ type City interface {
 }
 
 func NewCity(v string) (City, error) {
-	if v == "" {
-		return nil, nil
-	}
-
 	return city(v), nil
 }
 

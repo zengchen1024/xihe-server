@@ -51,7 +51,7 @@ func (cmd *DatasetCreateCmd) toDataset(v *domain.Dataset) {
 
 type DatasetsDTO struct {
 	Total    int                 `json:"total"`
-	Datasets []DatasetSummaryDTO `json:"models"`
+	Datasets []DatasetSummaryDTO `json:"datasets"`
 }
 
 type DatasetSummaryDTO struct {

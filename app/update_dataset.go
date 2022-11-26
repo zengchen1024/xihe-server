@@ -28,7 +28,7 @@ func (cmd *DatasetUpdateCmd) toDataset(
 		f()
 	}
 
-	if !domain.IsSameDomainValue(cmd.Desc, p.Desc) {
+	if cmd.Desc != nil && !domain.IsSameDomainValue(cmd.Desc, p.Desc) {
 		p.Desc = cmd.Desc
 		f()
 	}

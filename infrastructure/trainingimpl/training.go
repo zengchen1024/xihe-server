@@ -122,14 +122,9 @@ func (impl *trainingImpl) toKeyValue(kv []domain.KeyValue) []sdk.KeyValue {
 	r := make([]sdk.KeyValue, len(kv))
 
 	for i := range kv {
-		s := ""
-		if kv[i].Value != nil {
-			s = kv[i].Value.CustomizedValue()
-		}
-
 		r[i] = sdk.KeyValue{
 			Key:   kv[i].Key.CustomizedKey(),
-			Value: s,
+			Value: kv[i].Value.CustomizedValue(),
 		}
 	}
 
