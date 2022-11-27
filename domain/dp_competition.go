@@ -18,6 +18,8 @@ const (
 	competitionIdentityStudent   = "student"
 	competitionIdentityTeacher   = "teacher"
 	competitionIdentityDeveloper = "developer"
+
+	competitionSubmissionStatusSuccess = "success"
 )
 
 var (
