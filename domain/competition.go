@@ -59,6 +59,10 @@ type CompetitionSubmissionInfo struct {
 	Score  float32
 }
 
+func (info *CompetitionSubmissionInfo) IsSuccess() bool {
+	return info.Status == competitionSubmissionStatusSuccess
+}
+
 type CompetitionSubmission struct {
 	Id string
 
@@ -69,6 +73,10 @@ type CompetitionSubmission struct {
 	OBSPath  string
 	Status   string
 	Score    float32
+}
+
+func (info *CompetitionSubmission) IsSuccess() bool {
+	return info.Status == competitionSubmissionStatusSuccess
 }
 
 type CompetitionRepo struct {

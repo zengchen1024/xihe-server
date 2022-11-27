@@ -524,12 +524,15 @@ func (cli *client) getArrayElem(
 	filterOfDoc, filterOfArray bson.M,
 	project bson.M, result interface{},
 ) error {
-	ma := map[string]bson.M{}
+	m := map[string]bson.M{}
 	if len(filterOfArray) > 0 {
-		ma[array] = filterOfArray
+		m[array] = conditionTofilterArray(filterOfArray)
 	}
 
-	return cli.getArraysElem(ctx, collection, filterOfDoc, ma, project, result)
+	return cli.getArraysElemsHelper(
+		ctx, collection, filterOfDoc, m,
+		project, result,
+	)
 }
 
 func (cli *client) getArraysElem(
@@ -537,14 +540,12 @@ func (cli *client) getArraysElem(
 	filterOfDoc bson.M, filterOfArrays map[string]bson.M,
 	project bson.M, result interface{},
 ) error {
-	m := map[string]func() bson.M{}
+	m := map[string]bson.M{}
 	for k, v := range filterOfArrays {
-		m[k] = func() bson.M {
-			return conditionTofilterArray(v)
-		}
+		m[k] = conditionTofilterArray(v)
 	}
 
-	return cli.getArraysElemsByCustomizedCond(
+	return cli.getArraysElemsHelper(
 		ctx, collection, filterOfDoc, m,
 		project, result,
 	)
@@ -555,6 +556,23 @@ func (cli *client) getArraysElemsByCustomizedCond(
 	filterOfDoc bson.M, filterOfArrays map[string]func() bson.M,
 	project bson.M, result interface{},
 ) error {
+	m := map[string]bson.M{}
+	for k, cond := range filterOfArrays {
+		m[k] = cond()
+	}
+
+	return cli.getArraysElemsHelper(
+		ctx, collection, filterOfDoc, m,
+		project, result,
+	)
+}
+
+func (cli *client) getArraysElemsHelper(
+	ctx context.Context, collection string,
+	filterOfDoc bson.M, filterOfArrays map[string]bson.M,
+	project bson.M, result interface{},
+) error {
+
 	pipeline := bson.A{bson.M{mongoCmdMatch: filterOfDoc}}
 
 	if len(filterOfArrays) > 0 {
@@ -563,7 +581,7 @@ func (cli *client) getArraysElemsByCustomizedCond(
 		for array, cond := range filterOfArrays {
 			project1[array] = bson.M{mongoCmdFilter: bson.M{
 				"input": fmt.Sprintf("$%s", array),
-				"cond":  cond(),
+				"cond":  cond,
 			}}
 		}
 

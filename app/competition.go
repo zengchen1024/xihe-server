@@ -164,9 +164,11 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 
 	for i := range results {
 		item := &results[i]
+		if !item.IsSuccess() {
+			continue
+		}
 
 		k := item.Key()
-
 		if v, ok := rs[k]; !ok || order.IsBetterThanB(item.Score, v.Score) {
 			rs[k] = item
 		}

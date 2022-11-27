@@ -300,6 +300,12 @@ func (col competition) GetSubmisstions(index *repositories.CompetitionIndexDO, c
 
 	member, err := col.getCompetitor(filter, competitor)
 	if err != nil {
+		// TODO: optimize. get competitor should not be invoked here.
+		// it should pass the competitor info to this function.
+		if isDocNotExists(err) {
+			err = nil
+		}
+
 		return
 	}
 
