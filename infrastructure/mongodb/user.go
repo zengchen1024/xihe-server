@@ -226,8 +226,9 @@ func (col user) Search(do *repositories.UserSearchOptionDO) (
 		bson.M{mongoCmdMatch: bson.M{
 			"$expr": bson.M{
 				"$regexMatch": bson.M{
-					"input": "$" + fieldName,
-					"regex": do.Name,
+					"input":   "$" + fieldName,
+					"regex":   do.Name,
+					"options": "i",
 				},
 			},
 		}},
