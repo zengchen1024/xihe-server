@@ -152,7 +152,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 ) {
 	index := domain.CompetitionIndex{
 		Id:    cid,
-		Phase: domain.CompetitionPhasePreliminary,
+		Phase: phase,
 	}
 
 	order, teams, results, err := s.repo.GetResult(&index)
@@ -164,6 +164,7 @@ func (s competitionService) GetRankingList(cid string, phase domain.CompetitionP
 
 	for i := range results {
 		item := &results[i]
+
 		if !item.IsSuccess() {
 			continue
 		}
