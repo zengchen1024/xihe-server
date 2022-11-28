@@ -117,7 +117,7 @@ func (s searchService) searchUser(name string) (
 ) {
 	v, err := s.user.Search(&repository.UserSearchOption{
 		Name:   name,
-		TopNum: 3,
+		TopNum: 10,
 	})
 	if err != nil || v.Total == 0 {
 		return
