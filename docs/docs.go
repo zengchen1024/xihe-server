@@ -4553,6 +4553,9 @@ const docTemplate = `{
                 },
                 "team_role": {
                     "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },
