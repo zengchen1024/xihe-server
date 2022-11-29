@@ -49,3 +49,20 @@ func (impl aiquestion) toQuestionSubmissionDO(
 		Version: q.Version,
 	}
 }
+
+type QuestionSubmissionInfoDO struct {
+	Account string
+	Score   int
+}
+
+func (do *QuestionSubmissionInfoDO) toQuestionSubmissionInfo(
+	v *domain.QuestionSubmissionInfo,
+) (err error) {
+	*v = domain.QuestionSubmissionInfo{
+		Score: do.Score,
+	}
+
+	v.Account, err = domain.NewAccount(do.Account)
+
+	return
+}

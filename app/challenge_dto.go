@@ -47,3 +47,8 @@ type AIQuestionAnswerSubmitCmd struct {
 	Result []string
 	Answer string
 }
+
+type ChallengeRankingDTO struct {
+	Score      int    `json:"score"`
+	Competitor string `json:"competitor"`
+}

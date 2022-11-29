@@ -33,6 +33,16 @@ func (col aiquestion) toQuestionSubmissionDo(
 	}
 }
 
+func (col aiquestion) toQuestionSubmissionInfoDo(
+	do *repositories.QuestionSubmissionInfoDO,
+	doc *dQuestionSubmission,
+) {
+	*do = repositories.QuestionSubmissionInfoDO{
+		Account: doc.Account,
+		Score:   doc.Score,
+	}
+}
+
 func (col aiquestion) toChoiceQuestionDO(
 	do *repositories.ChoiceQuestionDO,
 	doc *dChoiceQuestion,

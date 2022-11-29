@@ -70,6 +70,41 @@ func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
 	return
 }
 
+func (col aiquestion) GetResult(qid string) (
+	do []repositories.QuestionSubmissionInfoDO, err error,
+) {
+	docFilter, err := objectIdFilter(qid)
+	if err != nil {
+		return
+	}
+
+	var v dAIQuestion
+
+	f := func(ctx context.Context) error {
+		return cli.getDoc(
+			ctx, col.collectionName, docFilter,
+			bson.M{
+				fieldSubmissions + "." + fieldAccount: 1,
+				fieldSubmissions + "." + fieldScore:   1,
+			},
+			&v,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		return
+	}
+
+	items := v.Submissions
+	do = make([]repositories.QuestionSubmissionInfoDO, len(items))
+
+	for i := range items {
+		col.toQuestionSubmissionInfoDo(&do[i], &items[i])
+	}
+
+	return
+}
+
 func (col aiquestion) SaveCompetitor(qid string, do *repositories.CompetitorInfoDO) error {
 	v := new(DCompetitorInfo)
 	toCompetitorInfoDOC(v, do)

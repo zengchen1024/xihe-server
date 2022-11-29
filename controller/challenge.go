@@ -22,6 +22,7 @@ func AddRouterForChallengeController(
 	}
 
 	rg.GET("/v1/challenge", ctl.Get)
+	rg.GET("/v1/challenge/ranking", ctl.GetRankingList)
 	rg.GET("/v1/challenge/aiquestions", ctl.GetAIQuestions)
 	rg.POST("/v1/challenge/aiquestions", ctl.Submit)
 	rg.POST("/v1/challenge/competitor", ctl.Apply)
@@ -47,6 +48,26 @@ func (ctl *ChallengeController) Get(ctx *gin.Context) {
 	}
 
 	data, err := ctl.s.GetCompetitor(pl.DomainAccount())
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusOK, newResponseData(data))
+	}
+}
+
+// @Summary GetRankingList
+// @Description get ranking list of challenge
+// @Tags  Challenge
+// @Accept json
+// @Success 200 {object} app.ChallengeRankingDTO
+// @Failure 500 system_error        system error
+// @Router /v1/challenge/ranking [get]
+func (ctl *ChallengeController) GetRankingList(ctx *gin.Context) {
+	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
+		return
+	}
+
+	data, err := ctl.s.GetRankingList()
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {

@@ -35,12 +35,37 @@ func (impl *challengeImpl) CalcCompetitionScore(
 	submissions []domain.CompetitionSubmissionInfo,
 ) int {
 	for i := range submissions {
-		if submissions[i].Status == impl.cfg.CompetitionSuccessStatus {
+		if submissions[i].IsSuccess() {
 			return impl.cfg.CompetitionSuccessScore
 		}
 	}
 
 	return 0
+}
+
+func (impl *challengeImpl) CalcCompetitionScoreForAll(
+	submissions []domain.CompetitionSubmission,
+) map[string]int {
+	r := map[string]int{}
+
+	for i := range submissions {
+		item := &submissions[i]
+
+		if item.Individual == nil {
+			continue
+		}
+
+		name := item.Individual.Account()
+		if _, ok := r[name]; ok {
+			continue
+		}
+
+		if item.IsSuccess() {
+			r[name] = impl.cfg.CompetitionSuccessScore
+		}
+	}
+
+	return r
 }
 
 func (impl *challengeImpl) GenAIQuestionNums() (choice, completion []int) {

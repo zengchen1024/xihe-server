@@ -514,6 +514,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/challenge/ranking": {
+            "get": {
+                "description": "get ranking list of challenge",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Challenge"
+                ],
+                "summary": "GetRankingList",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ChallengeRankingDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition": {
             "get": {
                 "description": "list competitions",
@@ -3711,6 +3737,17 @@ const docTemplate = `{
                 }
             }
         },
+        "app.ChallengeRankingDTO": {
+            "type": "object",
+            "properties": {
+                "competitor": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
         "app.ChoiceQuestionDTO": {
             "type": "object",
             "properties": {
@@ -4863,7 +4900,7 @@ const docTemplate = `{
                 "avatar_id": {
                     "type": "string"
                 },
-                "models": {
+                "datasets": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/app.DatasetSummaryDTO"

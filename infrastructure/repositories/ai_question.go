@@ -18,6 +18,8 @@ type AIQuestionMapper interface {
 		[]ChoiceQuestionDO,
 		[]CompletionQuestionDO, error,
 	)
+
+	GetResult(string) ([]QuestionSubmissionInfoDO, error)
 }
 
 func NewAIQuestionRepository(mapper AIQuestionMapper) repository.AIQuestion {
@@ -71,4 +73,20 @@ func (impl aiquestion) GetSubmission(qid string, user domain.Account, date strin
 	err = v.toQuestionSubmission(&submission)
 
 	return
+}
+
+func (impl aiquestion) GetResult(qid string) ([]domain.QuestionSubmissionInfo, error) {
+	v, err := impl.mapper.GetResult(qid)
+	if err != nil {
+		return nil, err
+	}
+
+	r := make([]domain.QuestionSubmissionInfo, len(v))
+	for i := range v {
+		if err = v[i].toQuestionSubmissionInfo(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
 }

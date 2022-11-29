@@ -53,6 +53,14 @@ type CompetitionTeam struct {
 	Name TeamName
 }
 
+type CompetitionRepo struct {
+	TeamId     string
+	Individual Account
+
+	Owner Account
+	Repo  ResourceName
+}
+
 type CompetitionSubmissionInfo struct {
 	Id     string
 	Status string
@@ -77,14 +85,6 @@ type CompetitionSubmission struct {
 
 func (info *CompetitionSubmission) IsSuccess() bool {
 	return info.Status == competitionSubmissionStatusSuccess
-}
-
-type CompetitionRepo struct {
-	TeamId     string
-	Individual Account
-
-	Owner Account
-	Repo  ResourceName
 }
 
 func (r *CompetitionSubmission) IsTeamWork() bool {

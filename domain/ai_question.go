@@ -5,6 +5,11 @@ const (
 	AIQuestionStatusEnd   = "end"
 )
 
+type QuestionSubmissionInfo struct {
+	Account Account
+	Score   int
+}
+
 type QuestionSubmission struct {
 	Id      string
 	Account Account
@@ -27,5 +32,6 @@ type ChoiceQuestion struct {
 
 type CompletionQuestion struct {
 	Desc   string
+	Info   string
 	Answer string
 }
