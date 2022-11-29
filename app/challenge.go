@@ -275,12 +275,16 @@ func (s *challengeService) genAIQuestions(dto *AIQuestionDTO) (err error) {
 		answers[i] = item.Answer
 	}
 
-	dto.Completions = make([]string, len(completion))
+	dto.Completions = make([]CompletionQuestionDTO, len(completion))
 
 	for i := range completions {
 		item := &completions[i]
 
-		dto.Completions[i] = item.Desc
+		dto.Completions[i] = CompletionQuestionDTO{
+			Desc: item.Desc,
+			Info: item.Info,
+		}
+
 		answers[i+n] = item.Answer
 	}
 

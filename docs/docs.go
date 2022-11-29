@@ -3704,7 +3704,7 @@ const docTemplate = `{
                 "completions": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/app.CompletionQuestionDTO"
                     }
                 },
                 "times": {
@@ -3860,6 +3860,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CompletionQuestionDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "info": {
                     "type": "string"
                 }
             }

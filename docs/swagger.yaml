@@ -9,7 +9,7 @@ definitions:
         type: array
       completions:
         items:
-          type: string
+          $ref: '#/definitions/app.CompletionQuestionDTO'
         type: array
       times:
         type: integer
@@ -110,6 +110,13 @@ definitions:
       name:
         type: string
       role:
+        type: string
+    type: object
+  app.CompletionQuestionDTO:
+    properties:
+      desc:
+        type: string
+      info:
         type: string
     type: object
   app.ComputeDTO:

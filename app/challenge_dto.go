@@ -35,11 +35,16 @@ type ChoiceQuestionDTO struct {
 	Options []string `json:"options"`
 }
 
+type CompletionQuestionDTO struct {
+	Desc string `json:"desc"`
+	Info string `json:"info"`
+}
+
 type AIQuestionDTO struct {
-	Times       int                 `json:"times"`
-	Answer      string              `json:"answer"`
-	Choices     []ChoiceQuestionDTO `json:"choices"`
-	Completions []string            `json:"completions"`
+	Times       int                     `json:"times"`
+	Answer      string                  `json:"answer"`
+	Choices     []ChoiceQuestionDTO     `json:"choices"`
+	Completions []CompletionQuestionDTO `json:"completions"`
 }
 
 type AIQuestionAnswerSubmitCmd struct {

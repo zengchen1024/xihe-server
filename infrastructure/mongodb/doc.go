@@ -473,6 +473,7 @@ type dChoiceQuestion struct {
 type dCompletionQuestion struct {
 	Num    int    `json:"num"       json:"num"`
 	Desc   string `json:"desc"      json:"desc"`
+	Info   string `json:"info"      json:"info"`
 	Answer string `json:"answer"    json:"answer"`
 }
 

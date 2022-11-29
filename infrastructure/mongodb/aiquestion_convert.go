@@ -60,6 +60,7 @@ func (col aiquestion) toCompletionQuestionDO(
 ) {
 	*do = repositories.CompletionQuestionDO{
 		Desc:   doc.Desc,
+		Info:   doc.Info,
 		Answer: doc.Answer,
 	}
 }
