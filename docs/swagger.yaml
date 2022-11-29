@@ -710,6 +710,13 @@ definitions:
       can_apply:
         type: boolean
     type: object
+  controller.competitionAddRelatedProjectRequest:
+    properties:
+      owner:
+        type: string
+      project_name:
+        type: string
+    type: object
   controller.competitorApplyRequest:
     properties:
       city:
@@ -1617,6 +1624,38 @@ paths:
           schema:
             type: system_error
       summary: Get
+      tags:
+      - Competition
+  /v1/competition/{id}/{phase}/realted_project:
+    put:
+      consumes:
+      - application/json
+      description: add related project
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: competition phase
+        in: path
+        name: phase
+        required: true
+        type: string
+      - description: project info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.competitionAddRelatedProjectRequest'
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: AddRelatedProject
       tags:
       - Competition
   /v1/competition/{id}/{phase}/submissions:

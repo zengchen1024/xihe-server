@@ -15,11 +15,13 @@ import (
 func AddRouterForCompetitionController(
 	rg *gin.RouterGroup,
 	repo repository.Competition,
+	project repository.Project,
 	sender message.Sender,
 	uploader competition.Competition,
 ) {
 	ctl := CompetitionController{
-		s: app.NewCompetitionService(repo, sender, uploader),
+		s:       app.NewCompetitionService(repo, sender, uploader),
+		project: project,
 	}
 
 	rg.GET("/v1/competition", ctl.List)
@@ -28,12 +30,14 @@ func AddRouterForCompetitionController(
 	rg.GET("/v1/competition/:id/ranking/:phase", ctl.GetRankingList)
 	rg.GET("/v1/competition/:id/:phase/submissions", ctl.GetSubmissions)
 	rg.POST("/v1/competition/:id/:phase/submissions", ctl.Submit)
+	rg.PUT("/v1/competition/:id/:phase/realted_project", ctl.AddRelatedProject)
 }
 
 type CompetitionController struct {
 	baseController
 
-	s app.CompetitionService
+	s       app.CompetitionService
+	project repository.Project
 }
 
 // @Summary Get
@@ -248,5 +252,76 @@ func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(v))
+	}
+}
+
+// @Summary AddRelatedProject
+// @Description add related project
+// @Tags  Competition
+// @Param	id	path	string					true	"competition id"
+// @Param	phase	path	string					true	"competition phase"
+// @Param	body	body	competitionAddRelatedProjectRequest	true	"project info"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/{phase}/realted_project [put]
+func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
+	if err != nil {
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+				errorBadRequestParam, err,
+			))
+
+			return
+		}
+	}
+
+	req := competitionAddRelatedProjectRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	owner, name, err := req.toInfo()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	p, err := ctl.project.GetSummaryByName(owner, name)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	cmd := app.CompetitionAddReleatedProjectCMD{
+		Index: app.CompetitionIndex{
+			Id:    ctx.Param("id"),
+			Phase: phase,
+		},
+		Competitor: pl.DomainAccount(),
+		Project:    p,
+	}
+
+	if err = ctl.s.AddRelatedProject(&cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusAccepted, newResponseData("success"))
 	}
 }

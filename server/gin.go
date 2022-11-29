@@ -197,7 +197,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForCompetitionController(
-			v1, competition, sender, uploader,
+			v1, competition, proj, sender, uploader,
 		)
 
 		controller.AddRouterForChallengeController(

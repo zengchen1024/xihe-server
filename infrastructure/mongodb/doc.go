@@ -437,10 +437,10 @@ type dSubmission struct {
 }
 
 type dCompetitionRepo struct {
-	TeamId     string `bson:"tid"         json:"tid"`     // if it is submitted by team, set it.
-	Individual string `bson:"account"     json:"account"` // if it is submitted by individual, set it.
-	Owner      string `bson:"owner"       json:"owner"`
-	Repo       string `bson:"repo"        json:"repo"`
+	TeamId     string `bson:"tid"     json:"tid,omitempty"`     // if it is submitted by team, set it.
+	Individual string `bson:"account" json:"account,omitempty"` // if it is submitted by individual, set it.
+	Owner      string `bson:"owner"   json:"owner,omitempty"`
+	Repo       string `bson:"repo"    json:"repo,omitempty"`
 }
 
 type dAIQuestion struct {

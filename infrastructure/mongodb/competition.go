@@ -292,6 +292,79 @@ func (col competition) GetResult(index *repositories.CompetitionIndexDO) (
 	return
 }
 
+func (col competition) AddRelatedProject(
+	index *repositories.CompetitionIndexDO,
+	repo *repositories.CompetitionRepoDO,
+) error {
+	v := dCompetitionRepo{
+		Owner: repo.Owner,
+		Repo:  repo.Repo,
+	}
+	repoFilter := bson.M{}
+
+	if repo.TeamId != "" {
+		repoFilter[fieldTId] = repo.TeamId
+		v.TeamId = repo.TeamId
+	} else {
+		repoFilter[fieldAccount] = repo.Individual
+		v.Individual = repo.Individual
+	}
+
+	doc, err := genDoc(&v)
+	if err != nil {
+		return err
+	}
+
+	exist, err := col.insertRelatedProject(index, repoFilter, doc)
+	if err != nil || !exist {
+		return err
+	}
+
+	return col.updateRelatedProject(index, repoFilter, doc)
+}
+
+func (col competition) insertRelatedProject(
+	index *repositories.CompetitionIndexDO,
+	repoFilter, doc bson.M,
+) (bool, error) {
+	docFilter := col.indexToDocFilter(index)
+
+	appendElemMatchToFilter(
+		fieldRepos, false, repoFilter, docFilter,
+	)
+
+	f := func(ctx context.Context) error {
+		return cli.pushArrayElem(
+			ctx, col.collectionName, fieldRepos, docFilter, doc,
+		)
+	}
+
+	err := withContext(f)
+	if err != nil {
+		if isDocNotExists(err) {
+			return true, nil
+		}
+	}
+	return false, err
+}
+
+func (col competition) updateRelatedProject(
+	index *repositories.CompetitionIndexDO,
+	repoFilter, doc bson.M,
+) error {
+	f := func(ctx context.Context) error {
+		_, err := cli.modifyArrayElemWithoutVersion(
+			ctx, col.collectionName, fieldRepos,
+			col.indexToDocFilter(index), repoFilter,
+			doc, mongoCmdSet,
+		)
+
+		return err
+	}
+
+	return withContext(f)
+}
+
 func (col competition) GetSubmisstions(index *repositories.CompetitionIndexDO, competitor string) (
 	repo repositories.CompetitionRepoDO,
 	results []repositories.CompetitionSubmissionDO, err error,
