@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"io"
 	"sort"
 	"strconv"
 
@@ -18,13 +17,6 @@ type CompetitionIndex = domain.CompetitionIndex
 type CompetitionListCMD = repository.CompetitionListOption
 type CompetitionSubmissionInfo = domain.CompetitionSubmissionInfo
 
-type CompetitionSubmitCMD struct {
-	FileName   string
-	Data       io.Reader
-	Index      CompetitionIndex
-	Competitor domain.Account
-}
-
 type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
@@ -36,6 +28,8 @@ type CompetitionService interface {
 	GetTeam(cid string, competitor domain.Account) (CompetitionTeamDTO, error)
 
 	GetRankingList(cid string, phase domain.CompetitionPhase) ([]RankingDTO, error)
+
+	AddRelatedProject(*CompetitionAddReleatedProjectCMD) error
 }
 
 func NewCompetitionService(
@@ -83,7 +77,8 @@ func (s competitionService) Get(cid string, competitor domain.Account) (
 		dto.TeamRole = b.TeamRole.TeamRole()
 	}
 
-	if !v.Enabled {
+	// Only the normal competition can change the phase
+	if v.Type.CompetitionType() == "" && !v.Enabled {
 		dto.Phase = domain.CompetitionPhaseFinal.CompetitionPhase()
 	}
 
@@ -247,6 +242,54 @@ func (s competitionService) GetSubmissions(index *CompetitionIndex, competitor d
 	dto.Details = items
 
 	return
+}
+
+func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProjectCMD) (
+	err error,
+) {
+	if cmd.Index.Phase.IsFinal() {
+		err = errors.New("can't change the related project on final phase")
+
+		return
+	}
+
+	// check permission
+	v, b, err := s.repo.Get(&cmd.Index, cmd.Competitor)
+	if err != nil {
+		return
+	}
+
+	if !b.IsCompetitor || (b.TeamId != "" && !b.TeamRole.IsLeader()) {
+		err = errors.New("no permission to submit")
+
+		return
+	}
+
+	if !v.Enabled {
+		err = errors.New("competition is over for this phase")
+
+		return
+	}
+
+	project := &cmd.Project
+
+	if cmd.Competitor.Account() != project.Owner.Account() {
+		err = errors.New("can't add project which in not your own")
+
+		return
+	}
+
+	repo := domain.CompetitionRepo{
+		Owner: project.Owner,
+		Repo:  project.Name,
+	}
+	if b.TeamId == "" {
+		repo.Individual = cmd.Competitor
+	} else {
+		repo.TeamId = b.TeamId
+	}
+
+	return s.repo.AddRelatedProject(&cmd.Index, &repo)
 }
 
 func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (

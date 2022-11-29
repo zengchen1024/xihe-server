@@ -35,7 +35,7 @@ type CompetitionType interface {
 }
 
 func NewCompetitionType(v string) (CompetitionType, error) {
-	if v == competitionTypeChallenge {
+	if v == "" || v == competitionTypeChallenge {
 		return competitionType(v), nil
 	}
 
@@ -51,6 +51,7 @@ func (r competitionType) CompetitionType() string {
 // CompetitionPhase
 type CompetitionPhase interface {
 	CompetitionPhase() string
+	IsFinal() bool
 }
 
 func NewCompetitionPhase(v string) (CompetitionPhase, error) {
@@ -65,6 +66,10 @@ type competitionPhase string
 
 func (r competitionPhase) CompetitionPhase() string {
 	return string(r)
+}
+
+func (r competitionPhase) IsFinal() bool {
+	return string(r) == competitionPhaseFinal
 }
 
 // CompetitionStatus

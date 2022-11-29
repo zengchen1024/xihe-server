@@ -26,6 +26,8 @@ type CompetitionMapper interface {
 	)
 
 	SaveCompetitor(*CompetitionIndexDO, *CompetitorInfoDO) error
+
+	AddRelatedProject(*CompetitionIndexDO, *CompetitionRepoDO) error
 }
 
 func NewCompetitionRepository(mapper CompetitionMapper) repository.Competition {
@@ -214,4 +216,15 @@ func (impl competition) SaveCompetitor(
 	toCompetitorInfoDO(competitor, do)
 
 	return impl.mapper.SaveCompetitor(&indexDO, do)
+}
+
+func (impl competition) AddRelatedProject(
+	index *domain.CompetitionIndex, repo *domain.CompetitionRepo,
+) error {
+	indexDO := impl.toCompetitionIndexDO(index)
+
+	do := new(CompetitionRepoDO)
+	impl.toCompetitionRepoDO(repo, do)
+
+	return impl.mapper.AddRelatedProject(&indexDO, do)
 }

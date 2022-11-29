@@ -47,4 +47,6 @@ type Competition interface {
 	)
 
 	SaveCompetitor(*domain.CompetitionIndex, *domain.CompetitorInfo) error
+
+	AddRelatedProject(*domain.CompetitionIndex, *domain.CompetitionRepo) error
 }

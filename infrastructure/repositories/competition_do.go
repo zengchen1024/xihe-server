@@ -289,6 +289,20 @@ func (impl competition) toCompetitionIndexDO(index *domain.CompetitionIndex) Com
 	}
 }
 
+func (impl competition) toCompetitionRepoDO(
+	repo *domain.CompetitionRepo, do *CompetitionRepoDO,
+) {
+	*do = CompetitionRepoDO{
+		TeamId: repo.TeamId,
+		Owner:  repo.Owner.Account(),
+		Repo:   repo.Repo.ResourceName(),
+	}
+
+	if repo.Individual != nil {
+		do.Individual = repo.Individual.Account()
+	}
+}
+
 type CompetitionRepoDO struct {
 	TeamId     string
 	Individual string

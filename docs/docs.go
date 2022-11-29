@@ -692,6 +692,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/{phase}/realted_project": {
+            "put": {
+                "description": "add related project",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "AddRelatedProject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "competition phase",
+                        "name": "phase",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "project info",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.competitionAddRelatedProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition/{id}/{phase}/submissions": {
             "get": {
                 "description": "get submissions",
@@ -4780,6 +4828,17 @@ const docTemplate = `{
             "properties": {
                 "can_apply": {
                     "type": "boolean"
+                }
+            }
+        },
+        "controller.competitionAddRelatedProjectRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
                 }
             }
         },

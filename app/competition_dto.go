@@ -1,11 +1,25 @@
 package app
 
 import (
+	"io"
 	"path/filepath"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/utils"
 )
+
+type CompetitionSubmitCMD struct {
+	FileName   string
+	Data       io.Reader
+	Index      CompetitionIndex
+	Competitor domain.Account
+}
+
+type CompetitionAddReleatedProjectCMD struct {
+	Index      CompetitionIndex
+	Competitor domain.Account
+	Project    domain.ResourceSummary
+}
 
 type CompetitionSummaryDTO struct {
 	CompetitorCount int    `json:"count"`
