@@ -8,6 +8,8 @@ import (
 const (
 	competitionTeamRoleLeader = "leader"
 
+	competitionTypeChallenge = "challenge"
+
 	competitionPhaseFinal       = "final"
 	competitionPhasePreliminary = "preliminary"
 
@@ -26,6 +28,25 @@ var (
 	CompetitionPhaseFinal       = competitionPhase("final")
 	CompetitionPhasePreliminary = competitionPhase("preliminary")
 )
+
+// CompetitionType
+type CompetitionType interface {
+	CompetitionType() string
+}
+
+func NewCompetitionType(v string) (CompetitionType, error) {
+	if v == competitionTypeChallenge {
+		return competitionType(v), nil
+	}
+
+	return nil, errors.New("invalid competition type")
+}
+
+type competitionType string
+
+func (r competitionType) CompetitionType() string {
+	return string(r)
+}
 
 // CompetitionPhase
 type CompetitionPhase interface {

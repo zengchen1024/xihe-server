@@ -22,6 +22,7 @@ type CompetitionSummaryDTO struct {
 type CompetitionDTO struct {
 	CompetitionSummaryDTO
 
+	Type       string `json:"type"`
 	Phase      string `json:"phase"`
 	Doc        string `json:"doc"`
 	Forum      string `json:"forum"`
@@ -103,6 +104,8 @@ func (s competitionService) toCompetitionDTO(
 		&dto.CompetitionSummaryDTO,
 	)
 
+	dto.Type = c.Type.CompetitionType()
+	dto.Phase = c.Phase.CompetitionPhase()
 	dto.Doc = c.Doc.URL()
 	dto.Forum = c.Forum.URL()
 	dto.DatasetDoc = c.DatasetDoc.URL()

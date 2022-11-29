@@ -383,6 +383,7 @@ type DCompetition struct {
 	Name       string `bson:"name"            json:"name"`
 	Desc       string `bson:"desc"            json:"desc"`
 	Host       string `bson:"host"            json:"host"`
+	Type       string `bson:"type"            json:"type"`
 	Phase      string `bson:"phase"           json:"phase"`
 	Bonus      int    `bson:"bonus"           json:"bonus"`
 	Status     string `bson:"status"          json:"status"`

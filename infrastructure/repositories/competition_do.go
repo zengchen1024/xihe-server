@@ -78,6 +78,7 @@ type CompetitionDO struct {
 	CompetitionSummaryDO
 
 	Enabled    bool
+	Type       string
 	Phase      string
 	Doc        string
 	Forum      string
@@ -89,6 +90,10 @@ func (do *CompetitionDO) toCompetition(
 	c *domain.Competition,
 ) (err error) {
 	c.Enabled = do.Enabled
+
+	if c.Type, err = domain.NewCompetitionType(do.Type); err != nil {
+		return
+	}
 
 	if c.Phase, err = domain.NewCompetitionPhase(do.Phase); err != nil {
 		return

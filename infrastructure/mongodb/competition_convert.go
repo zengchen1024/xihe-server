@@ -20,12 +20,15 @@ func (col competition) toCompetitionSummaryDO(
 func (col competition) toCompetitionDO(
 	doc *DCompetition, do *repositories.CompetitionDO,
 ) {
-	do.Enabled = doc.Enabled
-	do.Phase = doc.Phase
-	do.Doc = doc.Doc
-	do.Forum = doc.Forum
-	do.DatasetDoc = doc.DatasetDoc
-	do.DatasetURL = doc.DatasetURL
+	*do = repositories.CompetitionDO{
+		Enabled:    doc.Enabled,
+		Type:       doc.Type,
+		Phase:      doc.Phase,
+		Doc:        doc.Doc,
+		Forum:      doc.Forum,
+		DatasetDoc: doc.DatasetDoc,
+		DatasetURL: doc.DatasetURL,
+	}
 
 	col.toCompetitionSummaryDO(doc, &do.CompetitionSummaryDO)
 }
