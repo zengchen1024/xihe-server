@@ -712,9 +712,9 @@ definitions:
     type: object
   controller.competitionAddRelatedProjectRequest:
     properties:
-      name:
-        type: string
       owner:
+        type: string
+      project_name:
         type: string
     type: object
   controller.competitorApplyRequest:

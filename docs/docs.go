@@ -4834,10 +4834,10 @@ const docTemplate = `{
         "controller.competitionAddRelatedProjectRequest": {
             "type": "object",
             "properties": {
-                "name": {
+                "owner": {
                     "type": "string"
                 },
-                "owner": {
+                "project_name": {
                     "type": "string"
                 }
             }

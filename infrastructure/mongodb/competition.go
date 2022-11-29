@@ -296,12 +296,10 @@ func (col competition) AddRelatedProject(
 	index *repositories.CompetitionIndexDO,
 	repo *repositories.CompetitionRepoDO,
 ) error {
-
 	v := dCompetitionRepo{
 		Owner: repo.Owner,
 		Repo:  repo.Repo,
 	}
-
 	repoFilter := bson.M{}
 
 	if repo.TeamId != "" {

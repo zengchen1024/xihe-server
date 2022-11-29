@@ -274,7 +274,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 	project := &cmd.Project
 
 	if cmd.Competitor.Account() != project.Owner.Account() {
-		err = errors.New("can't add project which in not your own")
+		err = errors.New("can't add project which is not your's")
 
 		return
 	}

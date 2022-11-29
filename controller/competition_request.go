@@ -4,7 +4,7 @@ import "github.com/opensourceways/xihe-server/domain"
 
 type competitionAddRelatedProjectRequest struct {
 	Owner string `json:"owner"`
-	Name  string `json:"name"`
+	Name  string `json:"project_name"`
 }
 
 func (req *competitionAddRelatedProjectRequest) toInfo() (
