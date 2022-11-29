@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -15,6 +16,7 @@ type ChallengeService interface {
 	GetCompetitor(domain.Account) (ChallengeCompetitorInfoDTO, error)
 	GetAIQuestions(domain.Account) (AIQuestionDTO, error)
 	SubmitAIQuestionAnswer(domain.Account, *AIQuestionAnswerSubmitCmd) (int, error)
+	GetRankingList() ([]ChallengeRankingDTO, error)
 }
 
 type challengeService struct {
@@ -273,12 +275,16 @@ func (s *challengeService) genAIQuestions(dto *AIQuestionDTO) (err error) {
 		answers[i] = item.Answer
 	}
 
-	dto.Completions = make([]string, len(completion))
+	dto.Completions = make([]CompletionQuestionDTO, len(completion))
 
 	for i := range completions {
 		item := &completions[i]
 
-		dto.Completions[i] = item.Desc
+		dto.Completions[i] = CompletionQuestionDTO{
+			Desc: item.Desc,
+			Info: item.Info,
+		}
+
 		answers[i+n] = item.Answer
 	}
 
@@ -288,6 +294,69 @@ func (s *challengeService) genAIQuestions(dto *AIQuestionDTO) (err error) {
 	}
 
 	return
+}
+
+func (s *challengeService) GetRankingList() ([]ChallengeRankingDTO, error) {
+	r := map[string]int{}
+
+	for i := range s.comptitions {
+		_, _, results, err := s.competitionRepo.GetResult(&s.comptitions[i])
+		if err != nil {
+			return nil, err
+		}
+
+		scores := s.helper.CalcCompetitionScoreForAll(results)
+
+		for k, v := range scores {
+			r[k] += v
+		}
+	}
+
+	scores, err := s.getResultOfAIQuestion()
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range scores {
+		r[k] += v
+	}
+
+	dto := make([]ChallengeRankingDTO, len(r))
+	i := 0
+	for k, v := range r {
+		dto[i] = ChallengeRankingDTO{
+			Competitor: k,
+			Score:      v,
+		}
+
+		i++
+	}
+
+	sort.Slice(dto, func(i, j int) bool {
+		return dto[i].Score >= dto[j].Score
+	})
+
+	return dto, nil
+}
+
+func (s *challengeService) getResultOfAIQuestion() (map[string]int, error) {
+	results, err := s.aiQuestionRepo.GetResult(s.aiQuestion.AIQuestionId)
+	if err != nil {
+		return nil, err
+	}
+
+	r := map[string]int{}
+
+	for i := range results {
+		name := results[i].Account.Account()
+		score := results[i].Score
+
+		if r[name] < score {
+			r[name] = score
+		}
+	}
+
+	return r, nil
 }
 
 func (s *challengeService) encryptAnswer(answers []string) (string, error) {

@@ -9,7 +9,7 @@ definitions:
         type: array
       completions:
         items:
-          type: string
+          $ref: '#/definitions/app.CompletionQuestionDTO'
         type: array
       times:
         type: integer
@@ -27,6 +27,13 @@ definitions:
     properties:
       is_competitor:
         type: boolean
+      score:
+        type: integer
+    type: object
+  app.ChallengeRankingDTO:
+    properties:
+      competitor:
+        type: string
       score:
         type: integer
     type: object
@@ -103,6 +110,13 @@ definitions:
       name:
         type: string
       role:
+        type: string
+    type: object
+  app.CompletionQuestionDTO:
+    properties:
+      desc:
+        type: string
+      info:
         type: string
     type: object
   app.ComputeDTO:
@@ -780,7 +794,7 @@ definitions:
     properties:
       avatar_id:
         type: string
-      models:
+      datasets:
         items:
           $ref: '#/definitions/app.DatasetSummaryDTO'
         type: array
@@ -1535,6 +1549,23 @@ paths:
           schema:
             type: system_error
       summary: Apply
+      tags:
+      - Challenge
+  /v1/challenge/ranking:
+    get:
+      consumes:
+      - application/json
+      description: get ranking list of challenge
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ChallengeRankingDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetRankingList
       tags:
       - Challenge
   /v1/competition:
