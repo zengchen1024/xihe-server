@@ -79,6 +79,9 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 	ChallengeCompetitorInfoDTO, error,
 ) {
 	dto := ChallengeCompetitorInfoDTO{}
+	if user == nil {
+		return dto, nil
+	}
 
 	for i := range s.comptitions {
 		isCompetitor, score, err := s.getCompetitorOfCompetition(

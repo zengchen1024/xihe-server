@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/opensourceways/xihe-server/app"
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/challenge"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -42,12 +43,17 @@ type ChallengeController struct {
 // @Failure 500 system_error        system error
 // @Router /v1/challenge [get]
 func (ctl *ChallengeController) Get(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, visitor, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
 
-	data, err := ctl.s.GetCompetitor(pl.DomainAccount())
+	var user domain.Account
+	if !visitor {
+		user = pl.DomainAccount()
+	}
+
+	data, err := ctl.s.GetCompetitor(user)
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
@@ -63,10 +69,6 @@ func (ctl *ChallengeController) Get(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/challenge/ranking [get]
 func (ctl *ChallengeController) GetRankingList(ctx *gin.Context) {
-	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
-		return
-	}
-
 	data, err := ctl.s.GetRankingList()
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
