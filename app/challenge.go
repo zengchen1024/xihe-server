@@ -44,7 +44,7 @@ func NewChallengeService(
 		aiQuestionRepo:  aiQuestionRepo,
 		encryption:      encryption,
 		helper:          helper,
-		delimiter:       ",",
+		delimiter:       ",-;",
 	}
 
 	s.comptitions = make([]domain.CompetitionIndex, len(v.Competition))
