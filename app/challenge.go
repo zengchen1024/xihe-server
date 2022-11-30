@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/base64"
 	"errors"
 	"sort"
 	"strings"
@@ -367,14 +368,19 @@ func (s *challengeService) encryptAnswer(answers []string) (string, error) {
 
 	v, err := s.encryption.Encrypt([]byte(str))
 	if err == nil {
-		return string(v), nil
+		return base64.StdEncoding.EncodeToString(v), nil
 	}
 
 	return "", err
 }
 
 func (s *challengeService) decryptAnswer(str string) ([]string, error) {
-	v, err := s.encryption.Decrypt([]byte(str))
+	b, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		return nil, err
+	}
+
+	v, err := s.encryption.Decrypt(b)
 	if err != nil {
 		return nil, err
 	}
