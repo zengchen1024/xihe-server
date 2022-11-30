@@ -227,8 +227,8 @@ func (col aiquestion) GetSubmission(qid, competitor, date string) (
 			ctx, col.collectionName, fieldSubmissions,
 			docFilter,
 			bson.M{
-				fieldAccount: do.Account,
-				fieldDate:    do.Date,
+				fieldAccount: competitor,
+				fieldDate:    date,
 			},
 			nil, &v,
 		)
