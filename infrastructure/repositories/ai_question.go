@@ -67,6 +67,8 @@ func (impl aiquestion) GetSubmission(qid string, user domain.Account, date strin
 ) {
 	v, err := impl.mapper.GetSubmission(qid, user.Account(), date)
 	if err != nil {
+		err = convertError(err)
+
 		return
 	}
 

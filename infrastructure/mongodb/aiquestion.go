@@ -238,7 +238,13 @@ func (col aiquestion) GetSubmission(qid, competitor, date string) (
 		return
 	}
 
-	if len(v) == 0 || len(v[0].Submissions) == 0 {
+	if len(v) == 0 {
+		err = errDocNotExists
+
+		return
+	}
+
+	if len(v[0].Submissions) == 0 {
 		err = repositories.NewErrorDataNotExists(errDocNotExists)
 
 		return
