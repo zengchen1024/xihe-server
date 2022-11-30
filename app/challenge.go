@@ -144,8 +144,10 @@ func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd
 		s.aiQuestion.AIQuestionId, competitor, utils.ToDate(now),
 	)
 	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			err = errors.New("illegal submission")
+		}
 		return
-		// new
 	}
 
 	if v.Status != domain.AIQuestionStatusStart {
@@ -200,14 +202,15 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 		s.aiQuestion.AIQuestionId, competitor, date,
 	)
 	if err != nil {
-		//return
+		if !repository.IsErrorResourceNotExists(err) {
+			return
+		}
 
 		// gen question first to avoid occupying a times.
 		if err = s.genAIQuestions(&dto); err != nil {
 			return
 		}
 
-		// new
 		v = domain.QuestionSubmission{
 			Account: competitor,
 			Date:    date,

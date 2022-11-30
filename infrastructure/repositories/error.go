@@ -2,39 +2,49 @@ package repositories
 
 import "github.com/opensourceways/xihe-server/domain/repository"
 
-type ErrorDuplicateCreating struct {
+// errorDuplicateCreating
+type errorDuplicateCreating struct {
 	error
 }
 
-func NewErrorDuplicateCreating(err error) ErrorDuplicateCreating {
-	return ErrorDuplicateCreating{err}
+func NewErrorDuplicateCreating(err error) errorDuplicateCreating {
+	return errorDuplicateCreating{err}
 }
 
-type ErrorDataNotExists struct {
+// errorDataNotExists
+type errorDataNotExists struct {
 	error
 }
 
-func NewErrorDataNotExists(err error) ErrorDataNotExists {
-	return ErrorDataNotExists{err}
+func NewErrorDataNotExists(err error) errorDataNotExists {
+	return errorDataNotExists{err}
 }
 
-type ErrorConcurrentUpdating struct {
+func isErrorDataNotExists(err error) bool {
+	_, ok := err.(errorDataNotExists)
+
+	return ok
+}
+
+// errorConcurrentUpdating
+type errorConcurrentUpdating struct {
 	error
 }
 
-func NewErrorConcurrentUpdating(err error) ErrorConcurrentUpdating {
-	return ErrorConcurrentUpdating{err}
+func NewErrorConcurrentUpdating(err error) errorConcurrentUpdating {
+	return errorConcurrentUpdating{err}
 }
 
+// convertError
 func convertError(err error) (out error) {
 	switch err.(type) {
-	case ErrorDuplicateCreating:
+	case errorDuplicateCreating:
 		out = repository.NewErrorDuplicateCreating(err)
 
-	case ErrorDataNotExists:
+	case errorDataNotExists:
 		out = repository.NewErrorResourceNotExists(err)
 
-	case ErrorConcurrentUpdating:
+	case errorConcurrentUpdating:
 		out = repository.NewErrorConcurrentUpdating(err)
 
 	default:
