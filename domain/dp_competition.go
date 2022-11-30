@@ -163,8 +163,8 @@ type CompetitionBonus interface {
 }
 
 func NewCompetitionBonus(v int) (CompetitionBonus, error) {
-	if v == 0 {
-		return nil, errors.New("empty value")
+	if v < 0 {
+		return nil, errors.New("invalid bonus")
 	}
 
 	return competitionBonus(v), nil
