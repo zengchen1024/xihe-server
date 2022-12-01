@@ -16,7 +16,7 @@ type Competition struct {
 	CompetitionSummary
 
 	Doc        URL
-	Forum      URL
+	Forum      Forum
 	DatasetDoc URL
 	DatasetURL URL
 

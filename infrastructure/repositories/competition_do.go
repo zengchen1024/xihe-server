@@ -103,7 +103,7 @@ func (do *CompetitionDO) toCompetition(
 		return
 	}
 
-	if c.Forum, err = domain.NewURL(do.Forum); err != nil {
+	if c.Forum, err = domain.NewForum(do.Forum); err != nil {
 		return
 	}
 
