@@ -193,8 +193,12 @@ func (ctl baseController) sendRespWithInternalError(ctx *gin.Context, data respo
 	ctx.JSON(http.StatusInternalServerError, data)
 }
 
-func (ctl baseController) badRequest(ctx *gin.Context, data responseData) {
-	ctx.JSON(http.StatusBadRequest, data)
+func (ctl baseController) sendCodeMessage(ctx *gin.Context, code string, err error) {
+	if code == "" {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(code, err))
+	}
 }
 
 func (ctl baseController) getListResourceParameter(

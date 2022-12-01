@@ -131,11 +131,7 @@ func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
 	}
 
 	if data, code, err := ctl.s.GetAIQuestions(pl.DomainAccount()); err != nil {
-		if code == "" {
-			ctl.sendRespWithInternalError(ctx, newResponseError(err))
-		} else {
-			ctl.badRequest(ctx, newResponseCodeError(code, err))
-		}
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))
 	}
