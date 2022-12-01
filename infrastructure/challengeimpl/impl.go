@@ -2,6 +2,7 @@ package challengeimpl
 
 import (
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -89,12 +90,20 @@ func (impl *challengeImpl) CalcAIQuestionScore(result, answer []string) (score i
 
 	total := num + cfg.CompletionQuestionsNum
 	for i := num; i < total; i++ {
-		if result[i] == answer[i] {
+		if impl.formatCompletionAnswer(result[i]) == impl.formatCompletionAnswer(answer[i]) {
 			score += cfg.CompletionQuestionsScore
 		}
 	}
 
 	return
+}
+
+func (impl *challengeImpl) formatCompletionAnswer(v string) string {
+	str := strings.ReplaceAll(v, " ", "")
+	str = strings.ReplaceAll(str, "'", "")
+	str = strings.ReplaceAll(str, "\"", "")
+
+	return str
 }
 
 func (impl *challengeImpl) genRandoms(max, total int) []int {

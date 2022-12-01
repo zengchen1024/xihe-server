@@ -130,8 +130,12 @@ func (ctl *ChallengeController) GetAIQuestions(ctx *gin.Context) {
 		return
 	}
 
-	if data, err := ctl.s.GetAIQuestions(pl.DomainAccount()); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if data, code, err := ctl.s.GetAIQuestions(pl.DomainAccount()); err != nil {
+		if code == "" {
+			ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		} else {
+			ctl.badRequest(ctx, newResponseCodeError(code, err))
+		}
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(data))
 	}

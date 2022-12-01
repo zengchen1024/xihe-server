@@ -193,6 +193,10 @@ func (ctl baseController) sendRespWithInternalError(ctx *gin.Context, data respo
 	ctx.JSON(http.StatusInternalServerError, data)
 }
 
+func (ctl baseController) badRequest(ctx *gin.Context, data responseData) {
+	ctx.JSON(http.StatusBadRequest, data)
+}
+
 func (ctl baseController) getListResourceParameter(
 	ctx *gin.Context,
 ) (cmd app.ResourceListCmd, err error) {

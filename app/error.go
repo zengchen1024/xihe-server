@@ -37,3 +37,14 @@ func IsErrorUnavailableTraining(err error) bool {
 
 	return ok
 }
+
+const (
+	ErrorCodeSytem = "system"
+
+	// The current ai question is in-progress, but new request for
+	// a new start is comming.
+	ErrorCodeChallengeInProgress = "challenge_in-progress"
+
+	// It exceed the max times for a day.
+	ErrorCodeChallengeExccedMaxTimes = "challenge_excced_max_time"
+)
