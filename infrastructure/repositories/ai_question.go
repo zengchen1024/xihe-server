@@ -40,7 +40,11 @@ func (impl aiquestion) SaveCompetitor(qid string, competitor *domain.CompetitorI
 	do := new(CompetitorInfoDO)
 	toCompetitorInfoDO(competitor, do)
 
-	return impl.mapper.SaveCompetitor(qid, do)
+	if err := impl.mapper.SaveCompetitor(qid, do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
 }
 
 func (impl aiquestion) GetQuestions(pool string, choice, completion []int) (
