@@ -15,7 +15,7 @@ import (
 type ChallengeService interface {
 	Apply(*CompetitorApplyCmd) error
 	GetCompetitor(domain.Account) (ChallengeCompetitorInfoDTO, error)
-	GetAIQuestions(domain.Account) (AIQuestionDTO, error)
+	GetAIQuestions(domain.Account) (AIQuestionDTO, string, error)
 	SubmitAIQuestionAnswer(domain.Account, *AIQuestionAnswerSubmitCmd) (int, error)
 	GetRankingList() ([]ChallengeRankingDTO, error)
 }
@@ -197,7 +197,9 @@ func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd
 	return
 }
 
-func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQuestionDTO, err error) {
+func (s *challengeService) GetAIQuestions(competitor domain.Account) (
+	dto AIQuestionDTO, code string, err error,
+) {
 	now := utils.Now()
 	date := utils.ToDate(now)
 	expiry := now + int64((s.aiQuestion.Timeout+10)*60)
@@ -231,12 +233,14 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (dto AIQues
 	}
 
 	if v.Times >= s.aiQuestion.RetryTimes {
+		code = ErrorCodeChallengeExccedMaxTimes
 		err = errors.New("exceed max times")
 
 		return
 	}
 
 	if v.Status == domain.AIQuestionStatusStart && now < v.Expiry {
+		code = ErrorCodeChallengeInProgress
 		err = errors.New("it is in-progress")
 
 		return
