@@ -215,7 +215,11 @@ func (impl competition) SaveCompetitor(
 	do := new(CompetitorInfoDO)
 	toCompetitorInfoDO(competitor, do)
 
-	return impl.mapper.SaveCompetitor(&indexDO, do)
+	if err := impl.mapper.SaveCompetitor(&indexDO, do); err != nil {
+		return convertError(err)
+	}
+
+	return nil
 }
 
 func (impl competition) AddRelatedProject(

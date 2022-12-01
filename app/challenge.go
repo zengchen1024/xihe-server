@@ -63,16 +63,20 @@ func NewChallengeService(
 
 func (s *challengeService) Apply(cmd *CompetitorApplyCmd) error {
 	c := cmd.toCompetitor()
+
 	for i := range s.comptitions {
-		// TODO allow re-apply
 		err := s.competitionRepo.SaveCompetitor(&s.comptitions[i], c)
-		if err != nil {
+		if err != nil && !repository.IsErrorDuplicateCreating(err) {
 			return err
 		}
 	}
 
-	// TODO allow re-apply
-	return s.aiQuestionRepo.SaveCompetitor(s.aiQuestion.AIQuestionId, c)
+	err := s.aiQuestionRepo.SaveCompetitor(s.aiQuestion.AIQuestionId, c)
+	if err != nil && !repository.IsErrorDuplicateCreating(err) {
+		return err
+	}
+
+	return nil
 }
 
 func (s *challengeService) GetCompetitor(user domain.Account) (
