@@ -129,13 +129,13 @@ func (col aiquestion) SaveCompetitor(qid string, do *repositories.CompetitorInfo
 		)
 	}
 
-	if err := withContext(f); err != nil {
+	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
 			return repositories.NewErrorDuplicateCreating(err)
 		}
 	}
 
-	return nil
+	return err
 }
 
 func (col aiquestion) InsertSubmission(qid string, do *repositories.QuestionSubmissionDO) (

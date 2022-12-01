@@ -570,11 +570,11 @@ func (col competition) SaveCompetitor(
 		)
 	}
 
-	if err := withContext(f); err != nil {
+	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
 			return repositories.NewErrorDuplicateCreating(err)
 		}
 	}
 
-	return nil
+	return err
 }
