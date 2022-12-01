@@ -195,6 +195,29 @@ func (r competitionHost) CompetitionHost() string {
 	return string(r)
 }
 
+// Forum
+type Forum interface {
+	Forum() string
+}
+
+func NewForum(v string) (Forum, error) {
+	if v == "" {
+		return dpForum(v), nil
+	}
+
+	if _, err := url.Parse(v); err != nil {
+		return nil, errors.New("invalid url")
+	}
+
+	return dpForum(v), nil
+}
+
+type dpForum string
+
+func (r dpForum) Forum() string {
+	return string(r)
+}
+
 // URL
 type URL interface {
 	URL() string
