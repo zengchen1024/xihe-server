@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 
 	"github.com/opensourceways/xihe-server/utils"
@@ -12,7 +13,7 @@ const rootDirectory = ""
 
 var (
 	reDirectory = regexp.MustCompile("^[a-zA-Z0-9_/-]+$")
-	reFilePath  = regexp.MustCompile("^[a-zA-Z0-9_/.-]+$")
+	reFile      = regexp.MustCompile("^[a-zA-Z0-9_.-]+$")
 )
 
 // TrainingName
@@ -103,11 +104,20 @@ func NewFilePath(v string) (FilePath, error) {
 		return nil, errors.New("empty file path")
 	}
 
-	if !reFilePath.MatchString(v) {
+	dir := filepath.Dir(v)
+	if dir == "." {
+		dir = ""
+	}
+	if dir != "" && !reDirectory.MatchString(dir) {
 		return nil, errors.New("invalid filePath")
 	}
 
-	return filePath(v), nil
+	file := filepath.Base(v)
+	if !reFile.MatchString(file) || file == "." || file == ".." {
+		return nil, errors.New("invalid filePath")
+	}
+
+	return filePath(filepath.Join(dir, file)), nil
 }
 
 type filePath string
