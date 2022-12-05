@@ -275,6 +275,8 @@ func (impl *repoFile) DeleteDir(u *platform.UserInfo, info *platform.RepoDirInfo
 		err = platform.NewErrorTooManyFilesToDelete(
 			errors.New("too many files to delete"),
 		)
+
+		return
 	}
 
 	files := v.allFiles()

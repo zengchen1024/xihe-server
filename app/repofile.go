@@ -80,7 +80,6 @@ func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) e
 func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd) (
 	code string, err error,
 ) {
-
 	if err = s.rf.DeleteDir(u, cmd); err == nil {
 		return
 	}
