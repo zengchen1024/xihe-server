@@ -8,9 +8,13 @@ type Config struct {
 	GraphqlEndpoint string    `json:"graphql_endpoint" required:"true"`
 	DefaultBranch   string    `json:"default_branch"`
 	DownloadExpiry  int       `json:"download_expiry"`
+
+	// MaxFileCount specifies the count of file to operate once.
+	MaxFileCount int `json:"max_file_count"`
 }
 
 func (cfg *Config) SetDefault() {
+	cfg.MaxFileCount = 100
 	cfg.DefaultBranch = "main"
 	cfg.DownloadExpiry = 3600
 }

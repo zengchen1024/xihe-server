@@ -21,7 +21,7 @@ type RepoFileService interface {
 	List(u *UserInfo, d *RepoDir) ([]RepoPathItem, error)
 	Create(*UserInfo, *RepoFileCreateCmd) error
 	Update(*UserInfo, *RepoFileUpdateCmd) error
-	Delete(*UserInfo, *RepoFileDeleteCmd) error
+	Delete(*UserInfo, *RepoFileDeleteCmd) (string, error)
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	DeleteDir(*UserInfo, *RepoDirDeleteCmd) error
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
@@ -73,8 +73,18 @@ func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) e
 	return s.rf.Update(u, &cmd.RepoFileInfo, &cmd.RepoFileContent)
 }
 
-func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) error {
-	return s.rf.Delete(u, cmd)
+func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) (
+	code string, err error,
+) {
+	if err = s.rf.Delete(u, cmd); err == nil {
+		return
+	}
+
+	if platform.IsErrorExceedMaxFileCount(err) {
+		code = ErrorRepoFileMaxFileCountToDelete
+	}
+
+	return
 }
 
 func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd) error {

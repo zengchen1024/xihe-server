@@ -46,5 +46,7 @@ const (
 	ErrorCodeChallengeInProgress = "challenge_in-progress"
 
 	// It exceed the max times for a day.
-	ErrorCodeChallengeExccedMaxTimes = "challenge_excced_max_time"
+	ErrorCodeChallengeExceedMaxTimes = "challenge_exceed_max_time"
+
+	ErrorRepoFileTooManyFilesToDelete = "repofile_too_many_files_to_delete"
 )
