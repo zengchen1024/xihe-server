@@ -245,7 +245,7 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (
 	}
 
 	if v.Times >= s.aiQuestion.RetryTimes {
-		code = ErrorCodeChallengeExccedMaxTimes
+		code = ErrorCodeChallengeExceedMaxTimes
 		err = errors.New("exceed max times")
 
 		return

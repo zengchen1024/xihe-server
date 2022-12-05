@@ -271,6 +271,14 @@ func (impl *repoFile) DeleteDir(u *platform.UserInfo, info *platform.RepoDirInfo
 		return
 	}
 
+	if v.allFilesCount() >= maxFileCount {
+		err = platform.NewErrorTooManyFilesToDelete(
+			errors.New("too many files to delete"),
+		)
+
+		return
+	}
+
 	files := v.allFiles()
 	if len(files) == 0 {
 		return

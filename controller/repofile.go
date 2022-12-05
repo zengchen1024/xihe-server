@@ -209,8 +209,8 @@ func (ctl *RepoFileController) DeleteDir(ctx *gin.Context) {
 
 	u := pl.PlatformUserInfo()
 
-	if err = ctl.s.DeleteDir(&u, &info); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if code, err := ctl.s.DeleteDir(&u, &info); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 
 		return
 	}

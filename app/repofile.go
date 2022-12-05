@@ -23,7 +23,7 @@ type RepoFileService interface {
 	Update(*UserInfo, *RepoFileUpdateCmd) error
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
-	DeleteDir(*UserInfo, *RepoDirDeleteCmd) error
+	DeleteDir(*UserInfo, *RepoDirDeleteCmd) (string, error)
 	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
@@ -77,8 +77,18 @@ func (s *repoFileService) Delete(u *platform.UserInfo, cmd *RepoFileDeleteCmd) e
 	return s.rf.Delete(u, cmd)
 }
 
-func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd) error {
-	return s.rf.DeleteDir(u, cmd)
+func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd) (
+	code string, err error,
+) {
+	if err = s.rf.DeleteDir(u, cmd); err == nil {
+		return
+	}
+
+	if platform.IsErrorTooManyFilesToDelete(err) {
+		code = ErrorRepoFileTooManyFilesToDelete
+	}
+
+	return
 }
 
 func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (

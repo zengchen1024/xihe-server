@@ -108,6 +108,10 @@ func (d *graphqlResult) toRepoPathItems() (r []platform.RepoPathItem) {
 	return
 }
 
+func (d *graphqlResult) allFilesCount() int {
+	return len(d.Data.Project.Repo.Tree.Blobs.Nodes)
+}
+
 func (d *graphqlResult) allFiles() (r []string) {
 	files := d.Data.Project.Repo.Tree.Blobs.Nodes
 	if len(files) == 0 {

@@ -17,6 +17,8 @@ var (
 	endpoint         string
 	defaultBranch    string
 	graphql_endpoint string
+
+	maxFileCount int
 )
 
 func NewUserSerivce() platform.User {
@@ -38,6 +40,7 @@ func Init(cfg *Config) error {
 
 	admin = &administrator{v}
 	endpoint = strings.TrimSuffix(cfg.Endpoint, "/")
+	maxFileCount = cfg.MaxFileCount
 	defaultBranch = cfg.DefaultBranch
 	graphql_endpoint = strings.TrimSuffix(cfg.GraphqlEndpoint, "/")
 
