@@ -52,10 +52,7 @@ type CompetitionController struct {
 func (ctl *CompetitionController) Apply(ctx *gin.Context) {
 	req := competitorApplyRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorBadRequestBody,
-			"can't fetch request body",
-		))
+		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
 
 		return
 	}
@@ -67,15 +64,13 @@ func (ctl *CompetitionController) Apply(ctx *gin.Context) {
 
 	cmd, err := req.toCmd(pl.DomainAccount())
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctx.JSON(http.StatusBadRequest, respBadRequestParam(err))
 
 		return
 	}
 
 	if err := ctl.s.Apply(ctx.Param("id"), &cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData("success"))
 	}
