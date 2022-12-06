@@ -615,6 +615,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/competitor": {
+            "post": {
+                "description": "apply the competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "Apply",
+                "parameters": [
+                    {
+                        "description": "body of applying",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.competitorApplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition/{id}/ranking/{phase}": {
             "get": {
                 "description": "get ranking list of competition",

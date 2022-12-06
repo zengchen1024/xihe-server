@@ -18,6 +18,8 @@ type CompetitionListCMD = repository.CompetitionListOption
 type CompetitionSubmissionInfo = domain.CompetitionSubmissionInfo
 
 type CompetitionService interface {
+	Apply(string, *CompetitorApplyCmd) error
+
 	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
@@ -48,6 +50,21 @@ type competitionService struct {
 	repo     repository.Competition
 	sender   message.Sender
 	uploader competition.Competition
+}
+
+func (s competitionService) Apply(cid string, cmd *CompetitorApplyCmd) error {
+	err := s.repo.SaveCompetitor(
+		&domain.CompetitionIndex{
+			Id:    cid,
+			Phase: domain.CompetitionPhasePreliminary,
+		},
+		cmd.toCompetitor(),
+	)
+	if err != nil && !repository.IsErrorDuplicateCreating(err) {
+		return err
+	}
+
+	return nil
 }
 
 func (s competitionService) Get(cid string, competitor domain.Account) (
