@@ -1718,6 +1718,28 @@ paths:
       summary: Submit
       tags:
       - Competition
+  /v1/competition/{id}/competitor:
+    post:
+      consumes:
+      - application/json
+      description: apply the competition
+      parameters:
+      - description: body of applying
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.competitorApplyRequest'
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Apply
+      tags:
+      - Competition
   /v1/competition/{id}/ranking/{phase}:
     get:
       consumes:

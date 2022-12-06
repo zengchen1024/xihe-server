@@ -6,8 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/challenge"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -49,8 +47,6 @@ func NewChallengeService(
 		delimiter:       ",-;",
 	}
 
-	logrus.Infof("competion = %#v", v.Competition)
-
 	s.comptitions = make([]domain.CompetitionIndex, len(v.Competition))
 
 	for i, cid := range v.Competition {
@@ -67,8 +63,6 @@ func NewChallengeService(
 
 func (s *challengeService) Apply(cmd *CompetitorApplyCmd) error {
 	c := cmd.toCompetitor()
-
-	logrus.Infof("apply: %#v", s.comptitions)
 
 	for i := range s.comptitions {
 		err := s.competitionRepo.SaveCompetitor(&s.comptitions[i], c)
@@ -92,8 +86,6 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 	if user == nil {
 		return dto, nil
 	}
-
-	logrus.Infof("get competitor: %#v", s.comptitions)
 
 	for i := range s.comptitions {
 		isCompetitor, score, err := s.getCompetitorOfCompetition(

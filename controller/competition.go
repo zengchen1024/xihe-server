@@ -30,6 +30,7 @@ func AddRouterForCompetitionController(
 	rg.GET("/v1/competition/:id/ranking/:phase", ctl.GetRankingList)
 	rg.GET("/v1/competition/:id/:phase/submissions", ctl.GetSubmissions)
 	rg.POST("/v1/competition/:id/:phase/submissions", ctl.Submit)
+	rg.POST("/v1/competition/:id/competitor", ctl.Apply)
 	rg.PUT("/v1/competition/:id/:phase/realted_project", ctl.AddRelatedProject)
 }
 
@@ -38,6 +39,46 @@ type CompetitionController struct {
 
 	s       app.CompetitionService
 	project repository.Project
+}
+
+// @Summary Apply
+// @Description apply the competition
+// @Tags  Competition
+// @Param	body	body	competitorApplyRequest	true	"body of applying"
+// @Accept json
+// @Success 201
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/competitor [post]
+func (ctl *CompetitionController) Apply(ctx *gin.Context) {
+	req := competitorApplyRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+			errorBadRequestBody,
+			"can't fetch request body",
+		))
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	cmd, err := req.toCmd(pl.DomainAccount())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if err := ctl.s.Apply(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctx.JSON(http.StatusCreated, newResponseData("success"))
+	}
 }
 
 // @Summary Get
