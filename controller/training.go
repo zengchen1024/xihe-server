@@ -249,9 +249,18 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 		if i++; i == 5 {
 			i = 0
 
+			duration := v.Duration
+			if duration > 0 {
+				duration++
+			}
+
 			v, err = ctl.ts.Get(&info)
 			if err != nil {
 				break
+			}
+
+			if v.Duration < duration {
+				v.Duration = duration
 			}
 
 			log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId)
@@ -394,15 +403,28 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 				break
 			}
 
+			done, index := finished(v)
+			if done {
+				ws.WriteJSON(newResponseData(v))
+
+				break
+			}
+
+			duration := 0
+			if running != nil {
+				duration = running.Duration + 1
+			}
+
+			running = &v[index]
+
+			if running.Duration < duration {
+				running.Duration = duration
+			}
+
 			if err = ws.WriteJSON(newResponseData(v)); err != nil {
 				break
 			}
 
-			if done, index := finished(v); done {
-				break
-			} else {
-				running = &v[index]
-			}
 		} else {
 			if running.Duration > 0 {
 				running.Duration++
