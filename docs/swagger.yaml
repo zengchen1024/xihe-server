@@ -25,6 +25,13 @@ definitions:
     type: object
   app.ChallengeCompetitorInfoDTO:
     properties:
+      ai_question:
+        properties:
+          in_progress:
+            type: boolean
+          remaining_times:
+            type: integer
+        type: object
       is_competitor:
         type: boolean
       score:

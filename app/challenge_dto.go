@@ -26,8 +26,13 @@ func (cmd *CompetitorApplyCmd) toCompetitor() *domain.CompetitorInfo {
 }
 
 type ChallengeCompetitorInfoDTO struct {
-	IsCompetitor bool `json:"is_competitor"`
 	Score        int  `json:"score"`
+	IsCompetitor bool `json:"is_competitor"`
+
+	AIQuestionInfo struct {
+		RemainingTimes int  `json:"remaining_times"`
+		InProgress     bool `json:"in_progress"`
+	} `json:"ai_question"`
 }
 
 type ChoiceQuestionDTO struct {

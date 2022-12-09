@@ -171,9 +171,9 @@ func (ctl *ChallengeController) Submit(ctx *gin.Context) {
 		return
 	}
 
-	score, err := ctl.s.SubmitAIQuestionAnswer(pl.DomainAccount(), &cmd)
+	score, code, err := ctl.s.SubmitAIQuestionAnswer(pl.DomainAccount(), &cmd)
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(
 			http.StatusCreated,

@@ -32,6 +32,10 @@ func ToDate(n int64) string {
 	return time.Unix(n, 0).Format("2006-01-02")
 }
 
+func Date() string {
+	return time.Now().Format("2006-01-02")
+}
+
 func Expiry(expiry int64) int64 {
 	return time.Now().Add(time.Second * time.Duration(expiry)).Unix()
 }

@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 func NewAIQuestionMapper(name, pool string) repositories.AIQuestionMapper {
@@ -22,7 +23,9 @@ type aiquestion struct {
 }
 
 func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
-	IsCompetitor bool, scores []int, err error,
+	isCompetitor bool, score int,
+	do repositories.QuestionSubmissionDO,
+	err error,
 ) {
 	docFilter, err := objectIdFilter(qid)
 	if err != nil {
@@ -43,7 +46,7 @@ func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
 			},
 			bson.M{
 				fieldCompetitors + "." + fieldAccount: 1,
-				fieldSubmissions + "." + fieldScore:   1,
+				fieldSubmissions:                      1,
 			},
 			&v,
 		)
@@ -53,18 +56,25 @@ func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
 		return
 	}
 
-	item := &v[0]
-
-	if len(item.Competitors) == 0 {
+	doc := &v[0]
+	if len(doc.Competitors) == 0 {
 		return
 	}
 
-	IsCompetitor = true
+	isCompetitor = true
 
-	items := item.Submissions
-	scores = make([]int, len(items))
+	today := utils.Date()
+	items := doc.Submissions
 	for i := range items {
-		scores[i] = items[i].Score
+		item := &items[i]
+
+		if score < item.Score {
+			score = item.Score
+		}
+
+		if item.Date == today {
+			col.toQuestionSubmissionDo(&do, item)
+		}
 	}
 
 	return

@@ -16,7 +16,7 @@ type ChallengeService interface {
 	Apply(*CompetitorApplyCmd) error
 	GetCompetitor(domain.Account) (ChallengeCompetitorInfoDTO, error)
 	GetAIQuestions(domain.Account) (AIQuestionDTO, string, error)
-	SubmitAIQuestionAnswer(domain.Account, *AIQuestionAnswerSubmitCmd) (int, error)
+	SubmitAIQuestionAnswer(domain.Account, *AIQuestionAnswerSubmitCmd) (int, string, error)
 	GetRankingList() ([]ChallengeRankingDTO, error)
 }
 
@@ -99,11 +99,17 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 		dto.Score += score
 	}
 
-	isCompetitor, score, err := s.getCompetitorOfAIQuestion(s.aiQuestion.AIQuestionId, user)
-
+	isCompetitor, score, submission, err := s.aiQuestionRepo.GetCompetitorAndSubmission(
+		s.aiQuestion.AIQuestionId, user,
+	)
 	if err == nil && isCompetitor {
 		dto.IsCompetitor = true
 		dto.Score += score
+
+		if submission.Id != "" {
+			dto.AIQuestionInfo.InProgress = submission.Status == domain.AIQuestionStatusStart
+			dto.AIQuestionInfo.RemainingTimes = s.aiQuestion.RetryTimes - submission.Times
+		}
 	}
 
 	return dto, err
@@ -125,26 +131,8 @@ func (s *challengeService) getCompetitorOfCompetition(
 	return
 }
 
-func (s *challengeService) getCompetitorOfAIQuestion(
-	cid string, user domain.Account,
-) (isCompetitor bool, score int, err error) {
-
-	isCompetitor, scores, err := s.aiQuestionRepo.GetCompetitorAndScores(cid, user)
-	if err != nil || !isCompetitor {
-		return
-	}
-
-	for _, v := range scores {
-		if v > score {
-			score = v
-		}
-	}
-
-	return
-}
-
 func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd *AIQuestionAnswerSubmitCmd) (
-	score int, err error,
+	score int, code string, err error,
 ) {
 	now := utils.Now()
 
@@ -165,12 +153,14 @@ func (s *challengeService) SubmitAIQuestionAnswer(competitor domain.Account, cmd
 	}
 
 	if now > v.Expiry {
+		code = ErrorCodeAIQuestionSubmissionExpiry
 		err = errors.New("it is timeout")
 
 		return
 	}
 
 	if cmd.Times != v.Times {
+		code = ErrorCodeAIQuestionSubmissionUnmatchedTimes
 		err = errors.New("unmatched times")
 
 		return
@@ -237,15 +227,8 @@ func (s *challengeService) GetAIQuestions(competitor domain.Account) (
 	}
 
 	if v.Times >= s.aiQuestion.RetryTimes {
-		code = ErrorCodeChallengeExceedMaxTimes
+		code = ErrorCodeAIQuestionExceedMaxTimes
 		err = errors.New("exceed max times")
-
-		return
-	}
-
-	if v.Status == domain.AIQuestionStatusStart && now < v.Expiry {
-		code = ErrorCodeChallengeInProgress
-		err = errors.New("it is in-progress")
 
 		return
 	}

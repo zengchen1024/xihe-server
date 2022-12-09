@@ -7,7 +7,11 @@ import (
 type AIQuestion interface {
 	GetResult(string) ([]domain.QuestionSubmissionInfo, error)
 
-	GetCompetitorAndScores(string, domain.Account) (bool, []int, error)
+	GetCompetitorAndSubmission(string, domain.Account) (
+		isCompetitor bool, score int,
+		submission domain.QuestionSubmission,
+		err error,
+	)
 
 	SaveCompetitor(string, *domain.CompetitorInfo) error
 
