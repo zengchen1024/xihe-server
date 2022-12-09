@@ -8,7 +8,7 @@ type AIQuestion interface {
 	GetResult(string) ([]domain.QuestionSubmissionInfo, error)
 
 	GetCompetitorAndSubmission(string, domain.Account) (
-		isCompetitor bool, score int,
+		isCompetitor bool, highestScore int,
 		submission domain.QuestionSubmission,
 		err error,
 	)

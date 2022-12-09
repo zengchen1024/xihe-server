@@ -63,6 +63,10 @@ func (col aiquestion) GetCompetitorAndSubmission(qid, competitor string) (
 
 	isCompetitor = true
 
+	if len(doc.Submissions) == 0 {
+		return
+	}
+
 	today := utils.Date()
 	items := doc.Submissions
 	for i := range items {

@@ -106,9 +106,9 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 		dto.IsCompetitor = true
 		dto.Score += score
 
+		dto.AIQuestionInfo.RemainingTimes = s.aiQuestion.RetryTimes - submission.Times
 		if submission.Id != "" {
 			dto.AIQuestionInfo.InProgress = submission.Status == domain.AIQuestionStatusStart
-			dto.AIQuestionInfo.RemainingTimes = s.aiQuestion.RetryTimes - submission.Times
 		}
 	}
 
