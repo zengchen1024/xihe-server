@@ -6,7 +6,9 @@ import (
 )
 
 type AIQuestionMapper interface {
-	GetCompetitorAndSubmission(string, string) (bool, []int, error)
+	GetCompetitorAndSubmission(string, string) (
+		bool, int, QuestionSubmissionDO, error,
+	)
 
 	SaveCompetitor(string, *CompetitorInfoDO) error
 
@@ -30,10 +32,25 @@ type aiquestion struct {
 	mapper AIQuestionMapper
 }
 
-func (impl aiquestion) GetCompetitorAndScores(qid string, competitor domain.Account) (
-	bool, []int, error,
+func (impl aiquestion) GetCompetitorAndSubmission(qid string, competitor domain.Account) (
+	isCompetitor bool, score int,
+	submission domain.QuestionSubmission,
+	err error,
 ) {
-	return impl.mapper.GetCompetitorAndSubmission(qid, competitor.Account())
+	isCompetitor, score, v, err := impl.mapper.GetCompetitorAndSubmission(
+		qid, competitor.Account(),
+	)
+	if err != nil {
+		err = convertError(err)
+
+		return
+	}
+
+	if v.Id != "" {
+		err = v.toQuestionSubmission(&submission)
+	}
+
+	return
 }
 
 func (impl aiquestion) SaveCompetitor(qid string, competitor *domain.CompetitorInfo) error {

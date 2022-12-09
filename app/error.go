@@ -41,12 +41,10 @@ func IsErrorUnavailableTraining(err error) bool {
 const (
 	ErrorCodeSytem = "system"
 
-	// The current AI question is in-progress, but new request for
-	// a new start comes.
-	ErrorCodeChallengeInProgress = "challenge_in-progress"
-
 	// It exceed the max times for a day.
-	ErrorCodeChallengeExceedMaxTimes = "challenge_exceed_max_time"
+	ErrorCodeAIQuestionExceedMaxTimes           = "aiquestion_exceed_max_times"
+	ErrorCodeAIQuestionSubmissionExpiry         = "aiquestion_submission_expiry"
+	ErrorCodeAIQuestionSubmissionUnmatchedTimes = "aiquestion_submission_unmatched_times"
 
 	ErrorRepoFileTooManyFilesToDelete = "repofile_too_many_files_to_delete"
 

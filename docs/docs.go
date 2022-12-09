@@ -3811,6 +3811,17 @@ const docTemplate = `{
         "app.ChallengeCompetitorInfoDTO": {
             "type": "object",
             "properties": {
+                "ai_question": {
+                    "type": "object",
+                    "properties": {
+                        "in_progress": {
+                            "type": "boolean"
+                        },
+                        "remaining_times": {
+                            "type": "integer"
+                        }
+                    }
+                },
                 "is_competitor": {
                     "type": "boolean"
                 },
