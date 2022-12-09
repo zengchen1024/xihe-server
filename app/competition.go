@@ -245,7 +245,6 @@ func (s competitionService) GetSubmissions(index *CompetitionIndex, competitor d
 	v := make([]*domain.CompetitionSubmission, len(results))
 	for i := range results {
 		v[i] = &results[i]
-
 	}
 
 	sort.Slice(v, func(i, j int) bool {
