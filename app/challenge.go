@@ -87,8 +87,9 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 		return dto, nil
 	}
 
+	score := 0
 	for i := range s.comptitions {
-		isCompetitor, score, err := s.getCompetitorOfCompetition(
+		isCompetitor, v, err := s.getCompetitorOfCompetition(
 			&s.comptitions[i], user,
 		)
 
@@ -96,15 +97,15 @@ func (s *challengeService) GetCompetitor(user domain.Account) (
 			return dto, err
 		}
 
-		dto.Score += score
+		score += v
 	}
 
-	isCompetitor, score, submission, err := s.aiQuestionRepo.GetCompetitorAndSubmission(
+	isCompetitor, v, submission, err := s.aiQuestionRepo.GetCompetitorAndSubmission(
 		s.aiQuestion.AIQuestionId, user,
 	)
 	if err == nil && isCompetitor {
 		dto.IsCompetitor = true
-		dto.Score += score
+		dto.Score = score + v
 
 		dto.AIQuestionInfo.RemainingTimes = s.aiQuestion.RetryTimes - submission.Times
 		if submission.Id != "" {
