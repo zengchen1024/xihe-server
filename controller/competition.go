@@ -284,8 +284,8 @@ func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 	cmd.FileName = f.Filename
 	cmd.Data = p
 
-	if v, err := ctl.s.Submit(cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.Submit(cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusOK, newResponseData(v))
 	}
