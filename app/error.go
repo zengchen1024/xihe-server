@@ -49,4 +49,6 @@ const (
 	ErrorCodeChallengeExceedMaxTimes = "challenge_exceed_max_time"
 
 	ErrorRepoFileTooManyFilesToDelete = "repofile_too_many_files_to_delete"
+
+	ErrorCompetitionDuplicateSubmission = "competition_duplicate_submission"
 )

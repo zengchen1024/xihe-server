@@ -23,7 +23,7 @@ type CompetitionService interface {
 	Get(cid string, competitor domain.Account) (UserCompetitionDTO, error)
 	List(*CompetitionListCMD) ([]CompetitionSummaryDTO, error)
 
-	Submit(*CompetitionSubmitCMD) (CompetitionSubmissionDTO, error)
+	Submit(*CompetitionSubmitCMD) (CompetitionSubmissionDTO, string, error)
 
 	GetSubmissions(*CompetitionIndex, domain.Account) (CompetitionSubmissionsDTO, error)
 
@@ -245,10 +245,11 @@ func (s competitionService) GetSubmissions(index *CompetitionIndex, competitor d
 	v := make([]*domain.CompetitionSubmission, len(results))
 	for i := range results {
 		v[i] = &results[i]
+
 	}
 
 	sort.Slice(v, func(i, j int) bool {
-		return v[i].SubmitAt >= v[i].SubmitAt
+		return v[i].SubmitAt >= v[j].SubmitAt
 	})
 
 	items := make([]CompetitionSubmissionDTO, len(v))
@@ -310,7 +311,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 }
 
 func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
-	dto CompetitionSubmissionDTO, err error,
+	dto CompetitionSubmissionDTO, code string, err error,
 ) {
 	index := &cmd.Index
 
@@ -361,6 +362,10 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 
 	sid, err := s.repo.SaveSubmission(index, &submission)
 	if err != nil {
+		if repository.IsErrorDuplicateCreating(err) {
+			code = ErrorCompetitionDuplicateSubmission
+		}
+
 		return
 	}
 
