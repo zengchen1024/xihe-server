@@ -51,4 +51,7 @@ const (
 	ErrorCompetitionDuplicateSubmission = "competition_duplicate_submission"
 
 	ErrorBigModelSensitiveInfo = "bigmodel_sensitive_info"
+
+	ErrorTrainNoLog    = "train_no_log"
+	ErrorTrainNoOutput = "train_no_output"
 )
