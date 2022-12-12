@@ -116,8 +116,8 @@ func (ctl *BigModelController) GenSinglePicture(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.GenPicture(pl.DomainAccount(), req.Desc); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.GenPicture(pl.DomainAccount(), req.Desc); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(pictureGenerateResp{v}))
 	}
@@ -152,8 +152,8 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(multiplePicturesGenerateResp{v}))
 	}
@@ -189,8 +189,8 @@ func (ctl *BigModelController) Ask(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.Ask(q, filepath.Join(pl.Account, f)); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.Ask(q, filepath.Join(pl.Account, f)); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(questionAskResp{v}))
 	}
@@ -217,8 +217,8 @@ func (ctl *BigModelController) PanGu(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.PanGu(req.Question); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.PanGu(req.Question); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(panguResp{v}))
 	}
@@ -293,8 +293,8 @@ func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.CodeGeex(&cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if v, code, err := ctl.s.CodeGeex(&cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(v))
 	}

@@ -49,4 +49,6 @@ const (
 	ErrorRepoFileTooManyFilesToDelete = "repofile_too_many_files_to_delete"
 
 	ErrorCompetitionDuplicateSubmission = "competition_duplicate_submission"
+
+	ErrorBigModelSensitiveInfo = "bigmodel_sensitive_info"
 )
