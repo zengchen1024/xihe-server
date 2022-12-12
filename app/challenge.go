@@ -307,7 +307,9 @@ func (s *challengeService) GetRankingList() ([]ChallengeRankingDTO, error) {
 		scores := s.helper.CalcCompetitionScoreForAll(results)
 
 		for k, v := range scores {
-			r[k] += v
+			if _, ok := r[k]; !ok {
+				r[k] = v
+			}
 		}
 	}
 
