@@ -201,6 +201,14 @@ func (ctl baseController) sendCodeMessage(ctx *gin.Context, code string, err err
 	}
 }
 
+func (ctl baseController) sendBadRequest(ctx *gin.Context, data responseData) {
+	ctx.JSON(http.StatusBadRequest, data)
+}
+
+func (ctl baseController) sendRespOfGet(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusOK, newResponseData(data))
+}
+
 func (ctl baseController) getListResourceParameter(
 	ctx *gin.Context,
 ) (cmd app.ResourceListCmd, err error) {

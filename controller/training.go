@@ -463,18 +463,18 @@ func (ctl *TrainingController) GetResultDownloadURL(ctx *gin.Context) {
 		TrainingId: ctx.Param("id"),
 	}
 
-	v := ""
+	v, code := "", ""
 	var err error
 
 	switch ctx.Param("type") {
 	case "log":
-		v, err = ctl.ts.GetLogDownloadURL(&info)
+		v, code, err = ctl.ts.GetLogDownloadURL(&info)
 
 	case "output":
-		v, err = ctl.ts.GetOutputDownloadURL(&info)
+		v, code, err = ctl.ts.GetOutputDownloadURL(&info)
 
 	default:
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
+		ctl.sendBadRequest(ctx, newResponseCodeMsg(
 			errorBadRequestParam, "unknown result type",
 		))
 
@@ -482,12 +482,10 @@ func (ctl *TrainingController) GetResultDownloadURL(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
+		ctl.sendCodeMessage(ctx, code, err)
+	} else {
+		ctl.sendRespOfGet(ctx, trainingLogResp{v})
 	}
-
-	ctx.JSON(http.StatusAccepted, newResponseData(trainingLogResp{v}))
 }
 
 func (ctl *TrainingController) getTrainingInfo(ctx *gin.Context) (domain.TrainingIndex, bool) {
