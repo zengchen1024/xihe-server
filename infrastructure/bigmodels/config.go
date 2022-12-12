@@ -9,6 +9,7 @@ import (
 type Config struct {
 	OBS        OBSConfig   `json:"obs"             required:"true"`
 	Cloud      CloudConfig `json:"cloud"           required:"true"`
+	WuKong     WuKong      `json:"wukong"          required:"true"`
 	Endpoints  Endpoints   `json:"endpoints"       required:"true"`
 	Moderation Moderation  `json:"moderation"      required:"true"`
 
@@ -103,4 +104,10 @@ type Moderation struct {
 	SecretKey  string `json:"secret_key"     required:"true"`
 	IAMEndpint string `json:"iam_endpoint"   required:"true"`
 	Region     string `json:"region"         required:"true"`
+}
+
+type WuKong struct {
+	SampleId    string `json:"sample_id"     required:"true"`
+	SampleNum   int    `json:"sample_num"    required:"true"`
+	SampleCount int    `json:"sample_count"  required:"true"`
 }

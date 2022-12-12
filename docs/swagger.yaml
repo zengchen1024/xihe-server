@@ -1488,6 +1488,20 @@ paths:
             type: system_error
       tags:
       - BigModel
+  /v1/bigmodel/wukong/samples:
+    post:
+      consumes:
+      - application/json
+      description: gen wukong samples
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
   /v1/challenge:
     get:
       consumes:

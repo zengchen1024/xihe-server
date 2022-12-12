@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"time"
 	"unicode/utf8"
@@ -42,4 +43,28 @@ func Expiry(expiry int64) int64 {
 
 func StrLen(s string) int {
 	return utf8.RuneCountInString(s)
+}
+
+func GenRandoms(max, total int) []int {
+	// set seed
+	rand.Seed(time.Now().UnixNano())
+
+	min := 1
+	v := max - min
+	i := 0
+	m := make(map[int]struct{})
+	r := make([]int, total)
+	for {
+		n := rand.Intn(v) + min
+
+		if _, ok := m[n]; !ok {
+			m[n] = struct{}{}
+			r[i] = n
+			if i++; i == total {
+				break
+			}
+		}
+	}
+
+	return r
 }

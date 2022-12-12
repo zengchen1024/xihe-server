@@ -209,6 +209,10 @@ func (ctl baseController) sendRespOfGet(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, newResponseData(data))
 }
 
+func (ctl baseController) sendRespOfPost(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusCreated, newResponseData(data))
+}
+
 func (ctl baseController) getListResourceParameter(
 	ctx *gin.Context,
 ) (cmd app.ResourceListCmd, err error) {

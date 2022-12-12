@@ -393,6 +393,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/wukong/samples": {
+            "post": {
+                "description": "gen wukong samples",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/challenge": {
             "get": {
                 "description": "get detail of challenge",

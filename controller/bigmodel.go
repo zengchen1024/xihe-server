@@ -15,9 +15,10 @@ func AddRouterForBigModelController(
 	rg *gin.RouterGroup,
 	bm bigmodel.BigModel,
 	luojia repository.LuoJia,
+	wukong repository.WuKong,
 ) {
 	ctl := BigModelController{
-		s: app.NewBigModelService(bm, luojia),
+		s: app.NewBigModelService(bm, luojia, wukong),
 	}
 
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
@@ -29,6 +30,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/pangu", ctl.PanGu)
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
+	rg.POST("/v1/bigmodel/wukong/samples", ctl.GenWuKongSamples)
 	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
 
@@ -387,5 +389,24 @@ func (ctl *BigModelController) LuoJiaUploadPicture(ctx *gin.Context) {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctx.JSON(http.StatusCreated, newResponseData(pictureUploadResp{f.Filename}))
+	}
+}
+
+// @Title GenWuKongSamples
+// @Description gen wukong samples
+// @Tags  BigModel
+// @Accept json
+// @Success 201
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong/samples [post]
+func (ctl *BigModelController) GenWuKongSamples(ctx *gin.Context) {
+	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
+		return
+	}
+
+	if v, err := ctl.s.GenWuKongSamples(); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPost(ctx, v)
 	}
 }
