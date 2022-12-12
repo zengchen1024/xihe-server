@@ -29,13 +29,13 @@ type LuoJiaRecordDTO struct {
 
 type BigModelService interface {
 	DescribePicture(io.Reader, string, int64) (string, error)
-	GenPicture(domain.Account, string) (string, error)
-	GenPictures(domain.Account, string) ([]string, error)
-	Ask(domain.Question, string) (string, error)
+	GenPicture(domain.Account, string) (string, string, error)
+	GenPictures(domain.Account, string) ([]string, string, error)
+	Ask(domain.Question, string) (string, string, error)
 	VQAUploadPicture(io.Reader, domain.Account, string) error
 	LuoJiaUploadPicture(io.Reader, domain.Account) error
-	PanGu(string) (string, error)
-	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, error)
+	PanGu(string) (string, string, error)
+	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, string, error)
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
 }
@@ -64,20 +64,30 @@ func (s bigModelService) DescribePicture(
 
 func (s bigModelService) GenPicture(
 	user domain.Account, desc string,
-) (string, error) {
-	return s.fm.GenPicture(user, desc)
+) (link string, code string, err error) {
+	if link, err = s.fm.GenPicture(user, desc); err != nil {
+		code = s.setCode(err)
+	}
+
+	return
 }
 
 func (s bigModelService) GenPictures(
 	user domain.Account, desc string,
-) ([]string, error) {
-	return s.fm.GenPictures(user, desc)
+) (links []string, code string, err error) {
+	if links, err = s.fm.GenPictures(user, desc); err != nil {
+		code = s.setCode(err)
+	}
+
+	return
 }
 
-func (s bigModelService) Ask(q domain.Question, f string) (string, error) {
-	// TODO check the content of question to see if it is legal
+func (s bigModelService) Ask(q domain.Question, f string) (v string, code string, err error) {
+	if v, err = s.fm.Ask(q, f); err != nil {
+		code = s.setCode(err)
+	}
 
-	return s.fm.Ask(q, f)
+	return
 }
 
 func (s bigModelService) VQAUploadPicture(f io.Reader, user domain.Account, fileName string) error {
@@ -88,15 +98,15 @@ func (s bigModelService) LuoJiaUploadPicture(f io.Reader, user domain.Account) e
 	return s.fm.LuoJiaUploadPicture(f, user)
 }
 
-func (s bigModelService) PanGu(q string) (string, error) {
-	// TODO check the content of question to see if it is legal
+func (s bigModelService) PanGu(q string) (v string, code string, err error) {
+	if v, err = s.fm.PanGu(q); err != nil {
+		code = s.setCode(err)
+	}
 
-	return s.fm.PanGu(q)
+	return
 }
 
 func (s bigModelService) LuoJia(user domain.Account) (v string, err error) {
-	// TODO check the content of question to see if it is legal
-
 	if v, err = s.fm.LuoJia(user.Account()); err != nil {
 		return
 	}
@@ -125,6 +135,18 @@ func (s bigModelService) ListLuoJiaRecord(user domain.Account) (
 	return
 }
 
-func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (CodeGeexDTO, error) {
-	return s.fm.CodeGeex((*bigmodel.CodeGeexReq)(cmd))
+func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (dto CodeGeexDTO, code string, err error) {
+	if dto, err = s.fm.CodeGeex((*bigmodel.CodeGeexReq)(cmd)); err != nil {
+		code = s.setCode(err)
+	}
+
+	return
+}
+
+func (s bigModelService) setCode(err error) string {
+	if err != nil && bigmodel.IsErrorSensitiveInfo(err) {
+		return ErrorBigModelSensitiveInfo
+	}
+
+	return ""
 }

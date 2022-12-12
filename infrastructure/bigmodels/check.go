@@ -7,6 +7,8 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
 	moderation "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/moderation/v3"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/moderation/v3/model"
+
+	"github.com/opensourceways/xihe-server/domain/bigmodel"
 )
 
 func initTextCheck(cfg *Moderation) textCheckService {
@@ -46,7 +48,7 @@ func (s *textCheckService) check(content string) error {
 	}
 
 	if *resp.Result.Suggestion != "pass" {
-		return errors.New("invalid text")
+		return bigmodel.NewErrorSensitiveInfo(errors.New("invalid text"))
 	}
 
 	return nil
