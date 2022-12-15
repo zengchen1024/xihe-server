@@ -28,6 +28,10 @@ func (cfg *Config) SetDefault() {
 }
 
 func (cfg *Config) Validate() error {
+	if err := cfg.WuKong.validate(); err != nil {
+		return err
+	}
+
 	return cfg.Endpoints.validate()
 }
 
@@ -110,4 +114,20 @@ type WuKong struct {
 	SampleId    string `json:"sample_id"     required:"true"`
 	SampleNum   int    `json:"sample_num"    required:"true"`
 	SampleCount int    `json:"sample_count"  required:"true"`
+}
+
+func (cfg *WuKong) validate() error {
+	if cfg.SampleNum > cfg.SampleCount {
+		return errors.New("sample_num must <= sample_count")
+	}
+
+	if cfg.SampleNum <= 0 {
+		return errors.New("invalid sample_num")
+	}
+
+	if cfg.SampleCount <= 0 {
+		return errors.New("invalid sample_count")
+	}
+
+	return nil
 }

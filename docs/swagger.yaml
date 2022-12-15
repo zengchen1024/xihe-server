@@ -1488,11 +1488,17 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/wukong/samples:
-    post:
+  /v1/bigmodel/wukong/samples/{batch}:
+    get:
       consumes:
       - application/json
       description: gen wukong samples
+      parameters:
+      - description: batch num
+        in: path
+        name: batch
+        required: true
+        type: integer
       responses:
         "201":
           description: ""

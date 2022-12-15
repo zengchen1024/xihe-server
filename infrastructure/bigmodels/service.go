@@ -36,7 +36,7 @@ func Init(cfg *Config) error {
 	fm.vqaInfo = newVQAInfo(cfg)
 	fm.panguInfo = newPanGuInfo(cfg)
 	fm.luojiaInfo = newLuoJiaInfo(cfg)
-	fm.wukongInfo = wukongInfo{cfg.WuKong}
+	fm.wukongInfo = newWuKongInfo(cfg)
 	fm.codegeexInfo = newCodeGeexInfo(cfg)
 	fm.pictureGenInfo = newPictureGenInfo(cfg)
 	fm.pictureDescInfo = newPictureDescInfo(cfg)

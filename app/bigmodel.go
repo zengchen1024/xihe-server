@@ -38,7 +38,7 @@ type BigModelService interface {
 	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, string, error)
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
-	GenWuKongSamples() ([]string, error)
+	GenWuKongSamples(int) ([]string, error)
 }
 
 func NewBigModelService(
@@ -158,8 +158,8 @@ func (s bigModelService) setCode(err error) string {
 	return ""
 }
 
-func (s bigModelService) GenWuKongSamples() ([]string, error) {
-	num := s.fm.GenWuKongSampleNums()
+func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
+	num := s.fm.GenWuKongSampleNums(batchNum)
 	if len(num) == 0 {
 		return nil, nil
 	}

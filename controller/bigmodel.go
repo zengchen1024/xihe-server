@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -30,7 +31,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/pangu", ctl.PanGu)
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
-	rg.POST("/v1/bigmodel/wukong/samples", ctl.GenWuKongSamples)
+	rg.GET("/v1/bigmodel/wukong/samples/:batch", ctl.GenWuKongSamples)
 	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
 
@@ -395,16 +396,26 @@ func (ctl *BigModelController) LuoJiaUploadPicture(ctx *gin.Context) {
 // @Title GenWuKongSamples
 // @Description gen wukong samples
 // @Tags  BigModel
+// @Param	batch	path 	int	true	"batch num"
 // @Accept json
 // @Success 201
 // @Failure 500 system_error        system error
-// @Router /v1/bigmodel/wukong/samples [post]
+// @Router /v1/bigmodel/wukong/samples/{batch} [get]
 func (ctl *BigModelController) GenWuKongSamples(ctx *gin.Context) {
 	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
 		return
 	}
 
-	if v, err := ctl.s.GenWuKongSamples(); err != nil {
+	i, err := strconv.Atoi(ctx.Param("batch"))
+	if err != nil {
+		ctl.sendBadRequest(ctx, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.GenWuKongSamples(i); err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPost(ctx, v)
