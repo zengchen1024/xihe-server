@@ -65,6 +65,10 @@ type service struct {
 }
 
 func (s *service) token() (string, error) {
+	return genToken(&s.cfg)
+}
+
+func genToken(cfg *CloudConfig) (string, error) {
 	str := `
 {
     "auth":{
@@ -91,14 +95,12 @@ func (s *service) token() (string, error) {
 }
 	`
 
-	cfg := &s.cfg
-
 	body := fmt.Sprintf(
 		str, cfg.User, cfg.Password, cfg.User, cfg.Project,
 	)
 
 	resp, err := http.Post(
-		s.cfg.AuthEndpoint, "application/json",
+		cfg.AuthEndpoint, "application/json",
 		strings.NewReader(body),
 	)
 	if err != nil {

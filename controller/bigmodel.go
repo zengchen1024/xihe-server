@@ -31,6 +31,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/pangu", ctl.PanGu)
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
+	rg.POST("/v1/bigmodel/wukong", ctl.WuKong)
 	rg.GET("/v1/bigmodel/wukong/samples/:batch", ctl.GenWuKongSamples)
 	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
@@ -142,13 +143,13 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 
 	req := pictureGenerateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+		ctl.sendBadRequest(ctx, respBadRequestBody)
 
 		return
 	}
 
 	if err := req.validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
+		ctl.sendBadRequest(ctx, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
 
@@ -158,7 +159,7 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 	if v, code, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc); err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(multiplePicturesGenerateResp{v}))
+		ctl.sendRespOfPost(ctx, multiplePicturesGenerateResp{v})
 	}
 }
 
@@ -419,5 +420,42 @@ func (ctl *BigModelController) GenWuKongSamples(ctx *gin.Context) {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPost(ctx, v)
+	}
+}
+
+// @Title WuKong
+// @Description generates pictures by WuKong
+// @Tags  BigModel
+// @Param	body	body 	wukongRequest	true	"body of wukong"
+// @Accept json
+// @Success 201 {object} multiplePicturesGenerateResp
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong [post]
+func (ctl *BigModelController) WuKong(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := wukongRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequest(ctx, respBadRequestBody)
+
+		return
+	}
+
+	desc := req.toDesc()
+	if len(desc) == 0 {
+		ctl.sendBadRequest(ctx, newResponseCodeMsg(
+			errorBadRequestParam, "no desc",
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.WuKong(pl.DomainAccount(), desc); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPost(ctx, multiplePicturesGenerateResp{v})
 	}
 }

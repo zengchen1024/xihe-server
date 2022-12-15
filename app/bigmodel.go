@@ -39,6 +39,7 @@ type BigModelService interface {
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
 	GenWuKongSamples(int) ([]string, error)
+	WuKong(domain.Account, []string) ([]string, error)
 }
 
 func NewBigModelService(
@@ -165,4 +166,10 @@ func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
 	}
 
 	return s.wukong.ListSamples(s.wukongSampleId, num)
+}
+
+func (s bigModelService) WuKong(
+	user domain.Account, desc []string,
+) (links []string, err error) {
+	return s.fm.GenPicturesByWuKong(user, desc)
 }

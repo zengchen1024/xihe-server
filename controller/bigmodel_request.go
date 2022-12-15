@@ -16,8 +16,6 @@ type pictureGenerateRequest struct {
 }
 
 func (req *pictureGenerateRequest) validate() error {
-	// TODO check if desc is legal
-
 	if req.Desc == "" {
 		return errors.New("missing desc")
 	}
@@ -90,6 +88,23 @@ func (req *CodeGeexRequest) toCmd() (
 	cmd.Content = req.Content
 
 	err = cmd.Validate()
+
+	return
+}
+
+type wukongRequest struct {
+	Sample string `json:"sample"`
+	Style  string `json:"style"`
+}
+
+func (req *wukongRequest) toDesc() (r []string) {
+	if req.Sample != "" {
+		r = append(r, req.Sample)
+	}
+
+	if req.Style != "" {
+		r = append(r, req.Style)
+	}
 
 	return
 }
