@@ -28,4 +28,5 @@ type BigModel interface {
 	CodeGeex(*CodeGeexReq) (CodeGeexResp, error)
 	GetWuKongSampleId() string
 	GenWuKongSampleNums(int) []int
+	GenPicturesByWuKong(domain.Account, []string) ([]string, error)
 }

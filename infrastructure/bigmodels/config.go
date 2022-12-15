@@ -54,6 +54,7 @@ type Endpoints struct {
 	VQA              string `json:"vqa"                required:"true"`
 	Pangu            string `json:"pangu"              required:"true"`
 	LuoJia           string `json:"luojia"             required:"true"`
+	WuKong           string `json:"wukong"             required:"true"`
 	CodeGeex         string `json:"codegeex"           required:"true"`
 	DescPicture      string `json:"desc_picture"       required:"true"`
 	SinglePicture    string `json:"signle_picture"     required:"true"`
@@ -70,6 +71,10 @@ func (e *Endpoints) validate() (err error) {
 	}
 
 	if _, err = e.parse(e.LuoJia); err != nil {
+		return
+	}
+
+	if _, err = e.parse(e.WuKong); err != nil {
 		return
 	}
 
@@ -111,6 +116,11 @@ type Moderation struct {
 }
 
 type WuKong struct {
+	WuKongSample
+	CloudConfig
+}
+
+type WuKongSample struct {
 	SampleId    string `json:"sample_id"     required:"true"`
 	SampleNum   int    `json:"sample_num"    required:"true"`
 	SampleCount int    `json:"sample_count"  required:"true"`
@@ -118,7 +128,7 @@ type WuKong struct {
 
 func (cfg *WuKong) validate() error {
 	if cfg.SampleNum > cfg.SampleCount {
-		return errors.New("sample_num must <= sample_count")
+		return errors.New("make sure that sample_num <= sample_count")
 	}
 
 	if cfg.SampleNum <= 0 {

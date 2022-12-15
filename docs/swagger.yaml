@@ -1177,6 +1177,13 @@ definitions:
       is_follower:
         type: boolean
     type: object
+  controller.wukongRequest:
+    properties:
+      sample:
+        type: string
+      style:
+        type: string
+    type: object
   domain.Tags:
     properties:
       items:
@@ -1482,6 +1489,29 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/controller.pictureUploadResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong:
+    post:
+      consumes:
+      - application/json
+      description: generates pictures by WuKong
+      parameters:
+      - description: body of wukong
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.wukongRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.multiplePicturesGenerateResp'
         "500":
           description: Internal Server Error
           schema:
