@@ -54,6 +54,7 @@ const (
 	fieldCompetitors    = "competitors"
 	fieldSubmissions    = "submissions"
 	fieldNum            = "num"
+	fieldSamples        = "samples"
 	fieldChoices        = "choices"
 	fieldCompletions    = "completions"
 )
@@ -460,30 +461,40 @@ type dQuestionSubmission struct {
 }
 
 type dQuestionPool struct {
-	Choices     []dChoiceQuestion     `json:"choices"       json:"choices"`
-	Completions []dCompletionQuestion `json:"completions"   json:"completions"`
+	Choices     []dChoiceQuestion     `bson:"choices"       json:"choices"`
+	Completions []dCompletionQuestion `bson:"completions"   json:"completions"`
 }
 
 type dChoiceQuestion struct {
-	Num     int      `json:"num"       json:"num"`
-	Desc    string   `json:"desc"      json:"desc"`
-	Answer  string   `json:"answer"    json:"answer"`
-	Options []string `json:"options"   json:"options"`
+	Num     int      `bson:"num"       json:"num"`
+	Desc    string   `bson:"desc"      json:"desc"`
+	Answer  string   `bson:"answer"    json:"answer"`
+	Options []string `bson:"options"   json:"options"`
 }
 
 type dCompletionQuestion struct {
-	Num    int    `json:"num"       json:"num"`
-	Desc   string `json:"desc"      json:"desc"`
-	Info   string `json:"info"      json:"info"`
-	Answer string `json:"answer"    json:"answer"`
+	Num    int    `bson:"num"          json:"num"`
+	Desc   string `bson:"desc"         json:"desc"`
+	Info   string `bson:"info"         json:"info"`
+	Answer string `bson:"answer"       json:"answer"`
 }
 
 type dLuoJia struct {
-	Owner string       `bson:"owner" json:"owner"`
-	Items []luojiaItem `bson:"items" json:"-"`
+	Owner string       `bson:"owner"   json:"owner"`
+	Items []luojiaItem `bson:"items"   json:"-"`
 }
 
 type luojiaItem struct {
 	Id        string `bson:"id"         json:"id"`
 	CreatedAt int64  `bson:"created_at" json:"created_at"`
+}
+
+type dWuKong struct {
+	Id      string    `bson:"id"        json:"id"`
+	Samples []dSample `bson:"samples"   json:"samples"`
+}
+
+type dSample struct {
+	Num  int    `bson:"num"             json:"num"`
+	Name string `bson:"name"            json:"name"`
 }

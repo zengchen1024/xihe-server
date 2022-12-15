@@ -38,15 +38,19 @@ type BigModelService interface {
 	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, string, error)
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
+	GenWuKongSamples(int) ([]string, error)
 }
 
 func NewBigModelService(
 	fm bigmodel.BigModel,
 	luojia repository.LuoJia,
+	wukong repository.WuKong,
 ) BigModelService {
 	return bigModelService{
-		fm:     fm,
-		luojia: luojia,
+		fm:             fm,
+		luojia:         luojia,
+		wukong:         wukong,
+		wukongSampleId: fm.GetWuKongSampleId(),
 	}
 }
 
@@ -54,6 +58,9 @@ type bigModelService struct {
 	fm bigmodel.BigModel
 
 	luojia repository.LuoJia
+	wukong repository.WuKong
+
+	wukongSampleId string
 }
 
 func (s bigModelService) DescribePicture(
@@ -149,4 +156,13 @@ func (s bigModelService) setCode(err error) string {
 	}
 
 	return ""
+}
+
+func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
+	num := s.fm.GenWuKongSampleNums(batchNum)
+	if len(num) == 0 {
+		return nil, nil
+	}
+
+	return s.wukong.ListSamples(s.wukongSampleId, num)
 }

@@ -26,4 +26,6 @@ type BigModel interface {
 	PanGu(string) (string, error)
 	LuoJia(string) (string, error)
 	CodeGeex(*CodeGeexReq) (CodeGeexResp, error)
+	GetWuKongSampleId() string
+	GenWuKongSampleNums(int) []int
 }

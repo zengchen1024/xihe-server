@@ -9,6 +9,7 @@ import (
 type Config struct {
 	OBS        OBSConfig   `json:"obs"             required:"true"`
 	Cloud      CloudConfig `json:"cloud"           required:"true"`
+	WuKong     WuKong      `json:"wukong"          required:"true"`
 	Endpoints  Endpoints   `json:"endpoints"       required:"true"`
 	Moderation Moderation  `json:"moderation"      required:"true"`
 
@@ -27,6 +28,10 @@ func (cfg *Config) SetDefault() {
 }
 
 func (cfg *Config) Validate() error {
+	if err := cfg.WuKong.validate(); err != nil {
+		return err
+	}
+
 	return cfg.Endpoints.validate()
 }
 
@@ -103,4 +108,26 @@ type Moderation struct {
 	SecretKey  string `json:"secret_key"     required:"true"`
 	IAMEndpint string `json:"iam_endpoint"   required:"true"`
 	Region     string `json:"region"         required:"true"`
+}
+
+type WuKong struct {
+	SampleId    string `json:"sample_id"     required:"true"`
+	SampleNum   int    `json:"sample_num"    required:"true"`
+	SampleCount int    `json:"sample_count"  required:"true"`
+}
+
+func (cfg *WuKong) validate() error {
+	if cfg.SampleNum > cfg.SampleCount {
+		return errors.New("sample_num must <= sample_count")
+	}
+
+	if cfg.SampleNum <= 0 {
+		return errors.New("invalid sample_num")
+	}
+
+	if cfg.SampleCount <= 0 {
+		return errors.New("invalid sample_count")
+	}
+
+	return nil
 }

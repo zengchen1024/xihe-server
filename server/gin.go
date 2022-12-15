@@ -125,6 +125,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		mongodb.NewLuoJiaMapper(collections.LuoJia),
 	)
 
+	wukong := repositories.NewWuKongRepository(
+		mongodb.NewWuKongMapper(collections.WuKong),
+	)
+
 	bigmodel := bigmodels.NewBigModelService()
 	gitlabUser := gitlab.NewUserSerivce()
 	gitlabRepo := gitlab.NewRepoFile()
@@ -173,7 +177,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForBigModelController(
-			v1, bigmodel, luojia,
+			v1, bigmodel, luojia, wukong,
 		)
 
 		controller.AddRouterForTrainingController(

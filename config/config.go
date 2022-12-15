@@ -130,6 +130,7 @@ type MongodbCollections struct {
 	Model        string `json:"model"           required:"true"`
 	Login        string `json:"login"           required:"true"`
 	LuoJia       string `json:"luojia"          required:"true"`
+	WuKong       string `json:"wukong"          required:"true"`
 	Dataset      string `json:"dataset"         required:"true"`
 	Project      string `json:"project"         required:"true"`
 	Activity     string `json:"activity"        required:"true"`
