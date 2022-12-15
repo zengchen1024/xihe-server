@@ -393,6 +393,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/wukong": {
+            "post": {
+                "description": "generates pictures by WuKong",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of wukong",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.multiplePicturesGenerateResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/wukong/samples/{batch}": {
             "get": {
                 "description": "gen wukong samples",
@@ -5613,6 +5649,17 @@ const docTemplate = `{
                 },
                 "is_follower": {
                     "type": "boolean"
+                }
+            }
+        },
+        "controller.wukongRequest": {
+            "type": "object",
+            "properties": {
+                "sample": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
                 }
             }
         },
