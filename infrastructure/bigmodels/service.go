@@ -96,7 +96,7 @@ func genToken(cfg *CloudConfig) (string, error) {
 	`
 
 	body := fmt.Sprintf(
-		str, cfg.User, cfg.Password, cfg.User, cfg.Project,
+		str, cfg.User, cfg.Password, cfg.Domain, cfg.Project,
 	)
 
 	resp, err := http.Post(

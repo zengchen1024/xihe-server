@@ -36,18 +36,19 @@ func (cfg *Config) Validate() error {
 }
 
 type OBSConfig struct {
-	Endpoint     string `json:"endpoint"           required:"true"`
-	AccessKey    string `json:"access_key"         required:"true"`
-	SecretKey    string `json:"secret_key"         required:"true"`
-	VQABucket    string `json:"vqa_bucket"         required:"true"`
-	LuoJiaBucket string `json:"luo_jia_bucket"     required:"true"`
+	Endpoint     string `json:"endpoint"               required:"true"`
+	AccessKey    string `json:"access_key"             required:"true"`
+	SecretKey    string `json:"secret_key"             required:"true"`
+	VQABucket    string `json:"vqa_bucket"             required:"true"`
+	LuoJiaBucket string `json:"luo_jia_bucket"         required:"true"`
 }
 
 type CloudConfig struct {
-	User         string `json:"user"            required:"true"`
-	Password     string `json:"password"        required:"true"`
-	Project      string `json:"project"         required:"true"`
-	AuthEndpoint string `json:"auth_endpoint"   required:"true"`
+	Domain       string `json:"domain"                 required:"true"`
+	User         string `json:"user"                   required:"true"`
+	Password     string `json:"password"               required:"true"`
+	Project      string `json:"project"                required:"true"`
+	AuthEndpoint string `json:"auth_endpoint"          required:"true"`
 }
 
 type Endpoints struct {
