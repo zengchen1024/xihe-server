@@ -55,6 +55,7 @@ const (
 	fieldSubmissions    = "submissions"
 	fieldNum            = "num"
 	fieldSamples        = "samples"
+	fieldPictures       = "pictures"
 	fieldChoices        = "choices"
 	fieldCompletions    = "completions"
 )
@@ -490,11 +491,12 @@ type luojiaItem struct {
 }
 
 type dWuKong struct {
-	Id      string    `bson:"id"        json:"id"`
-	Samples []dSample `bson:"samples"   json:"samples"`
+	Id       string    `bson:"id"        json:"id"`
+	Samples  []dSample `bson:"samples"   json:"samples"`
+	Pictures []string  `bson:"pictures"  json:"pictures"`
 }
 
 type dSample struct {
-	Num  int    `bson:"num"             json:"num"`
-	Name string `bson:"name"            json:"name"`
+	Num  int    `bson:"num"              json:"num"`
+	Name string `bson:"name"             json:"name"`
 }

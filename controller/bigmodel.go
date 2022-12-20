@@ -33,6 +33,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
 	rg.POST("/v1/bigmodel/wukong", ctl.WuKong)
 	rg.GET("/v1/bigmodel/wukong/samples/:batch", ctl.GenWuKongSamples)
+	rg.GET("/v1/bigmodel/wukong/pictures", ctl.WuKongPictures)
 	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
 
@@ -419,7 +420,50 @@ func (ctl *BigModelController) GenWuKongSamples(ctx *gin.Context) {
 	if v, err := ctl.s.GenWuKongSamples(i); err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
-		ctl.sendRespOfPost(ctx, v)
+		ctl.sendRespOfGet(ctx, v)
+	}
+}
+
+// @Title WuKongPictures
+// @Description list wukong pictures
+// @Tags  BigModel
+// @Param	count_per_page	query	int	false	"count per page"
+// @Param	page_num	query	int	false	"page num which starts from 1"
+// @Accept json
+// @Success 200 {object} app.WuKongPicturesDTO
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong/pictures [get]
+func (ctl *BigModelController) WuKongPictures(ctx *gin.Context) {
+	cmd := app.WuKongPicturesListCmd{}
+
+	f := func() (err error) {
+		if v := ctl.getQueryParameter(ctx, "count_per_page"); v != "" {
+			if cmd.CountPerPage, err = strconv.Atoi(v); err != nil {
+				return
+			}
+		}
+
+		if v := ctl.getQueryParameter(ctx, "page_num"); v != "" {
+			if cmd.PageNum, err = strconv.Atoi(v); err != nil {
+				return
+			}
+		}
+
+		return
+	}
+
+	if err := f(); err != nil {
+		ctl.sendBadRequest(ctx, newResponseCodeError(
+			errorBadRequestParam, err,
+		))
+
+		return
+	}
+
+	if v, err := ctl.s.WuKongPictures(&cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfGet(ctx, v)
 	}
 }
 

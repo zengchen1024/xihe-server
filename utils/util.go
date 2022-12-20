@@ -49,13 +49,11 @@ func GenRandoms(max, total int) []int {
 	// set seed
 	rand.Seed(time.Now().UnixNano())
 
-	min := 1
-	v := max - min
 	i := 0
 	m := make(map[int]struct{})
 	r := make([]int, total)
 	for {
-		n := rand.Intn(v) + min
+		n := rand.Intn(max) + 1
 
 		if _, ok := m[n]; !ok {
 			m[n] = struct{}{}
