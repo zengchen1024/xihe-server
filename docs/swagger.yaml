@@ -598,6 +598,15 @@ definitions:
       total:
         type: integer
     type: object
+  app.WuKongPicturesDTO:
+    properties:
+      pictures:
+        items:
+          type: string
+        type: array
+      total:
+        type: integer
+    type: object
   controller.CodeGeexRequest:
     properties:
       content:
@@ -1512,6 +1521,31 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/controller.multiplePicturesGenerateResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/pictures:
+    get:
+      consumes:
+      - application/json
+      description: list wukong pictures
+      parameters:
+      - description: count per page
+        in: query
+        name: count_per_page
+        type: integer
+      - description: page num which starts from 1
+        in: query
+        name: page_num
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.WuKongPicturesDTO'
         "500":
           description: Internal Server Error
           schema:

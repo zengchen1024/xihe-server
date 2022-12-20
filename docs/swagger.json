@@ -417,6 +417,45 @@
                 }
             }
         },
+        "/v1/bigmodel/wukong/pictures": {
+            "get": {
+                "description": "list wukong pictures",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "count per page",
+                        "name": "count_per_page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page num which starts from 1",
+                        "name": "page_num",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.WuKongPicturesDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/wukong/samples/{batch}": {
             "get": {
                 "description": "gen wukong samples",
@@ -4737,6 +4776,20 @@
             "type": "object",
             "properties": {
                 "top": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "app.WuKongPicturesDTO": {
+            "type": "object",
+            "properties": {
+                "pictures": {
                     "type": "array",
                     "items": {
                         "type": "string"
