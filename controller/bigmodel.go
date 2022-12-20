@@ -434,10 +434,9 @@ func (ctl *BigModelController) GenWuKongSamples(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/wukong/pictures [get]
 func (ctl *BigModelController) WuKongPictures(ctx *gin.Context) {
-	var err error
 	cmd := app.WuKongPicturesListCmd{}
 
-	f := func() {
+	f := func() (err error) {
 		if v := ctl.getQueryParameter(ctx, "count_per_page"); v != "" {
 			if cmd.CountPerPage, err = strconv.Atoi(v); err != nil {
 				return
@@ -449,9 +448,11 @@ func (ctl *BigModelController) WuKongPictures(ctx *gin.Context) {
 				return
 			}
 		}
+
+		return
 	}
 
-	if f(); err != nil {
+	if err := f(); err != nil {
 		ctl.sendBadRequest(ctx, newResponseCodeError(
 			errorBadRequestParam, err,
 		))

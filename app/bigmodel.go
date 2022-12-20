@@ -27,8 +27,8 @@ type LuoJiaRecordDTO struct {
 	Id        string `json:"id"`
 }
 
-type WuKongPicturesListCmd = repository.WuKongPictureListOption
 type WuKongPicturesDTO = repository.WuKongPictures
+type WuKongPicturesListCmd = repository.WuKongPictureListOption
 
 type BigModelService interface {
 	DescribePicture(io.Reader, string, int64) (string, error)
