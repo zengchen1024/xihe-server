@@ -13,14 +13,21 @@ import (
 )
 
 type wukongInfo struct {
+	cli       obsService
 	cfg       WuKong
 	maxBatch  int
 	endpoints chan string
 }
 
-func newWuKongInfo(cfg *Config) wukongInfo {
+func newWuKongInfo(cfg *Config) (wukongInfo, error) {
+	cli, err := initOBS(&cfg.OBS.OBSAuthInfo)
+	if err != nil {
+		return wukongInfo{}, err
+	}
+
 	v := &cfg.WuKong
 	info := wukongInfo{
+		cli:      cli,
 		cfg:      *v,
 		maxBatch: utils.LCM(v.SampleCount, v.SampleNum) / v.SampleNum,
 	}
@@ -33,7 +40,7 @@ func newWuKongInfo(cfg *Config) wukongInfo {
 		info.endpoints <- e
 	}
 
-	return info
+	return info, nil
 }
 
 func (s *service) GenWuKongSampleNums(batchNum int) []int {
@@ -61,14 +68,33 @@ func (s *service) GetWuKongSampleId() string {
 
 func (s *service) GenPicturesByWuKong(
 	user domain.Account, desc []string,
-) (r []string, err error) {
-	s.doIfFree(s.wukongInfo.endpoints, func(e string) error {
-		r, err = s.genPicturesByWuKong(e, user, desc)
+) (map[string]string, error) {
+	var v []string
 
-		return err
-	})
+	f := func(e string) (err error) {
+		v, err = s.genPicturesByWuKong(e, user, desc)
 
-	return
+		return
+	}
+
+	if err := s.doIfFree(s.wukongInfo.endpoints, f); err != nil {
+		return nil, err
+	}
+
+	info := &s.wukongInfo
+	bucket := info.cfg.Bucket
+	expiry := info.cfg.DownloadExpiry
+
+	r := map[string]string{}
+	for _, p := range v {
+		l, err := info.cli.GenFileDownloadURL(bucket, p, expiry)
+		if err != nil {
+			return nil, err
+		}
+		r[p] = l
+	}
+
+	return r, nil
 }
 
 func (s *service) genPicturesByWuKong(

@@ -15,7 +15,7 @@ import (
 var fm *service
 
 func Init(cfg *Config) error {
-	obs, err := initOBS(&cfg.OBS)
+	obs, err := initOBS(&cfg.OBS.OBSAuthInfo)
 	if err != nil {
 		return err
 	}
@@ -36,12 +36,13 @@ func Init(cfg *Config) error {
 	fm.vqaInfo = newVQAInfo(cfg)
 	fm.panguInfo = newPanGuInfo(cfg)
 	fm.luojiaInfo = newLuoJiaInfo(cfg)
-	fm.wukongInfo = newWuKongInfo(cfg)
 	fm.codegeexInfo = newCodeGeexInfo(cfg)
 	fm.pictureGenInfo = newPictureGenInfo(cfg)
 	fm.pictureDescInfo = newPictureDescInfo(cfg)
 
-	return nil
+	fm.wukongInfo, err = newWuKongInfo(cfg)
+
+	return err
 }
 
 func NewBigModelService() bigmodel.BigModel {
