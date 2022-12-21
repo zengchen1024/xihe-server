@@ -1186,6 +1186,13 @@ definitions:
       is_follower:
         type: boolean
     type: object
+  controller.wukongPicturesGenerateResp:
+    properties:
+      pictures:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   controller.wukongRequest:
     properties:
       sample:
@@ -1520,7 +1527,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controller.multiplePicturesGenerateResp'
+            $ref: '#/definitions/controller.wukongPicturesGenerateResp'
         "500":
           description: Internal Server Error
           schema:

@@ -18,6 +18,8 @@ type Config struct {
 }
 
 func (cfg *Config) SetDefault() {
+	cfg.WuKong.setDefault()
+
 	if cfg.MaxPictureSizeToDescribe <= 0 {
 		cfg.MaxPictureSizeToDescribe = 200 << 10
 	}
@@ -36,11 +38,16 @@ func (cfg *Config) Validate() error {
 }
 
 type OBSConfig struct {
-	Endpoint     string `json:"endpoint"               required:"true"`
-	AccessKey    string `json:"access_key"             required:"true"`
-	SecretKey    string `json:"secret_key"             required:"true"`
+	OBSAuthInfo
+
 	VQABucket    string `json:"vqa_bucket"             required:"true"`
 	LuoJiaBucket string `json:"luo_jia_bucket"         required:"true"`
+}
+
+type OBSAuthInfo struct {
+	Endpoint  string `json:"endpoint"                  required:"true"`
+	AccessKey string `json:"access_key"                required:"true"`
+	SecretKey string `json:"secret_key"                required:"true"`
 }
 
 type CloudConfig struct {
@@ -119,12 +126,25 @@ type Moderation struct {
 type WuKong struct {
 	WuKongSample
 	CloudConfig
+	OBSAuthInfo
+
+	Bucket string `json:"bucket"             required:"true"`
+
+	// DownloadExpiry specifies the timeout to download a obs file.
+	// The unit is second.
+	DownloadExpiry int `json:"download_expiry"`
 }
 
 type WuKongSample struct {
 	SampleId    string `json:"sample_id"     required:"true"`
 	SampleNum   int    `json:"sample_num"    required:"true"`
 	SampleCount int    `json:"sample_count"  required:"true"`
+}
+
+func (cfg *WuKong) setDefault() {
+	if cfg.DownloadExpiry <= 0 {
+		cfg.DownloadExpiry = 3600
+	}
 }
 
 func (cfg *WuKong) validate() error {

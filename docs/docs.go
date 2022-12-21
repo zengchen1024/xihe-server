@@ -417,7 +417,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controller.multiplePicturesGenerateResp"
+                            "$ref": "#/definitions/controller.wukongPicturesGenerateResp"
                         }
                     },
                     "500": {
@@ -5702,6 +5702,17 @@ const docTemplate = `{
                 },
                 "is_follower": {
                     "type": "boolean"
+                }
+            }
+        },
+        "controller.wukongPicturesGenerateResp": {
+            "type": "object",
+            "properties": {
+                "pictures": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -108,3 +108,7 @@ func (req *wukongRequest) toDesc() (r []string) {
 
 	return
 }
+
+type wukongPicturesGenerateResp struct {
+	Pictures map[string]string `json:"pictures"`
+}

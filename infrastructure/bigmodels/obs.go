@@ -6,7 +6,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
 )
 
-func initOBS(cfg *OBSConfig) (s obsService, err error) {
+func initOBS(cfg *OBSAuthInfo) (s obsService, err error) {
 	cli, err := obs.New(cfg.AccessKey, cfg.SecretKey, cfg.Endpoint)
 	if err != nil {
 		return
@@ -30,4 +30,19 @@ func (s *obsService) createObject(f io.Reader, bucket, path string) error {
 	_, err := s.cli.PutObject(input)
 
 	return err
+}
+
+func (s *obsService) GenFileDownloadURL(bucket, p string, downloadExpiry int) (string, error) {
+	input := &obs.CreateSignedUrlInput{}
+	input.Method = obs.HttpMethodGet
+	input.Bucket = bucket
+	input.Key = p
+	input.Expires = downloadExpiry
+
+	output, err := s.cli.CreateSignedUrl(input)
+	if err != nil {
+		return "", err
+	}
+
+	return output.SignedUrl, nil
 }

@@ -472,7 +472,7 @@ func (ctl *BigModelController) WuKongPictures(ctx *gin.Context) {
 // @Tags  BigModel
 // @Param	body	body 	wukongRequest	true	"body of wukong"
 // @Accept json
-// @Success 201 {object} multiplePicturesGenerateResp
+// @Success 201 {object} wukongPicturesGenerateResp
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/wukong [post]
 func (ctl *BigModelController) WuKong(ctx *gin.Context) {
@@ -500,6 +500,6 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 	if v, err := ctl.s.WuKong(pl.DomainAccount(), desc); err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
-		ctl.sendRespOfPost(ctx, multiplePicturesGenerateResp{v})
+		ctl.sendRespOfPost(ctx, wukongPicturesGenerateResp{v})
 	}
 }
