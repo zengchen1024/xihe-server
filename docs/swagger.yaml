@@ -1195,7 +1195,7 @@ definitions:
     type: object
   controller.wukongRequest:
     properties:
-      sample:
+      desc:
         type: string
       style:
         type: string

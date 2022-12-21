@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"net/http"
-	"strings"
 
 	libutils "github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/domain"
+	"github.com/opensourceways/xihe-server/domain/bigmodel"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -68,7 +68,7 @@ func (s *service) GetWuKongSampleId() string {
 }
 
 func (s *service) GenPicturesByWuKong(
-	user domain.Account, desc []string,
+	user domain.Account, desc *bigmodel.WuKongReq,
 ) (map[string]string, error) {
 	var v []string
 
@@ -99,7 +99,7 @@ func (s *service) GenPicturesByWuKong(
 }
 
 func (s *service) genPicturesByWuKong(
-	endpoint string, user domain.Account, desc []string,
+	endpoint string, user domain.Account, desc *bigmodel.WuKongReq,
 ) ([]string, error) {
 	t, err := genToken(&s.wukongInfo.cfg.CloudConfig)
 	if err != nil {
@@ -107,7 +107,8 @@ func (s *service) genPicturesByWuKong(
 	}
 
 	opt := wukongRequest{
-		Input: strings.Join(desc, " "),
+		Style: desc.Style,
+		Desc:  desc.Desc,
 		User:  user.Account(),
 	}
 	body, err := libutils.JsonMarshal(&opt)
@@ -138,8 +139,9 @@ func (s *service) genPicturesByWuKong(
 }
 
 type wukongRequest struct {
-	Input string `json:"input_text" binding:"required"`
-	User  string `json:"user_name"  binding:"required"`
+	Style string `json:"style"`
+	Desc  string `json:"desc"`
+	User  string `json:"user_name"`
 }
 
 type wukongResponse struct {

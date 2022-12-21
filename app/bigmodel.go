@@ -27,6 +27,16 @@ type LuoJiaRecordDTO struct {
 	Id        string `json:"id"`
 }
 
+type WuKongCmd bigmodel.WuKongReq
+
+func (cmd *WuKongCmd) Validate() error {
+	if cmd.Desc == "" {
+		return errors.New("invalid cmd")
+	}
+
+	return nil
+}
+
 type WuKongPicturesDTO = repository.WuKongPictures
 type WuKongPicturesListCmd = repository.WuKongPictureListOption
 
@@ -42,7 +52,7 @@ type BigModelService interface {
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
 	GenWuKongSamples(int) ([]string, error)
-	WuKong(domain.Account, []string) (map[string]string, error)
+	WuKong(domain.Account, *WuKongCmd) (map[string]string, error)
 	WuKongPictures(*WuKongPicturesListCmd) (WuKongPicturesDTO, error)
 }
 
@@ -173,9 +183,9 @@ func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
 }
 
 func (s bigModelService) WuKong(
-	user domain.Account, desc []string,
+	user domain.Account, cmd *WuKongCmd,
 ) (links map[string]string, err error) {
-	return s.fm.GenPicturesByWuKong(user, desc)
+	return s.fm.GenPicturesByWuKong(user, (*bigmodel.WuKongReq)(cmd))
 }
 
 func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (WuKongPicturesDTO, error) {
