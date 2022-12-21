@@ -20,12 +20,13 @@ type wukongInfo struct {
 }
 
 func newWuKongInfo(cfg *Config) (wukongInfo, error) {
-	cli, err := initOBS(&cfg.OBS.OBSAuthInfo)
+	v := &cfg.WuKong
+
+	cli, err := initOBS(&v.OBSAuthInfo)
 	if err != nil {
 		return wukongInfo{}, err
 	}
 
-	v := &cfg.WuKong
 	info := wukongInfo{
 		cli:      cli,
 		cfg:      *v,
