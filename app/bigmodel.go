@@ -10,36 +10,6 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
-type CodeGeexDTO = bigmodel.CodeGeexResp
-
-type CodeGeexCmd bigmodel.CodeGeexReq
-
-func (cmd *CodeGeexCmd) Validate() error {
-	if cmd.Content == "" || cmd.Lang == "" {
-		return errors.New("invalid cmd")
-	}
-
-	return nil
-}
-
-type LuoJiaRecordDTO struct {
-	CreatedAt string `json:"created_at"`
-	Id        string `json:"id"`
-}
-
-type WuKongCmd bigmodel.WuKongReq
-
-func (cmd *WuKongCmd) Validate() error {
-	if cmd.Desc == "" {
-		return errors.New("invalid cmd")
-	}
-
-	return nil
-}
-
-type WuKongPicturesDTO = repository.WuKongPictures
-type WuKongPicturesListCmd = repository.WuKongPictureListOption
-
 type BigModelService interface {
 	DescribePicture(io.Reader, string, int64) (string, error)
 	GenPicture(domain.Account, string) (string, string, error)
@@ -72,8 +42,9 @@ func NewBigModelService(
 type bigModelService struct {
 	fm bigmodel.BigModel
 
-	luojia repository.LuoJia
-	wukong repository.WuKong
+	luojia        repository.LuoJia
+	wukong        repository.WuKong
+	wukongPicture repository.WuKongPicture
 
 	wukongSampleId string
 }
@@ -188,6 +159,102 @@ func (s bigModelService) WuKong(
 	return s.fm.GenPicturesByWuKong(user, (*bigmodel.WuKongReq)(cmd))
 }
 
-func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (WuKongPicturesDTO, error) {
-	return s.wukong.ListPictures(s.wukongSampleId, cmd)
+func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (
+	dto WuKongPicturesDTO, err error,
+) {
+	v, err := s.wukong.ListPictures(s.wukongSampleId, cmd)
+	if err != nil {
+		return
+	}
+
+	r := make([]WuKongPictureDTO, len(v.Pictures))
+
+	for i, link := range v.Pictures {
+		r[i], err = s.fm.ParseWuKongPictureLink(link)
+		if err != nil {
+			return
+		}
+	}
+
+	dto.Pictures = r
+	dto.Total = v.Total
+
+	return
+}
+
+func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
+	code string, err error,
+) {
+	v, version, err := s.wukongPicture.List(cmd.User)
+	if err != nil {
+		return
+	}
+	if len(v) >= 10 {
+		code = ErrorWuKongExccedMaxNum
+		err = errors.New("exceed the max num user can add like to pictures")
+
+		return
+	}
+
+	p, err := s.fm.AddLikeToWuKongPicture(cmd.User, cmd.OBSPath)
+	if err != nil {
+		return
+	}
+
+	err = s.wukongPicture.Save(
+		&domain.UserWuKongPicture{
+			User: cmd.User,
+			WuKongPicture: domain.WuKongPicture{
+				OBSPath:   p,
+				CreatedAt: utils.Date(),
+			},
+		},
+		version,
+	)
+
+	return
+}
+
+func (s bigModelService) CancelLikeOnWuKongPicture(user domain.Account, pid string) (
+	code string, err error,
+) {
+	v, err := s.wukongPicture.Get(user, pid)
+	if err != nil {
+		// no picture
+		return
+	}
+
+	if err = s.fm.CancelLikeOnWuKongPicture(user, v.OBSPath); err != nil {
+		// 404
+		return
+	}
+
+	err = s.wukongPicture.Delete(user, pid)
+
+	return
+}
+
+func (s bigModelService) ListLikedWuKongPictures(user domain.Account) (
+	r []UserLikedWuKongPictureDTO, err error,
+) {
+	v, _, err := s.wukongPicture.List(user)
+	if err != nil {
+		return
+	}
+
+	r = make([]UserLikedWuKongPictureDTO, len(v))
+	for i := range v {
+		item := &v[i]
+		dto := &r[i]
+
+		dto.WuKongPictureDTO, err = s.fm.ParseWuKongPictureOBSPath(item.OBSPath)
+		if err != nil {
+			return
+		}
+
+		dto.Id = item.Id
+		dto.CreatedAt = item.CreatedAt
+	}
+
+	return
 }

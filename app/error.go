@@ -52,6 +52,9 @@ const (
 
 	ErrorBigModelSensitiveInfo = "bigmodel_sensitive_info"
 
-	ErrorTrainNoLog    = "train_no_log"
-	ErrorTrainNoOutput = "train_no_output"
+	ErrorTrainNoLog        = "train_no_log"
+	ErrorTrainNoOutput     = "train_no_output"
+	ErrorTrainExccedMaxNum = "train_excced_max_num" // excced max training num for a user
+
+	ErrorWuKongExccedMaxNum = "wukong_excced_max_num" // excced max num to add like to picture
 )

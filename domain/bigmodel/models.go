@@ -21,6 +21,12 @@ type WuKongReq struct {
 	Desc  string
 }
 
+type WuKongPictureInfo struct {
+	Link  string `json:"link"`
+	Style string `json:"style"`
+	Desc  string `json:"desc"`
+}
+
 type BigModel interface {
 	DescribePicture(io.Reader, string, int64) (string, error)
 	GenPicture(domain.Account, string) (string, error)
@@ -34,4 +40,8 @@ type BigModel interface {
 	GetWuKongSampleId() string
 	GenWuKongSampleNums(int) []int
 	GenPicturesByWuKong(domain.Account, *WuKongReq) (map[string]string, error)
+	AddLikeToWuKongPicture(domain.Account, string) (string, error)
+	CancelLikeOnWuKongPicture(domain.Account, string) error
+	ParseWuKongPictureOBSPath(string) (WuKongPictureInfo, error)
+	ParseWuKongPictureLink(string) (WuKongPictureInfo, error)
 }
