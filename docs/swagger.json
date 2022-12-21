@@ -405,7 +405,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controller.multiplePicturesGenerateResp"
+                            "$ref": "#/definitions/controller.wukongPicturesGenerateResp"
                         }
                     },
                     "500": {
@@ -5690,6 +5690,17 @@
                 },
                 "is_follower": {
                     "type": "boolean"
+                }
+            }
+        },
+        "controller.wukongPicturesGenerateResp": {
+            "type": "object",
+            "properties": {
+                "pictures": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -18,6 +18,8 @@ type Config struct {
 }
 
 func (cfg *Config) SetDefault() {
+	cfg.WuKong.setDefault()
+
 	if cfg.MaxPictureSizeToDescribe <= 0 {
 		cfg.MaxPictureSizeToDescribe = 200 << 10
 	}
@@ -137,6 +139,12 @@ type WuKongSample struct {
 	SampleId    string `json:"sample_id"     required:"true"`
 	SampleNum   int    `json:"sample_num"    required:"true"`
 	SampleCount int    `json:"sample_count"  required:"true"`
+}
+
+func (cfg *WuKong) setDefault() {
+	if cfg.DownloadExpiry <= 0 {
+		cfg.DownloadExpiry = 3600
+	}
 }
 
 func (cfg *WuKong) validate() error {
