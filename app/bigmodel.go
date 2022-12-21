@@ -170,8 +170,7 @@ func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (
 	r := make([]WuKongPictureDTO, len(v.Pictures))
 
 	for i, link := range v.Pictures {
-		r[i], err = s.fm.ParseWuKongPictureLink(link)
-		if err != nil {
+		if r[i], err = s.fm.ParseWuKongPictureLink(link); err != nil {
 			return
 		}
 	}

@@ -1,8 +1,6 @@
 package repositories
 
-import (
-	"github.com/opensourceways/xihe-server/domain/repository"
-)
+import "github.com/opensourceways/xihe-server/domain/repository"
 
 type WuKongPicturesDO = repository.WuKongPictures
 type WuKongPictureListOptionDO = repository.WuKongPictureListOption

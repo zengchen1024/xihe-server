@@ -56,5 +56,5 @@ const (
 	ErrorTrainNoOutput     = "train_no_output"
 	ErrorTrainExccedMaxNum = "train_excced_max_num" // excced max training num for a user
 
-	ErrorWuKongExccedMaxNum = "wukong_excced_max_num" // excced max num to add like to picture
+	ErrorWuKongExccedMaxNum = "wukong_excced_max_num" // excced max num user can add like to picture
 )

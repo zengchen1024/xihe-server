@@ -500,3 +500,16 @@ type dSample struct {
 	Num  int    `bson:"num"              json:"num"`
 	Name string `bson:"name"             json:"name"`
 }
+
+type dWuKongPicture struct {
+	Owner   string `bson:"owner"         json:"owner"`
+	Version int    `bson:"version"       json:"-"`
+
+	Items []wukongPicture `bson:"items"  json:"-"`
+}
+
+type wukongPicture struct {
+	Id        string `bson:"id"          json:"id"`
+	OBSPath   string `bson:"obspath"     json:"obspath"`
+	CreatedAt string `bson:"created_at"  json:"created_at"`
+}
