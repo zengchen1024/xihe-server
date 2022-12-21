@@ -93,20 +93,19 @@ func (req *CodeGeexRequest) toCmd() (
 }
 
 type wukongRequest struct {
-	Sample string `json:"sample"`
-	Style  string `json:"style"`
+	Desc  string `json:"desc"`
+	Style string `json:"style"`
 }
 
-func (req *wukongRequest) toDesc() (r []string) {
-	if req.Sample != "" {
-		r = append(r, req.Sample)
+func (req *wukongRequest) toCmd() (app.WuKongCmd, error) {
+	cmd := app.WuKongCmd{
+		Style: req.Style,
+		Desc:  req.Desc,
 	}
 
-	if req.Style != "" {
-		r = append(r, req.Style)
-	}
+	err := cmd.Validate()
 
-	return
+	return cmd, err
 }
 
 type wukongPicturesGenerateResp struct {

@@ -488,16 +488,16 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 		return
 	}
 
-	desc := req.toDesc()
-	if len(desc) == 0 {
-		ctl.sendBadRequest(ctx, newResponseCodeMsg(
-			errorBadRequestParam, "no desc",
+	cmd, err := req.toCmd()
+	if err != nil {
+		ctl.sendBadRequest(ctx, newResponseCodeError(
+			errorBadRequestParam, err,
 		))
 
 		return
 	}
 
-	if v, err := ctl.s.WuKong(pl.DomainAccount(), desc); err != nil {
+	if v, err := ctl.s.WuKong(pl.DomainAccount(), &cmd); err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPost(ctx, wukongPicturesGenerateResp{v})

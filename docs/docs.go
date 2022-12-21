@@ -5719,7 +5719,7 @@ const docTemplate = `{
         "controller.wukongRequest": {
             "type": "object",
             "properties": {
-                "sample": {
+                "desc": {
                     "type": "string"
                 },
                 "style": {
