@@ -109,6 +109,7 @@ func main() {
 
 	// cfg
 	cfg.InitDomainConfig()
+	cfg.InitAppConfig()
 
 	// run
 	server.StartWebServer(o.service.Port, o.service.GracePeriod, cfg)

@@ -177,8 +177,8 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 	if err != nil {
 		return
 	}
-	if len(v) >= 10 { //TODO 10
-		code = ErrorWuKongExccedMaxNum
+	if len(v) >= appConfig.WuKongMaxLikeNum {
+		code = ErrorWuKongExccedMaxLikeNum
 		err = errors.New("exceed the max num user can add like to pictures")
 
 		return
