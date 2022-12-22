@@ -11,7 +11,7 @@ type WuKongPictureDO = domain.WuKongPicture
 
 type WuKongPictureMapper interface {
 	List(string) ([]WuKongPictureDO, int, error)
-	Insert(string, WuKongPictureDO, int) (string, error)
+	Insert(string, *WuKongPictureDO, int) (string, error)
 	Delete(string, string) error
 	Get(string, string) (WuKongPictureDO, error)
 }
@@ -32,10 +32,10 @@ func (impl wukongPicture) List(user domain.Account) (
 
 func (impl wukongPicture) Save(p *domain.UserWuKongPicture, version int) (string, error) {
 	if p.Id != "" {
-		return "", errors.New("must be a new project")
+		return "", errors.New("must be a new picture")
 	}
 
-	v, err := impl.mapper.Insert(p.User.Account(), p.WuKongPicture, version)
+	v, err := impl.mapper.Insert(p.User.Account(), &p.WuKongPicture, version)
 	if err != nil {
 		return "", convertError(err)
 	}
@@ -44,8 +44,7 @@ func (impl wukongPicture) Save(p *domain.UserWuKongPicture, version int) (string
 }
 
 func (impl wukongPicture) Delete(user domain.Account, pid string) error {
-	err := impl.mapper.Delete(user.Account(), pid)
-	if err != nil {
+	if err := impl.mapper.Delete(user.Account(), pid); err != nil {
 		return convertError(err)
 	}
 

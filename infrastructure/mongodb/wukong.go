@@ -3,8 +3,9 @@ package mongodb
 import (
 	"context"
 
-	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 func NewWuKongMapper(name string) repositories.WuKongMapper {

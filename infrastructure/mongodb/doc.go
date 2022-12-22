@@ -505,10 +505,10 @@ type dWuKongPicture struct {
 	Owner   string `bson:"owner"         json:"owner"`
 	Version int    `bson:"version"       json:"-"`
 
-	Items []wukongPicture `bson:"items"  json:"-"`
+	Items []pictureItem `bson:"items"    json:"-"`
 }
 
-type wukongPicture struct {
+type pictureItem struct {
 	Id        string `bson:"id"          json:"id"`
 	OBSPath   string `bson:"obspath"     json:"obspath"`
 	CreatedAt string `bson:"created_at"  json:"created_at"`

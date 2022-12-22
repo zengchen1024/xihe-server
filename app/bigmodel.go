@@ -188,11 +188,20 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 	if err != nil {
 		return
 	}
-	if len(v) >= 10 {
+	if len(v) >= 10 { //TODO 10
 		code = ErrorWuKongExccedMaxNum
 		err = errors.New("exceed the max num user can add like to pictures")
 
 		return
+	}
+
+	for i := range v {
+		if v[i].OBSPath == cmd.OBSPath {
+			code = ErrorWuKongDuplicateLike
+			err = errors.New("the picture has been saved.")
+
+			return
+		}
 	}
 
 	p, err := s.fm.AddLikeToWuKongPicture(cmd.User, cmd.OBSPath)
@@ -200,7 +209,7 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 		return
 	}
 
-	err = s.wukongPicture.Save(
+	_, err = s.wukongPicture.Save(
 		&domain.UserWuKongPicture{
 			User: cmd.User,
 			WuKongPicture: domain.WuKongPicture{
@@ -219,7 +228,10 @@ func (s bigModelService) CancelLikeOnWuKongPicture(user domain.Account, pid stri
 ) {
 	v, err := s.wukongPicture.Get(user, pid)
 	if err != nil {
-		// no picture
+		if repository.IsErrorResourceNotExists(err) {
+			err = nil
+		}
+
 		return
 	}
 
@@ -237,7 +249,7 @@ func (s bigModelService) ListLikedWuKongPictures(user domain.Account) (
 	r []UserLikedWuKongPictureDTO, err error,
 ) {
 	v, _, err := s.wukongPicture.List(user)
-	if err != nil {
+	if err != nil || len(v) == 0 {
 		return
 	}
 

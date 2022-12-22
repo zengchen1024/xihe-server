@@ -40,3 +40,9 @@ func IsErrorDuplicateCreating(err error) bool {
 
 	return ok
 }
+
+func IsErrorConcurrentUpdating(err error) bool {
+	_, ok := err.(ErrorConcurrentUpdating)
+
+	return ok
+}
