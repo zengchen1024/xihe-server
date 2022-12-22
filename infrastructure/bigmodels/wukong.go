@@ -188,7 +188,7 @@ func (s *service) ParseWuKongPictureMetaData(user domain.Account, p string) (
 	case 1:
 		desc = v[0]
 	case 2:
-		meta.Style = v[0]
+		meta.Style = strings.TrimSpace(v[0])
 		desc = v[1]
 	default:
 		err = errors.New("invalid path")
@@ -196,9 +196,9 @@ func (s *service) ParseWuKongPictureMetaData(user domain.Account, p string) (
 		return
 	}
 
-	desc = strings.Split(desc, ".")[0]
+	desc = strings.TrimSpace(strings.Split(desc, "-")[0])
 	if meta.Style != "" {
-		desc = strings.TrimSuffix(desc, " "+meta.Style)
+		desc = strings.TrimSpace(strings.TrimSuffix(desc, meta.Style))
 	}
 	meta.Desc = desc
 
