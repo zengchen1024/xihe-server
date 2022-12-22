@@ -213,6 +213,14 @@ func (ctl baseController) sendRespOfPost(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusCreated, newResponseData(data))
 }
 
+func (ctl baseController) sendRespOfPut(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusAccepted, newResponseData(data))
+}
+
+func (ctl baseController) sendRespOfDelete(ctx *gin.Context) {
+	ctx.JSON(http.StatusNoContent, newResponseData("success"))
+}
+
 func (ctl baseController) getListResourceParameter(
 	ctx *gin.Context,
 ) (cmd app.ResourceListCmd, err error) {

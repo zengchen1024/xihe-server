@@ -124,22 +124,23 @@ type Mongodb struct {
 }
 
 type MongodbCollections struct {
-	Tag          string `json:"tag"             required:"true"`
-	User         string `json:"user"            required:"true"`
-	Like         string `json:"like"            required:"true"`
-	Model        string `json:"model"           required:"true"`
-	Login        string `json:"login"           required:"true"`
-	LuoJia       string `json:"luojia"          required:"true"`
-	WuKong       string `json:"wukong"          required:"true"`
-	Dataset      string `json:"dataset"         required:"true"`
-	Project      string `json:"project"         required:"true"`
-	Activity     string `json:"activity"        required:"true"`
-	Training     string `json:"training"        required:"true"`
-	Evaluate     string `json:"evaluate"        required:"true"`
-	Inference    string `json:"inference"       required:"true"`
-	AIQuestion   string `json:"aiquestion"      required:"true"`
-	Competition  string `json:"competition"     required:"true"`
-	QuestionPool string `json:"question_pool"   required:"true"`
+	Tag           string `json:"tag"             required:"true"`
+	User          string `json:"user"            required:"true"`
+	Like          string `json:"like"            required:"true"`
+	Model         string `json:"model"           required:"true"`
+	Login         string `json:"login"           required:"true"`
+	LuoJia        string `json:"luojia"          required:"true"`
+	WuKong        string `json:"wukong"          required:"true"`
+	Dataset       string `json:"dataset"         required:"true"`
+	Project       string `json:"project"         required:"true"`
+	Activity      string `json:"activity"        required:"true"`
+	Training      string `json:"training"        required:"true"`
+	Evaluate      string `json:"evaluate"        required:"true"`
+	Inference     string `json:"inference"       required:"true"`
+	AIQuestion    string `json:"aiquestion"      required:"true"`
+	Competition   string `json:"competition"     required:"true"`
+	QuestionPool  string `json:"question_pool"   required:"true"`
+	WuKongPicture string `json:"wukong_picture"  required:"true"`
 }
 
 type AuthingService struct {

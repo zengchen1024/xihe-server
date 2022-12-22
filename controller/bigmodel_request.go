@@ -111,3 +111,14 @@ func (req *wukongRequest) toCmd() (app.WuKongCmd, error) {
 type wukongPicturesGenerateResp struct {
 	Pictures map[string]string `json:"pictures"`
 }
+
+type wukongAddLikeRequest struct {
+	OBSPath string `json:"obspath"`
+}
+
+func (req *wukongAddLikeRequest) toCmd(user domain.Account) app.WuKongPictureAddLikeCmd {
+	return app.WuKongPictureAddLikeCmd{
+		User:    user,
+		OBSPath: req.OBSPath,
+	}
+}

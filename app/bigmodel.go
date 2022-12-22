@@ -24,17 +24,22 @@ type BigModelService interface {
 	GenWuKongSamples(int) ([]string, error)
 	WuKong(domain.Account, *WuKongCmd) (map[string]string, error)
 	WuKongPictures(*WuKongPicturesListCmd) (WuKongPicturesDTO, error)
+	AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (string, error)
+	CancelLikeOnWuKongPicture(domain.Account, string) error
+	ListLikedWuKongPictures(domain.Account) ([]UserLikedWuKongPictureDTO, error)
 }
 
 func NewBigModelService(
 	fm bigmodel.BigModel,
 	luojia repository.LuoJia,
 	wukong repository.WuKong,
+	wukongPicture repository.WuKongPicture,
 ) BigModelService {
 	return bigModelService{
 		fm:             fm,
 		luojia:         luojia,
 		wukong:         wukong,
+		wukongPicture:  wukongPicture,
 		wukongSampleId: fm.GetWuKongSampleId(),
 	}
 }
@@ -215,9 +220,7 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 	return
 }
 
-func (s bigModelService) CancelLikeOnWuKongPicture(user domain.Account, pid string) (
-	code string, err error,
-) {
+func (s bigModelService) CancelLikeOnWuKongPicture(user domain.Account, pid string) (err error) {
 	v, err := s.wukongPicture.Get(user, pid)
 	if err != nil {
 		if repository.IsErrorResourceNotExists(err) {

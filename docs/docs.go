@@ -394,6 +394,60 @@ const docTemplate = `{
             }
         },
         "/v1/bigmodel/wukong": {
+            "get": {
+                "description": "list wukong pictures user liked",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.UserLikedWuKongPictureDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "add like to wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of wukong",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "generates pictures by WuKong",
                 "consumes": [
@@ -488,6 +542,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/{id}": {
+            "delete": {
+                "description": "cancel like on wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "picture id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
                         "description": ""
                     },
                     "500": {
@@ -4784,6 +4869,26 @@ const docTemplate = `{
                 }
             }
         },
+        "app.UserLikedWuKongPictureDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "app.UserSearchDTO": {
             "type": "object",
             "properties": {
@@ -4804,7 +4909,7 @@ const docTemplate = `{
                 "pictures": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/domain.WuKongPictureInfo"
                     }
                 },
                 "total": {
@@ -5705,6 +5810,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.wukongAddLikeRequest": {
+            "type": "object",
+            "properties": {
+                "obspath": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.wukongPicturesGenerateResp": {
             "type": "object",
             "properties": {
@@ -5737,6 +5850,20 @@ const docTemplate = `{
                     }
                 },
                 "kind": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.WuKongPictureInfo": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
                     "type": "string"
                 }
             }
