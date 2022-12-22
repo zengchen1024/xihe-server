@@ -156,29 +156,13 @@ func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
 func (s bigModelService) WuKong(
 	user domain.Account, cmd *WuKongCmd,
 ) (links map[string]string, err error) {
-	return s.fm.GenPicturesByWuKong(user, (*bigmodel.WuKongReq)(cmd))
+	return s.fm.GenPicturesByWuKong(user, (*domain.WuKongPictureMeta)(cmd))
 }
 
 func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (
 	dto WuKongPicturesDTO, err error,
 ) {
-	v, err := s.wukong.ListPictures(s.wukongSampleId, cmd)
-	if err != nil {
-		return
-	}
-
-	r := make([]WuKongPictureDTO, len(v.Pictures))
-
-	for i, link := range v.Pictures {
-		if r[i], err = s.fm.ParseWuKongPictureLink(link); err != nil {
-			return
-		}
-	}
-
-	dto.Pictures = r
-	dto.Total = v.Total
-
-	return
+	return s.wukong.ListPictures(s.wukongSampleId, cmd)
 }
 
 func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
@@ -204,7 +188,14 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 		}
 	}
 
-	p, err := s.fm.AddLikeToWuKongPicture(cmd.User, cmd.OBSPath)
+	meta, err := s.fm.ParseWuKongPictureMetaData(cmd.User, cmd.OBSPath)
+	if err != nil {
+		code = ErrorWuKongInvalidPath
+
+		return
+	}
+
+	p, err := s.fm.MoveWuKongPictureToLikeDir(cmd.User, cmd.OBSPath)
 	if err != nil {
 		return
 	}
@@ -213,8 +204,9 @@ func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
 		&domain.UserWuKongPicture{
 			User: cmd.User,
 			WuKongPicture: domain.WuKongPicture{
-				OBSPath:   p,
-				CreatedAt: utils.Date(),
+				OBSPath:           p,
+				CreatedAt:         utils.Date(),
+				WuKongPictureMeta: meta,
 			},
 		},
 		version,
@@ -235,8 +227,7 @@ func (s bigModelService) CancelLikeOnWuKongPicture(user domain.Account, pid stri
 		return
 	}
 
-	if err = s.fm.CancelLikeOnWuKongPicture(user, v.OBSPath); err != nil {
-		// 404
+	if err = s.fm.DeleteWuKongPicture(v.OBSPath); err != nil {
 		return
 	}
 
@@ -258,13 +249,14 @@ func (s bigModelService) ListLikedWuKongPictures(user domain.Account) (
 		item := &v[i]
 		dto := &r[i]
 
-		dto.WuKongPictureDTO, err = s.fm.ParseWuKongPictureOBSPath(item.OBSPath)
+		dto.Link, err = s.fm.GenWuKongPictureLink(item.OBSPath)
 		if err != nil {
 			return
 		}
 
 		dto.Id = item.Id
 		dto.CreatedAt = item.CreatedAt
+		dto.WuKongPictureMeta = item.WuKongPictureMeta
 	}
 
 	return

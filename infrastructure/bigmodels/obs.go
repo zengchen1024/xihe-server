@@ -32,7 +32,7 @@ func (s *obsService) createObject(f io.Reader, bucket, path string) error {
 	return err
 }
 
-func (s *obsService) GenFileDownloadURL(bucket, p string, downloadExpiry int) (string, error) {
+func (s *obsService) genFileDownloadURL(bucket, p string, downloadExpiry int) (string, error) {
 	input := &obs.CreateSignedUrlInput{}
 	input.Method = obs.HttpMethodGet
 	input.Bucket = bucket
@@ -45,4 +45,29 @@ func (s *obsService) GenFileDownloadURL(bucket, p string, downloadExpiry int) (s
 	}
 
 	return output.SignedUrl, nil
+}
+
+func (s *obsService) copyObject(bucket, dst, src string) error {
+	input := &obs.CopyObjectInput{}
+	input.Bucket = bucket
+	input.Key = dst
+	input.CopySourceBucket = bucket
+	input.CopySourceKey = src
+
+	_, err := s.cli.CopyObject(input)
+
+	return err
+}
+
+func (s *obsService) deleteObject(bucket string, path string) error {
+	input := &obs.DeleteObjectInput{}
+	input.Bucket = bucket
+	input.Key = path
+
+	v, err := s.cli.DeleteObject(input)
+	if err != nil && v != nil && v.StatusCode == 404 {
+		err = nil
+	}
+
+	return err
 }

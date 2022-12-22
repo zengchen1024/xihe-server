@@ -10,8 +10,8 @@ type WuKongPictureListOption struct {
 }
 
 type WuKongPictures struct {
-	Pictures []string `json:"pictures"`
-	Total    int      `json:"total"`
+	Pictures []domain.WuKongPictureInfo `json:"pictures"`
+	Total    int                        `json:"total"`
 }
 
 type WuKong interface {

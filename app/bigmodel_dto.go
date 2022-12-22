@@ -25,7 +25,7 @@ type LuoJiaRecordDTO struct {
 	Id        string `json:"id"`
 }
 
-type WuKongCmd bigmodel.WuKongReq
+type WuKongCmd domain.WuKongPictureMeta
 
 func (cmd *WuKongCmd) Validate() error {
 	if cmd.Desc == "" {
@@ -42,15 +42,10 @@ type WuKongPictureAddLikeCmd struct {
 	OBSPath string
 }
 
-type WuKongPictureDTO = bigmodel.WuKongPictureInfo
-
-type WuKongPicturesDTO struct {
-	Total    int                `json:"total"`
-	Pictures []WuKongPictureDTO `json:"pictures"`
-}
+type WuKongPicturesDTO = repository.WuKongPictures
 
 type UserLikedWuKongPictureDTO struct {
-	WuKongPictureDTO
+	domain.WuKongPictureInfo
 
 	Id        string `json:"id"`
 	CreatedAt string `json:"created_at"`

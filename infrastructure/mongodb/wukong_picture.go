@@ -31,7 +31,7 @@ func (col wukongPicture) List(user string) ([]repositories.WuKongPictureDO, int,
 
 	if err := withContext(f); err != nil {
 		if isDocNotExists(err) {
-			return nil, 0, nil
+			err = nil
 		}
 
 		return nil, 0, err
@@ -161,11 +161,16 @@ func (col wukongPicture) toPictureDO(p *pictureItem, do *repositories.WuKongPict
 		OBSPath:   p.OBSPath,
 		CreatedAt: p.CreatedAt,
 	}
+
+	do.Desc = p.Desc
+	do.Style = p.Style
 }
 
 func (col wukongPicture) toPictureDoc(do *repositories.WuKongPictureDO) (bson.M, error) {
 	return genDoc(pictureItem{
 		Id:        do.Id,
+		Desc:      do.Desc,
+		Style:     do.Style,
 		OBSPath:   do.OBSPath,
 		CreatedAt: do.CreatedAt,
 	})

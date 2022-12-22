@@ -58,4 +58,5 @@ const (
 
 	ErrorWuKongExccedMaxNum  = "wukong_excced_max_num" // excced max num user can add like to picture
 	ErrorWuKongDuplicateLike = "wukong_duplicate_like"
+	ErrorWuKongInvalidPath   = "wukong_invalid_path"
 )
