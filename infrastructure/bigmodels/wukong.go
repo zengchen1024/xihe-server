@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"errors"
 	"net/http"
+	"regexp"
+	"strings"
 
 	libutils "github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/bigmodel"
 	"github.com/opensourceways/xihe-server/utils"
 )
+
+var reTimestamp = regexp.MustCompile("/[1-9][0-9]{9,}/")
 
 type wukongInfo struct {
 	cli       obsService
@@ -68,7 +71,7 @@ func (s *service) GetWuKongSampleId() string {
 }
 
 func (s *service) GenPicturesByWuKong(
-	user domain.Account, desc *bigmodel.WuKongReq,
+	user domain.Account, desc *domain.WuKongPictureMeta,
 ) (map[string]string, error) {
 	var v []string
 
@@ -88,7 +91,7 @@ func (s *service) GenPicturesByWuKong(
 
 	r := map[string]string{}
 	for _, p := range v {
-		l, err := info.cli.GenFileDownloadURL(bucket, p, expiry)
+		l, err := info.cli.genFileDownloadURL(bucket, p, expiry)
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +102,7 @@ func (s *service) GenPicturesByWuKong(
 }
 
 func (s *service) genPicturesByWuKong(
-	endpoint string, user domain.Account, desc *bigmodel.WuKongReq,
+	endpoint string, user domain.Account, desc *domain.WuKongPictureMeta,
 ) ([]string, error) {
 	t, err := genToken(&s.wukongInfo.cfg.CloudConfig)
 	if err != nil {
@@ -136,6 +139,70 @@ func (s *service) genPicturesByWuKong(
 	}
 
 	return nil, errors.New(r.Msg)
+}
+
+func (s *service) MoveWuKongPictureToLikeDir(user domain.Account, p string) (string, error) {
+	v := user.Account()
+	np := strings.Replace(p, v, v+"/like", 1)
+
+	info := &s.wukongInfo
+	err := info.cli.copyObject(info.cfg.Bucket, np, p)
+
+	return np, err
+}
+
+func (s *service) DeleteWuKongPicture(p string) error {
+	info := &s.wukongInfo
+
+	return info.cli.deleteObject(info.cfg.Bucket, p)
+}
+
+func (s *service) GenWuKongPictureLink(p string) (string, error) {
+	info := &s.wukongInfo
+
+	return info.cli.genFileDownloadURL(
+		info.cfg.Bucket, p, info.cfg.DownloadExpiry,
+	)
+}
+
+func (s *service) ParseWuKongPictureMetaData(user domain.Account, p string) (
+	meta domain.WuKongPictureMeta, err error,
+) {
+	t := reTimestamp.FindString(p)
+	if t == "" {
+		err = errors.New("invalid path")
+
+		return
+	}
+
+	v := strings.Split(p, "/"+user.Account()+t)
+	if len(v) != 2 {
+		err = errors.New("invalid path")
+
+		return
+	}
+
+	desc := ""
+	v = strings.Split(v[1], "/")
+	switch len(v) {
+	case 1:
+		desc = v[0]
+	case 2:
+		meta.Style = v[0]
+		desc = v[1]
+	default:
+		err = errors.New("invalid path")
+
+		return
+	}
+
+	desc = strings.Split(desc, ".")[0]
+	if meta.Style != "" {
+		desc = strings.TrimSuffix(desc, " "+meta.Style)
+	}
+	meta.Desc = desc
+
+	return
 }
 
 type wukongRequest struct {

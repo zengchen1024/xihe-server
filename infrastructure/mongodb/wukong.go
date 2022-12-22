@@ -3,8 +3,9 @@ package mongodb
 import (
 	"context"
 
-	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 func NewWuKongMapper(name string) repositories.WuKongMapper {
@@ -85,8 +86,8 @@ func (col wukong) ListPictures(docId string, opt *repositories.WuKongPictureList
 	}
 
 	var v []struct {
-		Total    int      `bson:"total"`
-		Pictures []string `bson:"pictures"`
+		Total    int           `bson:"total"`
+		Pictures []pictureInfo `bson:"pictures"`
 	}
 
 	err = withContext(func(ctx context.Context) error {
@@ -104,7 +105,17 @@ func (col wukong) ListPictures(docId string, opt *repositories.WuKongPictureList
 
 	doc := v[0]
 	do.Total = doc.Total
-	do.Pictures = doc.Pictures
+
+	do.Pictures = make([]repositories.WuKongPictureInfoDO, len(doc.Pictures))
+	for i := range doc.Pictures {
+		col.toPictureDO(&doc.Pictures[i], &do.Pictures[i])
+	}
 
 	return
+}
+
+func (col wukong) toPictureDO(p *pictureInfo, do *repositories.WuKongPictureInfoDO) {
+	do.Link = p.Link
+	do.Desc = p.Desc
+	do.Style = p.Style
 }

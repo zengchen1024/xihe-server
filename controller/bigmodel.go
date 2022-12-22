@@ -17,9 +17,10 @@ func AddRouterForBigModelController(
 	bm bigmodel.BigModel,
 	luojia repository.LuoJia,
 	wukong repository.WuKong,
+	wukongPicture repository.WuKongPicture,
 ) {
 	ctl := BigModelController{
-		s: app.NewBigModelService(bm, luojia, wukong),
+		s: app.NewBigModelService(bm, luojia, wukong, wukongPicture),
 	}
 
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
@@ -32,8 +33,11 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/luojia", ctl.LuoJia)
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
 	rg.POST("/v1/bigmodel/wukong", ctl.WuKong)
+	rg.PUT("/v1/bigmodel/wukong", ctl.AddLike)
+	rg.DELETE("/v1/bigmodel/wukong/:id", ctl.CancelLike)
 	rg.GET("/v1/bigmodel/wukong/samples/:batch", ctl.GenWuKongSamples)
 	rg.GET("/v1/bigmodel/wukong/pictures", ctl.WuKongPictures)
+	rg.GET("/v1/bigmodel/wukong", ctl.ListLike)
 	rg.GET("/v1/bigmodel/luojia", ctl.ListLuoJiaRecord)
 }
 
@@ -501,5 +505,79 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPost(ctx, wukongPicturesGenerateResp{v})
+	}
+}
+
+// @Title AddLike
+// @Description add like to wukong picture
+// @Tags  BigModel
+// @Param	body	body 	wukongAddLikeRequest	true	"body of wukong"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong [put]
+func (ctl *BigModelController) AddLike(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := wukongAddLikeRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequest(ctx, respBadRequestBody)
+
+		return
+	}
+
+	cmd := req.toCmd(pl.DomainAccount())
+	if code, err := ctl.s.AddLikeToWuKongPicture(&cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
+	} else {
+		ctl.sendRespOfPut(ctx, "success")
+	}
+}
+
+// @Title CancelLike
+// @Description cancel like on wukong picture
+// @Tags  BigModel
+// @Param	id	path 	string	true	"picture id"
+// @Accept json
+// @Success 204
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong/{id} [delete]
+func (ctl *BigModelController) CancelLike(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	err := ctl.s.CancelLikeOnWuKongPicture(
+		pl.DomainAccount(), ctx.Param("id"),
+	)
+	if err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfDelete(ctx)
+	}
+}
+
+// @Title ListLike
+// @Description list wukong pictures user liked
+// @Tags  BigModel
+// @Accept json
+// @Success 200 {object} app.UserLikedWuKongPictureDTO
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong [get]
+func (ctl *BigModelController) ListLike(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	v, err := ctl.s.ListLikedWuKongPictures(pl.DomainAccount())
+	if err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfGet(ctx, v)
 	}
 }

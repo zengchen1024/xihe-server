@@ -52,6 +52,11 @@ const (
 
 	ErrorBigModelSensitiveInfo = "bigmodel_sensitive_info"
 
-	ErrorTrainNoLog    = "train_no_log"
-	ErrorTrainNoOutput = "train_no_output"
+	ErrorTrainNoLog        = "train_no_log"
+	ErrorTrainNoOutput     = "train_no_output"
+	ErrorTrainExccedMaxNum = "train_excced_max_num" // excced max training num for a user
+
+	ErrorWuKongInvalidPath      = "wukong_invalid_path"
+	ErrorWuKongDuplicateLike    = "wukong_duplicate_like"
+	ErrorWuKongExccedMaxLikeNum = "wukong_excced_max_like_num"
 )

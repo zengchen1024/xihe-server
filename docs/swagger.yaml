@@ -589,6 +589,19 @@ definitions:
       id:
         type: string
     type: object
+  app.UserLikedWuKongPictureDTO:
+    properties:
+      created_at:
+        type: string
+      desc:
+        type: string
+      id:
+        type: string
+      link:
+        type: string
+      style:
+        type: string
+    type: object
   app.UserSearchDTO:
     properties:
       top:
@@ -602,7 +615,7 @@ definitions:
     properties:
       pictures:
         items:
-          type: string
+          $ref: '#/definitions/domain.WuKongPictureInfo'
         type: array
       total:
         type: integer
@@ -1186,6 +1199,11 @@ definitions:
       is_follower:
         type: boolean
     type: object
+  controller.wukongAddLikeRequest:
+    properties:
+      obspath:
+        type: string
+    type: object
   controller.wukongPicturesGenerateResp:
     properties:
       pictures:
@@ -1207,6 +1225,15 @@ definitions:
           type: string
         type: array
       kind:
+        type: string
+    type: object
+  domain.WuKongPictureInfo:
+    properties:
+      desc:
+        type: string
+      link:
+        type: string
+      style:
         type: string
     type: object
 info:
@@ -1512,6 +1539,21 @@ paths:
       tags:
       - BigModel
   /v1/bigmodel/wukong:
+    get:
+      consumes:
+      - application/json
+      description: list wukong pictures user liked
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.UserLikedWuKongPictureDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
     post:
       consumes:
       - application/json
@@ -1528,6 +1570,46 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/controller.wukongPicturesGenerateResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+    put:
+      consumes:
+      - application/json
+      description: add like to wukong picture
+      parameters:
+      - description: body of wukong
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.wukongAddLikeRequest'
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: cancel like on wukong picture
+      parameters:
+      - description: picture id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
         "500":
           description: Internal Server Error
           schema:

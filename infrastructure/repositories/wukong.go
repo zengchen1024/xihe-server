@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 type WuKongPicturesDO = repository.WuKongPictures
+type WuKongPictureInfoDO = domain.WuKongPictureInfo
 type WuKongPictureListOptionDO = repository.WuKongPictureListOption
 
 type WuKongMapper interface {

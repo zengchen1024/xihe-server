@@ -8,6 +8,7 @@ import (
 	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/opensourceways/community-robot-lib/utils"
 
+	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
@@ -58,6 +59,7 @@ type Config struct {
 	Mongodb     Mongodb                `json:"mongodb"      required:"true"`
 	Gitlab      gitlab.Config          `json:"gitlab"       required:"true"`
 	Domain      domain.Config          `json:"domain"       required:"true"`
+	App         app.Config             `json:"app"          required:"true"`
 	API         controller.APIConfig   `json:"api"          required:"true"`
 	MQ          MQ                     `json:"mq"           required:"true"`
 }
@@ -78,6 +80,7 @@ func (cfg *Config) configItems() []interface{} {
 		&cfg.Domain,
 		&cfg.Mongodb,
 		&cfg.Gitlab,
+		&cfg.App,
 		&cfg.API,
 		&cfg.MQ,
 	}
@@ -124,22 +127,23 @@ type Mongodb struct {
 }
 
 type MongodbCollections struct {
-	Tag          string `json:"tag"             required:"true"`
-	User         string `json:"user"            required:"true"`
-	Like         string `json:"like"            required:"true"`
-	Model        string `json:"model"           required:"true"`
-	Login        string `json:"login"           required:"true"`
-	LuoJia       string `json:"luojia"          required:"true"`
-	WuKong       string `json:"wukong"          required:"true"`
-	Dataset      string `json:"dataset"         required:"true"`
-	Project      string `json:"project"         required:"true"`
-	Activity     string `json:"activity"        required:"true"`
-	Training     string `json:"training"        required:"true"`
-	Evaluate     string `json:"evaluate"        required:"true"`
-	Inference    string `json:"inference"       required:"true"`
-	AIQuestion   string `json:"aiquestion"      required:"true"`
-	Competition  string `json:"competition"     required:"true"`
-	QuestionPool string `json:"question_pool"   required:"true"`
+	Tag           string `json:"tag"             required:"true"`
+	User          string `json:"user"            required:"true"`
+	Like          string `json:"like"            required:"true"`
+	Model         string `json:"model"           required:"true"`
+	Login         string `json:"login"           required:"true"`
+	LuoJia        string `json:"luojia"          required:"true"`
+	WuKong        string `json:"wukong"          required:"true"`
+	Dataset       string `json:"dataset"         required:"true"`
+	Project       string `json:"project"         required:"true"`
+	Activity      string `json:"activity"        required:"true"`
+	Training      string `json:"training"        required:"true"`
+	Evaluate      string `json:"evaluate"        required:"true"`
+	Inference     string `json:"inference"       required:"true"`
+	AIQuestion    string `json:"aiquestion"      required:"true"`
+	Competition   string `json:"competition"     required:"true"`
+	QuestionPool  string `json:"question_pool"   required:"true"`
+	WuKongPicture string `json:"wukong_picture"  required:"true"`
 }
 
 type AuthingService struct {
@@ -174,4 +178,8 @@ func (cfg *MQ) ParseAddress() []string {
 
 func (cfg *Config) InitDomainConfig() {
 	domain.Init(&cfg.Domain)
+}
+
+func (cfg *Config) InitAppConfig() {
+	app.Init(&cfg.App)
 }

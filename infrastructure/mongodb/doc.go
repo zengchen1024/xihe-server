@@ -491,12 +491,33 @@ type luojiaItem struct {
 }
 
 type dWuKong struct {
-	Id       string    `bson:"id"        json:"id"`
-	Samples  []dSample `bson:"samples"   json:"samples"`
-	Pictures []string  `bson:"pictures"  json:"pictures"`
+	Id       string        `bson:"id"        json:"id"`
+	Samples  []dSample     `bson:"samples"   json:"samples"`
+	Pictures []pictureInfo `bson:"pictures"  json:"pictures"`
 }
 
 type dSample struct {
 	Num  int    `bson:"num"              json:"num"`
 	Name string `bson:"name"             json:"name"`
+}
+
+type pictureInfo struct {
+	Desc  string `bson:"desc"            json:"desc"`
+	Link  string `bson:"link"            json:"link"`
+	Style string `bson:"style"           json:"style"`
+}
+
+type dWuKongPicture struct {
+	Owner   string `bson:"owner"         json:"owner"`
+	Version int    `bson:"version"       json:"-"`
+
+	Items []pictureItem `bson:"items"    json:"-"`
+}
+
+type pictureItem struct {
+	Id        string `bson:"id"          json:"id"`
+	Desc      string `bson:"desc"        json:"desc"`
+	Style     string `bson:"style"       json:"style"`
+	OBSPath   string `bson:"obspath"     json:"obspath"`
+	CreatedAt string `bson:"created_at"  json:"created_at"`
 }

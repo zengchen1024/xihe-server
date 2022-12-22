@@ -15,3 +15,27 @@ type LuoJiaRecordIndex struct {
 	User Account
 	Id   string
 }
+
+type UserWuKongPicture struct {
+	User Account
+	WuKongPicture
+}
+
+type WuKongPicture struct {
+	Id        string
+	OBSPath   string
+	CreatedAt string
+
+	WuKongPictureMeta
+}
+
+type WuKongPictureInfo struct {
+	WuKongPictureMeta
+
+	Link string `json:"link"`
+}
+
+type WuKongPictureMeta struct {
+	Style string `json:"style"`
+	Desc  string `json:"desc"`
+}
