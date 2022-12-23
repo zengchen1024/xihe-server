@@ -34,6 +34,7 @@ func AddRouterForBigModelController(
 	rg.POST("/v1/bigmodel/codegeex", ctl.CodeGeex)
 	rg.POST("/v1/bigmodel/wukong", ctl.WuKong)
 	rg.PUT("/v1/bigmodel/wukong", ctl.AddLike)
+	rg.PUT("/v1/bigmodel/wukong/link", ctl.GenDownloadURL)
 	rg.DELETE("/v1/bigmodel/wukong/:id", ctl.CancelLike)
 	rg.GET("/v1/bigmodel/wukong/samples/:batch", ctl.GenWuKongSamples)
 	rg.GET("/v1/bigmodel/wukong/pictures", ctl.WuKongPictures)
@@ -579,5 +580,36 @@ func (ctl *BigModelController) ListLike(ctx *gin.Context) {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfGet(ctx, v)
+	}
+}
+
+// @Title GenDownloadURL
+// @Description generate download url of wukong picture
+// @Tags  BigModel
+// @Param	body	body 	wukongPictureLink	true	"body of wukong"
+// @Accept json
+// @Success 202 {object} wukongPictureLink
+// @Failure 500 system_error        system error
+// @Router /v1/bigmodel/wukong/link [put]
+func (ctl *BigModelController) GenDownloadURL(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	req := wukongPictureLink{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequest(ctx, respBadRequestBody)
+
+		return
+	}
+
+	link, code, err := ctl.s.ReGenerateDownloadURLOfWuKongPicture(
+		pl.DomainAccount(), req.Link,
+	)
+	if err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
+	} else {
+		ctl.sendRespOfPut(ctx, wukongPictureLink{link})
 	}
 }

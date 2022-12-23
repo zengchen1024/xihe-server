@@ -127,3 +127,7 @@ func (req *wukongAddLikeRequest) toCmd(user domain.Account) app.WuKongPictureAdd
 type wukongAddLikeResp struct {
 	Id string `json:"id"`
 }
+
+type wukongPictureLink struct {
+	Link string `json:"link"`
+}

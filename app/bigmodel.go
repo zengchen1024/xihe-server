@@ -3,6 +3,8 @@ package app
 import (
 	"errors"
 	"io"
+	"net/url"
+	"strings"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/bigmodel"
@@ -27,6 +29,7 @@ type BigModelService interface {
 	AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (string, string, error)
 	CancelLikeOnWuKongPicture(domain.Account, string) error
 	ListLikedWuKongPictures(domain.Account) ([]UserLikedWuKongPictureDTO, error)
+	ReGenerateDownloadURLOfWuKongPicture(domain.Account, string) (string, string, error)
 }
 
 func NewBigModelService(
@@ -283,6 +286,24 @@ func (s bigModelService) ListLikedWuKongPictures(user domain.Account) (
 		dto.Desc = item.Desc.WuKongPictureDesc()
 		dto.Style = item.Style
 		dto.CreatedAt = item.CreatedAt
+	}
+
+	return
+}
+
+func (s bigModelService) ReGenerateDownloadURLOfWuKongPicture(
+	user domain.Account, link string,
+) (
+	newLink string, code string, err error,
+) {
+	v, err := url.Parse(link)
+	if err != nil || !strings.Contains(v.Path, user.Account()) {
+		code = ErrorWuKongInvalidLink
+		err = errors.New("invalid link")
+	} else {
+		newLink, err = s.fm.GenWuKongPictureLink(
+			strings.TrimPrefix(v.Path, "/"),
+		)
 	}
 
 	return

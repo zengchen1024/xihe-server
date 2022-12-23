@@ -1218,6 +1218,11 @@ definitions:
       id:
         type: string
     type: object
+  controller.wukongPictureLink:
+    properties:
+      link:
+        type: string
+    type: object
   controller.wukongPicturesGenerateResp:
     properties:
       pictures:
@@ -1617,6 +1622,29 @@ paths:
       responses:
         "204":
           description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/link:
+    put:
+      consumes:
+      - application/json
+      description: generate download url of wukong picture
+      parameters:
+      - description: body of wukong
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.wukongPictureLink'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongPictureLink'
         "500":
           description: Internal Server Error
           schema:
