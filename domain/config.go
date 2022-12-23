@@ -33,6 +33,8 @@ type Config struct {
 	MaxTrainingNameLength int `json:"max_training_name_length"`
 	MinTrainingNameLength int `json:"min_training_name_length"`
 	MaxTrainingDescLength int `json:"max_training_desc_length"`
+
+	WuKongPictureMaxDescLength int `json:"wukong_picture_max_desc_length"`
 }
 
 func (cfg *Config) SetDefault() {
@@ -70,6 +72,10 @@ func (cfg *Config) SetDefault() {
 
 	if cfg.MaxTrainingDescLength == 0 {
 		cfg.MaxTrainingDescLength = 100
+	}
+
+	if cfg.WuKongPictureMaxDescLength <= 0 {
+		cfg.WuKongPictureMaxDescLength = 75
 	}
 }
 

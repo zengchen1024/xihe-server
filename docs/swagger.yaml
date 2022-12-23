@@ -611,11 +611,20 @@ definitions:
       total:
         type: integer
     type: object
+  app.WuKongPictureInfoDTO:
+    properties:
+      desc:
+        type: string
+      link:
+        type: string
+      style:
+        type: string
+    type: object
   app.WuKongPicturesDTO:
     properties:
       pictures:
         items:
-          $ref: '#/definitions/domain.WuKongPictureInfo'
+          $ref: '#/definitions/app.WuKongPictureInfoDTO'
         type: array
       total:
         type: integer
@@ -1204,6 +1213,11 @@ definitions:
       obspath:
         type: string
     type: object
+  controller.wukongAddLikeResp:
+    properties:
+      id:
+        type: string
+    type: object
   controller.wukongPicturesGenerateResp:
     properties:
       pictures:
@@ -1225,15 +1239,6 @@ definitions:
           type: string
         type: array
       kind:
-        type: string
-    type: object
-  domain.WuKongPictureInfo:
-    properties:
-      desc:
-        type: string
-      link:
-        type: string
-      style:
         type: string
     type: object
 info:
@@ -1589,7 +1594,9 @@ paths:
           $ref: '#/definitions/controller.wukongAddLikeRequest'
       responses:
         "202":
-          description: ""
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongAddLikeResp'
         "500":
           description: Internal Server Error
           schema:

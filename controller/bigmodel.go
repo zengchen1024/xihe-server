@@ -501,8 +501,8 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.WuKong(pl.DomainAccount(), &cmd); err != nil {
-		ctl.sendCodeMessage(ctx, "", err)
+	if v, code, err := ctl.s.WuKong(pl.DomainAccount(), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfPost(ctx, wukongPicturesGenerateResp{v})
 	}
@@ -513,7 +513,7 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 // @Tags  BigModel
 // @Param	body	body 	wukongAddLikeRequest	true	"body of wukong"
 // @Accept json
-// @Success 202
+// @Success 202 {object} wukongAddLikeResp
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/wukong [put]
 func (ctl *BigModelController) AddLike(ctx *gin.Context) {
@@ -530,10 +530,10 @@ func (ctl *BigModelController) AddLike(ctx *gin.Context) {
 	}
 
 	cmd := req.toCmd(pl.DomainAccount())
-	if code, err := ctl.s.AddLikeToWuKongPicture(&cmd); err != nil {
+	if pid, code, err := ctl.s.AddLikeToWuKongPicture(&cmd); err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctl.sendRespOfPut(ctx, "success")
+		ctl.sendRespOfPut(ctx, wukongAddLikeResp{pid})
 	}
 }
 

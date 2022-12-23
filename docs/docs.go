@@ -438,7 +438,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": ""
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -4903,13 +4906,27 @@ const docTemplate = `{
                 }
             }
         },
+        "app.WuKongPictureInfoDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "app.WuKongPicturesDTO": {
             "type": "object",
             "properties": {
                 "pictures": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.WuKongPictureInfo"
+                        "$ref": "#/definitions/app.WuKongPictureInfoDTO"
                     }
                 },
                 "total": {
@@ -5818,6 +5835,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.wukongAddLikeResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.wukongPicturesGenerateResp": {
             "type": "object",
             "properties": {
@@ -5850,20 +5875,6 @@ const docTemplate = `{
                     }
                 },
                 "kind": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.WuKongPictureInfo": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "link": {
-                    "type": "string"
-                },
-                "style": {
                     "type": "string"
                 }
             }

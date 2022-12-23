@@ -7,8 +7,6 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-type WuKongPictureDO = domain.WuKongPicture
-
 type WuKongPictureMapper interface {
 	List(string) ([]WuKongPictureDO, int, error)
 	Insert(string, *WuKongPictureDO, int) (string, error)
@@ -27,7 +25,19 @@ type wukongPicture struct {
 func (impl wukongPicture) List(user domain.Account) (
 	[]domain.WuKongPicture, int, error,
 ) {
-	return impl.mapper.List(user.Account())
+	v, version, err := impl.mapper.List(user.Account())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	r := make([]domain.WuKongPicture, len(v))
+	for i := range v {
+		if err = v[i].toWuKongPicture(&r[i]); err != nil {
+			return nil, 0, err
+		}
+	}
+
+	return r, version, nil
 }
 
 func (impl wukongPicture) Save(p *domain.UserWuKongPicture, version int) (string, error) {
@@ -35,7 +45,14 @@ func (impl wukongPicture) Save(p *domain.UserWuKongPicture, version int) (string
 		return "", errors.New("must be a new picture")
 	}
 
-	v, err := impl.mapper.Insert(p.User.Account(), &p.WuKongPicture, version)
+	do := WuKongPictureDO{
+		OBSPath:   p.OBSPath,
+		CreatedAt: p.CreatedAt,
+	}
+	do.Style = p.Style
+	do.Desc = p.Desc.WuKongPictureDesc()
+
+	v, err := impl.mapper.Insert(p.User.Account(), &do, version)
 	if err != nil {
 		return "", convertError(err)
 	}
@@ -51,11 +68,32 @@ func (impl wukongPicture) Delete(user domain.Account, pid string) error {
 	return nil
 }
 
-func (impl wukongPicture) Get(user domain.Account, pid string) (domain.WuKongPicture, error) {
-	v, err := impl.mapper.Get(user.Account(), pid)
-	if err != nil {
+func (impl wukongPicture) Get(user domain.Account, pid string) (
+	p domain.WuKongPicture, err error,
+) {
+	if v, err := impl.mapper.Get(user.Account(), pid); err != nil {
 		err = convertError(err)
+	} else {
+		err = v.toWuKongPicture(&p)
 	}
 
-	return v, err
+	return
+}
+
+type WuKongPictureDO struct {
+	Id        string
+	OBSPath   string
+	CreatedAt string
+
+	WuKongPictureMetaDO
+}
+
+func (do *WuKongPictureDO) toWuKongPicture(r *domain.WuKongPicture) (err error) {
+	r.Id = do.Id
+	r.OBSPath = do.OBSPath
+	r.CreatedAt = do.CreatedAt
+
+	r.WuKongPictureMeta, err = do.toWuKongPictureMeta()
+
+	return
 }

@@ -97,15 +97,16 @@ type wukongRequest struct {
 	Style string `json:"style"`
 }
 
-func (req *wukongRequest) toCmd() (app.WuKongCmd, error) {
-	cmd := app.WuKongCmd{
-		Style: req.Style,
-		Desc:  req.Desc,
+func (req *wukongRequest) toCmd() (cmd app.WuKongCmd, err error) {
+	cmd.Style = req.Style
+
+	if cmd.Desc, err = domain.NewWuKongPictureDesc(req.Desc); err != nil {
+		return
 	}
 
-	err := cmd.Validate()
+	err = cmd.Validate()
 
-	return cmd, err
+	return
 }
 
 type wukongPicturesGenerateResp struct {
@@ -121,4 +122,8 @@ func (req *wukongAddLikeRequest) toCmd(user domain.Account) app.WuKongPictureAdd
 		User:    user,
 		OBSPath: req.OBSPath,
 	}
+}
+
+type wukongAddLikeResp struct {
+	Id string `json:"id"`
 }

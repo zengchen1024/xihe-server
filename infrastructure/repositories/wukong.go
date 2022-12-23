@@ -5,8 +5,6 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
-type WuKongPicturesDO = repository.WuKongPictures
-type WuKongPictureInfoDO = domain.WuKongPictureInfo
 type WuKongPictureListOptionDO = repository.WuKongPictureListOption
 
 type WuKongMapper interface {
@@ -27,7 +25,60 @@ func (impl wukong) ListSamples(sid string, nums []int) ([]string, error) {
 }
 
 func (impl wukong) ListPictures(sid string, opt *repository.WuKongPictureListOption) (
-	repository.WuKongPictures, error,
+	r repository.WuKongPictures, err error,
 ) {
-	return impl.mapper.ListPictures(sid, opt)
+	v, err := impl.mapper.ListPictures(sid, opt)
+	if err == nil {
+		err = v.toWuKongPictures(&r)
+	}
+
+	return
+}
+
+type WuKongPicturesDO struct {
+	Pictures []WuKongPictureInfoDO
+	Total    int
+}
+
+func (do *WuKongPicturesDO) toWuKongPictures(r *repository.WuKongPictures) (err error) {
+	r.Total = do.Total
+
+	r.Pictures = make([]domain.WuKongPictureInfo, len(do.Pictures))
+	for i := range do.Pictures {
+		err = do.Pictures[i].toWuKongPictureInfo(&r.Pictures[i])
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+type WuKongPictureInfoDO struct {
+	Link string
+
+	WuKongPictureMetaDO
+}
+
+func (do *WuKongPictureInfoDO) toWuKongPictureInfo(info *domain.WuKongPictureInfo) (
+	err error,
+) {
+	info.Link = do.Link
+	info.WuKongPictureMeta, err = do.toWuKongPictureMeta()
+
+	return
+}
+
+type WuKongPictureMetaDO struct {
+	Style string
+	Desc  string
+}
+
+func (do *WuKongPictureMetaDO) toWuKongPictureMeta() (
+	meta domain.WuKongPictureMeta, err error,
+) {
+	meta.Style = do.Style
+	meta.Desc, err = domain.NewWuKongPictureDesc(do.Desc)
+
+	return
 }

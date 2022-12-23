@@ -426,7 +426,10 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": ""
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -4891,13 +4894,27 @@
                 }
             }
         },
+        "app.WuKongPictureInfoDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "app.WuKongPicturesDTO": {
             "type": "object",
             "properties": {
                 "pictures": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.WuKongPictureInfo"
+                        "$ref": "#/definitions/app.WuKongPictureInfoDTO"
                     }
                 },
                 "total": {
@@ -5806,6 +5823,14 @@
                 }
             }
         },
+        "controller.wukongAddLikeResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.wukongPicturesGenerateResp": {
             "type": "object",
             "properties": {
@@ -5838,20 +5863,6 @@
                     }
                 },
                 "kind": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.WuKongPictureInfo": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "link": {
-                    "type": "string"
-                },
-                "style": {
                     "type": "string"
                 }
             }
