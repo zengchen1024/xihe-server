@@ -4866,7 +4866,9 @@
                 "created_at": {
                     "type": "string"
                 },
-                "desc": {},
+                "desc": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4892,13 +4894,27 @@
                 }
             }
         },
+        "app.WuKongPictureInfoDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "app.WuKongPicturesDTO": {
             "type": "object",
             "properties": {
                 "pictures": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.WuKongPictureInfo"
+                        "$ref": "#/definitions/app.WuKongPictureInfoDTO"
                     }
                 },
                 "total": {
@@ -5847,18 +5863,6 @@
                     }
                 },
                 "kind": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.WuKongPictureInfo": {
-            "type": "object",
-            "properties": {
-                "desc": {},
-                "link": {
-                    "type": "string"
-                },
-                "style": {
                     "type": "string"
                 }
             }

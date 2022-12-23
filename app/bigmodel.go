@@ -173,7 +173,24 @@ func (s bigModelService) WuKong(
 func (s bigModelService) WuKongPictures(cmd *WuKongPicturesListCmd) (
 	dto WuKongPicturesDTO, err error,
 ) {
-	return s.wukong.ListPictures(s.wukongSampleId, cmd)
+	v, err := s.wukong.ListPictures(s.wukongSampleId, cmd)
+	if err != nil {
+		return
+	}
+
+	dto.Total = v.Total
+	dto.Pictures = make([]WuKongPictureInfoDTO, len(v.Pictures))
+	for i := range v.Pictures {
+		item := &v.Pictures[i]
+
+		dto.Pictures[i] = WuKongPictureInfoDTO{
+			Style: item.Style,
+			Link:  item.Link,
+			Desc:  item.Desc.WuKongPictureDesc(),
+		}
+	}
+
+	return
 }
 
 func (s bigModelService) AddLikeToWuKongPicture(cmd *WuKongPictureAddLikeCmd) (
@@ -263,8 +280,9 @@ func (s bigModelService) ListLikedWuKongPictures(user domain.Account) (
 		}
 
 		dto.Id = item.Id
+		dto.Desc = item.Desc.WuKongPictureDesc()
+		dto.Style = item.Style
 		dto.CreatedAt = item.CreatedAt
-		dto.WuKongPictureMeta = item.WuKongPictureMeta
 	}
 
 	return

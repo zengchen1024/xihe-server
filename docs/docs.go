@@ -4878,7 +4878,9 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "desc": {},
+                "desc": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4904,13 +4906,27 @@ const docTemplate = `{
                 }
             }
         },
+        "app.WuKongPictureInfoDTO": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "app.WuKongPicturesDTO": {
             "type": "object",
             "properties": {
                 "pictures": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.WuKongPictureInfo"
+                        "$ref": "#/definitions/app.WuKongPictureInfoDTO"
                     }
                 },
                 "total": {
@@ -5859,18 +5875,6 @@ const docTemplate = `{
                     }
                 },
                 "kind": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.WuKongPictureInfo": {
-            "type": "object",
-            "properties": {
-                "desc": {},
-                "link": {
-                    "type": "string"
-                },
-                "style": {
                     "type": "string"
                 }
             }

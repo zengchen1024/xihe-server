@@ -593,7 +593,8 @@ definitions:
     properties:
       created_at:
         type: string
-      desc: {}
+      desc:
+        type: string
       id:
         type: string
       link:
@@ -610,11 +611,20 @@ definitions:
       total:
         type: integer
     type: object
+  app.WuKongPictureInfoDTO:
+    properties:
+      desc:
+        type: string
+      link:
+        type: string
+      style:
+        type: string
+    type: object
   app.WuKongPicturesDTO:
     properties:
       pictures:
         items:
-          $ref: '#/definitions/domain.WuKongPictureInfo'
+          $ref: '#/definitions/app.WuKongPictureInfoDTO'
         type: array
       total:
         type: integer
@@ -1229,14 +1239,6 @@ definitions:
           type: string
         type: array
       kind:
-        type: string
-    type: object
-  domain.WuKongPictureInfo:
-    properties:
-      desc: {}
-      link:
-        type: string
-      style:
         type: string
     type: object
 info:

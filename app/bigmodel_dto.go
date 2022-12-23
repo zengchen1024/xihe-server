@@ -42,11 +42,20 @@ type WuKongPictureAddLikeCmd struct {
 	OBSPath string
 }
 
-type WuKongPicturesDTO = repository.WuKongPictures
+type WuKongPicturesDTO struct {
+	Pictures []WuKongPictureInfoDTO `json:"pictures"`
+	Total    int                    `json:"total"`
+}
 
 type UserLikedWuKongPictureDTO struct {
-	domain.WuKongPictureInfo
+	WuKongPictureInfoDTO
 
 	Id        string `json:"id"`
 	CreatedAt string `json:"created_at"`
+}
+
+type WuKongPictureInfoDTO struct {
+	Link  string `json:"link"`
+	Desc  string `json:"desc"`
+	Style string `json:"style"`
 }
