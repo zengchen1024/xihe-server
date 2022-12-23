@@ -32,7 +32,7 @@ func (impl wukongPicture) List(user domain.Account) (
 
 	r := make([]domain.WuKongPicture, len(v))
 	for i := range v {
-		if r[i], err = v[i].toWuKongPicture(); err != nil {
+		if err = v[i].toWuKongPicture(&r[i]); err != nil {
 			return nil, 0, err
 		}
 	}
@@ -68,13 +68,16 @@ func (impl wukongPicture) Delete(user domain.Account, pid string) error {
 	return nil
 }
 
-func (impl wukongPicture) Get(user domain.Account, pid string) (domain.WuKongPicture, error) {
-	v, err := impl.mapper.Get(user.Account(), pid)
-	if err != nil {
-		return domain.WuKongPicture{}, convertError(err)
+func (impl wukongPicture) Get(user domain.Account, pid string) (
+	p domain.WuKongPicture, err error,
+) {
+	if v, err := impl.mapper.Get(user.Account(), pid); err != nil {
+		err = convertError(err)
+	} else {
+		err = v.toWuKongPicture(&p)
 	}
 
-	return v.toWuKongPicture()
+	return
 }
 
 type WuKongPictureDO struct {
@@ -85,7 +88,7 @@ type WuKongPictureDO struct {
 	WuKongPictureMetaDO
 }
 
-func (do *WuKongPictureDO) toWuKongPicture() (r domain.WuKongPicture, err error) {
+func (do *WuKongPictureDO) toWuKongPicture(r *domain.WuKongPicture) (err error) {
 	r.Id = do.Id
 	r.OBSPath = do.OBSPath
 	r.CreatedAt = do.CreatedAt

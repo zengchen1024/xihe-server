@@ -45,7 +45,7 @@ func (do *WuKongPicturesDO) toWuKongPictures() (r repository.WuKongPictures, err
 
 	r.Pictures = make([]domain.WuKongPictureInfo, len(do.Pictures))
 	for i := range do.Pictures {
-		r.Pictures[i], err = do.Pictures[i].toWuKongPictureInfo()
+		err = do.Pictures[i].toWuKongPictureInfo(&r.Pictures[i])
 		if err != nil {
 			return
 		}
@@ -60,8 +60,8 @@ type WuKongPictureInfoDO struct {
 	WuKongPictureMetaDO
 }
 
-func (do *WuKongPictureInfoDO) toWuKongPictureInfo() (
-	info domain.WuKongPictureInfo, err error,
+func (do *WuKongPictureInfoDO) toWuKongPictureInfo(info *domain.WuKongPictureInfo) (
+	err error,
 ) {
 	info.Link = do.Link
 	info.WuKongPictureMeta, err = do.toWuKongPictureMeta()
