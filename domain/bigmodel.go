@@ -32,10 +32,10 @@ type WuKongPicture struct {
 type WuKongPictureInfo struct {
 	WuKongPictureMeta
 
-	Link string `json:"link"`
+	Link string
 }
 
 type WuKongPictureMeta struct {
-	Style string            `json:"style"`
-	Desc  WuKongPictureDesc `json:"desc"`
+	Style string
+	Desc  WuKongPictureDesc
 }

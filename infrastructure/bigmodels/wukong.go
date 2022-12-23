@@ -168,12 +168,10 @@ func (s *service) GenWuKongPictureLink(p string) (string, error) {
 func (s *service) CheckWuKongPictureToLike(user domain.Account, p string) (
 	meta domain.WuKongPictureMeta, path string, err error,
 ) {
-	if meta, err = s.parseWuKongPictureMetaData(user, p); err != nil {
-		return
+	if meta, err = s.parseWuKongPictureMetaData(user, p); err == nil {
+		v := user.Account()
+		path = strings.Replace(p, v, v+"/like", 1)
 	}
-
-	v := user.Account()
-	path = strings.Replace(p, v, v+"/like", 1)
 
 	return
 }
