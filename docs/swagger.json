@@ -474,6 +474,42 @@
                 }
             }
         },
+        "/v1/bigmodel/wukong/link": {
+            "put": {
+                "description": "generate download url of wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of wukong",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongPictureLink"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongPictureLink"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bigmodel/wukong/pictures": {
             "get": {
                 "description": "list wukong pictures",
@@ -5827,6 +5863,14 @@
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.wukongPictureLink": {
+            "type": "object",
+            "properties": {
+                "link": {
                     "type": "string"
                 }
             }
