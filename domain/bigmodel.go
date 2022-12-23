@@ -36,6 +36,6 @@ type WuKongPictureInfo struct {
 }
 
 type WuKongPictureMeta struct {
-	Style string `json:"style"`
-	Desc  string `json:"desc"`
+	Style string            `json:"style"`
+	Desc  WuKongPictureDesc `json:"desc"`
 }

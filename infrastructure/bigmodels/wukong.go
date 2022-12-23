@@ -111,7 +111,7 @@ func (s *service) genPicturesByWuKong(
 
 	opt := wukongRequest{
 		Style: desc.Style,
-		Desc:  desc.Desc,
+		Desc:  desc.Desc.WuKongPictureDesc(),
 		User:  user.Account(),
 	}
 	body, err := libutils.JsonMarshal(&opt)
@@ -200,7 +200,8 @@ func (s *service) ParseWuKongPictureMetaData(user domain.Account, p string) (
 	if meta.Style != "" {
 		desc = strings.TrimSpace(strings.TrimSuffix(desc, meta.Style))
 	}
-	meta.Desc = desc
+
+	meta.Desc, err = domain.NewWuKongPictureDesc(desc)
 
 	return
 }

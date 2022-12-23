@@ -28,7 +28,7 @@ type LuoJiaRecordDTO struct {
 type WuKongCmd domain.WuKongPictureMeta
 
 func (cmd *WuKongCmd) Validate() error {
-	if cmd.Desc == "" {
+	if cmd.Desc == nil {
 		return errors.New("invalid cmd")
 	}
 
