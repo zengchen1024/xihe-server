@@ -25,14 +25,14 @@ func (impl wukong) ListSamples(sid string, nums []int) ([]string, error) {
 }
 
 func (impl wukong) ListPictures(sid string, opt *repository.WuKongPictureListOption) (
-	repository.WuKongPictures, error,
+	r repository.WuKongPictures, err error,
 ) {
 	v, err := impl.mapper.ListPictures(sid, opt)
-	if err != nil {
-		return repository.WuKongPictures{}, err
+	if err == nil {
+		err = v.toWuKongPictures(&r)
 	}
 
-	return v.toWuKongPictures()
+	return
 }
 
 type WuKongPicturesDO struct {
@@ -40,7 +40,7 @@ type WuKongPicturesDO struct {
 	Total    int
 }
 
-func (do *WuKongPicturesDO) toWuKongPictures() (r repository.WuKongPictures, err error) {
+func (do *WuKongPicturesDO) toWuKongPictures(r *repository.WuKongPictures) (err error) {
 	r.Total = do.Total
 
 	r.Pictures = make([]domain.WuKongPictureInfo, len(do.Pictures))

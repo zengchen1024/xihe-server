@@ -73,6 +73,10 @@ func (s *service) GetWuKongSampleId() string {
 func (s *service) GenPicturesByWuKong(
 	user domain.Account, desc *domain.WuKongPictureMeta,
 ) (map[string]string, error) {
+	if err := s.check.check(desc.Desc.WuKongPictureDesc()); err != nil {
+		return nil, err
+	}
+
 	var v []string
 
 	f := func(e string) (err error) {
@@ -141,14 +145,10 @@ func (s *service) genPicturesByWuKong(
 	return nil, errors.New(r.Msg)
 }
 
-func (s *service) MoveWuKongPictureToLikeDir(user domain.Account, p string) (string, error) {
-	v := user.Account()
-	np := strings.Replace(p, v, v+"/like", 1)
-
+func (s *service) MoveWuKongPictureToLikeDir(dst, src string) error {
 	info := &s.wukongInfo
-	err := info.cli.copyObject(info.cfg.Bucket, np, p)
 
-	return np, err
+	return info.cli.copyObject(info.cfg.Bucket, dst, src)
 }
 
 func (s *service) DeleteWuKongPicture(p string) error {
@@ -165,7 +165,20 @@ func (s *service) GenWuKongPictureLink(p string) (string, error) {
 	)
 }
 
-func (s *service) ParseWuKongPictureMetaData(user domain.Account, p string) (
+func (s *service) CheckWuKongPictureToLike(user domain.Account, p string) (
+	meta domain.WuKongPictureMeta, path string, err error,
+) {
+	if meta, err = s.parseWuKongPictureMetaData(user, p); err != nil {
+		return
+	}
+
+	v := user.Account()
+	path = strings.Replace(p, v, v+"/like", 1)
+
+	return
+}
+
+func (s *service) parseWuKongPictureMetaData(user domain.Account, p string) (
 	meta domain.WuKongPictureMeta, err error,
 ) {
 	t := reTimestamp.FindString(p)

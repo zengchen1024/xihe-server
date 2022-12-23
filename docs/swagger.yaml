@@ -593,8 +593,7 @@ definitions:
     properties:
       created_at:
         type: string
-      desc:
-        type: string
+      desc: {}
       id:
         type: string
       link:
@@ -1204,6 +1203,11 @@ definitions:
       obspath:
         type: string
     type: object
+  controller.wukongAddLikeResp:
+    properties:
+      id:
+        type: string
+    type: object
   controller.wukongPicturesGenerateResp:
     properties:
       pictures:
@@ -1229,8 +1233,7 @@ definitions:
     type: object
   domain.WuKongPictureInfo:
     properties:
-      desc:
-        type: string
+      desc: {}
       link:
         type: string
       style:
@@ -1589,7 +1592,9 @@ paths:
           $ref: '#/definitions/controller.wukongAddLikeRequest'
       responses:
         "202":
-          description: ""
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongAddLikeResp'
         "500":
           description: Internal Server Error
           schema:

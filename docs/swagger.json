@@ -426,7 +426,10 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": ""
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -4863,9 +4866,7 @@
                 "created_at": {
                     "type": "string"
                 },
-                "desc": {
-                    "type": "string"
-                },
+                "desc": {},
                 "id": {
                     "type": "string"
                 },
@@ -5806,6 +5807,14 @@
                 }
             }
         },
+        "controller.wukongAddLikeResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.wukongPicturesGenerateResp": {
             "type": "object",
             "properties": {
@@ -5845,9 +5854,7 @@
         "domain.WuKongPictureInfo": {
             "type": "object",
             "properties": {
-                "desc": {
-                    "type": "string"
-                },
+                "desc": {},
                 "link": {
                     "type": "string"
                 },

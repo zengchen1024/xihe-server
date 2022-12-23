@@ -123,3 +123,7 @@ func (req *wukongAddLikeRequest) toCmd(user domain.Account) app.WuKongPictureAdd
 		OBSPath: req.OBSPath,
 	}
 }
+
+type wukongAddLikeResp struct {
+	Id string `json:"id"`
+}

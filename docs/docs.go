@@ -438,7 +438,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": ""
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -4875,9 +4878,7 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "desc": {
-                    "type": "string"
-                },
+                "desc": {},
                 "id": {
                     "type": "string"
                 },
@@ -5818,6 +5819,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.wukongAddLikeResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.wukongPicturesGenerateResp": {
             "type": "object",
             "properties": {
@@ -5857,9 +5866,7 @@ const docTemplate = `{
         "domain.WuKongPictureInfo": {
             "type": "object",
             "properties": {
-                "desc": {
-                    "type": "string"
-                },
+                "desc": {},
                 "link": {
                     "type": "string"
                 },
