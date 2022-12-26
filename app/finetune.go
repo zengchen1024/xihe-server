@@ -65,7 +65,7 @@ func (s finetuneService) Create(cmd *FinetuneCreateCmd) (
 	for i := range v {
 		if !s.isJobDone(v[i].Status) {
 			code = ErrorFinetuneRunningJobExists
-			err = errors.New("a finetune is running")
+			err = errors.New("a job is running")
 
 			return
 		}
@@ -100,7 +100,6 @@ func (s finetuneService) List(user domain.Account) ([]FinetuneSummaryDTO, error)
 	}
 
 	r := make([]FinetuneSummaryDTO, len(v))
-
 	for i := range v {
 		s.toFinetuneSummaryDTO(&v[i], &r[i])
 	}
@@ -115,8 +114,7 @@ func (s finetuneService) Delete(info *FinetuneIndex) error {
 	}
 
 	if job.JobId != "" {
-		err = s.fs.DeleteJob(job.Endpoint, job.JobId)
-		if err != nil {
+		if err = s.fs.DeleteJob(job.Endpoint, job.JobId); err != nil {
 			// ignore 404
 			return err
 		}
@@ -127,18 +125,12 @@ func (s finetuneService) Delete(info *FinetuneIndex) error {
 
 func (s finetuneService) Terminate(info *FinetuneIndex) error {
 	job, err := s.repo.GetJob(info)
-	if err != nil {
+	if err != nil || job.JobId == "" {
 		return err
 	}
 
-	if job.JobId != "" {
-		err = s.fs.TerminateJob(job.Endpoint, job.JobId)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	// TODO: do if it can terminate
+	return s.fs.TerminateJob(job.Endpoint, job.JobId)
 }
 
 func (s finetuneService) GetLogPreviewURL(info *FinetuneIndex) (string, error) {

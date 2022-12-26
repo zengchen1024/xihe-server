@@ -32,13 +32,11 @@ type errorUnavailableTraining struct {
 	error
 }
 
-/*
 func IsErrorUnavailableTraining(err error) bool {
 	_, ok := err.(errorUnavailableTraining)
 
 	return ok
 }
-*/
 
 const (
 	ErrorCodeSytem = "system"

@@ -35,6 +35,11 @@ type msgTraining struct {
 	TrainingId string `json:"rid"`
 }
 
+type msgFinetune struct {
+	User string `json:"user"`
+	Id   string `json:"id"`
+}
+
 type msgInference struct {
 	Action       string `json:"action"`
 	ProjectId    string `json:"pid"`
