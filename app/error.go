@@ -32,11 +32,13 @@ type errorUnavailableTraining struct {
 	error
 }
 
+/*
 func IsErrorUnavailableTraining(err error) bool {
 	_, ok := err.(errorUnavailableTraining)
 
 	return ok
 }
+*/
 
 const (
 	ErrorCodeSytem = "system"
@@ -60,4 +62,7 @@ const (
 	ErrorWuKongInvalidLink      = "wukong_invalid_link"
 	ErrorWuKongDuplicateLike    = "wukong_duplicate_like"
 	ErrorWuKongExccedMaxLikeNum = "wukong_excced_max_like_num"
+
+	ErrorFinetuneExccedMaxNum     = "finetune_excced_max_num"
+	ErrorFinetuneRunningJobExists = "finetune_running_job_exists"
 )

@@ -86,14 +86,12 @@ func (s trainingService) toTrainingSummaryDTO(
 		status = trainingStatusScheduling
 	}
 
-	done := status == trainingStatusScheduleFailed || s.train.IsJobDone(status)
-
 	*dto = TrainingSummaryDTO{
 		Id:        t.Id,
 		Name:      t.Name.TrainingName(),
 		Error:     t.Error,
 		Status:    status,
-		IsDone:    done,
+		IsDone:    s.isJobDone(t.Status),
 		Duration:  t.Duration,
 		CreatedAt: utils.ToDate(t.CreatedAt),
 	}

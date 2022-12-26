@@ -35,6 +35,7 @@ type Sender interface {
 	RemoveRelatedResources(*RelatedResources) error
 
 	CreateTraining(*domain.TrainingIndex) error
+	CreateFinetune(*domain.FinetuneIndex) error
 
 	CreateInference(*domain.InferenceInfo) error
 	ExtendInferenceSurvivalTime(*InferenceExtendInfo) error
@@ -82,6 +83,10 @@ type RelatedResources struct {
 
 type TrainingHandler interface {
 	HandleEventCreateTraining(*domain.TrainingIndex) error
+}
+
+type FinetuneHandler interface {
+	HandleEventCreateFinetune(*domain.FinetuneIndex) error
 }
 
 type InferenceHandler interface {

@@ -35,6 +35,9 @@ type Config struct {
 	MaxTrainingDescLength int `json:"max_training_desc_length"`
 
 	WuKongPictureMaxDescLength int `json:"wukong_picture_max_desc_length"`
+
+	// Key is the finetue model name
+	Finetunes map[string]FinetuneParameterConfig `json:"fintunes" required:"true"`
 }
 
 func (cfg *Config) SetDefault() {
@@ -106,4 +109,9 @@ func (cfg *Config) hasProjectType(v string) bool {
 
 func (cfg *Config) hasPlatform(v string) bool {
 	return cfg.trainingPlatform.Has(v)
+}
+
+type FinetuneParameterConfig struct {
+	Tasks           []string `json:"tasks"           required:"true"`
+	Hyperparameters []string `json:"hyperparameters" required:"true"`
 }
