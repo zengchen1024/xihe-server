@@ -42,7 +42,7 @@ func (impl *trainingImpl) CreateJob(endpoint string, info *domain.TrainingIndex,
 		Inputs:         impl.toInput(t.Inputs),
 		EnableAim:      t.EnableAim,
 		EnableOutput:   t.EnableOutput,
-		Hypeparameters: impl.toKeyValue(t.Hypeparameters),
+		Hypeparameters: impl.toKeyValue(t.Hyperparameters),
 	}
 
 	logrus.Debugf(

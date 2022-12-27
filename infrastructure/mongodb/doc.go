@@ -289,18 +289,18 @@ type dTraining struct {
 }
 
 type trainingItem struct {
-	Id             string      `bson:"id"            json:"id"`
-	Name           string      `bson:"name"          json:"name"`
-	Desc           string      `bson:"desc"          json:"desc"`
-	CodeDir        string      `bson:"code_dir"      json:"code_dir"`
-	BootFile       string      `bson:"boot_file"     json:"boot_file"`
-	Compute        dCompute    `bson:"compute"       json:"compute"`
-	Inputs         []dInput    `bson:"inputs"        json:"inputs"`
-	EnableAim      bool        `bson:"aim"           json:"aim"`
-	EnableOutput   bool        `bson:"output"        json:"output"`
-	Env            []dKeyValue `bson:"env"           json:"env"`
-	Hypeparameters []dKeyValue `bson:"parameters"    json:"parameters"`
-	CreatedAt      int64       `bson:"created_at"    json:"created_at"`
+	Id              string      `bson:"id"            json:"id"`
+	Name            string      `bson:"name"          json:"name"`
+	Desc            string      `bson:"desc"          json:"desc"`
+	CodeDir         string      `bson:"code_dir"      json:"code_dir"`
+	BootFile        string      `bson:"boot_file"     json:"boot_file"`
+	Compute         dCompute    `bson:"compute"       json:"compute"`
+	Inputs          []dInput    `bson:"inputs"        json:"inputs"`
+	EnableAim       bool        `bson:"aim"           json:"aim"`
+	EnableOutput    bool        `bson:"output"        json:"output"`
+	Env             []dKeyValue `bson:"env"           json:"env"`
+	Hyperparameters []dKeyValue `bson:"parameters"    json:"parameters"`
+	CreatedAt       int64       `bson:"created_at"    json:"created_at"`
 
 	Job       dJobInfo   `bson:"job"     json:"job"`
 	JobDetail dJobDetail `bson:"detail"  json:"detail"`

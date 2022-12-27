@@ -1575,6 +1575,190 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/finetune": {
+            "get": {
+                "description": "get finetunes",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.FinetuneSummaryDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create finetune",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "body of creating finetune",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.FinetuneCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.finetuneCreateResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/finetune/ws": {
+            "get": {
+                "description": "get finetunes",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.FinetuneSummaryDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/finetune/{id}": {
+            "put": {
+                "description": "terminate finetune",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "Terminate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "finetune id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete finetune",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "finetune id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/finetune/{id}/log": {
+            "get": {
+                "description": "get finetune log",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "Log",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "finetune id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.finetuneLog"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inference/project/{owner}/{pid}": {
             "get": {
                 "description": "create inference",
@@ -4319,6 +4503,32 @@ const docTemplate = `{
                 }
             }
         },
+        "app.FinetuneSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_done": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "app.FollowDTO": {
             "type": "object",
             "properties": {
@@ -5021,6 +5231,26 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.FinetuneCreateRequest": {
+            "type": "object",
+            "properties": {
+                "hyperparameter": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.KeyValue"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "task": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.KeyValue": {
             "type": "object",
             "properties": {
@@ -5314,6 +5544,22 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "desc": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.finetuneCreateResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.finetuneLog": {
+            "type": "object",
+            "properties": {
+                "log": {
                     "type": "string"
                 }
             }

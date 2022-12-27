@@ -44,7 +44,7 @@ func (cmd *TrainingCreateCmd) Validate() error {
 		return nil
 	}
 
-	if f(cmd.Hypeparameters) != nil {
+	if f(cmd.Hyperparameters) != nil {
 		return err
 	}
 

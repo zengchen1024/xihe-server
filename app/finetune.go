@@ -20,7 +20,7 @@ type FinetuneService interface {
 	List(user domain.Account) ([]FinetuneSummaryDTO, error)
 	Delete(*FinetuneIndex) error
 	Terminate(*FinetuneIndex) error
-	GetLogPreviewURL(*FinetuneIndex) (string, error)
+	GetJobInfo(*FinetuneIndex) (FinetuneJobDTO, string, error)
 }
 
 func NewFinetuneService(
@@ -110,6 +110,9 @@ func (s finetuneService) List(user domain.Account) ([]FinetuneSummaryDTO, error)
 func (s finetuneService) Delete(info *FinetuneIndex) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			return nil
+		}
 		return err
 	}
 
@@ -129,21 +132,29 @@ func (s finetuneService) Terminate(info *FinetuneIndex) error {
 		return err
 	}
 
-	// TODO: do if it can terminate
+	if !s.fs.CanTerminate(job.Status) {
+		return errors.New("can't terminate now")
+	}
+
 	return s.fs.TerminateJob(job.Endpoint, job.JobId)
 }
 
-func (s finetuneService) GetLogPreviewURL(info *FinetuneIndex) (string, error) {
-	job, err := s.repo.GetJob(info)
+func (s finetuneService) GetJobInfo(index *FinetuneIndex) (
+	dto FinetuneJobDTO, code string, err error,
+) {
+	job, err := s.repo.GetJob(index)
 	if err != nil {
-		return "", err
+		if repository.IsErrorResourceNotExists(err) {
+			code = ErrorFinetuneNotFound
+		}
+
+		return
 	}
 
-	if job.JobId != "" {
-		return s.fs.GetLogPreviewURL(job.Endpoint, job.JobId)
-	}
+	dto.IsDone = s.isJobDone(job.Status)
+	dto.LogPreviewURL, err = s.fs.GetLogPreviewURL(job.Endpoint, job.JobId)
 
-	return "", nil
+	return
 }
 
 // FinetuneInternalService

@@ -24,11 +24,11 @@ type TrainingConfig struct {
 	CodeDir  Directory
 	BootFile FilePath
 
-	Hypeparameters []KeyValue
-	Env            []KeyValue
-	Inputs         []Input
-	EnableOutput   bool
-	EnableAim      bool
+	Hyperparameters []KeyValue
+	Env             []KeyValue
+	Inputs          []Input
+	EnableOutput    bool
+	EnableAim       bool
 
 	Compute Compute
 }
@@ -74,11 +74,11 @@ type JobDetail struct {
 }
 
 type TrainingSummary struct {
-	Id        string
-	Name      TrainingName
-	Desc      TrainingDesc
-	JobId     string
-	Endpoint  string
+	Id   string
+	Name TrainingName
+	Desc TrainingDesc
+	//JobId     string
+	//Endpoint  string
 	Error     string
 	Status    string
 	Duration  int

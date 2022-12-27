@@ -22,11 +22,11 @@ type TrainingConfigDO struct {
 	CodeDir  string
 	BootFile string
 
-	Hypeparameters []KeyValueDO
-	Env            []KeyValueDO
-	Inputs         []InputDO
-	EnableAim      bool
-	EnableOutput   bool
+	Hyperparameters []KeyValueDO
+	Env             []KeyValueDO
+	Inputs          []InputDO
+	EnableAim       bool
+	EnableOutput    bool
 
 	Compute ComputeDO
 }
@@ -58,7 +58,7 @@ func (do *TrainingConfigDO) toTrainingConfig() (t domain.TrainingConfig, err err
 		return
 	}
 
-	if t.Hypeparameters, err = do.toKeyValues(do.Hypeparameters); err != nil {
+	if t.Hyperparameters, err = do.toKeyValues(do.Hyperparameters); err != nil {
 		return
 	}
 
@@ -189,11 +189,11 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 			CodeDir:  t.CodeDir.Directory(),
 			BootFile: t.BootFile.FilePath(),
 
-			Hypeparameters: impl.toKeyValueDOs(t.Hypeparameters),
-			Env:            impl.toKeyValueDOs(t.Env),
-			Inputs:         impl.toInputDOs(t.Inputs),
-			EnableAim:      t.EnableAim,
-			EnableOutput:   t.EnableOutput,
+			Hyperparameters: impl.toKeyValueDOs(t.Hyperparameters),
+			Env:             impl.toKeyValueDOs(t.Env),
+			Inputs:          impl.toInputDOs(t.Inputs),
+			EnableAim:       t.EnableAim,
+			EnableOutput:    t.EnableOutput,
 
 			Compute: ComputeDO{
 				Type:    c.Type.ComputeType(),
@@ -264,8 +264,8 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	}
 
 	t.Id = do.Id
-	t.JobId = do.JobId
-	t.Endpoint = do.Endpoint
+	//t.JobId = do.JobId
+	//t.Endpoint = do.Endpoint
 	t.CreatedAt = do.CreatedAt
 	t.Error = do.Error
 	t.Status = do.Status
@@ -283,13 +283,13 @@ func (impl training) toTrainingInfoDo(info *domain.TrainingIndex) TrainingIndexD
 }
 
 type TrainingSummaryDO struct {
-	Id        string
-	Name      string
-	Desc      string
-	JobId     string
-	Error     string
-	Status    string
-	Endpoint  string
+	Id   string
+	Name string
+	Desc string
+	//JobId     string
+	Error  string
+	Status string
+	//Endpoint  string
 	Duration  int
 	CreatedAt int64
 }

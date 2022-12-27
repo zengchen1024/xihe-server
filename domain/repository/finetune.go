@@ -10,8 +10,8 @@ type Finetune interface {
 	Delete(*domain.FinetuneIndex) error
 	List(user domain.Account) ([]domain.FinetuneSummary, int, error)
 
+	GetJob(*domain.FinetuneIndex) (domain.FinetuneJob, error)
 	SaveJob(*domain.FinetuneIndex, *domain.FinetuneJobInfo) error
-	GetJob(*domain.FinetuneIndex) (domain.FinetuneJobInfo, error)
 
 	UpdateJobDetail(*domain.FinetuneIndex, *domain.FinetuneJobDetail) error
 }

@@ -92,6 +92,12 @@ func (p finetuneParameter) Hypeparameters() map[string]string {
 	return p.hyperparameters
 }
 
+type FinetuneJob struct {
+	FinetuneJobInfo
+
+	Status string
+}
+
 type FinetuneJobInfo struct {
 	JobId    string
 	Endpoint string

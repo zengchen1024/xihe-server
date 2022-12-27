@@ -10,4 +10,5 @@ type Finetune interface {
 	TerminateJob(endpoint, jobId string) error
 	GetLogPreviewURL(endpoint, jobId string) (string, error)
 	IsJobDone(status string) bool
+	CanTerminate(status string) bool
 }

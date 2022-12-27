@@ -55,3 +55,8 @@ func (s finetuneService) toFinetuneSummaryDTO(
 	dto.Duration = t.Duration
 	dto.CreatedAt = utils.ToDate(t.CreatedAt)
 }
+
+type FinetuneJobDTO struct {
+	IsDone        bool
+	LogPreviewURL string
+}
