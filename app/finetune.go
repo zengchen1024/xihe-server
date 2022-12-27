@@ -152,7 +152,10 @@ func (s finetuneService) GetJobInfo(index *FinetuneIndex) (
 	}
 
 	dto.IsDone = s.isJobDone(job.Status)
-	dto.LogPreviewURL, err = s.fs.GetLogPreviewURL(job.Endpoint, job.JobId)
+
+	if job.Endpoint != "" && job.JobId != "" {
+		dto.LogPreviewURL, err = s.fs.GetLogPreviewURL(job.Endpoint, job.JobId)
+	}
 
 	return
 }

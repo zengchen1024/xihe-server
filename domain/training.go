@@ -74,11 +74,9 @@ type JobDetail struct {
 }
 
 type TrainingSummary struct {
-	Id   string
-	Name TrainingName
-	Desc TrainingDesc
-	//JobId     string
-	//Endpoint  string
+	Id        string
+	Name      TrainingName
+	Desc      TrainingDesc
 	Error     string
 	Status    string
 	Duration  int

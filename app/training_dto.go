@@ -117,8 +117,7 @@ type TrainingDTO struct {
 	AimPath   string     `json:"aim_path"`
 	EnableAim bool       `json:"enable_aim"`
 
-	JobId       string `json:"-"`
-	JobEndpoint string `json:"-"`
+	LogPreviewURL string `json:"-"`
 }
 
 type ComputeDTO struct {
@@ -127,7 +126,7 @@ type ComputeDTO struct {
 	Flavor  string `json:"flavor"`
 }
 
-func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
+func (s trainingService) toTrainingDTO(dto *TrainingDTO, ut *domain.UserTraining, link string) {
 	t := &ut.TrainingConfig
 	detail := &ut.JobDetail
 	c := &t.Compute
@@ -137,7 +136,7 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 		status = trainingStatusScheduling
 	}
 
-	v := TrainingDTO{
+	*dto = TrainingDTO{
 		Id:        ut.Id,
 		ProjectId: ut.ProjectId,
 
@@ -155,13 +154,10 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 		EnableAim: t.EnableAim,
 		AimPath:   ut.JobDetail.AimPath,
 
-		JobEndpoint: ut.Job.Endpoint,
-		JobId:       ut.Job.JobId,
+		LogPreviewURL: link,
 	}
 
 	if t.Desc != nil {
-		v.Desc = t.Desc.TrainingDesc()
+		dto.Desc = t.Desc.TrainingDesc()
 	}
-
-	return v
 }

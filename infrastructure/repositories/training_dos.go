@@ -264,12 +264,10 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	}
 
 	t.Id = do.Id
-	//t.JobId = do.JobId
-	//t.Endpoint = do.Endpoint
-	t.CreatedAt = do.CreatedAt
 	t.Error = do.Error
 	t.Status = do.Status
 	t.Duration = do.Duration
+	t.CreatedAt = do.CreatedAt
 
 	return
 }
@@ -283,13 +281,11 @@ func (impl training) toTrainingInfoDo(info *domain.TrainingIndex) TrainingIndexD
 }
 
 type TrainingSummaryDO struct {
-	Id   string
-	Name string
-	Desc string
-	//JobId     string
-	Error  string
-	Status string
-	//Endpoint  string
+	Id        string
+	Name      string
+	Desc      string
+	Error     string
+	Status    string
 	Duration  int
 	CreatedAt int64
 }

@@ -21,7 +21,7 @@ type trainingLogResp struct {
 }
 
 type trainingDetail struct {
-	*app.TrainingDTO
+	app.TrainingDTO
 	Log string `json:"log"`
 }
 

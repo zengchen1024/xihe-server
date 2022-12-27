@@ -100,9 +100,8 @@ func (col training) List(user, projectId string) ([]repositories.TrainingSummary
 			ctx, col.collectionName,
 			trainingDocFilter(user, projectId),
 			bson.M{
-				fieldVersion:             1,
-				subfieldOfItems(fieldId): 1,
-				//subfieldOfItems(fieldJob):       1,
+				fieldVersion:                    1,
+				subfieldOfItems(fieldId):        1,
 				subfieldOfItems(fieldName):      1,
 				subfieldOfItems(fieldDesc):      1,
 				subfieldOfItems(fieldDetail):    1,
@@ -319,14 +318,12 @@ func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (
 
 func (col training) toTrainingSummary(t *trainingItem, s *repositories.TrainingSummaryDO) {
 	*s = repositories.TrainingSummaryDO{
-		Id:   t.Id,
-		Name: t.Name,
-		Desc: t.Desc,
-		//JobId:     t.Job.JobId,
+		Id:        t.Id,
+		Name:      t.Name,
+		Desc:      t.Desc,
 		Error:     t.JobDetail.Error,
 		Status:    t.JobDetail.Status,
 		Duration:  t.JobDetail.Duration,
 		CreatedAt: t.CreatedAt,
-		//Endpoint:  t.Job.Endpoint,
 	}
 }

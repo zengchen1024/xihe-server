@@ -54,6 +54,7 @@ const (
 
 	ErrorTrainNoLog        = "train_no_log"
 	ErrorTrainNoOutput     = "train_no_output"
+	ErrorTrainNotFound     = "train_not_found"
 	ErrorTrainExccedMaxNum = "train_excced_max_num" // excced max training num for a user
 
 	ErrorWuKongInvalidPath      = "wukong_invalid_path"

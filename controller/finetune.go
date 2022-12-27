@@ -160,19 +160,6 @@ func (ctl *FinetuneController) List(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/finetune/ws [get]
 func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
-
-	finished := func(v []app.FinetuneSummaryDTO) (b bool, i int) {
-		for i = range v {
-			if !v[i].IsDone {
-				return
-			}
-		}
-
-		b = true
-
-		return
-	}
-
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
@@ -195,17 +182,49 @@ func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
 
 	defer ws.Close()
 
+	ctl.watchFinetunes(ws, pl.DomainAccount())
+}
+
+func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Account) {
+	finished := func(v []app.FinetuneSummaryDTO) (b bool, i int) {
+		for i = range v {
+			if !v[i].IsDone {
+				return
+			}
+		}
+
+		b = true
+
+		return
+	}
+
+	duration := 0
+	sleep := func() {
+		time.Sleep(time.Second)
+
+		if duration > 0 {
+			duration++
+		}
+	}
+
 	// start loop
+	var err error
 	var v []app.FinetuneSummaryDTO
 	var running *app.FinetuneSummaryDTO
 
-	i := 4
+	start, end := 4, 5
+	i := start
 	for {
-		if i++; i == 5 {
-			i = 0
-
-			v, err = ctl.fs.List(pl.DomainAccount())
+		if i++; i == end {
+			v, err = ctl.fs.List(user)
 			if err != nil {
+				i = start
+				sleep()
+
+				continue
+			}
+
+			if len(v) == 0 {
 				break
 			}
 
@@ -216,14 +235,11 @@ func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
 				break
 			}
 
-			duration := 0
-			if running != nil {
-				duration = running.Duration + 1
-			}
-
 			running = &v[index]
 
-			if running.Duration < duration {
+			if duration == 0 {
+				duration = running.Duration
+			} else {
 				running.Duration = duration
 			}
 
@@ -231,6 +247,7 @@ func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
 				break
 			}
 
+			i = 0
 		} else {
 			if running.Duration > 0 {
 				running.Duration++
@@ -241,7 +258,7 @@ func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
 			}
 		}
 
-		time.Sleep(time.Second)
+		sleep()
 	}
 }
 
@@ -281,18 +298,6 @@ func (ctl *FinetuneController) Log(ctx *gin.Context) {
 
 	defer ws.Close()
 
-	log := func(link string) ([]byte, error) {
-		req, err := http.NewRequest(http.MethodGet, link, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		cli := utils.NewHttpClient(3)
-		v, _, err := cli.Download(req)
-
-		return v, err
-	}
-
 	for {
 		v, code, err := ctl.fs.GetJobInfo(&index)
 		if err != nil {
@@ -305,7 +310,7 @@ func (ctl *FinetuneController) Log(ctx *gin.Context) {
 			continue
 		}
 
-		content, err := log(v.LogPreviewURL)
+		content, err := downloadLog(v.LogPreviewURL)
 		if err != nil {
 			time.Sleep(time.Second)
 
@@ -326,4 +331,20 @@ func (ctl *FinetuneController) Log(ctx *gin.Context) {
 
 		time.Sleep(5 * time.Second)
 	}
+}
+
+func downloadLog(link string) ([]byte, error) {
+	if link == "" {
+		return nil, nil
+	}
+
+	req, err := http.NewRequest(http.MethodGet, link, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	cli := utils.NewHttpClient(3)
+	v, _, err := cli.Download(req)
+
+	return v, err
 }
