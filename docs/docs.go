@@ -1759,6 +1759,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/finetune/{id}/log/ws": {
+            "get": {
+                "description": "get finetune log",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Finetune"
+                ],
+                "summary": "LogByWS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "finetune id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.finetuneLog"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inference/project/{owner}/{pid}": {
             "get": {
                 "description": "create inference",

@@ -30,7 +30,7 @@ func (impl finetuneImpl) Save(user domain.Account, obj *domain.Finetune, version
 	string, error,
 ) {
 	if obj.Id != "" {
-		return "", errors.New("must be a new project")
+		return "", errors.New("must be a new finetune")
 	}
 
 	do := new(UserFinetuneDO)
@@ -38,10 +38,10 @@ func (impl finetuneImpl) Save(user domain.Account, obj *domain.Finetune, version
 
 	v, err := impl.mapper.Insert(do, version)
 	if err != nil {
-		return "", convertError(err)
+		err = convertError(err)
 	}
 
-	return v, nil
+	return v, err
 }
 
 func (impl finetuneImpl) Get(index *domain.FinetuneIndex) (

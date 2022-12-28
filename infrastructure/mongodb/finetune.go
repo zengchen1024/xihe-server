@@ -117,8 +117,11 @@ func (col finetuneCol) List(user string) (do repositories.UserFinetunesDO, versi
 	do.Expiry = v.Expiry
 
 	t := v.Items
-	r := make([]repositories.FinetuneSummaryDO, len(t))
+	if len(t) == 0 {
+		return
+	}
 
+	r := make([]repositories.FinetuneSummaryDO, len(t))
 	for i := range t {
 		col.toFinetuneSummary(&t[i], &r[i])
 	}

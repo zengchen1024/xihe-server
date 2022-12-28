@@ -4,7 +4,6 @@ type UserTraining struct {
 	Id        string
 	Owner     Account
 	ProjectId string
-	// TODO TrainingIndex
 
 	TrainingConfig
 
@@ -87,5 +86,4 @@ type TrainingSummary struct {
 type TrainingIndex struct {
 	Project    ResourceIndex
 	TrainingId string
-	// TODO Id string
 }

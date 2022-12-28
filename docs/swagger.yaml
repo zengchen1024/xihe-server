@@ -2471,6 +2471,29 @@ paths:
       summary: Log
       tags:
       - Finetune
+  /v1/finetune/{id}/log/ws:
+    get:
+      consumes:
+      - application/json
+      description: get finetune log
+      parameters:
+      - description: finetune id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.finetuneLog'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: LogByWS
+      tags:
+      - Finetune
   /v1/finetune/ws:
     get:
       consumes:

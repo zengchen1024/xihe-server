@@ -115,13 +115,17 @@ func (s finetuneService) List(user domain.Account) (
 		return
 	}
 
+	r.Expiry = v.Expiry
+
+	if len(v.Datas) == 0 {
+		return
+	}
+
 	datas := make([]FinetuneSummaryDTO, len(v.Datas))
 	for i := range v.Datas {
 		s.toFinetuneSummaryDTO(&v.Datas[i], &datas[i])
 	}
-
 	r.Datas = datas
-	r.Expiry = v.Expiry
 
 	return
 }

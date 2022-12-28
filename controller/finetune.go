@@ -31,6 +31,7 @@ func AddRouterForFinetuneController(
 	rg.GET("/v1/finetune", ctl.List)
 	rg.GET("/v1/finetune/ws", ctl.ListByWS)
 	rg.GET("/v1/finetune/:id/log", ctl.Log)
+	rg.GET("/v1/finetune/:id/log/ws", ctl.LogByWS)
 	rg.PUT("/v1/finetune/:id", ctl.Terminate)
 	rg.DELETE("v1/finetune/:id", ctl.Delete)
 }
@@ -266,15 +267,15 @@ func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Ac
 	}
 }
 
-// @Summary Log
+// @Summary LogByWS
 // @Description get finetune log
 // @Tags  Finetune
 // @Param	id	path	string	true	"finetune id"
 // @Accept json
 // @Success 200 {object} finetuneLog
 // @Failure 500 system_error        system error
-// @Router /v1/finetune/{id}/log [get]
-func (ctl *FinetuneController) Log(ctx *gin.Context) {
+// @Router /v1/finetune/{id}/log/ws [get]
+func (ctl *FinetuneController) LogByWS(ctx *gin.Context) {
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
@@ -334,6 +335,40 @@ func (ctl *FinetuneController) Log(ctx *gin.Context) {
 		}
 
 		time.Sleep(5 * time.Second)
+	}
+}
+
+// @Summary Log
+// @Description get finetune log
+// @Tags  Finetune
+// @Param	id	path	string	true	"finetune id"
+// @Accept json
+// @Success 200 {object} finetuneLog
+// @Failure 500 system_error        system error
+// @Router /v1/finetune/{id}/log [get]
+func (ctl *FinetuneController) Log(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	index := domain.FinetuneIndex{
+		Owner: pl.DomainAccount(),
+		Id:    ctx.Param("pid"),
+	}
+
+	v, code, err := ctl.fs.GetJobInfo(&index)
+	if err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
+
+		return
+	}
+
+	content, err := downloadLog(v.LogPreviewURL)
+	if err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfGet(ctx, finetuneLog{string(content)})
 	}
 }
 

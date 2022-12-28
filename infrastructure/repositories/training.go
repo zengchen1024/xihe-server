@@ -29,7 +29,7 @@ type training struct {
 
 func (impl training) Save(ut *domain.UserTraining, version int) (string, error) {
 	if ut.Id != "" {
-		return "", errors.New("must be a new project")
+		return "", errors.New("must be a new training")
 	}
 
 	do := impl.toUserTrainingDO(ut)
