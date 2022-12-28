@@ -2371,7 +2371,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get finetunes
+      description: list finetunes
       responses:
         "200":
           description: OK
@@ -2452,7 +2452,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get finetune log
+      description: download finetune log
       parameters:
       - description: finetune id
         in: path
@@ -2475,7 +2475,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get finetune log
+      description: watch single finetune
       parameters:
       - description: finetune id
         in: path
@@ -2491,14 +2491,14 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
-      summary: LogByWS
+      summary: WatchSingle
       tags:
       - Finetune
   /v1/finetune/ws:
     get:
       consumes:
       - application/json
-      description: get finetunes
+      description: watch finetunes
       responses:
         "200":
           description: OK
@@ -2508,7 +2508,7 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
-      summary: List
+      summary: WatchFinetunes
       tags:
       - Finetune
   /v1/inference/project/{owner}/{pid}:

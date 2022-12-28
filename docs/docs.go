@@ -1577,7 +1577,7 @@ const docTemplate = `{
         },
         "/v1/finetune": {
             "get": {
-                "description": "get finetunes",
+                "description": "list finetunes",
                 "consumes": [
                     "application/json"
                 ],
@@ -1638,14 +1638,14 @@ const docTemplate = `{
         },
         "/v1/finetune/ws": {
             "get": {
-                "description": "get finetunes",
+                "description": "watch finetunes",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "Finetune"
                 ],
-                "summary": "List",
+                "summary": "WatchFinetunes",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1726,7 +1726,7 @@ const docTemplate = `{
         },
         "/v1/finetune/{id}/log": {
             "get": {
-                "description": "get finetune log",
+                "description": "download finetune log",
                 "consumes": [
                     "application/json"
                 ],
@@ -1761,14 +1761,14 @@ const docTemplate = `{
         },
         "/v1/finetune/{id}/log/ws": {
             "get": {
-                "description": "get finetune log",
+                "description": "watch single finetune",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "Finetune"
                 ],
-                "summary": "LogByWS",
+                "summary": "WatchSingle",
                 "parameters": [
                     {
                         "type": "string",

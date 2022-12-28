@@ -29,9 +29,9 @@ func AddRouterForFinetuneController(
 
 	rg.POST("/v1/finetune", ctl.Create)
 	rg.GET("/v1/finetune", ctl.List)
-	rg.GET("/v1/finetune/ws", ctl.ListByWS)
+	rg.GET("/v1/finetune/ws", ctl.WatchFinetunes)
 	rg.GET("/v1/finetune/:id/log", ctl.Log)
-	rg.GET("/v1/finetune/:id/log/ws", ctl.LogByWS)
+	rg.GET("/v1/finetune/:id/log/ws", ctl.WatchSingle)
 	rg.PUT("/v1/finetune/:id", ctl.Terminate)
 	rg.DELETE("v1/finetune/:id", ctl.Delete)
 }
@@ -134,7 +134,7 @@ func (ctl *FinetuneController) finetuneIndex(ctx *gin.Context) (
 }
 
 // @Summary List
-// @Description get finetunes
+// @Description list finetunes
 // @Tags  Finetune
 // @Accept json
 // @Success 200 {object} app.FinetuneSummaryDTO
@@ -153,14 +153,14 @@ func (ctl *FinetuneController) List(ctx *gin.Context) {
 	}
 }
 
-// @Summary List
-// @Description get finetunes
+// @Summary WatchFinetunes
+// @Description watch finetunes
 // @Tags  Finetune
 // @Accept json
 // @Success 200 {object} app.FinetuneSummaryDTO
 // @Failure 500 system_error        system error
 // @Router /v1/finetune/ws [get]
-func (ctl *FinetuneController) ListByWS(ctx *gin.Context) {
+func (ctl *FinetuneController) WatchFinetunes(ctx *gin.Context) {
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
@@ -267,15 +267,15 @@ func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Ac
 	}
 }
 
-// @Summary LogByWS
-// @Description get finetune log
+// @Summary WatchSingle
+// @Description watch single finetune
 // @Tags  Finetune
 // @Param	id	path	string	true	"finetune id"
 // @Accept json
 // @Success 200 {object} finetuneLog
 // @Failure 500 system_error        system error
 // @Router /v1/finetune/{id}/log/ws [get]
-func (ctl *FinetuneController) LogByWS(ctx *gin.Context) {
+func (ctl *FinetuneController) WatchSingle(ctx *gin.Context) {
 	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
 	if !ok {
 		return
@@ -339,7 +339,7 @@ func (ctl *FinetuneController) LogByWS(ctx *gin.Context) {
 }
 
 // @Summary Log
-// @Description get finetune log
+// @Description download finetune log
 // @Tags  Finetune
 // @Param	id	path	string	true	"finetune id"
 // @Accept json
