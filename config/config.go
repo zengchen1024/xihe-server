@@ -14,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
+	"github.com/opensourceways/xihe-server/infrastructure/finetuneimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
@@ -54,6 +55,7 @@ type Config struct {
 	Competition competitionimpl.Config `json:"competition"  required:"true"`
 	Challenge   challengeimpl.Config   `json:"challenge"    required:"true"`
 	Training    trainingimpl.Config    `json:"training"     required:"true"`
+	Finetune    finetuneimpl.Config    `json:"finetune"     required:"true"`
 	BigModel    bigmodels.Config       `json:"bigmodel"     required:"true"`
 	Authing     AuthingService         `json:"authing"      required:"true"`
 	Mongodb     Mongodb                `json:"mongodb"      required:"true"`
@@ -75,6 +77,7 @@ func (cfg *Config) configItems() []interface{} {
 		&cfg.Competition,
 		&cfg.Challenge,
 		&cfg.Training,
+		&cfg.Finetune,
 		&cfg.BigModel,
 		&cfg.Authing,
 		&cfg.Domain,

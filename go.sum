@@ -297,6 +297,8 @@ github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7J
 github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1ybHNo=
 github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95 h1:FpEuPKwG0gDjOuoMIhFWeNRrLokX0DGSCRl2G4Y//jA=
 github.com/opensourceways/community-robot-lib v0.0.0-20221016001453-0602b5e39d95/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
+github.com/opensourceways/community-robot-lib v0.0.0-20221212062947-85a66b110688 h1:c/zXFR33Ehs8fMB9CN77Ua3b8LK8rCl6QlD2s20mbvA=
+github.com/opensourceways/community-robot-lib v0.0.0-20221212062947-85a66b110688/go.mod h1:aeTHmjsRPhPpRuUDT95A5YFEFhGzc2OM7OL9HHjsmYM=
 github.com/opensourceways/go-gitee v0.0.0-20220714075315-cb246f1dfb96/go.mod h1:yvVsEMhp7frMblzN1sco4C7cRlnlpqkkn3O2JQNdRu0=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117063933-0f2786747d81 h1:6jVM7QIhEzxzmbjcB5LCC/OoOOwxBq79iUY57oZdaS0=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221117063933-0f2786747d81/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
