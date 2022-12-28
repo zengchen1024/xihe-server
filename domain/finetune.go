@@ -2,17 +2,11 @@ package domain
 
 import "errors"
 
-type FinetuneIndex struct {
-	Id    string
-	Owner Account
-}
-
-type UserFinetune struct {
-	FinetuneIndex
+type Finetune struct {
+	Id        string
+	CreatedAt int64
 
 	FinetuneConfig
-
-	CreatedAt int64
 
 	// following fileds is not under the controlling of version
 	Job       FinetuneJobInfo
@@ -115,4 +109,13 @@ type FinetuneSummary struct {
 	CreatedAt int64
 
 	FinetuneJobDetail
+}
+
+type FinetuneUserInfo struct {
+	Expiry int64
+}
+
+type FinetuneIndex struct {
+	Id    string
+	Owner Account
 }

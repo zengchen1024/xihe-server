@@ -70,22 +70,20 @@ func (col training) toInputDoc(v []repositories.InputDO) []dInput {
 	return r
 }
 
-func (col training) toTrainingDetailDO(doc *dTraining) repositories.TrainingDetailDO {
+func (col training) toTrainingDetailDO(doc *dTraining, do *repositories.TrainingDetailDO) {
 	item := &doc.Items[0]
 
-	return repositories.TrainingDetailDO{
-		CreatedAt:        item.CreatedAt,
-		Job:              col.toTrainingJobInfoDO(&item.Job),
-		JobDetail:        col.toTrainingJobDetailDO(&item.JobDetail),
-		TrainingConfigDO: col.toTrainingConfigDO(doc),
-	}
+	do.CreatedAt = item.CreatedAt
+	col.toTrainingJobInfoDO(&item.Job, &do.Job)
+	col.toTrainingJobDetailDO(&item.JobDetail, &do.JobDetail)
+	col.toTrainingConfigDO(doc, &do.TrainingConfigDO)
 }
 
-func (col training) toTrainingConfigDO(doc *dTraining) repositories.TrainingConfigDO {
+func (col training) toTrainingConfigDO(doc *dTraining, do *repositories.TrainingConfigDO) {
 	item := &doc.Items[0]
 	c := &item.Compute
 
-	return repositories.TrainingConfigDO{
+	*do = repositories.TrainingConfigDO{
 		ProjectName:     doc.ProjectName,
 		ProjectRepoId:   doc.ProjectRepoId,
 		Name:            item.Name,
@@ -144,8 +142,8 @@ func (col training) toInputs(v []dInput) []repositories.InputDO {
 	return r
 }
 
-func (col training) toTrainingJobInfoDO(doc *dJobInfo) repositories.TrainingJobInfoDO {
-	return repositories.TrainingJobInfoDO{
+func (col training) toTrainingJobInfoDO(doc *dJobInfo, do *repositories.TrainingJobInfoDO) {
+	*do = repositories.TrainingJobInfoDO{
 		Endpoint:  doc.Endpoint,
 		JobId:     doc.JobId,
 		LogDir:    doc.LogDir,
@@ -154,8 +152,8 @@ func (col training) toTrainingJobInfoDO(doc *dJobInfo) repositories.TrainingJobI
 	}
 }
 
-func (col training) toTrainingJobDetailDO(doc *dJobDetail) repositories.TrainingJobDetailDO {
-	return repositories.TrainingJobDetailDO{
+func (col training) toTrainingJobDetailDO(doc *dJobDetail, do *repositories.TrainingJobDetailDO) {
+	*do = repositories.TrainingJobDetailDO{
 		Error:      doc.Error,
 		Status:     doc.Status,
 		Duration:   doc.Duration,

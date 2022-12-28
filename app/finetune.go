@@ -17,7 +17,7 @@ type FinetuneJobDetail = domain.FinetuneJobDetail
 
 type FinetuneService interface {
 	Create(*FinetuneCreateCmd) (string, string, error)
-	List(user domain.Account) ([]FinetuneSummaryDTO, error)
+	List(user domain.Account) (UserFinetunesDTO, string, error)
 	Delete(*FinetuneIndex) error
 	Terminate(*FinetuneIndex) error
 	GetJobInfo(*FinetuneIndex) (FinetuneJobDTO, string, error)
@@ -50,20 +50,31 @@ func (s finetuneService) Create(cmd *FinetuneCreateCmd) (
 ) {
 	user := cmd.User
 
-	v, version, err := s.repo.List(user)
+	v, err := s.repo.List(user)
 	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			code = ErrorFinetuneNoPermission
+		}
+
 		return
 	}
 
-	if len(v) >= appConfig.FinetuneMaxNum {
+	if utils.IsExpiry(v.Expiry) {
+		code = ErrorFinetuneExpiry
+		err = errors.New("it is expiry")
+
+		return
+	}
+
+	if len(v.Datas) >= appConfig.FinetuneMaxNum {
 		code = ErrorFinetuneExccedMaxNum
 		err = errors.New("exceed max record num")
 
 		return
 	}
 
-	for i := range v {
-		if !s.isJobDone(v[i].Status) {
+	for i := range v.Datas {
+		if !s.isJobDone(v.Datas[i].Status) {
 			code = ErrorFinetuneRunningJobExists
 			err = errors.New("a job is running")
 
@@ -71,13 +82,12 @@ func (s finetuneService) Create(cmd *FinetuneCreateCmd) (
 		}
 	}
 
-	t := domain.UserFinetune{
+	t := domain.Finetune{
 		CreatedAt:      utils.Now(),
 		FinetuneConfig: *cmd.toFinetuneConfig(),
 	}
-	t.Owner = user
 
-	if fid, err = s.repo.Save(&t, version); err != nil {
+	if fid, err = s.repo.Save(user, &t, v.Version); err != nil {
 		return
 	}
 
@@ -93,18 +103,27 @@ func (s finetuneService) Create(cmd *FinetuneCreateCmd) (
 	return
 }
 
-func (s finetuneService) List(user domain.Account) ([]FinetuneSummaryDTO, error) {
-	v, _, err := s.repo.List(user)
-	if err != nil || len(v) == 0 {
-		return nil, err
+func (s finetuneService) List(user domain.Account) (
+	r UserFinetunesDTO, code string, err error,
+) {
+	v, err := s.repo.List(user)
+	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			code = ErrorFinetuneNoPermission
+		}
+
+		return
 	}
 
-	r := make([]FinetuneSummaryDTO, len(v))
-	for i := range v {
-		s.toFinetuneSummaryDTO(&v[i], &r[i])
+	datas := make([]FinetuneSummaryDTO, len(v.Datas))
+	for i := range v.Datas {
+		s.toFinetuneSummaryDTO(&v.Datas[i], &datas[i])
 	}
 
-	return r, nil
+	r.Datas = datas
+	r.Expiry = v.Expiry
+
+	return
 }
 
 func (s finetuneService) Delete(info *FinetuneIndex) error {

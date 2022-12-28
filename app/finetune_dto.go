@@ -56,6 +56,11 @@ func (s finetuneService) toFinetuneSummaryDTO(
 	dto.CreatedAt = utils.ToDate(t.CreatedAt)
 }
 
+type UserFinetunesDTO struct {
+	Expiry int64                `json:"expiry"`
+	Datas  []FinetuneSummaryDTO `json:"datas"`
+}
+
 type FinetuneJobDTO struct {
 	IsDone        bool
 	LogPreviewURL string

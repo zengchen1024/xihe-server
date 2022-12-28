@@ -43,7 +43,7 @@ func (impl training) Save(ut *domain.UserTraining, version int) (string, error) 
 }
 
 func (impl training) Delete(info *domain.TrainingIndex) error {
-	do := impl.toTrainingInfoDo(info)
+	do := impl.toTrainingIndexDO(info)
 
 	if err := impl.mapper.Delete(&do); err != nil {
 		return convertError(err)
@@ -52,19 +52,21 @@ func (impl training) Delete(info *domain.TrainingIndex) error {
 	return nil
 }
 
-func (impl training) Get(info *domain.TrainingIndex) (domain.UserTraining, error) {
-	do := impl.toTrainingInfoDo(info)
+func (impl training) Get(info *domain.TrainingIndex) (obj domain.UserTraining, err error) {
+	do := impl.toTrainingIndexDO(info)
 
 	v, err := impl.mapper.Get(&do)
 	if err != nil {
-		return domain.UserTraining{}, convertError(err)
+		err = convertError(err)
+	} else {
+		err = v.toUserTraining(info, &obj)
 	}
 
-	return v.toUserTraining()
+	return
 }
 
 func (impl training) GetTrainingConfig(info *domain.TrainingIndex) (domain.TrainingConfig, error) {
-	do := impl.toTrainingInfoDo(info)
+	do := impl.toTrainingIndexDO(info)
 
 	v, err := impl.mapper.GetTrainingConfig(&do)
 	if err != nil {
@@ -90,7 +92,7 @@ func (impl training) List(user domain.Account, projectId string) (
 
 	r = make([]domain.TrainingSummary, len(v))
 	for i := range v {
-		if err = impl.toTrainingSummary(&v[i], &r[i]); err != nil {
+		if err = v[i].toTrainingSummary(&r[i]); err != nil {
 			return
 		}
 	}
@@ -99,7 +101,7 @@ func (impl training) List(user domain.Account, projectId string) (
 }
 
 func (impl training) SaveJob(info *domain.TrainingIndex, job *domain.JobInfo) error {
-	do := impl.toTrainingInfoDo(info)
+	do := impl.toTrainingIndexDO(info)
 
 	if err := impl.mapper.UpdateJobInfo(&do, job); err != nil {
 		return convertError(err)
@@ -109,35 +111,31 @@ func (impl training) SaveJob(info *domain.TrainingIndex, job *domain.JobInfo) er
 }
 
 func (impl training) GetJob(info *domain.TrainingIndex) (job domain.JobInfo, err error) {
-	t := impl.toTrainingInfoDo(info)
+	t := impl.toTrainingIndexDO(info)
 
-	do, err := impl.mapper.GetJobInfo(&t)
+	job, err = impl.mapper.GetJobInfo(&t)
 	if err != nil {
 		err = convertError(err)
-
-		return
 	}
 
-	return do, nil
+	return
 }
 
 func (impl training) GetJobDetail(info *domain.TrainingIndex) (
 	job domain.JobDetail, endpoint string, err error,
 ) {
-	t := impl.toTrainingInfoDo(info)
+	t := impl.toTrainingIndexDO(info)
 
-	do, endpoint, err := impl.mapper.GetJobDetail(&t)
+	job, endpoint, err = impl.mapper.GetJobDetail(&t)
 	if err != nil {
 		err = convertError(err)
-
-		return
 	}
 
-	return do, endpoint, nil
+	return
 }
 
 func (impl training) UpdateJobDetail(info *domain.TrainingIndex, detail *domain.JobDetail) error {
-	do := impl.toTrainingInfoDo(info)
+	do := impl.toTrainingIndexDO(info)
 
 	if err := impl.mapper.UpdateJobDetail(&do, detail); err != nil {
 		return convertError(err)

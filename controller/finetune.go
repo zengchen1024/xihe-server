@@ -145,8 +145,8 @@ func (ctl *FinetuneController) List(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.fs.List(pl.DomainAccount()); err != nil {
-		ctl.sendCodeMessage(ctx, "", err)
+	if v, code, err := ctl.fs.List(pl.DomainAccount()); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfGet(ctx, v)
 	}
@@ -208,7 +208,6 @@ func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Ac
 	}
 
 	// start loop
-	var err error
 	var v []app.FinetuneSummaryDTO
 	var running *app.FinetuneSummaryDTO
 
@@ -216,17 +215,22 @@ func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Ac
 	i := start
 	for {
 		if i++; i == end {
-			v, err = ctl.fs.List(user)
+			dto, code, err := ctl.fs.List(user)
 			if err != nil {
+				if code == app.ErrorFinetuneNoPermission {
+					break
+				}
+
 				i = start
 				sleep()
 
 				continue
 			}
 
-			if len(v) == 0 {
+			if len(dto.Datas) == 0 {
 				break
 			}
+			v = dto.Datas
 
 			done, index := finished(v)
 			if done {
@@ -252,7 +256,7 @@ func (ctl *FinetuneController) watchFinetunes(ws *websocket.Conn, user domain.Ac
 			if running.Duration > 0 {
 				running.Duration++
 
-				if err = ws.WriteJSON(newResponseData(v)); err != nil {
+				if err := ws.WriteJSON(newResponseData(v)); err != nil {
 					break
 				}
 			}

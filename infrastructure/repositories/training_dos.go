@@ -252,7 +252,17 @@ func (impl training) toInputDOs(v []domain.Input) []InputDO {
 	return r
 }
 
-func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.TrainingSummary) (
+type TrainingSummaryDO struct {
+	Id        string
+	Name      string
+	Desc      string
+	Error     string
+	Status    string
+	Duration  int
+	CreatedAt int64
+}
+
+func (do *TrainingSummaryDO) toTrainingSummary(t *domain.TrainingSummary) (
 	err error,
 ) {
 	if t.Name, err = domain.NewTrainingName(do.Name); err != nil {
@@ -272,28 +282,18 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	return
 }
 
-func (impl training) toTrainingInfoDo(info *domain.TrainingIndex) TrainingIndexDO {
+type TrainingIndexDO struct {
+	User       string
+	ProjectId  string
+	TrainingId string
+}
+
+func (impl training) toTrainingIndexDO(info *domain.TrainingIndex) TrainingIndexDO {
 	return TrainingIndexDO{
 		User:       info.Project.Owner.Account(),
 		ProjectId:  info.Project.Id,
 		TrainingId: info.TrainingId,
 	}
-}
-
-type TrainingSummaryDO struct {
-	Id        string
-	Name      string
-	Desc      string
-	Error     string
-	Status    string
-	Duration  int
-	CreatedAt int64
-}
-
-type TrainingIndexDO struct {
-	User       string
-	ProjectId  string
-	TrainingId string
 }
 
 type TrainingJobInfoDO = domain.JobInfo
@@ -307,7 +307,9 @@ type TrainingDetailDO struct {
 	CreatedAt int64
 }
 
-func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error) {
+func (do *TrainingDetailDO) toUserTraining(
+	index *domain.TrainingIndex, ut *domain.UserTraining,
+) (err error) {
 	if ut.TrainingConfig, err = do.TrainingConfigDO.toTrainingConfig(); err != nil {
 		return
 	}
@@ -315,6 +317,10 @@ func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error)
 	ut.Job = do.Job
 	ut.JobDetail = do.JobDetail
 	ut.CreatedAt = do.CreatedAt
+
+	ut.Id = index.TrainingId
+	ut.Owner = index.Project.Owner
+	ut.ProjectId = index.Project.Id
 
 	return
 }

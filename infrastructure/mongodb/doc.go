@@ -301,9 +301,8 @@ type trainingItem struct {
 	Env             []dKeyValue `bson:"env"           json:"env"`
 	Hyperparameters []dKeyValue `bson:"parameters"    json:"parameters"`
 	CreatedAt       int64       `bson:"created_at"    json:"created_at"`
-
-	Job       dJobInfo   `bson:"job"     json:"job"`
-	JobDetail dJobDetail `bson:"detail"  json:"detail"`
+	Job             dJobInfo    `bson:"job"           json:"-"`
+	JobDetail       dJobDetail  `bson:"detail"        json:"-"`
 }
 
 type dCompute struct {
@@ -520,4 +519,34 @@ type pictureItem struct {
 	Style     string `bson:"style"       json:"style"`
 	OBSPath   string `bson:"obspath"     json:"obspath"`
 	CreatedAt string `bson:"created_at"  json:"created_at"`
+}
+
+type dFinetune struct {
+	Owner   string `bson:"owner"   json:"owner"`
+	Expiry  int64  `bson:"expiry"  json:"expiry"`
+	Version int    `bson:"version" json:"-"`
+
+	Items []finetuneItem `bson:"items"   json:"-"`
+}
+
+type finetuneItem struct {
+	Id              string             `bson:"id"            json:"id"`
+	Name            string             `bson:"name"          json:"name"`
+	Task            string             `bson:"task"          json:"task"`
+	Model           string             `bson:"model"         json:"model"`
+	CreatedAt       int64              `bson:"created_at"    json:"created_at"`
+	Hyperparameters map[string]string  `bson:"parameters"    json:"parameters,omitempty"`
+	Job             dFinetuneJobInfo   `bson:"job"           json:"-"`
+	JobDetail       dFinetuneJobDetail `bson:"detail"        json:"-"`
+}
+
+type dFinetuneJobInfo struct {
+	Endpoint string `bson:"endpoint"    json:"endpoint"`
+	JobId    string `bson:"job_id"      json:"job_id"`
+}
+
+type dFinetuneJobDetail struct {
+	Duration int    `bson:"duration"   json:"duration,omitempty"`
+	Error    string `bson:"error"      json:"error,omitempty"`
+	Status   string `bson:"status"     json:"status,omitempty"`
 }

@@ -62,7 +62,9 @@ const (
 	ErrorWuKongDuplicateLike    = "wukong_duplicate_like"
 	ErrorWuKongExccedMaxLikeNum = "wukong_excced_max_like_num"
 
+	ErrorFinetuneExpiry           = "finetune_expriy"
 	ErrorFinetuneNotFound         = "finetune_not_found"
 	ErrorFinetuneExccedMaxNum     = "finetune_excced_max_num"
+	ErrorFinetuneNoPermission     = "finetune_no_permission"
 	ErrorFinetuneRunningJobExists = "finetune_running_job_exists"
 )

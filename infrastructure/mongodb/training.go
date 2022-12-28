@@ -139,7 +139,9 @@ func (col training) Delete(info *repositories.TrainingIndexDO) error {
 	return withContext(f)
 }
 
-func (col training) Get(info *repositories.TrainingIndexDO) (repositories.TrainingDetailDO, error) {
+func (col training) Get(info *repositories.TrainingIndexDO) (
+	do repositories.TrainingDetailDO, err error,
+) {
 	var v []dTraining
 
 	f := func(ctx context.Context) error {
@@ -156,20 +158,22 @@ func (col training) Get(info *repositories.TrainingIndexDO) (repositories.Traini
 		)
 	}
 
-	if err := withContext(f); err != nil {
-		return repositories.TrainingDetailDO{}, err
+	if err = withContext(f); err != nil {
+		return
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
-		err := repositories.NewErrorDataNotExists(errDocNotExists)
-
-		return repositories.TrainingDetailDO{}, err
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+	} else {
+		col.toTrainingDetailDO(&v[0], &do)
 	}
 
-	return col.toTrainingDetailDO(&v[0]), nil
+	return
 }
 
-func (col training) GetTrainingConfig(info *repositories.TrainingIndexDO) (repositories.TrainingConfigDO, error) {
+func (col training) GetTrainingConfig(info *repositories.TrainingIndexDO) (
+	do repositories.TrainingConfigDO, err error,
+) {
 	var v []dTraining
 
 	f := func(ctx context.Context) error {
@@ -186,20 +190,22 @@ func (col training) GetTrainingConfig(info *repositories.TrainingIndexDO) (repos
 		)
 	}
 
-	if err := withContext(f); err != nil {
-		return repositories.TrainingConfigDO{}, err
+	if err = withContext(f); err != nil {
+		return
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
-		err := repositories.NewErrorDataNotExists(errDocNotExists)
-
-		return repositories.TrainingConfigDO{}, err
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+	} else {
+		col.toTrainingConfigDO(&v[0], &do)
 	}
 
-	return col.toTrainingConfigDO(&v[0]), nil
+	return
 }
 
-func (col training) GetJobInfo(info *repositories.TrainingIndexDO) (repositories.TrainingJobInfoDO, error) {
+func (col training) GetJobInfo(info *repositories.TrainingIndexDO) (
+	do repositories.TrainingJobInfoDO, err error,
+) {
 	var v []dTraining
 
 	f := func(ctx context.Context) error {
@@ -214,17 +220,17 @@ func (col training) GetJobInfo(info *repositories.TrainingIndexDO) (repositories
 		)
 	}
 
-	if err := withContext(f); err != nil {
-		return repositories.TrainingJobInfoDO{}, err
+	if err = withContext(f); err != nil {
+		return
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
-		err := repositories.NewErrorDataNotExists(errDocNotExists)
-
-		return repositories.TrainingJobInfoDO{}, err
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+	} else {
+		col.toTrainingJobInfoDO(&v[0].Items[0].Job, &do)
 	}
 
-	return col.toTrainingJobInfoDO(&v[0].Items[0].Job), nil
+	return
 }
 
 func (col training) UpdateJobInfo(info *repositories.TrainingIndexDO, job *repositories.TrainingJobInfoDO) error {
@@ -285,7 +291,7 @@ func (col training) UpdateJobDetail(info *repositories.TrainingIndexDO, detail *
 }
 
 func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (
-	repositories.TrainingJobDetailDO, string, error,
+	do repositories.TrainingJobDetailDO, endpoint string, err error,
 ) {
 	var v []dTraining
 
@@ -302,18 +308,19 @@ func (col training) GetJobDetail(info *repositories.TrainingIndexDO) (
 		)
 	}
 
-	if err := withContext(f); err != nil {
-		return repositories.TrainingJobDetailDO{}, "", err
+	if err = withContext(f); err != nil {
+		return
 	}
 
 	if len(v) == 0 || len(v[0].Items) == 0 {
-		err := repositories.NewErrorDataNotExists(errDocNotExists)
-
-		return repositories.TrainingJobDetailDO{}, "", err
+		err = repositories.NewErrorDataNotExists(errDocNotExists)
+	} else {
+		item := &v[0].Items[0]
+		endpoint = item.Job.Endpoint
+		col.toTrainingJobDetailDO(&item.JobDetail, &do)
 	}
 
-	item := &v[0].Items[0]
-	return col.toTrainingJobDetailDO(&item.JobDetail), item.Job.Endpoint, nil
+	return
 }
 
 func (col training) toTrainingSummary(t *trainingItem, s *repositories.TrainingSummaryDO) {
