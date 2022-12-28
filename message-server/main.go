@@ -15,6 +15,7 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/infrastructure/evaluateimpl"
+	"github.com/opensourceways/xihe-server/infrastructure/finetuneimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -129,6 +130,13 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 				mongodb.NewTrainingMapper(collections.Training),
 			),
 			nil, 0,
+		),
+
+		finetune: app.NewFinetuneMessageService(
+			finetuneimpl.NewFinetune(&cfg.Finetune),
+			repositories.NewFinetuneRepository(
+				mongodb.NewFinetuneMapper(collections.Finetune),
+			),
 		),
 
 		inference: app.NewInferenceMessageService(

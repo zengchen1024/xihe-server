@@ -138,6 +138,7 @@ type MongodbCollections struct {
 	Project       string `json:"project"         required:"true"`
 	Activity      string `json:"activity"        required:"true"`
 	Training      string `json:"training"        required:"true"`
+	Finetune      string `json:"finetune"        required:"true"`
 	Evaluate      string `json:"evaluate"        required:"true"`
 	Inference     string `json:"inference"       required:"true"`
 	AIQuestion    string `json:"aiquestion"      required:"true"`

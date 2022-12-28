@@ -5,10 +5,10 @@ import (
 )
 
 type Finetune interface {
-	CreateJob(endpoint string, info *domain.FinetuneIndex, t *domain.FinetuneConfig) (domain.FinetuneJobInfo, error)
-	DeleteJob(endpoint, jobId string) error
-	TerminateJob(endpoint, jobId string) error
-	GetLogPreviewURL(endpoint, jobId string) (string, error)
+	CreateJob(info *domain.FinetuneIndex, t *domain.FinetuneConfig) (domain.FinetuneJobInfo, error)
+	DeleteJob(jobId string) error
+	TerminateJob(jobId string) error
+	GetLogPreviewURL(jobId string) (string, error)
 	IsJobDone(status string) bool
 	CanTerminate(status string) bool
 }

@@ -140,7 +140,7 @@ func (s finetuneService) Delete(info *FinetuneIndex) error {
 	}
 
 	if job.JobId != "" {
-		if err = s.fs.DeleteJob(job.Endpoint, job.JobId); err != nil {
+		if err = s.fs.DeleteJob(job.JobId); err != nil {
 			// ignore 404
 			return err
 		}
@@ -159,7 +159,7 @@ func (s finetuneService) Terminate(info *FinetuneIndex) error {
 		return errors.New("can't terminate now")
 	}
 
-	return s.fs.TerminateJob(job.Endpoint, job.JobId)
+	return s.fs.TerminateJob(job.JobId)
 }
 
 func (s finetuneService) GetJobInfo(index *FinetuneIndex) (
@@ -176,8 +176,8 @@ func (s finetuneService) GetJobInfo(index *FinetuneIndex) (
 
 	dto.IsDone = s.isJobDone(job.Status)
 
-	if job.Endpoint != "" && job.JobId != "" {
-		dto.LogPreviewURL, err = s.fs.GetLogPreviewURL(job.Endpoint, job.JobId)
+	if job.JobId != "" {
+		dto.LogPreviewURL, err = s.fs.GetLogPreviewURL(job.JobId)
 	}
 
 	return
@@ -186,6 +186,15 @@ func (s finetuneService) GetJobInfo(index *FinetuneIndex) (
 // FinetuneInternalService
 type FinetuneInternalService interface {
 	UpdateJobDetail(*FinetuneIndex, *FinetuneJobDetail) error
+}
+
+func NewFinetuneInternalService(
+	fs finetune.Finetune,
+	repo repository.Finetune,
+) FinetuneInternalService {
+	return finetuneInternalService{
+		repo: repo,
+	}
 }
 
 type finetuneInternalService struct {
@@ -198,7 +207,17 @@ func (s finetuneInternalService) UpdateJobDetail(info *FinetuneIndex, v *Finetun
 
 // FinetuneMessageService
 type FinetuneMessageService interface {
-	CreateFinetuneJob(*FinetuneIndex, string, bool) (bool, error)
+	CreateFinetuneJob(*FinetuneIndex, bool) (bool, error)
+}
+
+func NewFinetuneMessageService(
+	fs finetune.Finetune,
+	repo repository.Finetune,
+) FinetuneMessageService {
+	return finetuneMessageService{
+		fs:   fs,
+		repo: repo,
+	}
 }
 
 type finetuneMessageService struct {
@@ -207,9 +226,9 @@ type finetuneMessageService struct {
 }
 
 func (s finetuneMessageService) CreateFinetuneJob(
-	info *FinetuneIndex, endpoint string, lastChance bool,
+	info *FinetuneIndex, lastChance bool,
 ) (retry bool, err error) {
-	retry, err = s.createFinetuneJob(info, endpoint)
+	retry, err = s.createFinetuneJob(info)
 	if err == nil {
 		return
 	}
@@ -224,7 +243,7 @@ func (s finetuneMessageService) CreateFinetuneJob(
 	return
 }
 
-func (s finetuneMessageService) createFinetuneJob(info *FinetuneIndex, endpoint string) (
+func (s finetuneMessageService) createFinetuneJob(info *FinetuneIndex) (
 	retry bool, err error,
 ) {
 	data, err := s.repo.Get(info)
@@ -242,7 +261,7 @@ func (s finetuneMessageService) createFinetuneJob(info *FinetuneIndex, endpoint 
 		return
 	}
 
-	v, err := s.fs.CreateJob(endpoint, info, &data.FinetuneConfig)
+	v, err := s.fs.CreateJob(info, &data.FinetuneConfig)
 	if err != nil {
 		// TODO maybe can't retry based on error code
 		retry = true
