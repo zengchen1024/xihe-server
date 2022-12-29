@@ -137,7 +137,7 @@ func (ctl *FinetuneController) finetuneIndex(ctx *gin.Context) (
 // @Description list finetunes
 // @Tags  Finetune
 // @Accept json
-// @Success 200 {object} app.FinetuneSummaryDTO
+// @Success 200 {object} app.UserFinetunesDTO
 // @Failure 500 system_error        system error
 // @Router /v1/finetune [get]
 func (ctl *FinetuneController) List(ctx *gin.Context) {

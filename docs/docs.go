@@ -1589,7 +1589,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.FinetuneSummaryDTO"
+                            "$ref": "#/definitions/app.UserFinetunesDTO"
                         }
                     },
                     "500": {
@@ -5150,6 +5150,20 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "app.UserFinetunesDTO": {
+            "type": "object",
+            "properties": {
+                "datas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.FinetuneSummaryDTO"
+                    }
+                },
+                "expiry": {
+                    "type": "integer"
                 }
             }
         },
