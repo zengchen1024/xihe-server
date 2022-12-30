@@ -23,7 +23,7 @@ func userDocFilter(account, email string) bson.M {
 	}
 }
 
-func NewUserMapper(name string) repositories.UserMapper {
+func NewUserMapper(name string) user {
 	return user{name}
 }
 

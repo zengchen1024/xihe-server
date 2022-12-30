@@ -189,7 +189,6 @@ type FinetuneInternalService interface {
 }
 
 func NewFinetuneInternalService(
-	fs finetune.Finetune,
 	repo repository.Finetune,
 ) FinetuneInternalService {
 	return finetuneInternalService{
@@ -263,7 +262,6 @@ func (s finetuneMessageService) createFinetuneJob(info *FinetuneIndex) (
 
 	v, err := s.fs.CreateJob(info, &data.FinetuneConfig)
 	if err != nil {
-		// TODO maybe can't retry based on error code
 		retry = true
 
 		return

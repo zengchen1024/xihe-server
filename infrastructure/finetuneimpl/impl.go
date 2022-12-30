@@ -1,6 +1,7 @@
 package finetuneimpl
 
 import (
+	"github.com/opensourceways/xihe-finetune/sdk"
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/opensourceways/xihe-server/domain"
@@ -9,13 +10,14 @@ import (
 
 func NewFinetune(cfg *Config) finetune.Finetune {
 	return &finetuneImpl{
+		cli:                sdk.New(cfg.Endpoint),
 		doneStatus:         sets.NewString(cfg.JobDoneStatus...),
 		canTerminateStatus: sets.NewString(cfg.CanTerminateStatus...),
 	}
 }
 
 type finetuneImpl struct {
-	// cli
+	cli                sdk.Finetune
 	doneStatus         sets.String
 	canTerminateStatus sets.String
 }
@@ -28,20 +30,40 @@ func (impl *finetuneImpl) CanTerminate(status string) bool {
 	return impl.canTerminateStatus.Has(status)
 }
 
-func (impl *finetuneImpl) CreateJob(info *domain.FinetuneIndex, t *domain.FinetuneConfig) (
+func (impl *finetuneImpl) CreateJob(info *domain.FinetuneIndex, cfg *domain.FinetuneConfig) (
 	job domain.FinetuneJobInfo, err error,
 ) {
+	p := cfg.Param
+	opt := sdk.FinetuneCreateOption{
+		User:            info.Owner.Account(),
+		Id:              info.Id,
+		Name:            cfg.Name.TrainingName(),
+		Task:            p.Task(),
+		Model:           p.Model(),
+		Hyperparameters: p.Hypeparameters(),
+	}
+
+	if v, err := impl.cli.Create(&opt); err != nil {
+	} else {
+		job.JobId = v.JobId
+	}
+
 	return
 }
 
 func (impl *finetuneImpl) DeleteJob(jobId string) error {
-	return nil
+	return impl.cli.Delete(jobId)
 }
 
 func (impl *finetuneImpl) TerminateJob(jobId string) error {
-	return nil
+	return impl.cli.Terminate(jobId)
 }
 
 func (impl *finetuneImpl) GetLogPreviewURL(jobId string) (string, error) {
-	return "", nil
+	v, err := impl.cli.GetLogDownloadURL(jobId)
+	if err != nil {
+		return "", err
+	}
+
+	return v.URL, nil
 }

@@ -9,6 +9,7 @@ import (
 	liboptions "github.com/opensourceways/community-robot-lib/options"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/competition"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/evaluate"
+	"github.com/opensourceways/xihe-grpc-protocol/grpc/finetune"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/inference"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/server"
 	"github.com/opensourceways/xihe-grpc-protocol/grpc/training"
@@ -93,6 +94,13 @@ func main() {
 		nil, 0,
 	)
 
+	// finetune
+	finetuneService := app.NewFinetuneInternalService(
+		repositories.NewFinetuneRepository(
+			mongodb.NewFinetuneMapper(collections.Finetune),
+		),
+	)
+
 	// inference
 	inferenceService := app.NewInferenceInternalService(
 		repositories.NewInferenceRepository(
@@ -120,6 +128,7 @@ func main() {
 	// server
 	s := server.NewServer()
 
+	s.RegisterFinetuneServer(finetuneServer{finetuneService})
 	s.RegisterTrainingServer(trainingServer{train})
 	s.RegisterEvaluateServer(evaluateServer{evaluateService})
 	s.RegisterInferenceServer(inferenceServer{inferenceService})
@@ -158,6 +167,30 @@ func (t trainingServer) SetTrainingInfo(index *training.TrainingIndex, v *traini
 	)
 }
 
+// finetune
+type finetuneServer struct {
+	service app.FinetuneInternalService
+}
+
+func (t finetuneServer) SetFinetuneInfo(index *finetune.FinetuneIndex, v *finetune.FinetuneInfo) error {
+	u, err := domain.NewAccount(index.User)
+	if err != nil {
+		return nil
+	}
+
+	return t.service.UpdateJobDetail(
+		&domain.FinetuneIndex{
+			Owner: u,
+			Id:    index.Id,
+		},
+		&app.FinetuneJobDetail{
+			Duration: v.Duration,
+			Status:   v.Status,
+		},
+	)
+}
+
+// inference
 type inferenceServer struct {
 	service app.InferenceInternalService
 }
@@ -184,6 +217,7 @@ func (t inferenceServer) SetInferenceInfo(index *inference.InferenceIndex, v *in
 	)
 }
 
+// evaluate
 type evaluateServer struct {
 	service app.EvaluateInternalService
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -30,6 +31,8 @@ func LoadConfig(path string, cfg interface{}) error {
 	if f, ok := cfg.(ConfigSetDefault); ok {
 		f.SetDefault()
 	}
+
+	fmt.Printf("%#v\n", cfg)
 
 	if f, ok := cfg.(ConfigValidate); ok {
 		if err := f.Validate(); err != nil {
