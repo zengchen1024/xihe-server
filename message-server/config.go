@@ -14,13 +14,13 @@ import (
 type configuration struct {
 	MaxRetry         int    `json:"max_retry"`
 	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
+	FinetuneEndpoint string `json:"finetune_endpoint"  required:"true"`
 
-	Inference inferenceConfig     `json:"inference"    required:"true"`
-	Evaluate  evaluateConfig      `json:"evaluate"     required:"true"`
-	Finetune  finetuneimpl.Config `json:"finetune"     required:"true"`
-	Mongodb   config.Mongodb      `json:"mongodb"      required:"true"`
-	Domain    domain.Config       `json:"domain"       required:"true"`
-	MQ        config.MQ           `json:"mq"           required:"true"`
+	Inference inferenceConfig `json:"inference"    required:"true"`
+	Evaluate  evaluateConfig  `json:"evaluate"     required:"true"`
+	Mongodb   config.Mongodb  `json:"mongodb"      required:"true"`
+	Domain    domain.Config   `json:"domain"       required:"true"`
+	MQ        config.MQ       `json:"mq"           required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -33,7 +33,6 @@ func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Inference,
 		&cfg.Evaluate,
-		&cfg.Finetune,
 		&cfg.Mongodb,
 		&cfg.Domain,
 		&cfg.MQ,
@@ -72,6 +71,12 @@ func (cfg *configuration) Validate() error {
 
 func (cfg *configuration) initDomainConfig() {
 	domain.Init(&cfg.Domain)
+}
+
+func (cfg *configuration) getFinetuneConfig() finetuneimpl.Config {
+	return finetuneimpl.Config{
+		Endpoint: cfg.FinetuneEndpoint,
+	}
 }
 
 type inferenceConfig struct {
