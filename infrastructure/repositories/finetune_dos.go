@@ -36,7 +36,7 @@ func (impl finetuneImpl) toUserFinetuneDO(
 			Name:            obj.Name.TrainingName(),
 			Model:           p.Model(),
 			Task:            p.Task(),
-			Hyperparameters: p.Hypeparameters(),
+			Hyperparameters: p.Hyperparameters(),
 		},
 		CreatedAt: obj.CreatedAt,
 	}

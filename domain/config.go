@@ -37,7 +37,7 @@ type Config struct {
 	WuKongPictureMaxDescLength int `json:"wukong_picture_max_desc_length"`
 
 	// Key is the finetue model name
-	Finetunes map[string]FinetuneParameterConfig `json:"finetunes" required:"true"`
+	Finetunes map[string]FinetuneParameterConfig `json:"finetunes"`
 }
 
 func (cfg *Config) SetDefault() {
@@ -79,6 +79,10 @@ func (cfg *Config) SetDefault() {
 
 	if cfg.WuKongPictureMaxDescLength <= 0 {
 		cfg.WuKongPictureMaxDescLength = 75
+	}
+
+	if cfg.Finetunes == nil {
+		cfg.Finetunes = map[string]FinetuneParameterConfig{}
 	}
 }
 

@@ -40,7 +40,7 @@ func (impl *finetuneImpl) CreateJob(info *domain.FinetuneIndex, cfg *domain.Fine
 		Name:            cfg.Name.TrainingName(),
 		Task:            p.Task(),
 		Model:           p.Model(),
-		Hyperparameters: p.Hypeparameters(),
+		Hyperparameters: p.Hyperparameters(),
 	}
 
 	if v, err := impl.cli.Create(&opt); err != nil {
@@ -59,11 +59,11 @@ func (impl *finetuneImpl) TerminateJob(jobId string) error {
 	return impl.cli.Terminate(jobId)
 }
 
-func (impl *finetuneImpl) GetLogPreviewURL(jobId string) (string, error) {
+func (impl *finetuneImpl) GetLogPreviewURL(jobId string) (r string, err error) {
 	v, err := impl.cli.GetLogDownloadURL(jobId)
-	if err != nil {
-		return "", err
+	if err == nil {
+		r = v.URL
 	}
 
-	return v.URL, nil
+	return
 }

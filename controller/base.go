@@ -205,6 +205,14 @@ func (ctl baseController) sendBadRequest(ctx *gin.Context, data responseData) {
 	ctx.JSON(http.StatusBadRequest, data)
 }
 
+func (ctl baseController) sendBadRequestBody(ctx *gin.Context) {
+	ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+}
+
+func (ctl baseController) sendBadRequestParam(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusBadRequest, newResponseCodeError(errorBadRequestParam, err))
+}
+
 func (ctl baseController) sendRespOfGet(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, newResponseData(data))
 }

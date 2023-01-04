@@ -21,7 +21,7 @@ type FinetuneConfig struct {
 type FinetuneParameter interface {
 	Model() string
 	Task() string
-	Hypeparameters() map[string]string
+	Hyperparameters() map[string]string
 }
 
 func NewFinetuneParameter(model, task string, hyperparameters map[string]string) (
@@ -82,7 +82,7 @@ func (p finetuneParameter) Task() string {
 	return p.task
 }
 
-func (p finetuneParameter) Hypeparameters() map[string]string {
+func (p finetuneParameter) Hyperparameters() map[string]string {
 	return p.hyperparameters
 }
 

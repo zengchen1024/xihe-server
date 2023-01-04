@@ -53,7 +53,7 @@ type FinetuneController struct {
 func (ctl *FinetuneController) Create(ctx *gin.Context) {
 	req := FinetuneCreateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctl.sendBadRequest(ctx, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
@@ -65,7 +65,7 @@ func (ctl *FinetuneController) Create(ctx *gin.Context) {
 
 	cmd, err := req.toCmd(pl.DomainAccount())
 	if err != nil {
-		ctl.sendBadRequest(ctx, newResponseCodeError(errorBadRequestParam, err))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
@@ -120,17 +120,15 @@ func (ctl *FinetuneController) Terminate(ctx *gin.Context) {
 }
 
 func (ctl *FinetuneController) finetuneIndex(ctx *gin.Context) (
-	domain.FinetuneIndex, bool,
+	index domain.FinetuneIndex, ok bool,
 ) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
-	if !ok {
-		return domain.FinetuneIndex{}, ok
+	if ok {
+		index.Owner = pl.DomainAccount()
+		index.Id = ctx.Param("pid")
 	}
 
-	return domain.FinetuneIndex{
-		Owner: pl.DomainAccount(),
-		Id:    ctx.Param("pid"),
-	}, true
+	return
 }
 
 // @Summary List
@@ -347,14 +345,9 @@ func (ctl *FinetuneController) WatchSingle(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/finetune/{id}/log [get]
 func (ctl *FinetuneController) Log(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	index, ok := ctl.finetuneIndex(ctx)
 	if !ok {
 		return
-	}
-
-	index := domain.FinetuneIndex{
-		Owner: pl.DomainAccount(),
-		Id:    ctx.Param("pid"),
 	}
 
 	v, code, err := ctl.fs.GetJobInfo(&index)
