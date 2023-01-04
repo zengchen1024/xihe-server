@@ -16,6 +16,7 @@ type Topics struct {
 	Like            string `json:"like"             required:"true"`
 	Fork            string `json:"fork"             required:"true"`
 	Training        string `json:"training"         required:"true"`
+	Finetune        string `json:"finetune"         required:"true"`
 	Following       string `json:"following"        required:"true"`
 	Inference       string `json:"inference"        required:"true"`
 	Evaluate        string `json:"evaluate"         required:"true"`
@@ -84,6 +85,16 @@ func (s sender) CreateTraining(info *domain.TrainingIndex) error {
 	}
 
 	return s.send(topics.Training, &v)
+}
+
+// Finetune
+func (s sender) CreateFinetune(info *domain.FinetuneIndex) error {
+	v := msgFinetune{
+		User: info.Owner.Account(),
+		Id:   info.Id,
+	}
+
+	return s.send(topics.Finetune, &v)
 }
 
 // Inference

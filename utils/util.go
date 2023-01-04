@@ -41,6 +41,14 @@ func Expiry(expiry int64) int64 {
 	return time.Now().Add(time.Second * time.Duration(expiry)).Unix()
 }
 
+func IsExpiry(expiry int64) bool {
+	if expiry <= 0 {
+		return false
+	}
+
+	return time.Now().Unix() > expiry
+}
+
 func StrLen(s string) int {
 	return utf8.RuneCountInString(s)
 }

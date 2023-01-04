@@ -21,7 +21,7 @@ type trainingLogResp struct {
 }
 
 type trainingDetail struct {
-	*app.TrainingDTO
+	app.TrainingDTO
 	Log string `json:"log"`
 }
 
@@ -32,12 +32,12 @@ type TrainingCreateRequest struct {
 	CodeDir  string `json:"code_dir"`
 	BootFile string `json:"boot_file"`
 
-	Hypeparameters []KeyValue    `json:"hyperparameter"`
-	Env            []KeyValue    `json:"env"`
-	Models         []TrainingRef `json:"models"`
-	Datasets       []TrainingRef `json:"datasets"`
-	EnableAim      bool          `json:"enable_aim"`
-	EnableOutput   bool          `json:"enable_output"`
+	Hyperparameters []KeyValue    `json:"hyperparameter"`
+	Env             []KeyValue    `json:"env"`
+	Models          []TrainingRef `json:"models"`
+	Datasets        []TrainingRef `json:"datasets"`
+	EnableAim       bool          `json:"enable_aim"`
+	EnableOutput    bool          `json:"enable_output"`
 
 	Compute Compute `json:"compute"`
 }
@@ -67,7 +67,7 @@ func (req *TrainingCreateRequest) toCmd(cmd *app.TrainingCreateCmd) (err error) 
 		return
 	}
 
-	if cmd.Hypeparameters, err = req.toKeyValue(req.Hypeparameters); err != nil {
+	if cmd.Hyperparameters, err = req.toKeyValue(req.Hyperparameters); err != nil {
 		return
 	}
 

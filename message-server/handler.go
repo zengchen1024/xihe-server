@@ -38,6 +38,7 @@ type handler struct {
 	dataset   app.DatasetMessageService
 	project   app.ProjectMessageService
 	training  app.TrainingService
+	finetune  app.FinetuneMessageService
 	evaluate  app.EvaluateMessageService
 	inference app.InferenceMessageService
 }
@@ -222,6 +223,27 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingIndex) error {
 					"handle training(%s/%s/%s) failed, err:%s",
 					info.Project.Owner.Account(), info.Project.Id,
 					info.TrainingId, err.Error(),
+				)
+
+				if !retry {
+					return nil
+				}
+			}
+
+			return err
+		},
+		10*time.Second,
+	)
+}
+
+func (h *handler) HandleEventCreateFinetune(index *domain.FinetuneIndex) error {
+	return h.retry(
+		func(lastChance bool) error {
+			retry, err := h.finetune.CreateFinetuneJob(index, lastChance)
+			if err != nil {
+				h.log.Errorf(
+					"handle finetune(%s/%s) failed, err:%s",
+					index.Owner.Account(), index.Id, err.Error(),
 				)
 
 				if !retry {

@@ -19,6 +19,7 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
+	"github.com/opensourceways/xihe-server/infrastructure/finetuneimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
 	"github.com/opensourceways/xihe-server/infrastructure/messages"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -95,6 +96,12 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		),
 	)
 
+	finetune := repositories.NewFinetuneRepository(
+		mongodb.NewFinetuneMapper(
+			collections.Finetune,
+		),
+	)
+
 	inference := repositories.NewInferenceRepository(
 		mongodb.NewInferenceMapper(
 			collections.Inference,
@@ -139,6 +146,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	authingUser := authing.NewAuthingUser()
 	sender := messages.NewMessageSender()
 	trainingAdapter := trainingimpl.NewTraining(&cfg.Training)
+	finetuneImpl := finetuneimpl.NewFinetune(&cfg.Finetune)
 	uploader := competitionimpl.NewCompetitionService()
 	challengeHelper := challengeimpl.NewChallenge(&cfg.Challenge)
 
@@ -186,6 +194,10 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 		controller.AddRouterForTrainingController(
 			v1, trainingAdapter, training, model, proj, dataset, sender,
+		)
+
+		controller.AddRouterForFinetuneController(
+			v1, finetuneImpl, finetune, sender,
 		)
 
 		controller.AddRouterForRepoFileController(

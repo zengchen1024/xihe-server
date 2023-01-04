@@ -22,11 +22,11 @@ type TrainingConfigDO struct {
 	CodeDir  string
 	BootFile string
 
-	Hypeparameters []KeyValueDO
-	Env            []KeyValueDO
-	Inputs         []InputDO
-	EnableAim      bool
-	EnableOutput   bool
+	Hyperparameters []KeyValueDO
+	Env             []KeyValueDO
+	Inputs          []InputDO
+	EnableAim       bool
+	EnableOutput    bool
 
 	Compute ComputeDO
 }
@@ -58,7 +58,7 @@ func (do *TrainingConfigDO) toTrainingConfig() (t domain.TrainingConfig, err err
 		return
 	}
 
-	if t.Hypeparameters, err = do.toKeyValues(do.Hypeparameters); err != nil {
+	if t.Hyperparameters, err = do.toKeyValues(do.Hyperparameters); err != nil {
 		return
 	}
 
@@ -189,11 +189,11 @@ func (impl training) toUserTrainingDO(ut *domain.UserTraining) UserTrainingDO {
 			CodeDir:  t.CodeDir.Directory(),
 			BootFile: t.BootFile.FilePath(),
 
-			Hypeparameters: impl.toKeyValueDOs(t.Hypeparameters),
-			Env:            impl.toKeyValueDOs(t.Env),
-			Inputs:         impl.toInputDOs(t.Inputs),
-			EnableAim:      t.EnableAim,
-			EnableOutput:   t.EnableOutput,
+			Hyperparameters: impl.toKeyValueDOs(t.Hyperparameters),
+			Env:             impl.toKeyValueDOs(t.Env),
+			Inputs:          impl.toInputDOs(t.Inputs),
+			EnableAim:       t.EnableAim,
+			EnableOutput:    t.EnableOutput,
 
 			Compute: ComputeDO{
 				Type:    c.Type.ComputeType(),
@@ -252,7 +252,17 @@ func (impl training) toInputDOs(v []domain.Input) []InputDO {
 	return r
 }
 
-func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.TrainingSummary) (
+type TrainingSummaryDO struct {
+	Id        string
+	Name      string
+	Desc      string
+	Error     string
+	Status    string
+	Duration  int
+	CreatedAt int64
+}
+
+func (do *TrainingSummaryDO) toTrainingSummary(t *domain.TrainingSummary) (
 	err error,
 ) {
 	if t.Name, err = domain.NewTrainingName(do.Name); err != nil {
@@ -264,40 +274,26 @@ func (impl training) toTrainingSummary(do *TrainingSummaryDO, t *domain.Training
 	}
 
 	t.Id = do.Id
-	t.JobId = do.JobId
-	t.Endpoint = do.Endpoint
-	t.CreatedAt = do.CreatedAt
 	t.Error = do.Error
 	t.Status = do.Status
 	t.Duration = do.Duration
+	t.CreatedAt = do.CreatedAt
 
 	return
-}
-
-func (impl training) toTrainingInfoDo(info *domain.TrainingIndex) TrainingIndexDO {
-	return TrainingIndexDO{
-		User:       info.Project.Owner.Account(),
-		ProjectId:  info.Project.Id,
-		TrainingId: info.TrainingId,
-	}
-}
-
-type TrainingSummaryDO struct {
-	Id        string
-	Name      string
-	Desc      string
-	JobId     string
-	Error     string
-	Status    string
-	Endpoint  string
-	Duration  int
-	CreatedAt int64
 }
 
 type TrainingIndexDO struct {
 	User       string
 	ProjectId  string
 	TrainingId string
+}
+
+func (impl training) toTrainingIndexDO(info *domain.TrainingIndex) TrainingIndexDO {
+	return TrainingIndexDO{
+		User:       info.Project.Owner.Account(),
+		ProjectId:  info.Project.Id,
+		TrainingId: info.TrainingId,
+	}
 }
 
 type TrainingJobInfoDO = domain.JobInfo
@@ -311,7 +307,9 @@ type TrainingDetailDO struct {
 	CreatedAt int64
 }
 
-func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error) {
+func (do *TrainingDetailDO) toUserTraining(
+	index *domain.TrainingIndex, ut *domain.UserTraining,
+) (err error) {
 	if ut.TrainingConfig, err = do.TrainingConfigDO.toTrainingConfig(); err != nil {
 		return
 	}
@@ -319,6 +317,10 @@ func (do *TrainingDetailDO) toUserTraining() (ut domain.UserTraining, err error)
 	ut.Job = do.Job
 	ut.JobDetail = do.JobDetail
 	ut.CreatedAt = do.CreatedAt
+
+	ut.Id = index.TrainingId
+	ut.Owner = index.Project.Owner
+	ut.ProjectId = index.Project.Id
 
 	return
 }

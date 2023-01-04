@@ -26,10 +26,9 @@ type TrainingService interface {
 	Recreate(*TrainingIndex) (string, error)
 	UpdateJobDetail(*TrainingIndex, *JobDetail) error
 	List(user domain.Account, projectId string) ([]TrainingSummaryDTO, error)
-	Get(*TrainingIndex) (TrainingDTO, error)
+	Get(*TrainingIndex) (TrainingDTO, string, error)
 	Delete(*TrainingIndex) error
 	Terminate(*TrainingIndex) error
-	GetLogPreviewURL(*TrainingIndex) (string, error)
 	GetLogDownloadURL(*TrainingIndex) (string, string, error)
 	GetOutputDownloadURL(*TrainingIndex) (string, string, error)
 	CreateTrainingJob(*TrainingIndex, string, bool) (bool, error)
@@ -141,7 +140,6 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	}
 
 	r := make([]TrainingSummaryDTO, len(v))
-
 	for i := range v {
 		s.toTrainingSummaryDTO(&v[i], &r[i])
 	}
@@ -149,13 +147,27 @@ func (s trainingService) List(user domain.Account, projectId string) ([]Training
 	return r, nil
 }
 
-func (s trainingService) Get(info *TrainingIndex) (TrainingDTO, error) {
+func (s trainingService) Get(info *TrainingIndex) (dto TrainingDTO, code string, err error) {
 	data, err := s.repo.Get(info)
 	if err != nil {
-		return TrainingDTO{}, err
+		if repository.IsErrorResourceNotExists(err) {
+			code = ErrorTrainNotFound
+		}
+
+		return
 	}
 
-	return s.toTrainingDTO(&data), nil
+	link := ""
+	if job := &data.Job; job.Endpoint != "" && job.JobId != "" {
+		link, err = s.train.GetLogPreviewURL(job.Endpoint, job.JobId)
+		if err != nil {
+			return
+		}
+	}
+
+	s.toTrainingDTO(&dto, &data, link)
+
+	return
 }
 
 func (s trainingService) UpdateJobDetail(info *TrainingIndex, v *JobDetail) error {
@@ -165,6 +177,9 @@ func (s trainingService) UpdateJobDetail(info *TrainingIndex, v *JobDetail) erro
 func (s trainingService) Delete(info *TrainingIndex) error {
 	job, err := s.repo.GetJob(info)
 	if err != nil {
+		if repository.IsErrorResourceNotExists(err) {
+			return nil
+		}
 		return err
 	}
 
@@ -181,31 +196,11 @@ func (s trainingService) Delete(info *TrainingIndex) error {
 
 func (s trainingService) Terminate(info *TrainingIndex) error {
 	job, err := s.repo.GetJob(info)
-	if err != nil {
+	if err != nil || job.JobId == "" {
 		return err
 	}
 
-	if job.JobId != "" {
-		err = s.train.TerminateJob(job.Endpoint, job.JobId)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s trainingService) GetLogPreviewURL(info *TrainingIndex) (string, error) {
-	job, err := s.repo.GetJob(info)
-	if err != nil {
-		return "", err
-	}
-
-	if job.JobId != "" {
-		return s.train.GetLogPreviewURL(job.Endpoint, job.JobId)
-	}
-
-	return "", nil
+	return s.train.TerminateJob(job.Endpoint, job.JobId)
 }
 
 func (s trainingService) GetLogDownloadURL(info *TrainingIndex) (

@@ -7,6 +7,7 @@ import (
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/evaluateimpl"
+	"github.com/opensourceways/xihe-server/infrastructure/finetuneimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/inferenceimpl"
 )
 
@@ -14,11 +15,12 @@ type configuration struct {
 	MaxRetry         int    `json:"max_retry"`
 	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
 
-	Inference inferenceConfig `json:"inference"  required:"true"`
-	Evaluate  evaluateConfig  `json:"evaluate"   required:"true"`
-	Mongodb   config.Mongodb  `json:"mongodb"    required:"true"`
-	Domain    domain.Config   `json:"domain"     required:"true"`
-	MQ        config.MQ       `json:"mq"         required:"true"`
+	Inference inferenceConfig     `json:"inference"    required:"true"`
+	Evaluate  evaluateConfig      `json:"evaluate"     required:"true"`
+	Finetune  finetuneimpl.Config `json:"finetune"     required:"true"`
+	Mongodb   config.Mongodb      `json:"mongodb"      required:"true"`
+	Domain    domain.Config       `json:"domain"       required:"true"`
+	MQ        config.MQ           `json:"mq"           required:"true"`
 }
 
 func (cfg *configuration) getMQConfig() mq.MQConfig {
@@ -31,6 +33,7 @@ func (cfg *configuration) configItems() []interface{} {
 	return []interface{}{
 		&cfg.Inference,
 		&cfg.Evaluate,
+		&cfg.Finetune,
 		&cfg.Mongodb,
 		&cfg.Domain,
 		&cfg.MQ,

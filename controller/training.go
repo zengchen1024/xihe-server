@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -28,7 +27,6 @@ func AddRouterForTrainingController(
 		ts: app.NewTrainingService(
 			log, ts, repo, sender, apiConfig.MaxTrainingRecordNum,
 		),
-		train:   ts,
 		model:   model,
 		project: project,
 		dataset: dataset,
@@ -52,7 +50,6 @@ type TrainingController struct {
 
 	ts app.TrainingService
 
-	train   training.Training
 	model   repository.Model
 	project repository.Project
 	dataset repository.Dataset
@@ -212,7 +209,7 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 		return
 	}
 
-	info := domain.TrainingIndex{
+	index := domain.TrainingIndex{
 		Project: domain.ResourceIndex{
 			Owner: pl.DomainAccount(),
 			Id:    ctx.Param("pid"),
@@ -237,33 +234,46 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 
 	defer ws.Close()
 
-	// start loop
-	var v app.TrainingDTO
+	ctl.watchTraining(ws, &index)
+}
 
-	data := &trainingDetail{
-		TrainingDTO: &v,
+func (ctl *TrainingController) watchTraining(ws *websocket.Conn, index *domain.TrainingIndex) {
+	duration := 0
+	sleep := func() {
+		time.Sleep(time.Second)
+
+		if duration > 0 {
+			duration++
+		}
 	}
 
-	i := 4
+	data := &trainingDetail{}
+
+	start, end := 4, 5
+	i := start
 	for {
-		if i++; i == 5 {
-			i = 0
-
-			duration := v.Duration
-			if duration > 0 {
-				duration++
-			}
-
-			v, err = ctl.ts.Get(&info)
+		if i++; i == end {
+			v, code, err := ctl.ts.Get(index)
 			if err != nil {
-				break
+				if code == app.ErrorTrainNotFound {
+					break
+				}
+
+				i = start
+				sleep()
+
+				continue
 			}
 
-			if v.Duration < duration {
-				v.Duration = duration
+			data.TrainingDTO = v
+
+			if duration == 0 {
+				duration = v.Duration
+			} else {
+				data.Duration = duration
 			}
 
-			log, err := ctl.getTrainingLog(v.JobEndpoint, v.JobId)
+			log, err := downloadLog(v.LogPreviewURL)
 			if err == nil && len(log) > 0 {
 				data.Log = string(log)
 			}
@@ -275,39 +285,20 @@ func (ctl *TrainingController) Get(ctx *gin.Context) {
 			if v.IsDone {
 				break
 			}
-		} else {
-			if v.Duration > 0 {
-				v.Duration++
 
-				if err = ws.WriteJSON(newResponseData(data)); err != nil {
+			i = 0
+		} else {
+			if data.Duration > 0 {
+				data.Duration++
+
+				if err := ws.WriteJSON(newResponseData(data)); err != nil {
 					break
 				}
 			}
 		}
 
-		time.Sleep(time.Second)
+		sleep()
 	}
-}
-
-func (ctl *TrainingController) getTrainingLog(endpoint, jobId string) ([]byte, error) {
-	if endpoint == "" || jobId == "" {
-		return nil, nil
-	}
-
-	s, err := ctl.train.GetLogPreviewURL(endpoint, jobId)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, s, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	cli := utils.NewHttpClient(3)
-	v, _, err := cli.Download(req)
-
-	return v, err
 }
 
 // @Summary List
@@ -343,7 +334,34 @@ func (ctl *TrainingController) List(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/train/project/{pid}/training/ws [get]
 func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
+	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
+	if !ok {
+		return
+	}
 
+	pid := ctx.Param("pid")
+
+	// setup websocket
+	upgrader := websocket.Upgrader{
+		Subprotocols: []string{token},
+		CheckOrigin: func(r *http.Request) bool {
+			return r.Header.Get(headerSecWebsocket) == token
+		},
+	}
+
+	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	if err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+
+		return
+	}
+
+	defer ws.Close()
+
+	ctl.watchTrainings(ws, pl.DomainAccount(), pid)
+}
+
+func (ctl *TrainingController) watchTrainings(ws *websocket.Conn, user domain.Account, pid string) {
 	finished := func(v []app.TrainingSummaryDTO) (b bool, i int) {
 		for i = range v {
 			if !v[i].IsDone {
@@ -356,50 +374,33 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 		return
 	}
 
-	pl, token, ok := ctl.checkTokenForWebsocket(ctx)
-	if !ok {
-		//TODO delete
-		log.Errorf("check token failed before updating ws")
+	duration := 0
+	sleep := func() {
+		time.Sleep(time.Second)
 
-		return
+		if duration > 0 {
+			duration++
+		}
 	}
-
-	pid := ctx.Param("pid")
-
-	//TODO delete
-	log.Infof("list training, token=%s, pid=%s", token, pid)
-
-	// setup websocket
-	upgrader := websocket.Upgrader{
-		Subprotocols: []string{token},
-		CheckOrigin: func(r *http.Request) bool {
-			return r.Header.Get(headerSecWebsocket) == token
-		},
-	}
-
-	ws, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
-	if err != nil {
-		//TODO delete
-		log.Errorf("update ws failed, err:%s", err.Error())
-
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
-	}
-
-	defer ws.Close()
 
 	// start loop
+	var err error
 	var v []app.TrainingSummaryDTO
 	var running *app.TrainingSummaryDTO
 
-	i := 4
+	start, end := 4, 5
+	i := start
 	for {
-		if i++; i == 5 {
-			i = 0
-
-			v, err = ctl.ts.List(pl.DomainAccount(), pid)
+		if i++; i == end {
+			v, err = ctl.ts.List(user, pid)
 			if err != nil {
+				i = start
+				sleep()
+
+				continue
+			}
+
+			if len(v) == 0 {
 				break
 			}
 
@@ -410,14 +411,11 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 				break
 			}
 
-			duration := 0
-			if running != nil {
-				duration = running.Duration + 1
-			}
-
 			running = &v[index]
 
-			if running.Duration < duration {
+			if duration == 0 {
+				duration = running.Duration
+			} else {
 				running.Duration = duration
 			}
 
@@ -425,6 +423,7 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 				break
 			}
 
+			i = 0
 		} else {
 			if running.Duration > 0 {
 				running.Duration++
@@ -435,7 +434,7 @@ func (ctl *TrainingController) ListByWS(ctx *gin.Context) {
 			}
 		}
 
-		time.Sleep(time.Second)
+		sleep()
 	}
 }
 

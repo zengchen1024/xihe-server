@@ -205,6 +205,23 @@ definitions:
       evaluate_id:
         type: string
     type: object
+  app.FinetuneSummaryDTO:
+    properties:
+      created_at:
+        type: string
+      duration:
+        type: integer
+      error:
+        type: string
+      id:
+        type: string
+      is_done:
+        type: boolean
+      name:
+        type: string
+      status:
+        type: string
+    type: object
   app.FollowDTO:
     properties:
       account:
@@ -589,6 +606,15 @@ definitions:
       id:
         type: string
     type: object
+  app.UserFinetunesDTO:
+    properties:
+      datas:
+        items:
+          $ref: '#/definitions/app.FinetuneSummaryDTO'
+        type: array
+      expiry:
+        type: integer
+    type: object
   app.UserLikedWuKongPictureDTO:
     properties:
       created_at:
@@ -660,6 +686,19 @@ definitions:
           type: string
         type: array
       type:
+        type: string
+    type: object
+  controller.FinetuneCreateRequest:
+    properties:
+      hyperparameter:
+        items:
+          $ref: '#/definitions/controller.KeyValue'
+        type: array
+      model:
+        type: string
+      name:
+        type: string
+      task:
         type: string
     type: object
   controller.KeyValue:
@@ -853,6 +892,16 @@ definitions:
   controller.describePictureResp:
     properties:
       desc:
+        type: string
+    type: object
+  controller.finetuneCreateResp:
+    properties:
+      id:
+        type: string
+    type: object
+  controller.finetuneLog:
+    properties:
+      log:
         type: string
     type: object
   controller.followingCreateRequest:
@@ -2327,6 +2376,150 @@ paths:
       summary: Watch
       tags:
       - Evaluate
+  /v1/finetune:
+    get:
+      consumes:
+      - application/json
+      description: list finetunes
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.UserFinetunesDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Finetune
+    post:
+      consumes:
+      - application/json
+      description: create finetune
+      parameters:
+      - description: body of creating finetune
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.FinetuneCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.finetuneCreateResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Create
+      tags:
+      - Finetune
+  /v1/finetune/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete finetune
+      parameters:
+      - description: finetune id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Delete
+      tags:
+      - Finetune
+    put:
+      consumes:
+      - application/json
+      description: terminate finetune
+      parameters:
+      - description: finetune id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Terminate
+      tags:
+      - Finetune
+  /v1/finetune/{id}/log:
+    get:
+      consumes:
+      - application/json
+      description: download finetune log
+      parameters:
+      - description: finetune id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.finetuneLog'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Log
+      tags:
+      - Finetune
+  /v1/finetune/{id}/log/ws:
+    get:
+      consumes:
+      - application/json
+      description: watch single finetune
+      parameters:
+      - description: finetune id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.finetuneLog'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: WatchSingle
+      tags:
+      - Finetune
+  /v1/finetune/ws:
+    get:
+      consumes:
+      - application/json
+      description: watch finetunes
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FinetuneSummaryDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: WatchFinetunes
+      tags:
+      - Finetune
   /v1/inference/project/{owner}/{pid}:
     get:
       consumes:

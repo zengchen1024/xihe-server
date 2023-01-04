@@ -69,6 +69,15 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// finetune
+	s, err = registerHandlerForFinetune(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	}
+
 	// inference
 	s, err = registerHandlerForInference(handler)
 	if err != nil {
@@ -259,6 +268,38 @@ func registerHandlerForTraining(handler interface{}) (mq.Subscriber, error) {
 		v.TrainingId = body.TrainingId
 
 		return h.HandleEventCreateTraining(&v)
+	})
+}
+
+func registerHandlerForFinetune(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.FinetuneHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Finetune, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := msgFinetune{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		if body.Id == "" {
+			err = errors.New("invalid message of finetune")
+
+			return
+		}
+
+		v := domain.FinetuneIndex{Id: body.Id}
+		if v.Owner, err = domain.NewAccount(body.User); err != nil {
+			return
+		}
+
+		return h.HandleEventCreateFinetune(&v)
 	})
 }
 

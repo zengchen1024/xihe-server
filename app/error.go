@@ -54,10 +54,17 @@ const (
 
 	ErrorTrainNoLog        = "train_no_log"
 	ErrorTrainNoOutput     = "train_no_output"
+	ErrorTrainNotFound     = "train_not_found"
 	ErrorTrainExccedMaxNum = "train_excced_max_num" // excced max training num for a user
 
 	ErrorWuKongInvalidPath      = "wukong_invalid_path"
 	ErrorWuKongInvalidLink      = "wukong_invalid_link"
 	ErrorWuKongDuplicateLike    = "wukong_duplicate_like"
 	ErrorWuKongExccedMaxLikeNum = "wukong_excced_max_like_num"
+
+	ErrorFinetuneExpiry           = "finetune_expiry"
+	ErrorFinetuneNotFound         = "finetune_not_found"
+	ErrorFinetuneExccedMaxNum     = "finetune_excced_max_num"
+	ErrorFinetuneNoPermission     = "finetune_no_permission"
+	ErrorFinetuneRunningJobExists = "finetune_running_job_exists"
 )

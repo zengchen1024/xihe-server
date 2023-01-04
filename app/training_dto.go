@@ -44,7 +44,7 @@ func (cmd *TrainingCreateCmd) Validate() error {
 		return nil
 	}
 
-	if f(cmd.Hypeparameters) != nil {
+	if f(cmd.Hyperparameters) != nil {
 		return err
 	}
 
@@ -86,14 +86,12 @@ func (s trainingService) toTrainingSummaryDTO(
 		status = trainingStatusScheduling
 	}
 
-	done := status == trainingStatusScheduleFailed || s.train.IsJobDone(status)
-
 	*dto = TrainingSummaryDTO{
 		Id:        t.Id,
 		Name:      t.Name.TrainingName(),
 		Error:     t.Error,
 		Status:    status,
-		IsDone:    done,
+		IsDone:    s.isJobDone(t.Status),
 		Duration:  t.Duration,
 		CreatedAt: utils.ToDate(t.CreatedAt),
 	}
@@ -119,8 +117,7 @@ type TrainingDTO struct {
 	AimPath   string     `json:"aim_path"`
 	EnableAim bool       `json:"enable_aim"`
 
-	JobId       string `json:"-"`
-	JobEndpoint string `json:"-"`
+	LogPreviewURL string `json:"-"`
 }
 
 type ComputeDTO struct {
@@ -129,7 +126,7 @@ type ComputeDTO struct {
 	Flavor  string `json:"flavor"`
 }
 
-func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
+func (s trainingService) toTrainingDTO(dto *TrainingDTO, ut *domain.UserTraining, link string) {
 	t := &ut.TrainingConfig
 	detail := &ut.JobDetail
 	c := &t.Compute
@@ -139,7 +136,7 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 		status = trainingStatusScheduling
 	}
 
-	v := TrainingDTO{
+	*dto = TrainingDTO{
 		Id:        ut.Id,
 		ProjectId: ut.ProjectId,
 
@@ -157,13 +154,10 @@ func (s trainingService) toTrainingDTO(ut *domain.UserTraining) TrainingDTO {
 		EnableAim: t.EnableAim,
 		AimPath:   ut.JobDetail.AimPath,
 
-		JobEndpoint: ut.Job.Endpoint,
-		JobId:       ut.Job.JobId,
+		LogPreviewURL: link,
 	}
 
 	if t.Desc != nil {
-		v.Desc = t.Desc.TrainingDesc()
+		dto.Desc = t.Desc.TrainingDesc()
 	}
-
-	return v
 }
