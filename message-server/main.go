@@ -98,7 +98,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 		mongodb.NewUserMapper(collections.User),
 	)
 
-	return &handler{
+	h := &handler{
 		log:              log,
 		maxRetry:         cfg.MaxRetry,
 		trainingEndpoint: cfg.TrainingEndpoint,
@@ -132,13 +132,6 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			nil, 0,
 		),
 
-		finetune: app.NewFinetuneMessageService(
-			finetuneimpl.NewFinetune(&cfg.Finetune),
-			repositories.NewFinetuneRepository(
-				mongodb.NewFinetuneMapper(collections.Finetune),
-			),
-		),
-
 		inference: app.NewInferenceMessageService(
 			repositories.NewInferenceRepository(
 				mongodb.NewInferenceMapper(collections.Inference),
@@ -156,6 +149,16 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 			cfg.Evaluate.SurvivalTime,
 		),
 	}
+
+	fc := cfg.getFinetuneConfig()
+	h.finetune = app.NewFinetuneMessageService(
+		finetuneimpl.NewFinetune(&fc),
+		repositories.NewFinetuneRepository(
+			mongodb.NewFinetuneMapper(collections.Finetune),
+		),
+	)
+
+	return h
 }
 
 func run(h *handler, log *logrus.Entry) {
