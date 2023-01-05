@@ -16,7 +16,7 @@ type msgOperateLog struct {
 	When int64             `json:"when"`
 	User string            `json:"user"`
 	Type string            `json:"type"`
-	Info map[string]string `json:"info"`
+	Info map[string]string `json:"info,omitempty"`
 }
 
 type msgFollower struct {

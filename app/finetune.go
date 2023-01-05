@@ -42,8 +42,7 @@ type finetuneService struct {
 }
 
 func (s finetuneService) isJobDone(status string) bool {
-	//return status != "" && (s.fs.IsJobDone(status) || status == trainingStatusScheduleFailed)
-	return false
+	return status != "" && (s.fs.IsJobDone(status) || status == trainingStatusScheduleFailed)
 }
 
 func (s finetuneService) Create(cmd *FinetuneCreateCmd) (

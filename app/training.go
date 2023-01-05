@@ -126,8 +126,7 @@ func (s trainingService) create(
 		},
 		TrainingId: r,
 	}
-	err = s.sender.CreateTraining(&index)
-	if err != nil {
+	if err = s.sender.CreateTraining(&index); err != nil {
 		s.log.Errorf("send message of creating training failed, err:%s", err.Error())
 	}
 

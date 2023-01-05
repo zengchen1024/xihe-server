@@ -53,10 +53,10 @@ func NewBigModelService(
 type bigModelService struct {
 	fm bigmodel.BigModel
 
+	sender        message.Sender
 	luojia        repository.LuoJia
 	wukong        repository.WuKong
 	wukongPicture repository.WuKongPicture
-	sender        message.Sender
 
 	wukongSampleId string
 }
