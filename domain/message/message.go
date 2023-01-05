@@ -22,6 +22,11 @@ type SubmissionInfo struct {
 }
 
 type Sender interface {
+	AddOperateLogForNewUser(domain.Account) error
+	AddOperateLogForCreateTraining(domain.TrainingIndex) error
+	AddOperateLogForAccessBigModel(domain.Account, domain.BigmodelType) error
+	AddOperateLogForCreateResource(domain.ResourceObject, domain.ResourceName) error
+
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
 

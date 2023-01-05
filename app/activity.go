@@ -94,15 +94,9 @@ func (s activityService) List(owner domain.Account) (
 	return
 }
 
-func genActivityForCreatingResource(
-	owner domain.Account, t domain.ResourceType, rid string,
-) domain.UserActivity {
-	obj := domain.ResourceObject{Type: t}
-	obj.Owner = owner
-	obj.Id = rid
-
+func genActivityForCreatingResource(obj domain.ResourceObject) domain.UserActivity {
 	return domain.UserActivity{
-		Owner: owner,
+		Owner: obj.Owner,
 		Activity: domain.Activity{
 			Type:           domain.ActivityTypeCreate,
 			Time:           utils.Now(),

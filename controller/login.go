@@ -8,6 +8,7 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
@@ -53,10 +54,11 @@ func AddRouterForLoginController(
 	ps platform.User,
 	auth authing.User,
 	login repository.Login,
+	sender message.Sender,
 ) {
 	pc := LoginController{
 		auth: auth,
-		us:   app.NewUserService(repo, ps, nil),
+		us:   app.NewUserService(repo, ps, sender),
 		ls:   app.NewLoginService(login),
 	}
 

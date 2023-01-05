@@ -125,6 +125,8 @@ func (s userService) Create(cmd *UserCreateCmd) (dto UserDTO, err error) {
 
 	s.toUserDTO(&u, &dto)
 
+	_ = s.sender.AddOperateLogForNewUser(u.Account)
+
 	return
 }
 

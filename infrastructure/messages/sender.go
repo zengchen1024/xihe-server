@@ -8,6 +8,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 func NewMessageSender() message.Sender {
@@ -176,6 +177,45 @@ func (s sender) CalcScore(info *message.SubmissionInfo) error {
 	}
 
 	return s.send(topics.Submission, &v)
+}
+
+// operate log
+func (s sender) AddOperateLogForNewUser(u domain.Account) error {
+	return s.sendOperateLog(u, "user", nil)
+}
+
+func (s sender) AddOperateLogForAccessBigModel(
+	u domain.Account, t domain.BigmodelType,
+) error {
+	return s.sendOperateLog(u, "bigmodel", map[string]string{
+		"bigmodel": string(t),
+	})
+}
+
+func (s sender) AddOperateLogForCreateResource(
+	obj domain.ResourceObject, name domain.ResourceName,
+) error {
+	return s.sendOperateLog(obj.Owner, "resource", map[string]string{
+		"id":   obj.Id,
+		"name": name.ResourceName(),
+		"type": obj.Type.ResourceType(),
+	})
+}
+
+func (s sender) AddOperateLogForCreateTraining(index domain.TrainingIndex) error {
+	return s.sendOperateLog(index.Project.Owner, "training", map[string]string{
+		"id":         index.TrainingId,
+		"project_id": index.Project.Id,
+	})
+}
+
+func (s sender) sendOperateLog(u domain.Account, t string, info map[string]string) error {
+	return s.send(topics.OperateLog, &msgOperateLog{
+		When: utils.Now(),
+		User: u.Account(),
+		Type: t,
+		Info: info,
+	})
 }
 
 // send

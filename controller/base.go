@@ -213,6 +213,10 @@ func (ctl baseController) sendBadRequestParam(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, newResponseCodeError(errorBadRequestParam, err))
 }
 
+func (ctl baseController) sendBadRequestParamWithMsg(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(errorBadRequestParam, msg))
+}
+
 func (ctl baseController) sendRespOfGet(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, newResponseData(data))
 }

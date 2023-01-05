@@ -83,7 +83,6 @@ func (r resourceName) FirstLetterOfName() byte {
 // ResourceType
 type ResourceType interface {
 	ResourceType() string
-	PrefixToName() string
 }
 
 func NewResourceType(v string) (ResourceType, error) {
@@ -101,10 +100,6 @@ type resourceType string
 
 func (r resourceType) ResourceType() string {
 	return string(r)
-}
-
-func (r resourceType) PrefixToName() string {
-	return string(r) + "-"
 }
 
 // ResourceDesc
