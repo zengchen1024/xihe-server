@@ -50,7 +50,7 @@ func (s finetuneService) toFinetuneSummaryDTO(
 	dto.Id = t.Id
 	dto.Name = t.Name.TrainingName()
 	dto.Error = t.Error
-	dto.Status = t.Status
+	dto.Status = status
 	dto.IsDone = s.isJobDone(status)
 	dto.Duration = t.Duration
 	dto.CreatedAt = utils.ToDate(t.CreatedAt)
