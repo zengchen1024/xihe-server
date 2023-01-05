@@ -157,11 +157,11 @@ func (s modelService) Create(cmd *ModelCreateCmd, pr platform.Repository) (dto M
 	s.toModelDTO(&m, &dto)
 
 	// add activity
-	ua := genActivityForCreatingResource(
-		m.Owner, domain.ResourceTypeModel, m.Id,
-	)
-	// ignore the error
+	r := m.ResourceObject()
+	ua := genActivityForCreatingResource(r)
 	_ = s.activity.Save(&ua)
+
+	_ = s.sender.AddOperateLogForCreateResource(r, m.Name)
 
 	return
 }

@@ -119,16 +119,18 @@ func (s trainingService) create(
 	}
 
 	// send message
-	err = s.sender.CreateTraining(&TrainingIndex{
+	index := TrainingIndex{
 		Project: domain.ResourceIndex{
 			Owner: user,
 			Id:    projectId,
 		},
 		TrainingId: r,
-	})
-	if err != nil {
+	}
+	if err = s.sender.CreateTraining(&index); err != nil {
 		s.log.Errorf("send message of creating training failed, err:%s", err.Error())
 	}
+
+	_ = s.sender.AddOperateLogForCreateTraining(index)
 
 	return r, nil
 }

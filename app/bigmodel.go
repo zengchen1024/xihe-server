@@ -8,19 +8,20 @@ import (
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/bigmodel"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
 type BigModelService interface {
-	DescribePicture(io.Reader, string, int64) (string, error)
+	DescribePicture(domain.Account, io.Reader, string, int64) (string, error)
 	GenPicture(domain.Account, string) (string, string, error)
 	GenPictures(domain.Account, string) ([]string, string, error)
-	Ask(domain.Question, string) (string, string, error)
+	Ask(domain.Account, domain.Question, string) (string, string, error)
 	VQAUploadPicture(io.Reader, domain.Account, string) error
 	LuoJiaUploadPicture(io.Reader, domain.Account) error
-	PanGu(string) (string, string, error)
-	CodeGeex(*CodeGeexCmd) (CodeGeexDTO, string, error)
+	PanGu(domain.Account, string) (string, string, error)
+	CodeGeex(domain.Account, *CodeGeexCmd) (CodeGeexDTO, string, error)
 	LuoJia(domain.Account) (string, error)
 	ListLuoJiaRecord(domain.Account) ([]LuoJiaRecordDTO, error)
 	GenWuKongSamples(int) ([]string, error)
@@ -37,9 +38,11 @@ func NewBigModelService(
 	luojia repository.LuoJia,
 	wukong repository.WuKong,
 	wukongPicture repository.WuKongPicture,
+	sender message.Sender,
 ) BigModelService {
 	return bigModelService{
 		fm:             fm,
+		sender:         sender,
 		luojia:         luojia,
 		wukong:         wukong,
 		wukongPicture:  wukongPicture,
@@ -50,6 +53,7 @@ func NewBigModelService(
 type bigModelService struct {
 	fm bigmodel.BigModel
 
+	sender        message.Sender
 	luojia        repository.LuoJia
 	wukong        repository.WuKong
 	wukongPicture repository.WuKongPicture
@@ -58,14 +62,18 @@ type bigModelService struct {
 }
 
 func (s bigModelService) DescribePicture(
-	picture io.Reader, name string, length int64,
+	user domain.Account, picture io.Reader, name string, length int64,
 ) (string, error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelDescPicture)
+
 	return s.fm.DescribePicture(picture, name, length)
 }
 
 func (s bigModelService) GenPicture(
 	user domain.Account, desc string,
 ) (link string, code string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelGenPicture)
+
 	if link, err = s.fm.GenPicture(user, desc); err != nil {
 		code = s.setCode(err)
 	}
@@ -76,6 +84,8 @@ func (s bigModelService) GenPicture(
 func (s bigModelService) GenPictures(
 	user domain.Account, desc string,
 ) (links []string, code string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelGenPicture)
+
 	if links, err = s.fm.GenPictures(user, desc); err != nil {
 		code = s.setCode(err)
 	}
@@ -83,7 +93,11 @@ func (s bigModelService) GenPictures(
 	return
 }
 
-func (s bigModelService) Ask(q domain.Question, f string) (v string, code string, err error) {
+func (s bigModelService) Ask(
+	u domain.Account, q domain.Question, f string,
+) (v string, code string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(u, domain.BigmodelVQA)
+
 	if v, err = s.fm.Ask(q, f); err != nil {
 		code = s.setCode(err)
 	}
@@ -99,7 +113,9 @@ func (s bigModelService) LuoJiaUploadPicture(f io.Reader, user domain.Account) e
 	return s.fm.LuoJiaUploadPicture(f, user)
 }
 
-func (s bigModelService) PanGu(q string) (v string, code string, err error) {
+func (s bigModelService) PanGu(u domain.Account, q string) (v string, code string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(u, domain.BigmodelPanGu)
+
 	if v, err = s.fm.PanGu(q); err != nil {
 		code = s.setCode(err)
 	}
@@ -108,6 +124,8 @@ func (s bigModelService) PanGu(q string) (v string, code string, err error) {
 }
 
 func (s bigModelService) LuoJia(user domain.Account) (v string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelLuoJia)
+
 	if v, err = s.fm.LuoJia(user.Account()); err != nil {
 		return
 	}
@@ -136,7 +154,11 @@ func (s bigModelService) ListLuoJiaRecord(user domain.Account) (
 	return
 }
 
-func (s bigModelService) CodeGeex(cmd *CodeGeexCmd) (dto CodeGeexDTO, code string, err error) {
+func (s bigModelService) CodeGeex(user domain.Account, cmd *CodeGeexCmd) (
+	dto CodeGeexDTO, code string, err error,
+) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelCodeGeex)
+
 	if dto, err = s.fm.CodeGeex((*bigmodel.CodeGeexReq)(cmd)); err != nil {
 		code = s.setCode(err)
 	}
@@ -164,6 +186,8 @@ func (s bigModelService) GenWuKongSamples(batchNum int) ([]string, error) {
 func (s bigModelService) WuKong(
 	user domain.Account, cmd *WuKongCmd,
 ) (links map[string]string, code string, err error) {
+	_ = s.sender.AddOperateLogForAccessBigModel(user, domain.BigmodelWuKong)
+
 	links, err = s.fm.GenPicturesByWuKong(user, (*domain.WuKongPictureMeta)(cmd))
 	if err != nil {
 		code = s.setCode(err)

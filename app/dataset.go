@@ -154,11 +154,11 @@ func (s datasetService) Create(cmd *DatasetCreateCmd, pr platform.Repository) (d
 	s.toDatasetDTO(&d, &dto)
 
 	// add activity
-	ua := genActivityForCreatingResource(
-		d.Owner, domain.ResourceTypeDataset, d.Id,
-	)
-	// ignore the error
+	r := d.ResourceObject()
+	ua := genActivityForCreatingResource(r)
 	_ = s.activity.Save(&ua)
+
+	_ = s.sender.AddOperateLogForCreateResource(r, d.Name)
 
 	return
 }

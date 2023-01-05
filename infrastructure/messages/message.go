@@ -12,6 +12,13 @@ const (
 	actionExtend = "extend"
 )
 
+type msgOperateLog struct {
+	When int64             `json:"when"`
+	User string            `json:"user"`
+	Type string            `json:"type"`
+	Info map[string]string `json:"info,omitempty"`
+}
+
 type msgFollower struct {
 	Action   string `json:"action"`
 	User     string `json:"user"`

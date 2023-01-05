@@ -62,11 +62,9 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 	s.toProjectDTO(&p, &dto)
 
 	// create activity
-	ua := genActivityForCreatingResource(
-		p.Owner, domain.ResourceTypeProject, p.Id,
-	)
+	r := p.ResourceObject()
+	ua := genActivityForCreatingResource(r)
 	ua.Type = domain.ActivityTypeFork
-
 	_ = s.activity.Save(&ua)
 
 	// send event
@@ -74,6 +72,8 @@ func (s projectService) Fork(cmd *ProjectForkCmd, pr platform.Repository) (dto P
 		Owner: cmd.From.Owner,
 		Id:    cmd.From.Id,
 	})
+
+	_ = s.sender.AddOperateLogForCreateResource(r, p.Name)
 
 	return
 }

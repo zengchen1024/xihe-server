@@ -173,7 +173,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForLoginController(
-			v1, user, gitlabUser, authingUser, login,
+			v1, user, gitlabUser, authingUser, login, sender,
 		)
 
 		controller.AddRouterForLikeController(
@@ -189,7 +189,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForBigModelController(
-			v1, bigmodel, luojia, wukong, wukongPicture,
+			v1, bigmodel, luojia, wukong, wukongPicture, sender,
 		)
 
 		controller.AddRouterForTrainingController(

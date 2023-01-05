@@ -183,11 +183,11 @@ func (s projectService) Create(cmd *ProjectCreateCmd, pr platform.Repository) (d
 	s.toProjectDTO(&p, &dto)
 
 	// add activity
-	ua := genActivityForCreatingResource(
-		p.Owner, domain.ResourceTypeProject, p.Id,
-	)
-	// ignore the error
+	r := p.ResourceObject()
+	ua := genActivityForCreatingResource(r)
 	_ = s.activity.Save(&ua)
+
+	_ = s.sender.AddOperateLogForCreateResource(r, p.Name)
 
 	return
 }

@@ -7,6 +7,29 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+const (
+	bigmodelVQA         = "vqa"
+	bigmodelPanGu       = "pangu"
+	bigmodelLuoJia      = "luojia"
+	bigmodelWuKong      = "wukong"
+	bigmodelCodeGeex    = "codegeex"
+	bigmodelGenPicture  = "gen_picture"
+	bigmodelDescPicture = "desc_picture"
+)
+
+var (
+	BigmodelVQA         = BigmodelType(bigmodelVQA)
+	BigmodelPanGu       = BigmodelType(bigmodelPanGu)
+	BigmodelLuoJia      = BigmodelType(bigmodelLuoJia)
+	BigmodelWuKong      = BigmodelType(bigmodelWuKong)
+	BigmodelCodeGeex    = BigmodelType(bigmodelCodeGeex)
+	BigmodelGenPicture  = BigmodelType(bigmodelGenPicture)
+	BigmodelDescPicture = BigmodelType(bigmodelDescPicture)
+)
+
+// BigmodelType
+type BigmodelType string
+
 // Question
 type Question interface {
 	Question() string

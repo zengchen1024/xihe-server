@@ -9,6 +9,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain/bigmodel"
+	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
@@ -18,9 +19,10 @@ func AddRouterForBigModelController(
 	luojia repository.LuoJia,
 	wukong repository.WuKong,
 	wukongPicture repository.WuKongPicture,
+	sender message.Sender,
 ) {
 	ctl := BigModelController{
-		s: app.NewBigModelService(bm, luojia, wukong, wukongPicture),
+		s: app.NewBigModelService(bm, luojia, wukong, wukongPicture, sender),
 	}
 
 	rg.POST("/v1/bigmodel/describe_picture", ctl.DescribePicture)
@@ -57,43 +59,38 @@ type BigModelController struct {
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/describe_picture [post]
 func (ctl *BigModelController) DescribePicture(ctx *gin.Context) {
-	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
 	f, err := ctx.FormFile("picture")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorBadRequestBody, err.Error(),
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
 
 	if f.Size > apiConfig.MaxPictureSizeToDescribe {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorBadRequestParam, "too big picture",
-		))
+		ctl.sendBadRequestParamWithMsg(ctx, "too big picture")
 
 		return
 	}
 
 	p, err := f.Open()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
-			errorBadRequestParam, "can't get picture",
-		))
+		ctl.sendBadRequestParamWithMsg(ctx, "can't get picture")
 
 		return
 	}
 
 	defer p.Close()
 
-	if v, err := ctl.s.DescribePicture(p, f.Filename, f.Size); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	v, err := ctl.s.DescribePicture(pl.DomainAccount(), p, f.Filename, f.Size)
+	if err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(describePictureResp{v}))
+		ctl.sendRespOfPost(ctx, describePictureResp{v})
 	}
 }
 
@@ -113,23 +110,22 @@ func (ctl *BigModelController) GenSinglePicture(ctx *gin.Context) {
 
 	req := pictureGenerateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
 	if err := req.validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
 
-	if v, code, err := ctl.s.GenPicture(pl.DomainAccount(), req.Desc); err != nil {
+	v, code, err := ctl.s.GenPicture(pl.DomainAccount(), req.Desc)
+	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(pictureGenerateResp{v}))
+		ctl.sendRespOfPost(ctx, pictureGenerateResp{v})
 	}
 }
 
@@ -149,20 +145,19 @@ func (ctl *BigModelController) GenMultiplePictures(ctx *gin.Context) {
 
 	req := pictureGenerateRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctl.sendBadRequest(ctx, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
 	if err := req.validate(); err != nil {
-		ctl.sendBadRequest(ctx, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
 
-	if v, code, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc); err != nil {
+	v, code, err := ctl.s.GenPictures(pl.DomainAccount(), req.Desc)
+	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfPost(ctx, multiplePicturesGenerateResp{v})
@@ -185,24 +180,26 @@ func (ctl *BigModelController) Ask(ctx *gin.Context) {
 
 	req := questionAskRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
 	q, f, err := req.toCmd()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
 
-	if v, code, err := ctl.s.Ask(q, filepath.Join(pl.Account, f)); err != nil {
+	v, code, err := ctl.s.Ask(
+		pl.DomainAccount(), q,
+		filepath.Join(pl.Account, f),
+	)
+	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(questionAskResp{v}))
+		ctl.sendRespOfPost(ctx, questionAskResp{v})
 	}
 }
 
@@ -215,22 +212,23 @@ func (ctl *BigModelController) Ask(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/pangu [post]
 func (ctl *BigModelController) PanGu(ctx *gin.Context) {
-	_, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
 	req := panguRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
-	if v, code, err := ctl.s.PanGu(req.Question); err != nil {
+	v, code, err := ctl.s.PanGu(pl.DomainAccount(), req.Question)
+	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(panguResp{v}))
+		ctl.sendRespOfPost(ctx, panguResp{v})
 	}
 }
 
@@ -248,9 +246,9 @@ func (ctl *BigModelController) LuoJia(ctx *gin.Context) {
 	}
 
 	if v, err := ctl.s.LuoJia(pl.DomainAccount()); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		ctl.sendCodeMessage(ctx, "", err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(luojiaResp{v}))
+		ctl.sendRespOfPost(ctx, luojiaResp{v})
 	}
 }
 
@@ -283,30 +281,30 @@ func (ctl *BigModelController) ListLuoJiaRecord(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/codegeex [post]
 func (ctl *BigModelController) CodeGeex(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
 	req := CodeGeexRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
 	cmd, err := req.toCmd()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
 
-	if _, _, ok := ctl.checkUserApiToken(ctx, false); !ok {
-		return
-	}
-
-	if v, code, err := ctl.s.CodeGeex(&cmd); err != nil {
+	v, code, err := ctl.s.CodeGeex(pl.DomainAccount(), &cmd)
+	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData(v))
+		ctl.sendRespOfPost(ctx, v)
 	}
 }
 
@@ -488,16 +486,14 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 
 	req := wukongRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctl.sendBadRequest(ctx, respBadRequestBody)
+		ctl.sendBadRequestBody(ctx)
 
 		return
 	}
 
 	cmd, err := req.toCmd()
 	if err != nil {
-		ctl.sendBadRequest(ctx, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
+		ctl.sendBadRequestParam(ctx, err)
 
 		return
 	}
