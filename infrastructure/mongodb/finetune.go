@@ -123,7 +123,7 @@ func (col finetuneCol) List(user string) (do repositories.UserFinetunesDO, versi
 
 	r := make([]repositories.FinetuneSummaryDO, len(t))
 	for i := range t {
-		col.toFinetuneSummary(&t[i], &r[i])
+		col.toFinetuneSummaryDO(&t[i], &r[i])
 	}
 	do.Datas = r
 

@@ -19,13 +19,13 @@ func (col finetuneCol) toFinetuneDoc(do *repositories.UserFinetuneDO) (bson.M, e
 	return genDoc(&doc)
 }
 
-func (col finetuneCol) toFinetuneSummary(doc *finetuneItem, do *repositories.FinetuneSummaryDO) {
+func (col finetuneCol) toFinetuneSummaryDO(doc *finetuneItem, do *repositories.FinetuneSummaryDO) {
 	detail := &doc.JobDetail
 
 	*do = repositories.FinetuneSummaryDO{
 		Id:        doc.Id,
-		Name:      do.Name,
-		CreatedAt: do.CreatedAt,
+		Name:      doc.Name,
+		CreatedAt: doc.CreatedAt,
 		FinetuneJobDetailDO: repositories.FinetuneJobDetailDO{
 			Error:    detail.Error,
 			Status:   detail.Status,
@@ -40,12 +40,12 @@ func (col finetuneCol) toFinetuneDetailDO(doc *finetuneItem, do *repositories.Fi
 
 	*do = repositories.FinetuneDetailDO{
 		Id:        doc.Id,
-		CreatedAt: do.CreatedAt,
+		CreatedAt: doc.CreatedAt,
 		FinetuneConfigDO: repositories.FinetuneConfigDO{
-			Name:            do.Name,
-			Task:            do.Task,
-			Model:           do.Model,
-			Hyperparameters: do.Hyperparameters,
+			Name:            doc.Name,
+			Task:            doc.Task,
+			Model:           doc.Model,
+			Hyperparameters: doc.Hyperparameters,
 		},
 		Job: repositories.FinetuneJobInfoDO{
 			JobId:    job.JobId,

@@ -522,9 +522,9 @@ type pictureItem struct {
 }
 
 type dFinetune struct {
-	Owner   string `bson:"owner"   json:"owner"`
-	Expiry  int64  `bson:"expiry"  json:"expiry"`
-	Version int    `bson:"version" json:"-"`
+	Owner   string `bson:"owner"         json:"owner"`
+	Expiry  int64  `bson:"expiry"        json:"expiry"`
+	Version int    `bson:"version"       json:"-"`
 
 	Items []finetuneItem `bson:"items"   json:"-"`
 }
