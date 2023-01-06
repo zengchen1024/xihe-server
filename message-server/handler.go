@@ -237,6 +237,8 @@ func (h *handler) HandleEventCreateTraining(info *domain.TrainingIndex) error {
 }
 
 func (h *handler) HandleEventCreateFinetune(index *domain.FinetuneIndex) error {
+	h.log.Debugf("start handle finetune: %s/%s", index.Owner.Account(), index.Id)
+
 	return h.retry(
 		func(lastChance bool) error {
 			retry, err := h.finetune.CreateFinetuneJob(index, lastChance)

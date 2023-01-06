@@ -55,6 +55,10 @@ type EventHandler interface {
 	FollowingHandler
 	LikeHandler
 	ForkHandler
+	TrainingHandler
+	FinetuneHandler
+	InferenceHandler
+	EvaluateHandler
 }
 
 type FollowingHandler interface {
