@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/opensourceways/community-robot-lib/utils"
+	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/domain"
@@ -304,6 +305,10 @@ func (ctl *FinetuneController) WatchSingle(ctx *gin.Context) {
 	for {
 		v, code, err := ctl.fs.GetJobInfo(&index)
 		if err != nil {
+			logrus.Errorf(
+				"get finetune job failed, code=%s, err=%s",
+				code, err.Error(),
+			)
 			if code == app.ErrorFinetuneNotFound {
 				break
 			}
@@ -315,6 +320,9 @@ func (ctl *FinetuneController) WatchSingle(ctx *gin.Context) {
 
 		content, err := downloadLog(v.LogPreviewURL)
 		if err != nil {
+			logrus.Errorf(
+				"download finetune log failed, err=%s", err.Error(),
+			)
 			time.Sleep(time.Second)
 
 			continue

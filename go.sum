@@ -303,6 +303,8 @@ github.com/opensourceways/xihe-finetune v0.0.0-20221230085028-7b880db0f0e6 h1:rn
 github.com/opensourceways/xihe-finetune v0.0.0-20221230085028-7b880db0f0e6/go.mod h1:x0VCIwxcLTVYLQx1/dtCFcwWEbNIug37BhCb3T4jJ7Q=
 github.com/opensourceways/xihe-finetune v0.0.0-20230103122723-bbd9df5fa02c h1:GJ55Rd6yUpCjYKaeYQ6zJko3h4Y67vad+G2ncqzo80E=
 github.com/opensourceways/xihe-finetune v0.0.0-20230103122723-bbd9df5fa02c/go.mod h1:x0VCIwxcLTVYLQx1/dtCFcwWEbNIug37BhCb3T4jJ7Q=
+github.com/opensourceways/xihe-finetune v0.0.0-20230104090328-fd925bbc55a4 h1:lW//GuKDm4DIlONPC+BBks5DTA2k7ALddUJf72fLrz4=
+github.com/opensourceways/xihe-finetune v0.0.0-20230104090328-fd925bbc55a4/go.mod h1:x0VCIwxcLTVYLQx1/dtCFcwWEbNIug37BhCb3T4jJ7Q=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221229121659-50f9fa2ddbce h1:eVKzP5FjB9qk0te1mNxeJpXdhJTuCB9jwYaUueJBK6o=
 github.com/opensourceways/xihe-grpc-protocol v0.0.0-20221229121659-50f9fa2ddbce/go.mod h1:oDg3IkriEaMnfzSah7fscVp8nq7+baTNPelKPgHSrqY=
 github.com/opensourceways/xihe-inference-evaluate v0.0.0-20221102031424-b6e01d2ebc0e h1:hd6YNGvkfNuva5MkprOvglPeqKaGnNWoyybjFt+PRv4=
