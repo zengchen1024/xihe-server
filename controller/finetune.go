@@ -125,7 +125,7 @@ func (ctl *FinetuneController) finetuneIndex(ctx *gin.Context) (
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if ok {
 		index.Owner = pl.DomainAccount()
-		index.Id = ctx.Param("pid")
+		index.Id = ctx.Param("id")
 	}
 
 	return
@@ -281,7 +281,7 @@ func (ctl *FinetuneController) WatchSingle(ctx *gin.Context) {
 
 	index := domain.FinetuneIndex{
 		Owner: pl.DomainAccount(),
-		Id:    ctx.Param("pid"),
+		Id:    ctx.Param("id"),
 	}
 
 	// setup websocket
