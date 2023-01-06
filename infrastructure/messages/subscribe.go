@@ -76,6 +76,8 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 	}
 	if s != nil {
 		subscribers[s.Topic()] = s
+	} else {
+		log.Infof("does not subscribe finetune")
 	}
 
 	// inference
