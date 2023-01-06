@@ -227,17 +227,14 @@ type finetuneMessageService struct {
 func (s finetuneMessageService) CreateFinetuneJob(
 	info *FinetuneIndex, lastChance bool,
 ) (retry bool, err error) {
-	retry, err = s.createFinetuneJob(info)
-	if err == nil {
+	if retry, err = s.createFinetuneJob(info); err == nil || !lastChance {
 		return
 	}
 
-	if lastChance {
-		s.repo.UpdateJobDetail(info, &FinetuneJobDetail{
-			Status: trainingStatusScheduleFailed,
-			Error:  err.Error(),
-		})
-	}
+	s.repo.UpdateJobDetail(info, &FinetuneJobDetail{
+		Status: trainingStatusScheduleFailed,
+		Error:  err.Error(),
+	})
 
 	return
 }

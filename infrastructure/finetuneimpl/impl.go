@@ -43,8 +43,8 @@ func (impl *finetuneImpl) CreateJob(info *domain.FinetuneIndex, cfg *domain.Fine
 		Hyperparameters: p.Hyperparameters(),
 	}
 
-	if v, err := impl.cli.Create(&opt); err != nil {
-	} else {
+	v, err := impl.cli.Create(&opt)
+	if err == nil {
 		job.JobId = v.JobId
 	}
 
