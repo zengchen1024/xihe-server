@@ -230,7 +230,7 @@ func (ctl *RepoFileController) DeleteDir(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	pl, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -249,7 +249,12 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	if v, err := ctl.s.Download(&u, &cmd); err != nil {
+	var who domain.Account
+	if pl.Account != "" {
+		who = pl.DomainAccount()
+	}
+
+	if v, err := ctl.s.Download(who, &u, &cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctl.sendRespOfGet(ctx, v)
@@ -267,7 +272,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name} [get]
 func (ctl *RepoFileController) DownloadRepo(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -298,7 +303,7 @@ func (ctl *RepoFileController) DownloadRepo(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -338,7 +343,7 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/files [get]
 func (ctl *RepoFileController) List(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -367,7 +372,11 @@ func (ctl *RepoFileController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(v))
 }
 
-func (ctl *RepoFileController) checkForView(ctx *gin.Context) (u platform.UserInfo, repoInfo domain.ResourceSummary, ok bool) {
+func (ctl *RepoFileController) checkForView(ctx *gin.Context) (
+	pl oldUserTokenPayload,
+	u platform.UserInfo,
+	repoInfo domain.ResourceSummary, ok bool,
+) {
 	user, err := domain.NewAccount(ctx.Param("user"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(

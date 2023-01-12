@@ -25,7 +25,7 @@ type RepoFileService interface {
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	DeleteDir(*UserInfo, *RepoDirDeleteCmd) (string, error)
-	Download(*UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
+	Download(domain.Account, *UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
 
@@ -96,13 +96,17 @@ func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd)
 	return
 }
 
-func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+func (s *repoFileService) Download(who domain.Account, u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
 	RepoFileDownloadDTO, error,
 ) {
 	r, err := s.download(u, cmd)
 	if err == nil {
 		_ = s.sender.AddOperateLogForDownloadFile(
-			u.User, cmd.Name, cmd.Path,
+			who, message.RepoFile{
+				User: u.User,
+				Name: cmd.Name,
+				Path: cmd.Path,
+			},
 		)
 	}
 
