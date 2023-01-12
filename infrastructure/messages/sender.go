@@ -209,10 +209,23 @@ func (s sender) AddOperateLogForCreateTraining(index domain.TrainingIndex) error
 	})
 }
 
+func (s sender) AddOperateLogForDownloadFile(u domain.Account, repo message.RepoFile) error {
+	return s.sendOperateLog(u, "download", map[string]string{
+		"user": repo.User.Account(),
+		"repo": repo.Name.ResourceName(),
+		"path": repo.Path.FilePath(),
+	})
+}
+
 func (s sender) sendOperateLog(u domain.Account, t string, info map[string]string) error {
+	a := ""
+	if u != nil {
+		a = u.Account()
+	}
+
 	return s.send(topics.OperateLog, &msgOperateLog{
 		When: utils.Now(),
-		User: u.Account(),
+		User: a,
 		Type: t,
 		Info: info,
 	})

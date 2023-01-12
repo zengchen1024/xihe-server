@@ -230,17 +230,18 @@ func (ctl *RepoFileController) DeleteDir(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/file/{path} [get]
 func (ctl *RepoFileController) Download(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	pl, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
 
-	var err error
-	info := app.RepoFileInfo{
-		RepoId: repoInfo.RepoId,
+	cmd := app.RepoFileDownloadCmd{
+		Name: repoInfo.Name,
 	}
+	cmd.RepoId = repoInfo.RepoId
 
-	if info.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
+	var err error
+	if cmd.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
@@ -248,14 +249,16 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	v, err := ctl.s.Download(&u, &info)
-	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
+	var who domain.Account
+	if pl.Account != "" {
+		who = pl.DomainAccount()
 	}
 
-	ctx.JSON(http.StatusOK, newResponseData(v))
+	if v, err := ctl.s.Download(who, &u, &cmd); err != nil {
+		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	} else {
+		ctl.sendRespOfGet(ctx, v)
+	}
 }
 
 // @Summary DownloadRepo
@@ -269,7 +272,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name} [get]
 func (ctl *RepoFileController) DownloadRepo(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -300,7 +303,7 @@ func (ctl *RepoFileController) DownloadRepo(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/file/{path}/preview [get]
 func (ctl *RepoFileController) Preview(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -340,7 +343,7 @@ func (ctl *RepoFileController) Preview(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/repo/{type}/{user}/{name}/files [get]
 func (ctl *RepoFileController) List(ctx *gin.Context) {
-	u, repoInfo, ok := ctl.checkForView(ctx)
+	_, u, repoInfo, ok := ctl.checkForView(ctx)
 	if !ok {
 		return
 	}
@@ -369,7 +372,11 @@ func (ctl *RepoFileController) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, newResponseData(v))
 }
 
-func (ctl *RepoFileController) checkForView(ctx *gin.Context) (u platform.UserInfo, repoInfo domain.ResourceSummary, ok bool) {
+func (ctl *RepoFileController) checkForView(ctx *gin.Context) (
+	pl oldUserTokenPayload,
+	u platform.UserInfo,
+	repoInfo domain.ResourceSummary, ok bool,
+) {
 	user, err := domain.NewAccount(ctx.Param("user"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(

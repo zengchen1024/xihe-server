@@ -21,11 +21,18 @@ type SubmissionInfo struct {
 	OBSPath string
 }
 
+type RepoFile struct {
+	User domain.Account
+	Name domain.ResourceName
+	Path domain.FilePath
+}
+
 type Sender interface {
 	AddOperateLogForNewUser(domain.Account) error
 	AddOperateLogForCreateTraining(domain.TrainingIndex) error
 	AddOperateLogForAccessBigModel(domain.Account, domain.BigmodelType) error
 	AddOperateLogForCreateResource(domain.ResourceObject, domain.ResourceName) error
+	AddOperateLogForDownloadFile(domain.Account, RepoFile) error
 
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error
