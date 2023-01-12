@@ -6,6 +6,7 @@ import (
 	"io"
 	"sort"
 
+	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/domain/platform"
 )
@@ -44,7 +45,11 @@ type RepoFileListCmd = RepoDir
 type RepoDirDeleteCmd = RepoDirInfo
 type RepoFileDeleteCmd = RepoFileInfo
 type RepoFilePreviewCmd = RepoFileInfo
-type RepoFileDownloadCmd = RepoFileInfo
+type RepoFileDownloadCmd struct {
+	RepoFileInfo
+
+	Name domain.ResourceName
+}
 
 type RepoFileCreateCmd struct {
 	RepoFileInfo
@@ -92,9 +97,22 @@ func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd)
 }
 
 func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+	RepoFileDownloadDTO, error,
+) {
+	r, err := s.download(u, cmd)
+	if err == nil {
+		_ = s.sender.AddOperateLogForDownloadFile(
+			u.User, cmd.Name, cmd.Path,
+		)
+	}
+
+	return r, err
+}
+
+func (s *repoFileService) download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
 	dto RepoFileDownloadDTO, err error,
 ) {
-	data, notFound, err := s.rf.Download(u, cmd)
+	data, notFound, err := s.rf.Download(u, &cmd.RepoFileInfo)
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}
@@ -103,19 +121,11 @@ func (s *repoFileService) Download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 		return
 	}
 
-	isLFS, sha := s.rf.IsLFSFile(data)
-	if !isLFS {
+	if isLFS, sha := s.rf.IsLFSFile(data); !isLFS {
 		dto.Content = base64.StdEncoding.EncodeToString(data)
-
-		return
+	} else {
+		dto.DownloadURL, err = s.rf.GenLFSDownloadURL(sha)
 	}
-
-	v, err := s.rf.GenLFSDownloadURL(sha)
-	if err != nil {
-		return
-	}
-
-	dto.DownloadURL = v
 
 	return
 }

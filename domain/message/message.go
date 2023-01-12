@@ -26,6 +26,7 @@ type Sender interface {
 	AddOperateLogForCreateTraining(domain.TrainingIndex) error
 	AddOperateLogForAccessBigModel(domain.Account, domain.BigmodelType) error
 	AddOperateLogForCreateResource(domain.ResourceObject, domain.ResourceName) error
+	AddOperateLogForDownloadFile(domain.Account, domain.ResourceName, domain.FilePath) error
 
 	AddFollowing(*domain.FollowerInfo) error
 	RemoveFollowing(*domain.FollowerInfo) error

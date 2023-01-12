@@ -235,12 +235,13 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	var err error
-	info := app.RepoFileInfo{
-		RepoId: repoInfo.RepoId,
+	cmd := app.RepoFileDownloadCmd{
+		Name: repoInfo.Name,
 	}
+	cmd.RepoId = repoInfo.RepoId
 
-	if info.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
+	var err error
+	if cmd.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
 		))
@@ -248,14 +249,11 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	v, err := ctl.s.Download(&u, &info)
-	if err != nil {
+	if v, err := ctl.s.Download(&u, &cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
-
-		return
+	} else {
+		ctl.sendRespOfGet(ctx, v)
 	}
-
-	ctx.JSON(http.StatusOK, newResponseData(v))
 }
 
 // @Summary DownloadRepo
