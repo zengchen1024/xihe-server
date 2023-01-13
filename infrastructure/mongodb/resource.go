@@ -86,32 +86,24 @@ func newResourceDoc(collection, owner string) error {
 	return nil
 }
 
-func updateResourceLike(collection string, r *repositories.ResourceIndexDO, num int) error {
-	updated := false
+func updateResourceStatisticNum(collection, field string, r *repositories.ResourceIndexDO, num int) error {
 	f := func(ctx context.Context) error {
-		b, err := cli.updateArrayElemCount(
-			ctx, collection, fieldItems, fieldLikeCount, num,
+		_, err := cli.updateArrayElemCount(
+			ctx, collection, fieldItems, field, num,
 			resourceOwnerFilter(r.Owner), resourceIdFilter(r.Id),
 		)
 
-		updated = b
-
 		return err
 	}
 
-	if err := withContext(f); err != nil {
+	err := withContext(f)
+	if err != nil {
 		if isDocNotExists(err) {
 			err = repositories.NewErrorDataNotExists(err)
 		}
-
-		return err
 	}
 
-	if !updated {
-		return repositories.NewErrorDataNotExists(errors.New("no update"))
-	}
-
-	return nil
+	return err
 }
 
 func getResourceById(collection, owner, rid string, result interface{}) error {

@@ -79,7 +79,7 @@ type RepoFile interface {
 	Update(u *UserInfo, f *RepoFileInfo, content *RepoFileContent) error
 	Delete(u *UserInfo, f *RepoFileInfo) error
 	DeleteDir(u *UserInfo, f *RepoDirInfo) error
-	Download(u *UserInfo, f *RepoFileInfo) (data []byte, notFound bool, err error)
+	Download(token string, f *RepoFileInfo) (data []byte, notFound bool, err error)
 	IsLFSFile(data []byte) (is bool, sha string)
 	GenLFSDownloadURL(sha string) (string, error)
 	GetDirFileInfo(u *UserInfo, d *RepoDirFile) (sha string, exist bool, err error)

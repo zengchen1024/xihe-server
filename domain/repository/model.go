@@ -50,4 +50,6 @@ type Model interface {
 	RemoveRelatedProject(*domain.ReverselyRelatedResourceInfo) error
 
 	UpdateProperty(*ModelPropertyUpdateInfo) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }

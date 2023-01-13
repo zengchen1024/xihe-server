@@ -17,9 +17,10 @@ var _ message.EventHandler = (*handler)(nil)
 
 const sleepTime = 100 * time.Millisecond
 
-type likeHanler interface {
+type resourceHanler interface {
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 type relatedResourceHanler struct {
@@ -146,13 +147,13 @@ func (h *handler) HandleEventRemoveFollowing(f *domain.FollowerInfo) (err error)
 }
 
 func (h *handler) HandleEventAddLike(obj *domain.ResourceObject) error {
-	lh := h.getHandlerForEventLike(obj.Type)
+	lh := h.getResourceHandler(obj.Type)
 
 	return h.handleEventLike(obj, "adding", lh.AddLike)
 }
 
 func (h *handler) HandleEventRemoveLike(obj *domain.ResourceObject) (err error) {
-	lh := h.getHandlerForEventLike(obj.Type)
+	lh := h.getResourceHandler(obj.Type)
 
 	return h.handleEventLike(obj, "removing", lh.RemoveLike)
 }
@@ -177,7 +178,7 @@ func (h *handler) handleEventLike(
 	})
 }
 
-func (h *handler) getHandlerForEventLike(t domain.ResourceType) likeHanler {
+func (h *handler) getResourceHandler(t domain.ResourceType) resourceHanler {
 	switch t.ResourceType() {
 	case domain.ResourceTypeProject.ResourceType():
 		return h.project
@@ -199,6 +200,25 @@ func (h *handler) HandleEventFork(index *domain.ResourceIndex) error {
 				h.log.Errorf(
 					"handle event of fork for owner:%s, rid:%s, err:%v",
 					index.Owner.Account(), index.Id, err,
+				)
+
+				err = nil
+			}
+		}
+
+		return
+	})
+}
+
+func (h *handler) HandleEventDownload(obj *domain.ResourceObject) error {
+	rh := h.getResourceHandler(obj.Type)
+
+	return h.do(func(bool) (err error) {
+		if err = rh.IncreaseDownload(&obj.ResourceIndex); err != nil {
+			if isResourceNotExists(err) {
+				h.log.Errorf(
+					"handle event of download for owner:%s, rid:%s, err:%v",
+					obj.Owner.Account(), obj.Id, err,
 				)
 
 				err = nil

@@ -14,6 +14,15 @@ func (impl project) IncreaseFork(p *domain.ResourceIndex) error {
 	return err
 }
 
+func (impl project) IncreaseDownload(index *domain.ResourceIndex) error {
+	err := impl.mapper.IncreaseDownload(toResourceIndexDO(index))
+	if err != nil {
+		err = convertError(err)
+	}
+
+	return err
+}
+
 func (impl project) AddLike(p *domain.ResourceIndex) error {
 	err := impl.mapper.AddLike(toResourceIndexDO(p))
 	if err != nil {

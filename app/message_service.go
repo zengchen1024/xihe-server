@@ -53,6 +53,10 @@ func (s datasetMessageService) RemoveLike(r *domain.ResourceIndex) error {
 	return s.repo.RemoveLike(r)
 }
 
+func (s datasetMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
+}
+
 // model
 type ModelMessageService interface {
 	AddRelatedProject(*ReverselyRelatedResourceInfo) error
@@ -123,6 +127,10 @@ func (s modelMessageService) toResourceToUpdate(m *domain.Model) repository.Reso
 		Version:   m.Version,
 		UpdatedAt: m.UpdatedAt,
 	}
+}
+
+func (s modelMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
 }
 
 // project
@@ -209,6 +217,10 @@ func (s projectMessageService) RemoveLike(r *domain.ResourceIndex) error {
 
 func (s projectMessageService) IncreaseFork(index *domain.ResourceIndex) error {
 	return s.repo.IncreaseFork(index)
+}
+
+func (s projectMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
 }
 
 func (s projectMessageService) toResourceToUpdate(p *domain.Project) repository.ResourceToUpdate {

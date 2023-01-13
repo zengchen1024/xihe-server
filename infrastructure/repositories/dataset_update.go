@@ -5,6 +5,15 @@ import (
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
+func (impl dataset) IncreaseDownload(index *domain.ResourceIndex) error {
+	err := impl.mapper.IncreaseDownload(toResourceIndexDO(index))
+	if err != nil {
+		err = convertError(err)
+	}
+
+	return err
+}
+
 func (impl dataset) AddLike(d *domain.ResourceIndex) error {
 	err := impl.mapper.AddLike(toResourceIndexDO(d))
 	if err != nil {
