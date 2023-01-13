@@ -237,8 +237,11 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 
 	cmd := app.RepoFileDownloadCmd{
 		Type:     repoInfo.rt,
-		Token:    u.Token,
+		MyToken:  u.Token,
 		Resource: repoInfo.ResourceSummary,
+	}
+	if pl.Account != "" {
+		cmd.MyAccount = pl.DomainAccount()
 	}
 
 	var err error
@@ -250,12 +253,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	var who domain.Account
-	if pl.Account != "" {
-		who = pl.DomainAccount()
-	}
-
-	if v, err := ctl.s.Download(who, &cmd); err != nil {
+	if v, err := ctl.s.Download(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctl.sendRespOfGet(ctx, v)

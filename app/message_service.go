@@ -17,6 +17,8 @@ type DatasetMessageService interface {
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 func NewDatasetMessageService(repo repository.Dataset) DatasetMessageService {
@@ -67,6 +69,8 @@ type ModelMessageService interface {
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 type modelMessageService struct {
@@ -144,7 +148,8 @@ type ProjectMessageService interface {
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 
-	IncreaseFork(index *domain.ResourceIndex) error
+	IncreaseFork(*domain.ResourceIndex) error
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 type projectMessageService struct {

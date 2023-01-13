@@ -5,11 +5,11 @@ import (
 )
 
 func (col project) AddLike(p repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldLikeCount, &p, 1)
+	return updateResourceLikeNum(col.collectionName, &p, 1)
 }
 
 func (col project) RemoveLike(p repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldLikeCount, &p, -1)
+	return updateResourceLikeNum(col.collectionName, &p, -1)
 }
 
 func (col project) AddRelatedModel(do *repositories.RelatedResourceDO) error {
@@ -33,7 +33,7 @@ func (col project) IncreaseFork(r repositories.ResourceIndexDO) error {
 }
 
 func (col project) IncreaseDownload(index repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldDownloadCount, &index, 1)
+	return updateResourceDownloadNum(col.collectionName, &index, 1)
 }
 
 func (col project) ListAndSortByUpdateTime(

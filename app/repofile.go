@@ -25,7 +25,7 @@ type RepoFileService interface {
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	DeleteDir(*UserInfo, *RepoDirDeleteCmd) (string, error)
-	Download(domain.Account, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
+	Download(*RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
 
@@ -47,10 +47,11 @@ type RepoFileDeleteCmd = RepoFileInfo
 type RepoFilePreviewCmd = RepoFileInfo
 
 type RepoFileDownloadCmd struct {
-	Token    string
-	Path     domain.FilePath
-	Type     domain.ResourceType
-	Resource domain.ResourceSummary
+	MyAccount domain.Account
+	MyToken   string
+	Path      domain.FilePath
+	Type      domain.ResourceType
+	Resource  domain.ResourceSummary
 }
 
 type RepoFileCreateCmd struct {
@@ -98,7 +99,7 @@ func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd)
 	return
 }
 
-func (s *repoFileService) Download(who domain.Account, cmd *RepoFileDownloadCmd) (
+func (s *repoFileService) Download(cmd *RepoFileDownloadCmd) (
 	RepoFileDownloadDTO, error,
 ) {
 	dto, err := s.download(cmd)
@@ -106,7 +107,7 @@ func (s *repoFileService) Download(who domain.Account, cmd *RepoFileDownloadCmd)
 		r := &cmd.Resource
 
 		_ = s.sender.AddOperateLogForDownloadFile(
-			who, message.RepoFile{
+			cmd.MyAccount, message.RepoFile{
 				User: r.Owner,
 				Name: r.Name,
 				Path: cmd.Path,
@@ -125,7 +126,7 @@ func (s *repoFileService) Download(who domain.Account, cmd *RepoFileDownloadCmd)
 func (s *repoFileService) download(cmd *RepoFileDownloadCmd) (
 	dto RepoFileDownloadDTO, err error,
 ) {
-	data, notFound, err := s.rf.Download(cmd.Token, &RepoFileInfo{
+	data, notFound, err := s.rf.Download(cmd.MyToken, &RepoFileInfo{
 		Path:   cmd.Path,
 		RepoId: cmd.Resource.RepoId,
 	})

@@ -86,7 +86,17 @@ func newResourceDoc(collection, owner string) error {
 	return nil
 }
 
-func updateResourceStatisticNum(collection, field string, r *repositories.ResourceIndexDO, num int) error {
+func updateResourceLikeNum(collection string, r *repositories.ResourceIndexDO, num int) error {
+	return updateResourceStatisticNum(collection, fieldLikeCount, r, num)
+}
+
+func updateResourceDownloadNum(collection string, r *repositories.ResourceIndexDO, num int) error {
+	return updateResourceStatisticNum(collection, fieldDownloadCount, r, num)
+}
+
+func updateResourceStatisticNum(
+	collection, field string, r *repositories.ResourceIndexDO, num int,
+) error {
 	f := func(ctx context.Context) error {
 		_, err := cli.updateArrayElemCount(
 			ctx, collection, fieldItems, field, num,

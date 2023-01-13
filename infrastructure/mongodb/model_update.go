@@ -5,15 +5,15 @@ import (
 )
 
 func (col model) IncreaseDownload(index repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldDownloadCount, &index, 1)
+	return updateResourceDownloadNum(col.collectionName, &index, 1)
 }
 
 func (col model) AddLike(r repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldLikeCount, &r, 1)
+	return updateResourceLikeNum(col.collectionName, &r, 1)
 }
 
 func (col model) RemoveLike(r repositories.ResourceIndexDO) error {
-	return updateResourceStatisticNum(col.collectionName, fieldLikeCount, &r, -1)
+	return updateResourceLikeNum(col.collectionName, &r, -1)
 }
 
 func (col model) AddRelatedDataset(do *repositories.RelatedResourceDO) error {
