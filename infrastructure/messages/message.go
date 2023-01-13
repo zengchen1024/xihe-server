@@ -31,11 +31,6 @@ type msgLike struct {
 	Resource resourceObject `json:"resource"`
 }
 
-type msgFork struct {
-	Owner string `json:"owner"`
-	Id    string `json:"id"`
-}
-
 type msgTraining struct {
 	User       string `json:"user"`
 	ProjectId  string `json:"pid"`

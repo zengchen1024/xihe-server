@@ -55,12 +55,18 @@ func (s sender) sendLike(msg *domain.ResourceObject, action string) error {
 
 // Fork
 func (s sender) IncreaseFork(msg *domain.ResourceIndex) error {
-	v := msgFork{
-		Owner: msg.Owner.Account(),
-		Id:    msg.Id,
-	}
+	v := new(resourceIndex)
+	toMsgResourceIndex(msg, v)
 
-	return s.send(topics.Fork, &v)
+	return s.send(topics.Fork, v)
+}
+
+// Download
+func (s sender) IncreaseDownload(obj *domain.ResourceObject) error {
+	v := new(resourceObject)
+	toMsgResourceObject(obj, v)
+
+	return s.send(topics.Download, v)
 }
 
 // Training

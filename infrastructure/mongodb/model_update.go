@@ -4,12 +4,16 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
+func (col model) IncreaseDownload(index repositories.ResourceIndexDO) error {
+	return updateResourceDownloadNum(col.collectionName, &index, 1)
+}
+
 func (col model) AddLike(r repositories.ResourceIndexDO) error {
-	return updateResourceLike(col.collectionName, &r, 1)
+	return updateResourceLikeNum(col.collectionName, &r, 1)
 }
 
 func (col model) RemoveLike(r repositories.ResourceIndexDO) error {
-	return updateResourceLike(col.collectionName, &r, -1)
+	return updateResourceLikeNum(col.collectionName, &r, -1)
 }
 
 func (col model) AddRelatedDataset(do *repositories.RelatedResourceDO) error {

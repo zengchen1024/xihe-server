@@ -51,6 +51,17 @@ func Subscribe(ctx context.Context, handler interface{}, log *logrus.Entry) erro
 		subscribers[s.Topic()] = s
 	}
 
+	// register download
+	s, err = registerHandlerForDownload(handler)
+	if err != nil {
+		return err
+	}
+	if s != nil {
+		subscribers[s.Topic()] = s
+	} else {
+		log.Infof("does not subscribe download")
+	}
+
 	// register related resource
 	s, err = registerHandlerForRelatedResource(handler)
 	if err != nil {
@@ -192,19 +203,43 @@ func registerHandlerForFork(handler interface{}) (mq.Subscriber, error) {
 			return
 		}
 
-		body := msgFork{}
+		body := resourceIndex{}
 		if err = json.Unmarshal(msg.Body, &body); err != nil {
 			return
 		}
 
-		index := domain.ResourceIndex{}
-		if index.Owner, err = domain.NewAccount(body.Owner); err != nil {
+		index := new(domain.ResourceIndex)
+		if err = body.toResourceIndex(index); err != nil {
 			return
 		}
 
-		index.Id = body.Id
+		return h.HandleEventFork(index)
+	})
+}
 
-		return h.HandleEventFork(&index)
+func registerHandlerForDownload(handler interface{}) (mq.Subscriber, error) {
+	h, ok := handler.(message.DownloadHandler)
+	if !ok {
+		return nil, nil
+	}
+
+	return kafka.Subscribe(topics.Download, func(e mq.Event) (err error) {
+		msg := e.Message()
+		if msg == nil {
+			return
+		}
+
+		body := resourceObject{}
+		if err = json.Unmarshal(msg.Body, &body); err != nil {
+			return
+		}
+
+		obj := new(domain.ResourceObject)
+		if err = body.toResourceObject(obj); err != nil {
+			return
+		}
+
+		return h.HandleEventDownload(obj)
 	})
 }
 

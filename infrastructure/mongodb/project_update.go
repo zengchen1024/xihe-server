@@ -1,18 +1,15 @@
 package mongodb
 
 import (
-	"context"
-	"errors"
-
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 func (col project) AddLike(p repositories.ResourceIndexDO) error {
-	return updateResourceLike(col.collectionName, &p, 1)
+	return updateResourceLikeNum(col.collectionName, &p, 1)
 }
 
 func (col project) RemoveLike(p repositories.ResourceIndexDO) error {
-	return updateResourceLike(col.collectionName, &p, -1)
+	return updateResourceLikeNum(col.collectionName, &p, -1)
 }
 
 func (col project) AddRelatedModel(do *repositories.RelatedResourceDO) error {
@@ -31,31 +28,12 @@ func (col project) RemoveRelatedDataset(do *repositories.RelatedResourceDO) erro
 	return updateRelatedResource(col.collectionName, fieldDatasets, false, do)
 }
 
-func (col project) IncreaseFork(r repositories.ResourceIndexDO) (err error) {
-	updated := false
+func (col project) IncreaseFork(r repositories.ResourceIndexDO) error {
+	return updateResourceStatisticNum(col.collectionName, fieldForkCount, &r, 1)
+}
 
-	f := func(ctx context.Context) error {
-		updated, err = cli.updateArrayElemCount(
-			ctx, col.collectionName, fieldItems, fieldForkCount, 1,
-			resourceOwnerFilter(r.Owner), resourceIdFilter(r.Id),
-		)
-
-		return nil
-	}
-
-	if withContext(f); err != nil {
-		if isDocNotExists(err) {
-			err = repositories.NewErrorDataNotExists(err)
-		}
-
-		return
-	}
-
-	if !updated {
-		err = repositories.NewErrorDataNotExists(errors.New("no update"))
-	}
-
-	return
+func (col project) IncreaseDownload(index repositories.ResourceIndexDO) error {
+	return updateResourceDownloadNum(col.collectionName, &index, 1)
 }
 
 func (col project) ListAndSortByUpdateTime(

@@ -29,6 +29,8 @@ type DatasetMapper interface {
 
 	Search(do *GlobalResourceListDO, topNum int) ([]ResourceSummaryDO, int, error)
 
+	IncreaseDownload(ResourceIndexDO) error
+
 	AddLike(ResourceIndexDO) error
 	RemoveLike(ResourceIndexDO) error
 

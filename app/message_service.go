@@ -17,6 +17,8 @@ type DatasetMessageService interface {
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 func NewDatasetMessageService(repo repository.Dataset) DatasetMessageService {
@@ -53,6 +55,10 @@ func (s datasetMessageService) RemoveLike(r *domain.ResourceIndex) error {
 	return s.repo.RemoveLike(r)
 }
 
+func (s datasetMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
+}
+
 // model
 type ModelMessageService interface {
 	AddRelatedProject(*ReverselyRelatedResourceInfo) error
@@ -63,6 +69,8 @@ type ModelMessageService interface {
 
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 type modelMessageService struct {
@@ -125,6 +133,10 @@ func (s modelMessageService) toResourceToUpdate(m *domain.Model) repository.Reso
 	}
 }
 
+func (s modelMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
+}
+
 // project
 type ProjectMessageService interface {
 	AddRelatedModel(*ReverselyRelatedResourceInfo) error
@@ -136,7 +148,8 @@ type ProjectMessageService interface {
 	AddLike(*domain.ResourceIndex) error
 	RemoveLike(*domain.ResourceIndex) error
 
-	IncreaseFork(index *domain.ResourceIndex) error
+	IncreaseFork(*domain.ResourceIndex) error
+	IncreaseDownload(*domain.ResourceIndex) error
 }
 
 type projectMessageService struct {
@@ -209,6 +222,10 @@ func (s projectMessageService) RemoveLike(r *domain.ResourceIndex) error {
 
 func (s projectMessageService) IncreaseFork(index *domain.ResourceIndex) error {
 	return s.repo.IncreaseFork(index)
+}
+
+func (s projectMessageService) IncreaseDownload(index *domain.ResourceIndex) error {
+	return s.repo.IncreaseDownload(index)
 }
 
 func (s projectMessageService) toResourceToUpdate(p *domain.Project) repository.ResourceToUpdate {

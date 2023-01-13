@@ -25,7 +25,7 @@ type RepoFileService interface {
 	Delete(*UserInfo, *RepoFileDeleteCmd) error
 	Preview(*UserInfo, *RepoFilePreviewCmd) ([]byte, error)
 	DeleteDir(*UserInfo, *RepoDirDeleteCmd) (string, error)
-	Download(domain.Account, *UserInfo, *RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
+	Download(*RepoFileDownloadCmd) (RepoFileDownloadDTO, error)
 	DownloadRepo(u *UserInfo, repoId string, handle func(io.Reader, int64)) error
 }
 
@@ -45,10 +45,13 @@ type RepoFileListCmd = RepoDir
 type RepoDirDeleteCmd = RepoDirInfo
 type RepoFileDeleteCmd = RepoFileInfo
 type RepoFilePreviewCmd = RepoFileInfo
-type RepoFileDownloadCmd struct {
-	RepoFileInfo
 
-	Name domain.ResourceName
+type RepoFileDownloadCmd struct {
+	MyAccount domain.Account
+	MyToken   string
+	Path      domain.FilePath
+	Type      domain.ResourceType
+	Resource  domain.ResourceSummary
 }
 
 type RepoFileCreateCmd struct {
@@ -64,7 +67,7 @@ func (s *repoFileService) Create(u *platform.UserInfo, cmd *RepoFileCreateCmd) e
 }
 
 func (s *repoFileService) Update(u *platform.UserInfo, cmd *RepoFileUpdateCmd) error {
-	data, _, err := s.rf.Download(u, &cmd.RepoFileInfo)
+	data, _, err := s.rf.Download(u.Token, &cmd.RepoFileInfo)
 	if err != nil {
 		return err
 	}
@@ -96,27 +99,37 @@ func (s *repoFileService) DeleteDir(u *platform.UserInfo, cmd *RepoDirDeleteCmd)
 	return
 }
 
-func (s *repoFileService) Download(who domain.Account, u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+func (s *repoFileService) Download(cmd *RepoFileDownloadCmd) (
 	RepoFileDownloadDTO, error,
 ) {
-	r, err := s.download(u, cmd)
+	dto, err := s.download(cmd)
 	if err == nil {
+		r := &cmd.Resource
+
 		_ = s.sender.AddOperateLogForDownloadFile(
-			who, message.RepoFile{
-				User: u.User,
-				Name: cmd.Name,
+			cmd.MyAccount, message.RepoFile{
+				User: r.Owner,
+				Name: r.Name,
 				Path: cmd.Path,
 			},
 		)
+
+		_ = s.sender.IncreaseDownload(&domain.ResourceObject{
+			Type:          cmd.Type,
+			ResourceIndex: r.ResourceIndex(),
+		})
 	}
 
-	return r, err
+	return dto, err
 }
 
-func (s *repoFileService) download(u *platform.UserInfo, cmd *RepoFileDownloadCmd) (
+func (s *repoFileService) download(cmd *RepoFileDownloadCmd) (
 	dto RepoFileDownloadDTO, err error,
 ) {
-	data, notFound, err := s.rf.Download(u, &cmd.RepoFileInfo)
+	data, notFound, err := s.rf.Download(cmd.MyToken, &RepoFileInfo{
+		Path:   cmd.Path,
+		RepoId: cmd.Resource.RepoId,
+	})
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}
@@ -137,7 +150,7 @@ func (s *repoFileService) download(u *platform.UserInfo, cmd *RepoFileDownloadCm
 func (s *repoFileService) Preview(u *platform.UserInfo, cmd *RepoFilePreviewCmd) (
 	content []byte, err error,
 ) {
-	content, notFound, err := s.rf.Download(u, cmd)
+	content, notFound, err := s.rf.Download(u.Token, cmd)
 	if err != nil {
 		if notFound {
 			err = ErrorUnavailableRepoFile{err}

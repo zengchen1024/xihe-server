@@ -45,4 +45,6 @@ type Dataset interface {
 	RemoveRelatedModel(*domain.ReverselyRelatedResourceInfo) error
 
 	UpdateProperty(*DatasetPropertyUpdateInfo) error
+
+	IncreaseDownload(*domain.ResourceIndex) error
 }

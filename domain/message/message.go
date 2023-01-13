@@ -41,6 +41,7 @@ type Sender interface {
 	RemoveLike(*domain.ResourceObject) error
 
 	IncreaseFork(*domain.ResourceIndex) error
+	IncreaseDownload(*domain.ResourceObject) error
 
 	AddRelatedResource(*RelatedResource) error
 	RemoveRelatedResource(*RelatedResource) error
@@ -62,6 +63,7 @@ type EventHandler interface {
 	FollowingHandler
 	LikeHandler
 	ForkHandler
+	DownloadHandler
 	TrainingHandler
 	FinetuneHandler
 	InferenceHandler
@@ -80,6 +82,10 @@ type LikeHandler interface {
 
 type ForkHandler interface {
 	HandleEventFork(*domain.ResourceIndex) error
+}
+
+type DownloadHandler interface {
+	HandleEventDownload(*domain.ResourceObject) error
 }
 
 type RelatedResourceHandler interface {

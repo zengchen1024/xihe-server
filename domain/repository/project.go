@@ -97,4 +97,5 @@ type Project interface {
 	UpdateProperty(*ProjectPropertyUpdateInfo) error
 
 	IncreaseFork(*domain.ResourceIndex) error
+	IncreaseDownload(*domain.ResourceIndex) error
 }

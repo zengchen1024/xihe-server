@@ -236,9 +236,13 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 	}
 
 	cmd := app.RepoFileDownloadCmd{
-		Name: repoInfo.Name,
+		Type:     repoInfo.rt,
+		MyToken:  u.Token,
+		Resource: repoInfo.ResourceSummary,
 	}
-	cmd.RepoId = repoInfo.RepoId
+	if pl.Account != "" {
+		cmd.MyAccount = pl.DomainAccount()
+	}
 
 	var err error
 	if cmd.Path, err = domain.NewFilePath(ctx.Param("path")); err != nil {
@@ -249,12 +253,7 @@ func (ctl *RepoFileController) Download(ctx *gin.Context) {
 		return
 	}
 
-	var who domain.Account
-	if pl.Account != "" {
-		who = pl.DomainAccount()
-	}
-
-	if v, err := ctl.s.Download(who, &u, &cmd); err != nil {
+	if v, err := ctl.s.Download(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
 		ctl.sendRespOfGet(ctx, v)
@@ -375,7 +374,7 @@ func (ctl *RepoFileController) List(ctx *gin.Context) {
 func (ctl *RepoFileController) checkForView(ctx *gin.Context) (
 	pl oldUserTokenPayload,
 	u platform.UserInfo,
-	repoInfo domain.ResourceSummary, ok bool,
+	repoInfo resourceSummary, ok bool,
 ) {
 	user, err := domain.NewAccount(ctx.Param("user"))
 	if err != nil {
@@ -452,7 +451,7 @@ func (ctl *RepoFileController) getRepoFileInfo(ctx *gin.Context, user domain.Acc
 }
 
 func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account) (
-	s domain.ResourceSummary, err error,
+	s resourceSummary, err error,
 ) {
 	rt, err := domain.NewResourceType(ctx.Param("type"))
 	if err != nil {
@@ -464,16 +463,23 @@ func (ctl *RepoFileController) getRepoInfo(ctx *gin.Context, user domain.Account
 		return
 	}
 
+	s.rt = rt
+
 	switch rt.ResourceType() {
 	case domain.ResourceTypeModel.ResourceType():
-		s, err = ctl.model.GetSummaryByName(user, name)
+		s.ResourceSummary, err = ctl.model.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeProject.ResourceType():
-		s, err = ctl.project.GetSummaryByName(user, name)
+		s.ResourceSummary, err = ctl.project.GetSummaryByName(user, name)
 
 	case domain.ResourceTypeDataset.ResourceType():
-		s, err = ctl.dataset.GetSummaryByName(user, name)
+		s.ResourceSummary, err = ctl.dataset.GetSummaryByName(user, name)
 	}
 
 	return
+}
+
+type resourceSummary struct {
+	rt domain.ResourceType
+	domain.ResourceSummary
 }

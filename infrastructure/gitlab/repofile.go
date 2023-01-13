@@ -54,7 +54,7 @@ func (impl *repoFile) Delete(u *platform.UserInfo, info *platform.RepoFileInfo) 
 }
 
 func (impl *repoFile) Download(
-	u *platform.UserInfo, info *platform.RepoFileInfo,
+	token string, info *platform.RepoFileInfo,
 ) (data []byte, notFound bool, err error) {
 	req, err := http.NewRequest(
 		http.MethodGet,
@@ -64,9 +64,9 @@ func (impl *repoFile) Download(
 		return
 	}
 
-	if u.Token != "" {
+	if token != "" {
 		h := &req.Header
-		h.Add("PRIVATE-TOKEN", u.Token)
+		h.Add("PRIVATE-TOKEN", token)
 	}
 
 	code := 0
