@@ -26,6 +26,7 @@ func (col competition) toCompetitionDO(
 		Phase:      doc.Phase,
 		Doc:        doc.Doc,
 		Forum:      doc.Forum,
+		Winners:    doc.Winners,
 		DatasetDoc: doc.DatasetDoc,
 		DatasetURL: doc.DatasetURL,
 	}

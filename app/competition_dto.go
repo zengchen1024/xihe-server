@@ -40,6 +40,7 @@ type CompetitionDTO struct {
 	Phase      string `json:"phase"`
 	Doc        string `json:"doc"`
 	Forum      string `json:"forum"`
+	Winners    string `json:"winners"`
 	DatasetDoc string `json:"dataset_doc"`
 	DatasetURL string `json:"dataset_url"`
 }
@@ -122,6 +123,7 @@ func (s competitionService) toCompetitionDTO(
 	dto.Phase = c.Phase.CompetitionPhase()
 	dto.Doc = c.Doc.URL()
 	dto.Forum = c.Forum.Forum()
+	dto.Winners = c.Winners.URL()
 	dto.DatasetDoc = c.DatasetDoc.URL()
 	dto.DatasetURL = c.DatasetURL.URL()
 }
