@@ -5112,6 +5112,9 @@
                 },
                 "type": {
                     "type": "string"
+                },
+                "winners": {
+                    "type": "string"
                 }
             }
         },

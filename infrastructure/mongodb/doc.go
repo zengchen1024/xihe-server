@@ -392,6 +392,7 @@ type DCompetition struct {
 	Doc        string `bson:"doc"             json:"doc"`
 	Forum      string `bson:"forum"           json:"forum"`
 	Poster     string `bson:"poster"          json:"poster"`
+	Winners    string `bson:"winners"         json:"winners"`
 	DatasetDoc string `bson:"dataset_doc"     json:"dataset_doc"`
 	DatasetURL string `bson:"dataset_url"     json:"dataset_url"`
 	SmallerOk  bool   `bson:"order"           json:"order"`

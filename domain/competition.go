@@ -19,6 +19,7 @@ type Competition struct {
 	Forum      Forum
 	DatasetDoc URL
 	DatasetURL URL
+	Winners    Winners
 
 	Type    CompetitionType
 	Phase   CompetitionPhase

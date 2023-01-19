@@ -82,6 +82,7 @@ type CompetitionDO struct {
 	Phase      string
 	Doc        string
 	Forum      string
+	Winners    string
 	DatasetDoc string
 	DatasetURL string
 }
@@ -104,6 +105,10 @@ func (do *CompetitionDO) toCompetition(
 	}
 
 	if c.Forum, err = domain.NewForum(do.Forum); err != nil {
+		return
+	}
+
+	if c.Winners, err = domain.NewWinners(do.Winners); err != nil {
 		return
 	}
 

@@ -5124,6 +5124,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                },
+                "winners": {
+                    "type": "string"
                 }
             }
         },
