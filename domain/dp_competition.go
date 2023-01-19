@@ -218,6 +218,29 @@ func (r dpForum) Forum() string {
 	return string(r)
 }
 
+// Winners
+type Winners interface {
+	Winners() string
+}
+
+func NewWinners(v string) (Winners, error) {
+	if v == "" {
+		return dpWinners(v), nil
+	}
+
+	if _, err := url.Parse(v); err != nil {
+		return nil, errors.New("invalid url")
+	}
+
+	return dpWinners(v), nil
+}
+
+type dpWinners string
+
+func (r dpWinners) Winners() string {
+	return string(r)
+}
+
 // URL
 type URL interface {
 	URL() string

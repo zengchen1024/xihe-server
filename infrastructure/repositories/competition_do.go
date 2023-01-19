@@ -108,7 +108,7 @@ func (do *CompetitionDO) toCompetition(
 		return
 	}
 
-	if c.Winners, err = domain.NewURL(do.Winners); err != nil {
+	if c.Winners, err = domain.NewWinners(do.Winners); err != nil {
 		return
 	}
 

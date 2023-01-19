@@ -123,7 +123,7 @@ func (s competitionService) toCompetitionDTO(
 	dto.Phase = c.Phase.CompetitionPhase()
 	dto.Doc = c.Doc.URL()
 	dto.Forum = c.Forum.Forum()
-	dto.Winners = c.Winners.URL()
+	dto.Winners = c.Winners.Winners()
 	dto.DatasetDoc = c.DatasetDoc.URL()
 	dto.DatasetURL = c.DatasetURL.URL()
 }
