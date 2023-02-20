@@ -119,6 +119,17 @@ definitions:
       role:
         type: string
     type: object
+  app.CompetitonRankingDTO:
+    properties:
+      final:
+        items:
+          $ref: '#/definitions/app.RankingDTO'
+        type: array
+      preliminary:
+        items:
+          $ref: '#/definitions/app.RankingDTO'
+        type: array
+    type: object
   app.CompletionQuestionDTO:
     properties:
       desc:
@@ -796,25 +807,6 @@ definitions:
       project_name:
         type: string
     type: object
-  controller.competitorApplyRequest:
-    properties:
-      city:
-        type: string
-      detail:
-        additionalProperties:
-          type: string
-        type: object
-      email:
-        type: string
-      identity:
-        type: string
-      name:
-        type: string
-      phone:
-        type: string
-      province:
-        type: string
-    type: object
   controller.datasetCreateRequest:
     properties:
       desc:
@@ -1295,6 +1287,44 @@ definitions:
           type: string
         type: array
       kind:
+        type: string
+    type: object
+  github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest:
+    properties:
+      city:
+        type: string
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
+        type: string
+    type: object
+  github.com_opensourceways_xihe-server_controller.competitorApplyRequest:
+    properties:
+      city:
+        type: string
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
         type: string
     type: object
 info:
@@ -1815,7 +1845,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.competitorApplyRequest'
+          $ref: '#/definitions/github.com_opensourceways_xihe-server_controller.competitorApplyRequest'
       responses:
         "201":
           description: ""
@@ -1892,7 +1922,52 @@ paths:
       summary: Get
       tags:
       - Competition
-  /v1/competition/{id}/{phase}/realted_project:
+  /v1/competition/{id}/competitor:
+    post:
+      consumes:
+      - application/json
+      description: apply the competition
+      parameters:
+      - description: body of applying
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest'
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Apply
+      tags:
+      - Competition
+  /v1/competition/{id}/ranking:
+    get:
+      consumes:
+      - application/json
+      description: get ranking list of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitonRankingDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetRankingList
+      tags:
+      - Competition
+  /v1/competition/{id}/realted_project:
     put:
       consumes:
       - application/json
@@ -1901,11 +1976,6 @@ paths:
       - description: competition id
         in: path
         name: id
-        required: true
-        type: string
-      - description: competition phase
-        in: path
-        name: phase
         required: true
         type: string
       - description: project info
@@ -1924,7 +1994,7 @@ paths:
       summary: AddRelatedProject
       tags:
       - Competition
-  /v1/competition/{id}/{phase}/submissions:
+  /v1/competition/{id}/submissions:
     get:
       consumes:
       - application/json
@@ -1933,11 +2003,6 @@ paths:
       - description: competition id
         in: path
         name: id
-        required: true
-        type: string
-      - description: competition phase
-        in: path
-        name: phase
         required: true
         type: string
       responses:
@@ -1962,11 +2027,6 @@ paths:
         name: id
         required: true
         type: string
-      - description: competition phase
-        in: path
-        name: phase
-        required: true
-        type: string
       - description: result file
         in: formData
         name: file
@@ -1982,56 +2042,6 @@ paths:
           schema:
             type: system_error
       summary: Submit
-      tags:
-      - Competition
-  /v1/competition/{id}/competitor:
-    post:
-      consumes:
-      - application/json
-      description: apply the competition
-      parameters:
-      - description: body of applying
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.competitorApplyRequest'
-      responses:
-        "201":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Apply
-      tags:
-      - Competition
-  /v1/competition/{id}/ranking/{phase}:
-    get:
-      consumes:
-      - application/json
-      description: get ranking list of competition
-      parameters:
-      - description: competition id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: competition phase, such as preliminary, final
-        in: path
-        name: phase
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.RankingDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: GetRankingList
       tags:
       - Competition
   /v1/competition/{id}/team:

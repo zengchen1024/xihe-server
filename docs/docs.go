@@ -727,7 +727,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.competitorApplyRequest"
+                            "$ref": "#/definitions/github.com_opensourceways_xihe-server_controller.competitorApplyRequest"
                         }
                     }
                 ],
@@ -862,7 +862,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.competitorApplyRequest"
+                            "$ref": "#/definitions/github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest"
                         }
                     }
                 ],
@@ -879,7 +879,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/competition/{id}/ranking/{phase}": {
+        "/v1/competition/{id}/ranking": {
             "get": {
                 "description": "get ranking list of competition",
                 "consumes": [
@@ -896,20 +896,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "competition phase, such as preliminary, final",
-                        "name": "phase",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.RankingDTO"
+                            "$ref": "#/definitions/app.CompetitonRankingDTO"
                         }
                     },
                     "500": {
@@ -921,42 +914,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/competition/{id}/team": {
-            "get": {
-                "description": "get team of competition",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Competition"
-                ],
-                "summary": "GetTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "competition id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CompetitionTeamDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/competition/{id}/{phase}/realted_project": {
+        "/v1/competition/{id}/realted_project": {
             "put": {
                 "description": "add related project",
                 "consumes": [
@@ -971,13 +929,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "competition id",
                         "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "competition phase",
-                        "name": "phase",
                         "in": "path",
                         "required": true
                     },
@@ -1004,7 +955,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/competition/{id}/{phase}/submissions": {
+        "/v1/competition/{id}/submissions": {
             "get": {
                 "description": "get submissions",
                 "consumes": [
@@ -1019,13 +970,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "competition id",
                         "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "competition phase",
-                        "name": "phase",
                         "in": "path",
                         "required": true
                     }
@@ -1063,13 +1007,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "competition phase",
-                        "name": "phase",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "file",
                         "description": "result file",
                         "name": "file",
@@ -1082,6 +1019,41 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/app.CompetitionSubmissionDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/competition/{id}/team": {
+            "get": {
+                "description": "get team of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "GetTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CompetitionTeamDTO"
                         }
                     },
                     "500": {
@@ -4406,6 +4378,23 @@ const docTemplate = `{
                 }
             }
         },
+        "app.CompetitonRankingDTO": {
+            "type": "object",
+            "properties": {
+                "final": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.RankingDTO"
+                    }
+                },
+                "preliminary": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/app.RankingDTO"
+                    }
+                }
+            }
+        },
         "app.CompletionQuestionDTO": {
             "type": "object",
             "properties": {
@@ -5447,35 +5436,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.competitorApplyRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "detail": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "email": {
-                    "type": "string"
-                },
-                "identity": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "province": {
-                    "type": "string"
-                }
-            }
-        },
         "controller.datasetCreateRequest": {
             "type": "object",
             "properties": {
@@ -6217,6 +6177,64 @@ const docTemplate = `{
                     }
                 },
                 "kind": {
+                    "type": "string"
+                }
+            }
+        },
+        "github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "detail": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "province": {
+                    "type": "string"
+                }
+            }
+        },
+        "github.com_opensourceways_xihe-server_controller.competitorApplyRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "detail": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "province": {
                     "type": "string"
                 }
             }

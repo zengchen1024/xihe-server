@@ -11,6 +11,9 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	competitionapp "github.com/opensourceways/xihe-server/competition/app"
+	competitionctl "github.com/opensourceways/xihe-server/competition/controller"
+	competitionrepo "github.com/opensourceways/xihe-server/competition/infrastructure/repositoryimpl"
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/docs"
@@ -150,6 +153,13 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	uploader := competitionimpl.NewCompetitionService()
 	challengeHelper := challengeimpl.NewChallenge(&cfg.Challenge)
 
+	competitionAppService := competitionapp.NewCompetitionService(
+		competitionrepo.NewCompetitionRepo("", nil),
+		competitionrepo.NewWorkRepo("", nil),
+		competitionrepo.NewPlayerRepo("", nil),
+		sender, uploader,
+	)
+
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
@@ -216,8 +226,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			v1, user, proj, model, dataset,
 		)
 
-		controller.AddRouterForCompetitionController(
-			v1, competition, proj, sender, uploader,
+		competitionctl.AddRouterForCompetitionController(
+			v1, competitionAppService, proj,
 		)
 
 		controller.AddRouterForChallengeController(
