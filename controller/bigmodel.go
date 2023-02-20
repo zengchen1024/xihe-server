@@ -472,7 +472,6 @@ func (ctl *BigModelController) WuKong(ctx *gin.Context) {
 // @Title AddLike
 // @Description add like to wukong picture
 // @Tags  BigModel
-// @Param	body	body 	wukongAddLikeRequest	true	"body of wukong"
 // @Accept json
 // @Success 202 {object} wukongAddLikeResp
 // @Failure 500 system_error        system error
@@ -564,7 +563,7 @@ func (ctl *BigModelController) CancelPublic(ctx *gin.Context) {
 // @Description list wukong pictures user liked
 // @Tags  BigModel
 // @Accept json
-// @Success 200 {object} app.UserLikedWuKongPictureDTO
+// @Success 200 {object} app.WuKongLikeDTO
 // @Failure 500 system_error        system error
 // @Router /v1/bigmodel/wukong [get]
 func (ctl *BigModelController) ListLike(ctx *gin.Context) {
@@ -584,7 +583,6 @@ func (ctl *BigModelController) ListLike(ctx *gin.Context) {
 // @Title AddDigg
 // @Description add digg to wukong picture
 // @Tags  BigModel
-// @Param	body	body 	wukongAddLikeRequest	true	"body of wukong"
 // @Accept json
 // @Success 202 {object} wukongDiggResp
 // @Failure 500 system_error        system error
@@ -617,7 +615,7 @@ func (ctl *BigModelController) AddDigg(ctx *gin.Context) {
 // @Title CancelDigg
 // @Description delete digg to wukong picture
 // @Tags  BigModel
-// @Param	body	body 	WuKongCancelDiggCmd	true	"body of wukong"
+// @Param	body	body 	wukongCancelDiggPublicRequest	true	"body of wukong"
 // @Accept json
 // @Success 202 {object} wukongDiggResp
 // @Failure 500 system_error        system error
@@ -650,7 +648,6 @@ func (ctl *BigModelController) CancelDigg(ctx *gin.Context) {
 // @Title AddPublic
 // @Description add public to wukong picture
 // @Tags  BigModel
-// @Param	body	body 	wukongAddPublicFromTempRequest/wukongAddPublicFromLikeRequest	true	"body of wukong"
 // @Accept json
 // @Success 202 {object} wukongAddPublicResp
 // @Failure 500 system_error        system error

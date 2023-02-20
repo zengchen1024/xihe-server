@@ -62,7 +62,7 @@ definitions:
     type: object
   app.CompetitionSubmissionDTO:
     properties:
-      project:
+      file_name:
         type: string
       score:
         type: number
@@ -628,19 +628,6 @@ definitions:
       expiry:
         type: integer
     type: object
-  app.UserLikedWuKongPictureDTO:
-    properties:
-      created_at:
-        type: string
-      desc:
-        type: string
-      id:
-        type: string
-      link:
-        type: string
-      style:
-        type: string
-    type: object
   app.UserSearchDTO:
     properties:
       top:
@@ -650,23 +637,47 @@ definitions:
       total:
         type: integer
     type: object
-  app.WuKongPictureInfoDTO:
+  app.WuKongLikeDTO:
     properties:
+      created_at:
+        type: string
       desc:
         type: string
+      id:
+        type: string
+      is_public:
+        type: boolean
       link:
+        type: string
+      owner:
+        description: owner of picture
         type: string
       style:
         type: string
     type: object
-  app.WuKongPicturesDTO:
+  app.WuKongPublicDTO:
     properties:
-      pictures:
-        items:
-          $ref: '#/definitions/app.WuKongPictureInfoDTO'
-        type: array
-      total:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      desc:
+        type: string
+      digg_count:
         type: integer
+      id:
+        type: string
+      is_digg:
+        type: boolean
+      is_like:
+        type: boolean
+      link:
+        type: string
+      owner:
+        description: owner of picture
+        type: string
+      style:
+        type: string
     type: object
   controller.CodeGeexRequest:
     properties:
@@ -1251,15 +1262,27 @@ definitions:
       is_follower:
         type: boolean
     type: object
-  controller.wukongAddLikeRequest:
-    properties:
-      obspath:
-        type: string
-    type: object
   controller.wukongAddLikeResp:
     properties:
       id:
         type: string
+    type: object
+  controller.wukongAddPublicResp:
+    properties:
+      id:
+        type: string
+    type: object
+  controller.wukongCancelDiggPublicRequest:
+    properties:
+      id:
+        type: string
+      user:
+        type: string
+    type: object
+  controller.wukongDiggResp:
+    properties:
+      digg_count:
+        type: integer
     type: object
   controller.wukongPictureLink:
     properties:
@@ -1638,7 +1661,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.UserLikedWuKongPictureDTO'
+            $ref: '#/definitions/app.WuKongLikeDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -1667,17 +1690,49 @@ paths:
             type: system_error
       tags:
       - BigModel
-    put:
+  /v1/bigmodel/wukong/digg:
+    delete:
       consumes:
       - application/json
-      description: add like to wukong picture
+      description: delete digg to wukong picture
       parameters:
       - description: body of wukong
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.wukongAddLikeRequest'
+          $ref: '#/definitions/controller.wukongCancelDiggPublicRequest'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongDiggResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+    post:
+      consumes:
+      - application/json
+      description: add digg to wukong picture
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongDiggResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/like:
+    post:
+      consumes:
+      - application/json
+      description: add like to wukong picture
       responses:
         "202":
           description: Accepted
@@ -1689,7 +1744,7 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/wukong/{id}:
+  /v1/bigmodel/wukong/like/{id}:
     delete:
       consumes:
       - application/json
@@ -1732,25 +1787,67 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/wukong/pictures:
+  /v1/bigmodel/wukong/public:
     get:
       consumes:
       - application/json
-      description: list wukong pictures
-      parameters:
-      - description: count per page
-        in: query
-        name: count_per_page
-        type: integer
-      - description: page num which starts from 1
-        in: query
-        name: page_num
-        type: integer
+      description: list wukong pictures user publiced
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.WuKongPicturesDTO'
+            $ref: '#/definitions/app.WuKongPublicDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+    post:
+      consumes:
+      - application/json
+      description: add public to wukong picture
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongAddPublicResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/public/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: cancel public on wukong picture
+      parameters:
+      - description: picture id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/publics:
+    get:
+      consumes:
+      - application/json
+      description: list all wukong pictures publiced
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.WuKongPublicDTO'
         "500":
           description: Internal Server Error
           schema:

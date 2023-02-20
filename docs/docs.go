@@ -406,41 +406,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.UserLikedWuKongPictureDTO"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "add like to wukong picture",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "BigModel"
-                ],
-                "parameters": [
-                    {
-                        "description": "body of wukong",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.wukongAddLikeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                            "$ref": "#/definitions/app.WuKongLikeDTO"
                         }
                     },
                     "500": {
@@ -476,6 +442,121 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.wukongPicturesGenerateResp"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/digg": {
+            "post": {
+                "description": "add digg to wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongDiggResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete digg to wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of wukong",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongCancelDiggPublicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongDiggResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/like": {
+            "post": {
+                "description": "add like to wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddLikeResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/like/{id}": {
+            "delete": {
+                "description": "cancel like on wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "picture id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -522,9 +603,57 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/bigmodel/wukong/pictures": {
+        "/v1/bigmodel/wukong/public": {
             "get": {
-                "description": "list wukong pictures",
+                "description": "list wukong pictures user publiced",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.WuKongPublicDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "add public to wukong picture",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongAddPublicResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/public/{id}": {
+            "delete": {
+                "description": "cancel public on wukong picture",
                 "consumes": [
                     "application/json"
                 ],
@@ -533,23 +662,40 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "count per page",
-                        "name": "count_per_page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page num which starts from 1",
-                        "name": "page_num",
-                        "in": "query"
+                        "type": "string",
+                        "description": "picture id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bigmodel/wukong/publics": {
+            "get": {
+                "description": "list all wukong pictures publiced",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.WuKongPicturesDTO"
+                            "$ref": "#/definitions/app.WuKongPublicDTO"
                         }
                     },
                     "500": {
@@ -581,37 +727,6 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "system_error"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/bigmodel/wukong/{id}": {
-            "delete": {
-                "description": "cancel like on wukong picture",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "BigModel"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "picture id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
                         "description": ""
                     },
                     "500": {
@@ -4290,7 +4405,7 @@ const docTemplate = `{
         "app.CompetitionSubmissionDTO": {
             "type": "object",
             "properties": {
-                "project": {
+                "file_name": {
                     "type": "string"
                 },
                 "score": {
@@ -5159,26 +5274,6 @@ const docTemplate = `{
                 }
             }
         },
-        "app.UserLikedWuKongPictureDTO": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "desc": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "link": {
-                    "type": "string"
-                },
-                "style": {
-                    "type": "string"
-                }
-            }
-        },
         "app.UserSearchDTO": {
             "type": "object",
             "properties": {
@@ -5193,13 +5288,26 @@ const docTemplate = `{
                 }
             }
         },
-        "app.WuKongPictureInfoDTO": {
+        "app.WuKongLikeDTO": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "desc": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
+                "is_public": {
+                    "type": "boolean"
+                },
                 "link": {
+                    "type": "string"
+                },
+                "owner": {
+                    "description": "owner of picture",
                     "type": "string"
                 },
                 "style": {
@@ -5207,17 +5315,39 @@ const docTemplate = `{
                 }
             }
         },
-        "app.WuKongPicturesDTO": {
+        "app.WuKongPublicDTO": {
             "type": "object",
             "properties": {
-                "pictures": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/app.WuKongPictureInfoDTO"
-                    }
+                "avatar": {
+                    "type": "string"
                 },
-                "total": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "digg_count": {
                     "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_digg": {
+                    "type": "boolean"
+                },
+                "is_like": {
+                    "type": "boolean"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "owner": {
+                    "description": "owner of picture",
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
                 }
             }
         },
@@ -6121,19 +6251,38 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.wukongAddLikeRequest": {
-            "type": "object",
-            "properties": {
-                "obspath": {
-                    "type": "string"
-                }
-            }
-        },
         "controller.wukongAddLikeResp": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.wukongAddPublicResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.wukongCancelDiggPublicRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.wukongDiggResp": {
+            "type": "object",
+            "properties": {
+                "digg_count": {
+                    "type": "integer"
                 }
             }
         },

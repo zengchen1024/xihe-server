@@ -123,7 +123,7 @@ type CompetitionSubmissionsDTO struct {
 
 type CompetitionSubmissionDTO struct {
 	SubmitAt string  `json:"submit_at"`
-	FileName string  `json:"project"`
+	FileName string  `json:"file_name"`
 	Status   string  `json:"status"`
 	Score    float32 `json:"score"`
 }
