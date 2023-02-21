@@ -11,16 +11,12 @@ import (
 	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func NewPlayerRepo(collectionName string, m Mongodb) repository.Player {
-	return playerRepoImpl{
-		cli:            mongodbClient{m},
-		collectionName: collectionName,
-	}
+func NewPlayerRepo(m mongodbClient) repository.Player {
+	return playerRepoImpl{m}
 }
 
 type playerRepoImpl struct {
-	cli            mongodbClient
-	collectionName string
+	cli mongodbClient
 }
 
 func (impl playerRepoImpl) docFilter(cid string, a types.Account) bson.M {
@@ -28,7 +24,7 @@ func (impl playerRepoImpl) docFilter(cid string, a types.Account) bson.M {
 		fieldCid:     cid,
 		fieldEnabled: true,
 	}
-	appendElemMatchToFilter(
+	impl.cli.AppendElemMatchToFilter(
 		"competitors", true,
 		bson.M{"account": a.Account()}, filter,
 	)
@@ -74,15 +70,13 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 	f := func(ctx context.Context) error {
 		filter := impl.docFilter(p.CompetitionId, p.Leader.Account)
 
-		_, err := impl.cli.newDocIfNotExist(
-			ctx, impl.collectionName, filter, doc,
-		)
+		_, err := impl.cli.NewDocIfNotExist(ctx, filter, doc)
 
 		return err
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocExists(err) {
+		if impl.cli.IsDocExists(err) {
 			err = repoerr.NewErrorDuplicateCreating(err)
 		}
 	}
@@ -107,20 +101,17 @@ func (impl playerRepoImpl) SaveTeamName(p *domain.Player, version int) error {
 }
 
 func (impl playerRepoImpl) update(pid string, doc bson.M, version int) error {
-	filter, err := objectIdFilter(pid)
+	filter, err := impl.cli.ObjectIdFilter(pid)
 	if err != nil {
 		return err
 	}
 
 	f := func(ctx context.Context) error {
-		return impl.cli.updateDoc(
-			ctx, impl.collectionName, filter,
-			doc, mongoCmdSet, version,
-		)
+		return impl.cli.UpdateDoc(ctx, filter, doc, mongoCmdSet, version)
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
@@ -134,15 +125,11 @@ func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 	var v dPlayer
 
 	f := func(ctx context.Context) error {
-		return impl.cli.getDoc(
-			ctx, impl.collectionName,
-			impl.docFilter(cid, a),
-			nil, &v,
-		)
+		return impl.cli.GetDoc(ctx, impl.docFilter(cid, a), nil, &v)
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorDataNotExists(err)
 		}
 
@@ -165,10 +152,7 @@ func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 		filter := impl.docFilter("", a)
 		delete(filter, fieldCid)
 
-		return impl.cli.getDocs(
-			ctx, impl.collectionName,
-			filter, bson.M{fieldCid: 1}, &v,
-		)
+		return impl.cli.GetDocs(ctx, filter, bson.M{fieldCid: 1}, &v)
 	}
 
 	if err = withContext(f); err != nil || len(v) == 0 {

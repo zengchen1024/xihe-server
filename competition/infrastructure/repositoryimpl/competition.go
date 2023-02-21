@@ -10,16 +10,12 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func NewCompetitionRepo(collectionName string, m Mongodb) repository.Competition {
-	return competitionRepoImpl{
-		cli:            mongodbClient{m},
-		collectionName: collectionName,
-	}
+func NewCompetitionRepo(m mongodbClient) repository.Competition {
+	return competitionRepoImpl{m}
 }
 
 type competitionRepoImpl struct {
-	cli            mongodbClient
-	collectionName string
+	cli mongodbClient
 }
 
 func (impl competitionRepoImpl) docFilter(cid string) bson.M {
@@ -36,13 +32,11 @@ func (impl competitionRepoImpl) FindCompetition(cid string) (
 	f := func(ctx context.Context) error {
 		filter := impl.docFilter(cid)
 
-		return impl.cli.getDoc(
-			ctx, impl.collectionName, filter, nil, &v,
-		)
+		return impl.cli.GetDoc(ctx, filter, nil, &v)
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repositories.NewErrorDataNotExists(err)
 		}
 
@@ -62,14 +56,11 @@ func (impl competitionRepoImpl) FindScoreOrder(cid string) (
 	f := func(ctx context.Context) error {
 		filter := impl.docFilter(cid)
 
-		return impl.cli.getDoc(
-			ctx, impl.collectionName, filter,
-			bson.M{"order": 1}, &v,
-		)
+		return impl.cli.GetDoc(ctx, filter, bson.M{"order": 1}, &v)
 	}
 
 	if err := withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repositories.NewErrorDataNotExists(err)
 		}
 
@@ -90,9 +81,7 @@ func (impl competitionRepoImpl) FindCompetitions(opt *repository.CompetitionList
 			filter["status"] = opt.Status.CompetitionStatus()
 		}
 
-		return impl.cli.getDocs(
-			ctx, impl.collectionName, filter, nil, &v,
-		)
+		return impl.cli.GetDocs(ctx, filter, nil, &v)
 	}
 
 	if err := withContext(f); err != nil || len(v) == 0 {

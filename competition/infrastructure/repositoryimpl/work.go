@@ -2,7 +2,6 @@ package repositoryimpl
 
 import (
 	"context"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -11,26 +10,12 @@ import (
 	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
-func withContext(f func(context.Context) error) error {
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		10*time.Second, // TODO use config
-	)
-	defer cancel()
-
-	return f(ctx)
-}
-
-func NewWorkRepo(collectionName string, m Mongodb) repository.Work {
-	return workRepoImpl{
-		cli:            mongodbClient{m},
-		collectionName: collectionName,
-	}
+func NewWorkRepo(m mongodbClient) repository.Work {
+	return workRepoImpl{m}
 }
 
 type workRepoImpl struct {
-	cli            mongodbClient
-	collectionName string
+	cli mongodbClient
 }
 
 func (impl workRepoImpl) docFilter(index *domain.WorkIndex) bson.M {
@@ -54,16 +39,15 @@ func (impl workRepoImpl) SaveWork(w *domain.Work) error {
 	doc[fieldVersion] = 0
 
 	f := func(ctx context.Context) error {
-		_, err := impl.cli.newDocIfNotExist(
-			ctx, impl.collectionName,
-			impl.docFilter(&w.WorkIndex), doc,
+		_, err := impl.cli.NewDocIfNotExist(
+			ctx, impl.docFilter(&w.WorkIndex), doc,
 		)
 
 		return err
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocExists(err) {
+		if impl.cli.IsDocExists(err) {
 			err = repoerr.NewErrorDuplicateCreating(err)
 		}
 	}
@@ -73,16 +57,15 @@ func (impl workRepoImpl) SaveWork(w *domain.Work) error {
 
 func (impl workRepoImpl) SaveRepo(w *domain.Work, version int) error {
 	f := func(ctx context.Context) error {
-		return impl.cli.updateDoc(
-			ctx, impl.collectionName,
-			impl.docFilter(&w.WorkIndex),
+		return impl.cli.UpdateDoc(
+			ctx, impl.docFilter(&w.WorkIndex),
 			bson.M{fieldRepo: w.Repo}, mongoCmdSet, version,
 		)
 	}
 
 	err := withContext(f)
 	if err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
@@ -113,13 +96,11 @@ func (impl workRepoImpl) AddSubmission(
 			field = fieldFinal
 		}
 
-		return impl.cli.pushArrayElem(
-			ctx, impl.collectionName, field, filter, doc,
-		)
+		return impl.cli.PushArrayElem(ctx, field, filter, doc)
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
@@ -144,10 +125,9 @@ func (impl workRepoImpl) SaveSubmission(
 			field = fieldFinal
 		}
 
-		_, err := impl.cli.updateArrayElem(
-			ctx, impl.collectionName, field,
-			impl.docFilter(&w.WorkIndex), bson.M{fieldId: submission.Id},
-			doc, version, 0,
+		_, err := impl.cli.UpdateArrayElem(
+			ctx, field, impl.docFilter(&w.WorkIndex),
+			bson.M{fieldId: submission.Id}, doc, version, 0,
 		)
 
 		return err
@@ -173,13 +153,11 @@ func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.Competiti
 			project[fieldPreliminary] = 0
 		}
 
-		return impl.cli.getDoc(
-			ctx, impl.collectionName, filter, project, &v,
-		)
+		return impl.cli.GetDoc(ctx, filter, project, &v)
 	}
 
 	if err = withContext(f); err != nil {
-		if isDocNotExists(err) {
+		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorDataNotExists(err)
 		}
 
@@ -197,10 +175,7 @@ func (impl workRepoImpl) FindWorks(cid string) (ws []domain.Work, err error) {
 	var v []dWork
 
 	f := func(ctx context.Context) error {
-		return impl.cli.getDocs(
-			ctx, impl.collectionName,
-			bson.M{fieldCid: cid}, nil, &v,
-		)
+		return impl.cli.GetDocs(ctx, bson.M{fieldCid: cid}, nil, &v)
 	}
 
 	if err = withContext(f); err != nil || len(v) == 0 {
