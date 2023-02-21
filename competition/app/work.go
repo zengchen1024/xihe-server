@@ -10,7 +10,7 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
-func (s competitionService) GetRankingList(cid string) (
+func (s *competitionService) GetRankingList(cid string) (
 	dto CompetitonRankingDTO, err error,
 ) {
 	order, err := s.repo.FindScoreOrder(cid)
@@ -26,6 +26,7 @@ func (s competitionService) GetRankingList(cid string) (
 	dto.Final = s.getRankingList(
 		results, domain.CompetitionPhaseFinal, order,
 	)
+
 	dto.Preliminary = s.getRankingList(
 		results, domain.CompetitionPhasePreliminary, order,
 	)
@@ -33,7 +34,7 @@ func (s competitionService) GetRankingList(cid string) (
 	return
 }
 
-func (s competitionService) getRankingList(
+func (s *competitionService) getRankingList(
 	ws []domain.Work,
 	phase domain.CompetitionPhase,
 	order domain.CompetitionScoreOrder,
@@ -57,7 +58,7 @@ func (s competitionService) getRankingList(
 	return dtos
 }
 
-func (s competitionService) GetSubmissions(cid string, user types.Account) (
+func (s *competitionService) GetSubmissions(cid string, user types.Account) (
 	dto CompetitionSubmissionsDTO, err error,
 ) {
 	competition, err := s.repo.FindCompetition(cid)
@@ -103,8 +104,8 @@ func (s competitionService) GetSubmissions(cid string, user types.Account) (
 	return
 }
 
-func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProjectCMD) (
-	err error,
+func (s *competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProjectCMD) (
+	code string, err error,
 ) {
 	competition, err := s.repo.FindCompetition(cmd.Id)
 	if err != nil {
@@ -123,6 +124,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 	}
 
 	if !p.IsIndividualOrLeader() {
+		code = errorNoPermission
 		err = errors.New("no permission to submit")
 
 		return
@@ -148,7 +150,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 	return
 }
 
-func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
+func (s *competitionService) Submit(cmd *CompetitionSubmitCMD) (
 	dto CompetitionSubmissionDTO, code string, err error,
 ) {
 	competition, err := s.repo.FindCompetition(cmd.CompetitionId)
@@ -168,13 +170,15 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 	}
 
 	if !p.IsIndividualOrLeader() {
+		code = errorNoPermission
 		err = errors.New("no permission to submit")
 
 		return
 	}
 
 	if competition.IsFinal() && !p.IsFinalist {
-		err = errors.New("you are not on the list of finalists")
+		code = errorNotFinalist
+		err = errors.New("you are not finalist")
 
 		return
 	}
@@ -196,7 +200,10 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 	}
 
 	if w.HasSubmittedToday(phase) {
-		//
+		code = errorSubmitTooMany
+		err = errors.New("submit more than one time per day")
+
+		return
 	}
 
 	// submit
@@ -207,22 +214,15 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 		return
 	}
 
-	err = s.workRepo.AddSubmission(&w, &ps, version)
-	if err != nil {
-		if repoerr.IsErrorDuplicateCreating(err) {
-			code = errorDuplicateSubmission
-		}
-
+	if err = s.workRepo.AddSubmission(&w, &ps, version); err != nil {
 		return
 	}
 
-	// NotifyCalcScore
-	/*
-		info := w.NewSubmissionMessage(&ps)
-		if err = s.sender.CalcScore(&info); err != nil {
-			return
-		}
-	*/
+	// notify
+	info := w.NewSubmissionMessage(&ps)
+	if err = s.producer.NotifyCalcScore(&info); err != nil {
+		return
+	}
 
 	dto.FileName = cmd.FileName
 	dto.SubmitAt = utils.ToDate(ps.SubmitAt)

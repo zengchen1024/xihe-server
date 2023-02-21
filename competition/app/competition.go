@@ -2,24 +2,19 @@ package app
 
 import (
 	"github.com/opensourceways/xihe-server/competition/domain"
+	"github.com/opensourceways/xihe-server/competition/domain/message"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	"github.com/opensourceways/xihe-server/competition/domain/uploader"
 	types "github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/message"
 	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
-
-type CompetitionListCMD struct {
-	repository.CompetitionListOption
-
-	User types.Account
-}
 
 type CompetitionService interface {
 	// player
 	Apply(string, *CompetitorApplyCmd) (string, error)
-	CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) (string, error)
-	GetTeam(cid string, competitor types.Account) (CompetitionTeamDTO, string, error)
+	CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) error
+	JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) error
+	GetMyTeam(cid string, competitor types.Account) (CompetitionTeamDTO, string, error)
 
 	// competition
 	Get(cid string, competitor types.Account) (UserCompetitionDTO, error)
@@ -29,21 +24,23 @@ type CompetitionService interface {
 	Submit(*CompetitionSubmitCMD) (CompetitionSubmissionDTO, string, error)
 	GetSubmissions(string, types.Account) (CompetitionSubmissionsDTO, error)
 	GetRankingList(string) (CompetitonRankingDTO, error)
-	AddRelatedProject(*CompetitionAddReleatedProjectCMD) error
+	AddRelatedProject(*CompetitionAddReleatedProjectCMD) (string, error)
 }
+
+var _ CompetitionService = (*competitionService)(nil)
 
 func NewCompetitionService(
 	repo repository.Competition,
 	workRepo repository.Work,
 	playerRepo repository.Player,
-	sender message.Sender,
+	producer message.CalcScoreMessageProducer,
 	uploader uploader.SubmissionFileUploader,
-) CompetitionService {
-	return competitionService{
+) *competitionService {
+	return &competitionService{
 		repo:             repo,
 		workRepo:         workRepo,
 		playerRepo:       playerRepo,
-		sender:           sender,
+		producer:         producer,
 		submissionServie: domain.NewSubmissionService(uploader),
 	}
 }
@@ -52,12 +49,12 @@ type competitionService struct {
 	repo             repository.Competition
 	workRepo         repository.Work
 	playerRepo       repository.Player
-	sender           message.Sender
+	producer         message.CalcScoreMessageProducer
 	submissionServie domain.SubmissionService
 }
 
 // show competition detail
-func (s competitionService) Get(cid string, user types.Account) (
+func (s *competitionService) Get(cid string, user types.Account) (
 	dto UserCompetitionDTO, err error,
 ) {
 	c, err := s.repo.FindCompetition(cid)
@@ -86,8 +83,9 @@ func (s competitionService) Get(cid string, user types.Account) (
 
 		return
 	}
-	dto.IsCompetitor = true
 
+	dto.IsFinalist = p.IsFinalist
+	dto.IsCompetitor = true
 	if p.IsATeam() {
 		dto.TeamId = p.Id
 		dto.TeamRole = p.RoleOfCurrentCompetitor()
@@ -96,17 +94,19 @@ func (s competitionService) Get(cid string, user types.Account) (
 	return
 }
 
-func (s competitionService) List(cmd *CompetitionListCMD) (
+func (s *competitionService) List(cmd *CompetitionListCMD) (
 	dtos []CompetitionSummaryDTO, err error,
 ) {
 	if cmd.User != nil {
 		return s.getCompetitionsUserApplied(cmd)
 	}
 
-	return s.listCompetitions(&cmd.CompetitionListOption)
+	return s.listCompetitions(&repository.CompetitionListOption{
+		Status: cmd.Status,
+	})
 }
 
-func (s competitionService) listCompetitions(opt *repository.CompetitionListOption) (
+func (s *competitionService) listCompetitions(opt *repository.CompetitionListOption) (
 	dtos []CompetitionSummaryDTO, err error,
 ) {
 	v, err := s.repo.FindCompetitions(opt)
@@ -115,42 +115,28 @@ func (s competitionService) listCompetitions(opt *repository.CompetitionListOpti
 	}
 
 	dtos = make([]CompetitionSummaryDTO, len(v))
-
 	for i := range v {
-		s.toCompetitionSummaryDTO(&v[i], &dtos[i])
-
 		dtos[i].CompetitorCount, err = s.playerRepo.CompetitorsCount(v[i].Id)
 		if err != nil {
 			return
 		}
+
+		s.toCompetitionSummaryDTO(&v[i], &dtos[i])
 	}
 
 	return
 }
 
-func (s competitionService) getCompetitionsUserApplied(cmd *CompetitionListCMD) (
+func (s *competitionService) getCompetitionsUserApplied(cmd *CompetitionListCMD) (
 	[]CompetitionSummaryDTO, error,
 ) {
-	v, err := s.listCompetitions(&cmd.CompetitionListOption)
-	if err != nil {
-		return nil, err
-	}
-
 	cs, err := s.playerRepo.FindCompetitionsUserApplied(cmd.User)
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]bool)
-	for _, item := range cs {
-		m[item] = true
-	}
 
-	dtos := make([]CompetitionSummaryDTO, 0, len(v))
-	for i := range v {
-		if m[v[i].Id] {
-			dtos = append(dtos, v[i])
-		}
-	}
-
-	return dtos, nil
+	return s.listCompetitions(&repository.CompetitionListOption{
+		Status:         cmd.Status,
+		CompetitionIds: cs,
+	})
 }

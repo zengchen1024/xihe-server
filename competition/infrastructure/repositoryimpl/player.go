@@ -7,9 +7,8 @@ import (
 
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
-	//"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 func NewPlayerRepo(collectionName string, m Mongodb) repository.Player {
@@ -84,7 +83,7 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 
 	if err = withContext(f); err != nil {
 		if isDocExists(err) {
-			//
+			err = repoerr.NewErrorDuplicateCreating(err)
 		}
 	}
 
@@ -122,7 +121,7 @@ func (impl playerRepoImpl) update(pid string, doc bson.M, version int) error {
 
 	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
-			err = repositories.NewErrorConcurrentUpdating(err)
+			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
 
@@ -144,7 +143,7 @@ func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 
 	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
-			err = repositories.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorDataNotExists(err)
 		}
 
 		return
@@ -183,4 +182,11 @@ func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 
 func (impl playerRepoImpl) CompetitorsCount(cid string) (int, error) {
 	return 0, nil
+}
+
+func (impl playerRepoImpl) AddMember(
+	team repository.PlayerVersion,
+	member repository.PlayerVersion,
+) error {
+	return nil
 }

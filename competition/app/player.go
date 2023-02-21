@@ -4,25 +4,24 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/competition/domain"
+	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
 	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (s competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code string, err error) {
+func (s *competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code string, err error) {
 	competition, err := s.repo.FindCompetition(cid)
 	if err != nil {
 		return
 	}
 
 	if competition.IsOver() {
-		code = errorIsOver
 		err = errors.New("competition is over")
 
 		return
 	}
 
 	if competition.IsFinal() {
-		code = errorApplyOnFinalPhase
 		err = errors.New("apply on final phase")
 
 		return
@@ -38,26 +37,47 @@ func (s competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code str
 	return
 }
 
-func (s competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) (
-	code string, err error,
-) {
+func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) error {
 	p, version, err := s.playerRepo.FindPlayer(cid, cmd.User)
 	if err != nil {
-		if repoerr.IsErrorResourceNotExists(err) {
-			code = errorNotACompetitor
-		}
-
-		return
+		return err
 	}
 
-	if err = p.CreateTeam(cmd.Name); err == nil {
-		err = s.playerRepo.SavePlayer(&p, version)
+	if err := p.CreateTeam(cmd.Name); err != nil {
+		return err
 	}
 
-	return
+	return s.playerRepo.SavePlayer(&p, version)
 }
 
-func (s competitionService) GetTeam(cid string, user types.Account) (
+func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) error {
+	me, pv, err := s.playerRepo.FindPlayer(cid, cmd.User)
+	if err != nil {
+		return err
+	}
+
+	team, version, err := s.playerRepo.FindPlayer(cid, cmd.Leader)
+	if err != nil {
+		return err
+	}
+
+	if err := me.JoinTo(&team); err != nil {
+		return err
+	}
+
+	return s.playerRepo.AddMember(
+		repository.PlayerVersion{
+			Player:  &team,
+			Version: version,
+		},
+		repository.PlayerVersion{
+			Player:  &me,
+			Version: pv,
+		},
+	)
+}
+
+func (s *competitionService) GetMyTeam(cid string, user types.Account) (
 	dto CompetitionTeamDTO, code string, err error,
 ) {
 	p, _, err := s.playerRepo.FindPlayer(cid, user)
@@ -72,10 +92,10 @@ func (s competitionService) GetTeam(cid string, user types.Account) (
 		return
 	}
 
-	dto.Name = p.Team.Name.TeamName()
+	dto.Name = p.Name()
 
-	m := p.Team.Members
-	members := make([]CompetitionTeamMemberDTO, len(m)+1)
+	m := p.Members()
+	members := make([]CompetitionTeamMemberDTO, p.CompetitorsCount())
 	for i := range m {
 		item := &m[i]
 		members[i+1] = CompetitionTeamMemberDTO{

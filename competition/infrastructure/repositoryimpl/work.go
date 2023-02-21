@@ -8,7 +8,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
-	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
 )
 
 func withContext(f func(context.Context) error) error {
@@ -64,7 +64,7 @@ func (impl workRepoImpl) SaveWork(w *domain.Work) error {
 
 	if err = withContext(f); err != nil {
 		if isDocExists(err) {
-			//
+			err = repoerr.NewErrorDuplicateCreating(err)
 		}
 	}
 
@@ -83,7 +83,7 @@ func (impl workRepoImpl) SaveRepo(w *domain.Work, version int) error {
 	err := withContext(f)
 	if err != nil {
 		if isDocNotExists(err) {
-			err = repositories.NewErrorConcurrentUpdating(err)
+			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
 
@@ -120,7 +120,7 @@ func (impl workRepoImpl) AddSubmission(
 
 	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
-			err = repositories.NewErrorConcurrentUpdating(err)
+			err = repoerr.NewErrorConcurrentUpdating(err)
 		}
 	}
 
@@ -180,7 +180,7 @@ func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.Competiti
 
 	if err = withContext(f); err != nil {
 		if isDocNotExists(err) {
-			err = repositories.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorDataNotExists(err)
 		}
 
 		return

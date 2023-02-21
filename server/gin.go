@@ -12,7 +12,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	competitionapp "github.com/opensourceways/xihe-server/competition/app"
-	competitionctl "github.com/opensourceways/xihe-server/competition/controller"
 	competitionrepo "github.com/opensourceways/xihe-server/competition/infrastructure/repositoryimpl"
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
@@ -226,7 +225,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 			v1, user, proj, model, dataset,
 		)
 
-		competitionctl.AddRouterForCompetitionController(
+		controller.AddRouterForCompetitionController(
 			v1, competitionAppService, proj,
 		)
 

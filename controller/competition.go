@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/opensourceways/xihe-server/competition/app"
+	cc "github.com/opensourceways/xihe-server/competition/controller"
 	"github.com/opensourceways/xihe-server/competition/domain"
 	types "github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
@@ -41,13 +42,13 @@ type CompetitionController struct {
 // @Summary Apply
 // @Description apply the competition
 // @Tags  Competition
-// @Param	body	body	competitorApplyRequest	true	"body of applying"
+// @Param	body	body	cc.CompetitorApplyRequest	true	"body of applying"
 // @Accept json
 // @Success 201
 // @Failure 500 system_error        system error
 // @Router /v1/competition/{id}/competitor [post]
 func (ctl *CompetitionController) Apply(ctx *gin.Context) {
-	req := competitorApplyRequest{}
+	req := cc.CompetitorApplyRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
 
@@ -59,7 +60,7 @@ func (ctl *CompetitionController) Apply(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := req.toCmd(pl.DomainAccount())
+	cmd, err := req.ToCmd(pl.DomainAccount())
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, respBadRequestParam(err))
 
@@ -154,7 +155,7 @@ func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
 		return
 	}
 
-	data, code, err := ctl.s.GetTeam(ctx.Param("id"), pl.DomainAccount())
+	data, code, err := ctl.s.GetMyTeam(ctx.Param("id"), pl.DomainAccount())
 	if err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
@@ -253,7 +254,7 @@ func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 // @Description add related project
 // @Tags  Competition
 // @Param	id	path	string					true	"competition id"
-// @Param	body	body	competitionAddRelatedProjectRequest	true	"project info"
+// @Param	body	body	cc.AddRelatedProjectRequest	true	"project info"
 // @Accept json
 // @Success 202
 // @Failure 500 system_error        system error
@@ -264,7 +265,7 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 		return
 	}
 
-	req := competitionAddRelatedProjectRequest{}
+	req := cc.AddRelatedProjectRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -274,7 +275,7 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 		return
 	}
 
-	owner, name, err := req.toInfo()
+	owner, name, err := req.ToInfo()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -298,8 +299,8 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 		Project: p,
 	}
 
-	if err = ctl.s.AddRelatedProject(&cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if code, err := ctl.s.AddRelatedProject(&cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfPut(ctx, "success")
 	}

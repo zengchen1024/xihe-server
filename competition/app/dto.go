@@ -10,6 +10,11 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
+type CompetitionListCMD struct {
+	Status domain.CompetitionStatus
+	User   types.Account
+}
+
 type CompetitorApplyCmd domain.Competitor
 
 func (cmd *CompetitorApplyCmd) Validate() error {
@@ -81,9 +86,10 @@ type CompetitionDTO struct {
 }
 
 type UserCompetitionDTO struct {
-	IsCompetitor bool   `json:"is_competitor"`
 	TeamId       string `json:"team_id"`
 	TeamRole     string `json:"team_role"`
+	IsFinalist   bool   `json:"is_finalist"`
+	IsCompetitor bool   `json:"is_competitor"`
 
 	CompetitionDTO
 }
@@ -104,6 +110,11 @@ type RankingDTO struct {
 type CompetitionTeamCreateCmd struct {
 	User types.Account
 	Name domain.TeamName
+}
+
+type CompetitionTeamJoinCmd struct {
+	User   types.Account
+	Leader types.Account
 }
 
 type CompetitionTeamDTO struct {

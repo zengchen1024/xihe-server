@@ -11,7 +11,9 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
-func NewMessageSender() message.Sender {
+var _ message.Sender = sender{}
+
+func NewMessageSender() sender {
 	return sender{}
 }
 

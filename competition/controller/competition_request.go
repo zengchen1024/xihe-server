@@ -6,12 +6,12 @@ import (
 	types "github.com/opensourceways/xihe-server/domain"
 )
 
-type competitionAddRelatedProjectRequest struct {
+type AddRelatedProjectRequest struct {
 	Owner string `json:"owner"`
 	Name  string `json:"project_name"`
 }
 
-func (req *competitionAddRelatedProjectRequest) toInfo() (
+func (req *AddRelatedProjectRequest) ToInfo() (
 	owner types.Account, name types.ResourceName, err error,
 ) {
 	if owner, err = types.NewAccount(req.Owner); err != nil {
@@ -23,7 +23,7 @@ func (req *competitionAddRelatedProjectRequest) toInfo() (
 	return
 }
 
-type competitorApplyRequest struct {
+type CompetitorApplyRequest struct {
 	Name     string            `json:"name"`
 	City     string            `json:"city"`
 	Email    string            `json:"email"`
@@ -33,7 +33,7 @@ type competitorApplyRequest struct {
 	Detail   map[string]string `json:"detail"`
 }
 
-func (req *competitorApplyRequest) toCmd(user types.Account) (cmd app.CompetitorApplyCmd, err error) {
+func (req *CompetitorApplyRequest) ToCmd(user types.Account) (cmd app.CompetitorApplyCmd, err error) {
 	if cmd.Name, err = domain.NewCompetitorName(req.Name); err != nil {
 		return
 	}

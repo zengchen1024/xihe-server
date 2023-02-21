@@ -6,7 +6,8 @@ import (
 )
 
 type CompetitionListOption struct {
-	Status domain.CompetitionStatus
+	CompetitionIds []string
+	Status         domain.CompetitionStatus
 }
 
 type Competition interface {
@@ -16,11 +17,18 @@ type Competition interface {
 	FindScoreOrder(cid string) (domain.CompetitionScoreOrder, error)
 }
 
+type PlayerVersion struct {
+	Player  *domain.Player
+	Version int
+}
+
 type Player interface {
 	SaveTeamName(*domain.Player, int) error
 
 	// SavePlayer should check if the player is individual or team.
 	SavePlayer(*domain.Player, int) error
+
+	AddMember(team PlayerVersion, member PlayerVersion) error
 
 	CompetitorsCount(cid string) (int, error)
 
