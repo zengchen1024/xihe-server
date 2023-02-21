@@ -1,5 +1,10 @@
 package domain
 
+type CompetitionIndex struct {
+	Id    string
+	Phase CompetitionPhase
+}
+
 type CompetitionSummary struct {
 	Id         string
 	Name       CompetitionName
@@ -23,7 +28,6 @@ type Competition struct {
 
 	Type  CompetitionType
 	Phase CompetitionPhase
-	//Enabled bool
 	Order CompetitionScoreOrder
 }
 
@@ -35,22 +39,18 @@ func (c *Competition) Index() CompetitionIndex {
 }
 
 func (c *Competition) IsOver() bool {
-	// TODO
-	return false
+	return c.Status != nil && c.Status.IsOver()
 }
 
 func (c *Competition) IsPreliminary() bool {
 	return c.Phase.IsPreliminary()
 }
+
 func (c *Competition) IsFinal() bool {
 	return c.Phase.IsFinal()
 }
 
-type CompetitionIndex struct {
-	Id    string
-	Phase CompetitionPhase
-}
-
+// CompetitionScoreOrder
 type CompetitionScoreOrder interface {
 	IsBetterThanB(a, b float32) bool
 }

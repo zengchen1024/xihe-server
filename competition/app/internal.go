@@ -7,7 +7,7 @@ import (
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 )
 
-type CompetitionSubmissionUpdateCmd = domain.CompetitionSubmissionInfo
+type CompetitionSubmissionUpdateCmd = domain.SubmissionUpdatingInfo
 
 // Internal Service
 type CompetitionInternalService interface {

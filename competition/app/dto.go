@@ -26,7 +26,9 @@ func (cmd *CompetitorApplyCmd) Validate() error {
 }
 
 func (cmd *CompetitorApplyCmd) toPlayer(cid string) domain.Player {
-	return domain.NewPlayer(cid, (*domain.Competitor)(cmd))
+	return domain.NewPlayer(
+		domain.NewPlayerIndex(cid, ""), (*domain.Competitor)(cmd),
+	)
 }
 
 type CompetitionSubmitCMD struct {

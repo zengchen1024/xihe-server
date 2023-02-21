@@ -122,7 +122,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 		return
 	}
 
-	if !p.HasPermission() {
+	if !p.IsIndividualOrLeader() {
 		err = errors.New("no permission to submit")
 
 		return
@@ -167,7 +167,7 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 		return
 	}
 
-	if !p.HasPermission() {
+	if !p.IsIndividualOrLeader() {
 		err = errors.New("no permission to submit")
 
 		return

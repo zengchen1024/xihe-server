@@ -18,6 +18,7 @@ func NewWorkIndex(cid, pid string) WorkIndex {
 	}
 }
 
+// Work
 type Work struct {
 	WorkIndex
 
@@ -54,7 +55,7 @@ func (w *Work) BestOne(phase CompetitionPhase, order CompetitionScoreOrder) (
 	for i := range submissions {
 		item := &submissions[i]
 
-		if !item.IsSuccess() {
+		if !item.isSuccess() {
 			continue
 		}
 
@@ -66,7 +67,7 @@ func (w *Work) BestOne(phase CompetitionPhase, order CompetitionScoreOrder) (
 	return
 }
 
-func (w *Work) submissionObsPathPrefix(phase CompetitionPhase) string {
+func (w *Work) submissionOBSPathPrefix(phase CompetitionPhase) string {
 	return fmt.Sprintf(
 		"%s/%s/%s",
 		w.CompetitionId,
@@ -89,14 +90,15 @@ func (w *Work) HasSubmittedToday(phase CompetitionPhase) bool {
 
 func (w *Work) NewSubmissionMessage(s *PhaseSubmission) SubmissionMessage {
 	return SubmissionMessage{
-		Index:   w.WorkIndex,
-		Phase:   s.Phase,
-		Id:      s.Submission.Id,
-		OBSPath: s.Submission.OBSPath,
+		CompetitionId: w.WorkIndex.CompetitionId,
+		PlayerId:      w.WorkIndex.PlayerId,
+		Phase:         s.Phase.CompetitionPhase(),
+		Id:            s.Submission.Id,
+		OBSPath:       s.Submission.OBSPath,
 	}
 }
 
-func (w *Work) UpdateSubmission(info *CompetitionSubmissionInfo) *Submission {
+func (w *Work) UpdateSubmission(info *SubmissionUpdatingInfo) *Submission {
 	submissions := w.Submissions(info.Phase)
 	for i := range submissions {
 		if item := &submissions[i]; item.Id == info.Id {

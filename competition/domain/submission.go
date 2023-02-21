@@ -9,7 +9,8 @@ import (
 	"github.com/opensourceways/xihe-server/utils"
 )
 
-type CompetitionSubmissionInfo struct {
+// SubmissionUpdatingInfo
+type SubmissionUpdatingInfo struct {
 	Index  WorkIndex
 	Phase  CompetitionPhase
 	Id     string
@@ -17,17 +18,16 @@ type CompetitionSubmissionInfo struct {
 	Score  float32
 }
 
-func (info *CompetitionSubmissionInfo) IsSuccess() bool {
-	return info.Status == competitionSubmissionStatusSuccess
-}
-
+// SubmissionMessage
 type SubmissionMessage struct {
-	Index   WorkIndex
-	Phase   CompetitionPhase
-	Id      string
-	OBSPath string
+	PlayerId      string `json:"pid"`
+	CompetitionId string `json:"cid"`
+	Phase         string `json:"phase"`
+	Id            string `json:"id"`
+	OBSPath       string `json:"obs_path"`
 }
 
+// Submission
 type Submission struct {
 	Id       string
 	SubmitAt int64
@@ -36,16 +36,18 @@ type Submission struct {
 	Score    float32
 }
 
-func (info *Submission) IsSuccess() bool {
+func (info *Submission) isSuccess() bool {
 	return info.Status == competitionSubmissionStatusSuccess
 }
 
+// PhaseSubmission
 type PhaseSubmission struct {
 	Phase CompetitionPhase
 
 	Submission
 }
 
+// SubmissionService
 type SubmissionService struct {
 	uploader uploader.Uploader
 }
@@ -59,10 +61,9 @@ func (s *SubmissionService) Submit(
 ) (PhaseSubmission, error) {
 	now := utils.Now()
 
-	// upload file
 	obspath := fmt.Sprintf(
 		"%s/%s_%s",
-		w.submissionObsPathPrefix(phase),
+		w.submissionOBSPathPrefix(phase),
 		strconv.FormatInt(now, 10), fileName,
 	)
 	if err := s.uploader.UploadSubmissionFile(data, obspath); err != nil {

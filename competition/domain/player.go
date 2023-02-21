@@ -18,6 +18,7 @@ type Competitor struct {
 	Detail   map[string]string
 }
 
+// Team
 type Team struct {
 	Name    TeamName
 	Members []Competitor
@@ -37,7 +38,8 @@ func (t *Team) member(a types.Account) (Competitor, bool) {
 
 func (t *Team) indexOfMember(a types.Account) int {
 	for i := range t.Members {
-		if item := &t.Members[i]; item.Account.Account() == a.Account() {
+		item := &t.Members[i]
+		if item.Account.Account() == a.Account() {
 			return i
 		}
 	}
@@ -51,20 +53,26 @@ func (t *Team) remove(a types.Account) error {
 		return errors.New("not a member")
 	}
 
+	n := len(t.Members) - 1
+
 	if i == 0 {
-		t.Members = t.Members[1:]
+		if n == 0 {
+			t.Members = nil
+		} else {
+			t.Members = t.Members[1:]
+		}
 	} else {
-		if n := len(t.Members) - 1; i != n {
+		if i != n {
 			t.Members[i] = t.Members[n]
 		}
-		t.Members = t.Members[:i]
+		t.Members = t.Members[:n]
 	}
 
 	return nil
 }
 
 func (t *Team) join(c *Competitor) error {
-	if len(t.Members) >= 3 {
+	if len(t.Members) >= 2 {
 		return errors.New("members are enough")
 	}
 
@@ -77,9 +85,17 @@ func (t *Team) join(c *Competitor) error {
 	return nil
 }
 
+// Player
 type PlayerIndex struct {
 	Id            string
 	CompetitionId string
+}
+
+func NewPlayerIndex(cid, pid string) PlayerIndex {
+	return PlayerIndex{
+		Id:            pid,
+		CompetitionId: cid,
+	}
 }
 
 type Player struct {
@@ -88,16 +104,16 @@ type Player struct {
 
 	Leader Competitor
 	Team   Team
-	user   types.Account
+
+	// user is the current competitor who maybe is just a member of team or the leader.
+	user types.Account
 }
 
-func NewPlayer(cid string, c *Competitor) Player {
+func NewPlayer(index PlayerIndex, c *Competitor) Player {
 	return Player{
-		PlayerIndex: PlayerIndex{
-			CompetitionId: cid,
-		},
-		Leader: *c,
-		user:   c.Account,
+		PlayerIndex: index,
+		Leader:      *c,
+		user:        c.Account,
 	}
 }
 
@@ -110,14 +126,14 @@ func (p *Player) IsIndividual() bool {
 }
 
 func (p *Player) IsATeam() bool {
-	return p.Team.Name != nil
+	return !p.IsIndividual()
 }
 
 func (p *Player) isUserTheLeader() bool {
 	return p.user != nil && p.user.Account() == p.Leader.Account.Account()
 }
 
-func (p *Player) HasPermission() bool {
+func (p *Player) IsIndividualOrLeader() bool {
 	return p.IsIndividual() || p.isUserTheLeader()
 }
 
@@ -129,12 +145,11 @@ func (p *Player) Name() string {
 	return p.Team.Name.TeamName()
 }
 
-// TODO: this func should be called when generating a new playser.
-func (p *Player) SetUser(a types.Account) {
-	p.user = a
-}
+func (p *Player) Members() []Competitor {
+	if p.IsATeam() {
+		return p.Team.Members
+	}
 
-func (p *Player) Members() []*Competitor {
 	return nil
 }
 
@@ -144,16 +159,6 @@ func (p *Player) RoleOfCurrentCompetitor() string {
 	}
 
 	return ""
-}
-
-func (p *Player) CurrentCompetitor() Competitor {
-	if p.IsIndividual() {
-		return p.Leader
-	}
-
-	m, _ := p.Team.member(p.user)
-
-	return m
 }
 
 func (p *Player) CreateTeam(name TeamName) error {
@@ -185,7 +190,7 @@ func (p *Player) JoinTo(team *Player) error {
 		return errors.New("you are not an individual competitor")
 	}
 
-	if team.IsIndividual() {
+	if !team.IsATeam() {
 		return errors.New("it is not a team")
 	}
 
@@ -212,23 +217,16 @@ func (p *Player) Quit() error {
 	return p.Team.remove(p.user)
 }
 
-func (p *Player) Delete(c types.Account) (Player, error) {
+func (p *Player) Delete(c types.Account) error {
 	if !p.IsATeam() {
-		return Player{}, errors.New("invalid operation")
+		return errors.New("invalid operation")
 	}
 
-	if p.isUserTheLeader() {
-		return Player{}, errors.New("only leader can delete a member")
+	if !p.isUserTheLeader() {
+		return errors.New("only leader can delete a member")
 	}
 
-	m, ok := p.Team.member(c)
-	if !ok {
-		return Player{}, errors.New("not a meber")
-	}
-
-	_ = p.Team.remove(c)
-
-	return Player{Leader: m}, nil
+	return p.Team.remove(c)
 }
 
 func (p *Player) TransferLeader(newOne types.Account) error {
@@ -270,9 +268,6 @@ func (p *Player) Disband(repo repository.Competition) error {
 
 	}
 
-
-
 	return nil
-
 }
 */

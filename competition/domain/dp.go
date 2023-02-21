@@ -13,7 +13,7 @@ const (
 	competitionPhaseFinal       = "final"
 	competitionPhasePreliminary = "preliminary"
 
-	competitionStatusDone       = "done"
+	competitionStatusOver       = "over"
 	competitionStatusPreparing  = "preparing"
 	competitionStatusInProgress = "in-progress"
 
@@ -80,13 +80,13 @@ func (r competitionPhase) IsPreliminary() bool {
 // CompetitionStatus
 type CompetitionStatus interface {
 	CompetitionStatus() string
-	IsDone() bool
+	IsOver() bool
 }
 
 func NewCompetitionStatus(v string) (CompetitionStatus, error) {
 	b := v == competitionStatusPreparing ||
 		v == competitionStatusInProgress ||
-		v == competitionStatusDone
+		v == competitionStatusOver
 
 	if b {
 		return competitionStatus(v), nil
@@ -101,8 +101,8 @@ func (r competitionStatus) CompetitionStatus() string {
 	return string(r)
 }
 
-func (r competitionStatus) IsDone() bool {
-	return string(r) == competitionStatusDone
+func (r competitionStatus) IsOver() bool {
+	return string(r) == competitionStatusOver
 }
 
 // CompetitionName
