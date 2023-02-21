@@ -25,7 +25,7 @@ type competitionInternalService struct {
 }
 
 func (s competitionInternalService) UpdateSubmission(cmd *CompetitionSubmissionUpdateCmd) error {
-	w, version, err := s.repo.FindWork(&cmd.Index, cmd.Phase)
+	w, version, err := s.repo.FindWork(cmd.Index, cmd.Phase)
 	if err != nil {
 		return err
 	}
@@ -35,5 +35,10 @@ func (s competitionInternalService) UpdateSubmission(cmd *CompetitionSubmissionU
 		return errors.New("no corresponding submission")
 	}
 
-	return s.repo.SaveSubmission(&w, submission, version)
+	v := domain.PhaseSubmission{
+		Phase:      cmd.Phase,
+		Submission: *submission,
+	}
+
+	return s.repo.SaveSubmission(&w, &v, version)
 }

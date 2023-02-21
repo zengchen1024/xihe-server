@@ -40,9 +40,9 @@ type Player interface {
 type Work interface {
 	SaveWork(*domain.Work) error
 	SaveRepo(*domain.Work, int) error
-	AddSubmission(*domain.Work, *domain.CompetitionSubmission, int) error
-	SaveSubmission(*domain.Work, *domain.CompetitionSubmission, int) error
+	AddSubmission(*domain.Work, *domain.PhaseSubmission, int) error
+	SaveSubmission(*domain.Work, *domain.PhaseSubmission, int) error
 
-	FindWork(*domain.WorkIndex, domain.CompetitionPhase) (domain.Work, int, error)
+	FindWork(domain.WorkIndex, domain.CompetitionPhase) (domain.Work, int, error)
 	FindWorks(cid string) ([]domain.Work, error)
 }

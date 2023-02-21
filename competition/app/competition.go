@@ -40,20 +40,20 @@ func NewCompetitionService(
 	uploader uploader.Uploader,
 ) CompetitionService {
 	return competitionService{
-		repo:       repo,
-		workRepo:   workRepo,
-		playerRepo: playerRepo,
-		sender:     sender,
-		uploader:   uploader,
+		repo:             repo,
+		workRepo:         workRepo,
+		playerRepo:       playerRepo,
+		sender:           sender,
+		submissionServie: domain.NewSubmissionService(uploader),
 	}
 }
 
 type competitionService struct {
-	repo       repository.Competition
-	workRepo   repository.Work
-	playerRepo repository.Player
-	sender     message.Sender
-	uploader   uploader.Uploader
+	repo             repository.Competition
+	workRepo         repository.Work
+	playerRepo       repository.Player
+	sender           message.Sender
+	submissionServie domain.SubmissionService
 }
 
 // show competition detail

@@ -2,14 +2,11 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"sort"
-	"strconv"
 
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/message"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -73,8 +70,9 @@ func (s competitionService) GetSubmissions(cid string, user types.Account) (
 		return
 	}
 
-	wIndex := domain.NewWorkIndex(cid, p.Id)
-	w, _, err := s.workRepo.FindWork(&wIndex, competition.Phase)
+	w, _, err := s.workRepo.FindWork(
+		domain.NewWorkIndex(cid, p.Id), competition.Phase,
+	)
 	if err != nil {
 		return
 	}
@@ -86,7 +84,7 @@ func (s competitionService) GetSubmissions(cid string, user types.Account) (
 		return
 	}
 
-	v := make([]*domain.CompetitionSubmission, len(results))
+	v := make([]*domain.Submission, len(results))
 	for i := range results {
 		v[i] = &results[i]
 	}
@@ -130,8 +128,9 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 		return
 	}
 
-	wIndex := domain.NewWorkIndex(cmd.Id, p.Id)
-	w, version, err := s.workRepo.FindWork(&wIndex, competition.Phase)
+	w, version, err := s.workRepo.FindWork(
+		domain.NewWorkIndex(cmd.Id, p.Id), competition.Phase,
+	)
 	if err != nil {
 		if !repository.IsErrorResourceNotExists(err) {
 			return
@@ -181,8 +180,10 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 	}
 
 	// work
-	wIndex := domain.NewWorkIndex(competition.Id, p.Id)
-	w, version, err := s.workRepo.FindWork(&wIndex, competition.Phase)
+	phase := competition.Phase
+	w, version, err := s.workRepo.FindWork(
+		domain.NewWorkIndex(competition.Id, p.Id), phase,
+	)
 	if err != nil {
 		if !repository.IsErrorResourceNotExists(err) {
 			return
@@ -194,31 +195,20 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 		}
 	}
 
-	now := utils.Now()
-	if w.HasSubmittedToday(competition.Phase, now) {
+	if w.HasSubmittedToday(phase) {
 		//
 	}
 
-	// upload file
-	obspath := fmt.Sprintf(
-		"%s/%s_%s",
-		w.SubmissionObsPathPrefix(competition.Phase),
-		strconv.FormatInt(now, 10), cmd.FileName,
+	// submit
+	ps, err := s.submissionServie.Submit(
+		&w, phase, cmd.FileName, cmd.Data,
 	)
-	if err = s.uploader.UploadSubmissionFile(cmd.Data, obspath); err != nil {
+	if err != nil {
 		return
 	}
 
-	// save. TODO sid?
-	submission := &domain.CompetitionSubmission{
-		Submission: domain.Submission{
-			SubmitAt: now,
-			OBSPath:  obspath,
-			Status:   "calculating",
-		},
-		Phase: competition.Phase,
-	}
-	if err = s.workRepo.AddSubmission(&w, submission, version); err != nil {
+	err = s.workRepo.AddSubmission(&w, &ps, version)
+	if err != nil {
 		if repository.IsErrorDuplicateCreating(err) {
 			code = errorDuplicateSubmission
 		}
@@ -226,21 +216,17 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 		return
 	}
 
-	// send mq
-	info := message.SubmissionInfo{
-		Id: submission.Id,
-		//Index:   competition.Index(),
-		OBSPath: obspath,
-	}
-
 	// NotifyCalcScore
-	if err = s.sender.CalcScore(&info); err != nil {
-		return
-	}
+	/*
+		info := w.NewSubmissionMessage(&ps)
+		if err = s.sender.CalcScore(&info); err != nil {
+			return
+		}
+	*/
 
 	dto.FileName = cmd.FileName
-	dto.SubmitAt = utils.ToDate(submission.SubmitAt)
-	dto.Status = submission.Status
+	dto.SubmitAt = utils.ToDate(ps.SubmitAt)
+	dto.Status = ps.Status
 
 	return
 }

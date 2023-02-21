@@ -92,7 +92,7 @@ func (impl workRepoImpl) SaveRepo(w *domain.Work, version int) error {
 }
 
 func (impl workRepoImpl) AddSubmission(
-	w *domain.Work, cs *domain.CompetitionSubmission, version int,
+	w *domain.Work, cs *domain.PhaseSubmission, version int,
 ) error {
 	doc, err := genDoc(dSubmission{
 		Id:       cs.Id,
@@ -128,7 +128,7 @@ func (impl workRepoImpl) AddSubmission(
 }
 
 func (impl workRepoImpl) SaveSubmission(
-	w *domain.Work, submission *domain.CompetitionSubmission, version int,
+	w *domain.Work, submission *domain.PhaseSubmission, version int,
 ) error {
 	doc, err := genDoc(dSubmission{
 		Status: submission.Status,
@@ -158,13 +158,13 @@ func (impl workRepoImpl) SaveSubmission(
 	return err
 }
 
-func (impl workRepoImpl) FindWork(index *domain.WorkIndex, Phase domain.CompetitionPhase) (
+func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.CompetitionPhase) (
 	w domain.Work, version int, err error,
 ) {
 	var v dWork
 
 	f := func(ctx context.Context) error {
-		filter := impl.docFilter(index)
+		filter := impl.docFilter(&index)
 
 		project := bson.M{}
 		if Phase.IsPreliminary() {

@@ -129,7 +129,7 @@ type CompetitionSubmissionDTO struct {
 }
 
 func (s competitionService) toCompetitionSubmissionDTO(
-	v *domain.CompetitionSubmission, dto *CompetitionSubmissionDTO,
+	v *domain.Submission, dto *CompetitionSubmissionDTO,
 ) {
 	*dto = CompetitionSubmissionDTO{
 		SubmitAt: utils.ToDate(v.SubmitAt),

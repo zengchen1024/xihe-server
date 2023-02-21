@@ -21,10 +21,11 @@ func NewWorkIndex(cid, pid string) WorkIndex {
 type Work struct {
 	WorkIndex
 
+	PlayerName string
+
 	Repo        string
-	PlayerName  string
-	Final       []CompetitionSubmission
-	Preliminary []CompetitionSubmission
+	Final       []Submission
+	Preliminary []Submission
 }
 
 func NewWork(cid string, p *Player) Work {
@@ -34,7 +35,7 @@ func NewWork(cid string, p *Player) Work {
 	}
 }
 
-func (w *Work) Submissions(phase CompetitionPhase) []CompetitionSubmission {
+func (w *Work) Submissions(phase CompetitionPhase) []Submission {
 	if phase.IsPreliminary() {
 		return w.Preliminary
 	}
@@ -47,7 +48,7 @@ func (w *Work) Submissions(phase CompetitionPhase) []CompetitionSubmission {
 }
 
 func (w *Work) BestOne(phase CompetitionPhase, order CompetitionScoreOrder) (
-	r *CompetitionSubmission,
+	r *Submission,
 ) {
 	submissions := w.Submissions(phase)
 	for i := range submissions {
@@ -65,17 +66,37 @@ func (w *Work) BestOne(phase CompetitionPhase, order CompetitionScoreOrder) (
 	return
 }
 
-func (w *Work) AddSubmission(v *CompetitionSubmission) {
-	if v.Phase.IsPreliminary() {
-		w.Preliminary = append(w.Preliminary, *v)
+func (w *Work) submissionObsPathPrefix(phase CompetitionPhase) string {
+	return fmt.Sprintf(
+		"%s/%s/%s",
+		w.CompetitionId,
+		phase.CompetitionPhase(),
+		w.PlayerId,
+	)
+}
+
+func (w *Work) HasSubmittedToday(phase CompetitionPhase) bool {
+	today := utils.Date()
+	submissions := w.Submissions(phase)
+	for i := range submissions {
+		if utils.ToDate(submissions[i].SubmitAt) == today {
+			return true
+		}
 	}
 
-	if v.Phase.IsFinal() {
-		w.Final = append(w.Final, *v)
+	return false
+}
+
+func (w *Work) NewSubmissionMessage(s *PhaseSubmission) SubmissionMessage {
+	return SubmissionMessage{
+		Index:   w.WorkIndex,
+		Phase:   s.Phase,
+		Id:      s.Submission.Id,
+		OBSPath: s.Submission.OBSPath,
 	}
 }
 
-func (w *Work) UpdateSubmission(info *CompetitionSubmissionInfo) *CompetitionSubmission {
+func (w *Work) UpdateSubmission(info *CompetitionSubmissionInfo) *Submission {
 	submissions := w.Submissions(info.Phase)
 	for i := range submissions {
 		if item := &submissions[i]; item.Id == info.Id {
@@ -87,25 +108,4 @@ func (w *Work) UpdateSubmission(info *CompetitionSubmissionInfo) *CompetitionSub
 	}
 
 	return nil
-}
-
-func (w *Work) SubmissionObsPathPrefix(phase CompetitionPhase) string {
-	return fmt.Sprintf(
-		"%s/%s/%s",
-		w.CompetitionId,
-		phase.CompetitionPhase(),
-		w.PlayerId,
-	)
-}
-
-func (w *Work) HasSubmittedToday(phase CompetitionPhase, t int64) bool {
-	v := utils.ToDate(t)
-	submissions := w.Submissions(phase)
-	for i := range submissions {
-		if utils.ToDate(submissions[i].SubmitAt) == v {
-			return true
-		}
-	}
-
-	return false
 }
