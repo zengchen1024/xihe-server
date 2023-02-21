@@ -5,8 +5,8 @@ import (
 	"sort"
 
 	"github.com/opensourceways/xihe-server/competition/domain"
-	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 	"github.com/opensourceways/xihe-server/utils"
 )
 
@@ -132,7 +132,7 @@ func (s competitionService) AddRelatedProject(cmd *CompetitionAddReleatedProject
 		domain.NewWorkIndex(cmd.Id, p.Id), competition.Phase,
 	)
 	if err != nil {
-		if !repository.IsErrorResourceNotExists(err) {
+		if !repoerr.IsErrorResourceNotExists(err) {
 			return
 		}
 
@@ -185,7 +185,7 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 		domain.NewWorkIndex(competition.Id, p.Id), phase,
 	)
 	if err != nil {
-		if !repository.IsErrorResourceNotExists(err) {
+		if !repoerr.IsErrorResourceNotExists(err) {
 			return
 		}
 
@@ -209,7 +209,7 @@ func (s competitionService) Submit(cmd *CompetitionSubmitCMD) (
 
 	err = s.workRepo.AddSubmission(&w, &ps, version)
 	if err != nil {
-		if repository.IsErrorDuplicateCreating(err) {
+		if repoerr.IsErrorDuplicateCreating(err) {
 			code = errorDuplicateSubmission
 		}
 

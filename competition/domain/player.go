@@ -3,7 +3,6 @@ package domain
 import (
 	"errors"
 
-	//"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
 )
 
@@ -26,14 +25,6 @@ type Team struct {
 
 func (t *Team) isMember(a types.Account) bool {
 	return t.indexOfMember(a) >= 0
-}
-
-func (t *Team) member(a types.Account) (Competitor, bool) {
-	if i := t.indexOfMember(a); i >= 0 {
-		return t.Members[i], true
-	}
-
-	return Competitor{}, false
 }
 
 func (t *Team) indexOfMember(a types.Account) int {
@@ -72,6 +63,7 @@ func (t *Team) remove(a types.Account) error {
 }
 
 func (t *Team) join(c *Competitor) error {
+	// TODO config
 	if len(t.Members) >= 2 {
 		return errors.New("members are enough")
 	}
@@ -146,11 +138,7 @@ func (p *Player) Name() string {
 }
 
 func (p *Player) Members() []Competitor {
-	if p.IsATeam() {
-		return p.Team.Members
-	}
-
-	return nil
+	return p.Team.Members
 }
 
 func (p *Player) RoleOfCurrentCompetitor() string {
@@ -248,26 +236,3 @@ func (p *Player) TransferLeader(newOne types.Account) error {
 
 	return nil
 }
-
-/*
-func (p *Player) Disband(repo repository.Competition) error {
-	// get team
-	// set member to individual and remove the member one by one
-
-	if !p.IsATeam() {
-		return errors.New("invalid operation")
-	}
-
-	if p.isUserTheLeader() {
-		return errors.New("only leader can delete a member")
-	}
-
-	tm := p.Team.Members
-	for i := range tm {
-		// save member
-
-	}
-
-	return nil
-}
-*/

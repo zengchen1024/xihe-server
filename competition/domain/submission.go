@@ -49,10 +49,10 @@ type PhaseSubmission struct {
 
 // SubmissionService
 type SubmissionService struct {
-	uploader uploader.Uploader
+	uploader uploader.SubmissionFileUploader
 }
 
-func NewSubmissionService(v uploader.Uploader) SubmissionService {
+func NewSubmissionService(v uploader.SubmissionFileUploader) SubmissionService {
 	return SubmissionService{v}
 }
 
@@ -66,7 +66,7 @@ func (s *SubmissionService) Submit(
 		w.submissionOBSPathPrefix(phase),
 		strconv.FormatInt(now, 10), fileName,
 	)
-	if err := s.uploader.UploadSubmissionFile(data, obspath); err != nil {
+	if err := s.uploader.Upload(data, obspath); err != nil {
 		return PhaseSubmission{}, err
 	}
 

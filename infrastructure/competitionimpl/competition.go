@@ -1,10 +1,6 @@
 package competitionimpl
 
-import (
-	"io"
-
-	"github.com/opensourceways/xihe-server/domain/competition"
-)
+import "io"
 
 var cs *service
 
@@ -21,7 +17,7 @@ func Init(cfg *Config) error {
 	return nil
 }
 
-func NewCompetitionService() competition.Competition {
+func NewCompetitionService() *service {
 	return cs
 }
 
@@ -30,5 +26,9 @@ type service struct {
 }
 
 func (s *service) UploadSubmissionFile(data io.Reader, path string) error {
+	return s.obs.createObject(data, path)
+}
+
+func (s *service) Upload(data io.Reader, path string) error {
 	return s.obs.createObject(data, path)
 }

@@ -6,9 +6,9 @@ import (
 	"github.com/opensourceways/xihe-server/competition/domain/uploader"
 	types "github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/message"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
-type CompetitionIndex = domain.CompetitionIndex
 type CompetitionListCMD struct {
 	repository.CompetitionListOption
 
@@ -37,7 +37,7 @@ func NewCompetitionService(
 	workRepo repository.Work,
 	playerRepo repository.Player,
 	sender message.Sender,
-	uploader uploader.Uploader,
+	uploader uploader.SubmissionFileUploader,
 ) CompetitionService {
 	return competitionService{
 		repo:             repo,
@@ -79,7 +79,7 @@ func (s competitionService) Get(cid string, user types.Account) (
 
 	p, _, err := s.playerRepo.FindPlayer(cid, user)
 	if err != nil {
-		if repository.IsErrorResourceNotExists(err) {
+		if repoerr.IsErrorResourceNotExists(err) {
 			err = nil
 			dto.DatasetURL = ""
 		}

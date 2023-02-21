@@ -17,21 +17,13 @@ type Competition interface {
 }
 
 type Player interface {
-	//DeleteTeam, remove all the members and delete the team when removing leader.
-	// As a Team
-	// change team name
 	SaveTeamName(*domain.Player, int) error
-	//SaveLeader, change the leader
-	//AddMember, add a member and unable the original
-	//RemoveMember, remove the member and enable the original
 
-	// As an Individual
-
-	// common function
 	// SavePlayer should check if the player is individual or team.
 	SavePlayer(*domain.Player, int) error
 
 	CompetitorsCount(cid string) (int, error)
+
 	FindPlayer(cid string, a types.Account) (domain.Player, int, error)
 
 	FindCompetitionsUserApplied(types.Account) ([]string, error)

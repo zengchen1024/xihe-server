@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/opensourceways/xihe-server/competition/domain"
-	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func (s competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code string, err error) {
@@ -30,7 +30,7 @@ func (s competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code str
 
 	p := cmd.toPlayer(cid)
 	if err = s.playerRepo.SavePlayer(&p, 0); err != nil {
-		if repository.IsErrorDuplicateCreating(err) {
+		if repoerr.IsErrorDuplicateCreating(err) {
 			code = errorCompetitorExists
 		}
 	}
@@ -43,7 +43,7 @@ func (s competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCmd
 ) {
 	p, version, err := s.playerRepo.FindPlayer(cid, cmd.User)
 	if err != nil {
-		if repository.IsErrorResourceNotExists(err) {
+		if repoerr.IsErrorResourceNotExists(err) {
 			code = errorNotACompetitor
 		}
 

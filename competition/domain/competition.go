@@ -1,10 +1,5 @@
 package domain
 
-type CompetitionIndex struct {
-	Id    string
-	Phase CompetitionPhase
-}
-
 type CompetitionSummary struct {
 	Id         string
 	Name       CompetitionName
@@ -29,13 +24,6 @@ type Competition struct {
 	Type  CompetitionType
 	Phase CompetitionPhase
 	Order CompetitionScoreOrder
-}
-
-func (c *Competition) Index() CompetitionIndex {
-	return CompetitionIndex{
-		Id:    c.Id,
-		Phase: c.Phase,
-	}
 }
 
 func (c *Competition) IsOver() bool {
