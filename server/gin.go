@@ -153,9 +153,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	challengeHelper := challengeimpl.NewChallenge(&cfg.Challenge)
 
 	competitionAppService := competitionapp.NewCompetitionService(
-		competitionrepo.NewCompetitionRepo(nil), //TODO
-		competitionrepo.NewWorkRepo(nil),
-		competitionrepo.NewPlayerRepo(nil),
+		competitionrepo.NewCompetitionRepo(mongodb.NewCollection(collections.Competition)),
+		competitionrepo.NewWorkRepo(mongodb.NewCollection(collections.CompetitionWork)),
+		competitionrepo.NewPlayerRepo(mongodb.NewCollection(collections.CompetitionPlayer)),
 		sender, uploader,
 	)
 
