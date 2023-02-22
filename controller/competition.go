@@ -5,33 +5,31 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/opensourceways/xihe-server/app"
-	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/domain/competition"
-	"github.com/opensourceways/xihe-server/domain/message"
+	"github.com/opensourceways/xihe-server/competition/app"
+	cc "github.com/opensourceways/xihe-server/competition/controller"
+	"github.com/opensourceways/xihe-server/competition/domain"
+	types "github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func AddRouterForCompetitionController(
 	rg *gin.RouterGroup,
-	repo repository.Competition,
+	s app.CompetitionService,
 	project repository.Project,
-	sender message.Sender,
-	uploader competition.Competition,
 ) {
 	ctl := CompetitionController{
-		s:       app.NewCompetitionService(repo, sender, uploader),
+		s:       s,
 		project: project,
 	}
 
 	rg.GET("/v1/competition", ctl.List)
 	rg.GET("/v1/competition/:id", ctl.Get)
 	rg.GET("/v1/competition/:id/team", ctl.GetTeam)
-	rg.GET("/v1/competition/:id/ranking/:phase", ctl.GetRankingList)
-	rg.GET("/v1/competition/:id/:phase/submissions", ctl.GetSubmissions)
-	rg.POST("/v1/competition/:id/:phase/submissions", ctl.Submit)
+	rg.GET("/v1/competition/:id/ranking", ctl.GetRankingList)
+	rg.GET("/v1/competition/:id/submissions", ctl.GetSubmissions)
+	rg.POST("/v1/competition/:id/submissions", ctl.Submit)
 	rg.POST("/v1/competition/:id/competitor", ctl.Apply)
-	rg.PUT("/v1/competition/:id/:phase/realted_project", ctl.AddRelatedProject)
+	rg.PUT("/v1/competition/:id/realted_project", ctl.AddRelatedProject)
 }
 
 type CompetitionController struct {
@@ -44,13 +42,13 @@ type CompetitionController struct {
 // @Summary Apply
 // @Description apply the competition
 // @Tags  Competition
-// @Param	body	body	competitorApplyRequest	true	"body of applying"
+// @Param	body	body	cc.CompetitorApplyRequest	true	"body of applying"
 // @Accept json
 // @Success 201
 // @Failure 500 system_error        system error
 // @Router /v1/competition/{id}/competitor [post]
 func (ctl *CompetitionController) Apply(ctx *gin.Context) {
-	req := competitorApplyRequest{}
+	req := cc.CompetitorApplyRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, respBadRequestBody)
 
@@ -62,17 +60,17 @@ func (ctl *CompetitionController) Apply(ctx *gin.Context) {
 		return
 	}
 
-	cmd, err := req.toCmd(pl.DomainAccount())
+	cmd, err := req.ToCmd(pl.DomainAccount())
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, respBadRequestParam(err))
 
 		return
 	}
 
-	if err := ctl.s.Apply(ctx.Param("id"), &cmd); err != nil {
-		ctl.sendCodeMessage(ctx, "", err)
+	if code, err := ctl.s.Apply(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusCreated, newResponseData("success"))
+		ctl.sendRespOfPost(ctx, "success")
 	}
 }
 
@@ -90,7 +88,7 @@ func (ctl *CompetitionController) Get(ctx *gin.Context) {
 		return
 	}
 
-	var user domain.Account
+	var user types.Account
 	if !visitor {
 		user = pl.DomainAccount()
 	}
@@ -99,7 +97,7 @@ func (ctl *CompetitionController) Get(ctx *gin.Context) {
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(data))
+		ctl.sendRespOfGet(ctx, data)
 	}
 }
 
@@ -133,13 +131,13 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 	}
 
 	if !visitor && ctl.getQueryParameter(ctx, "mine") != "" {
-		cmd.Competitor = pl.DomainAccount()
+		cmd.User = pl.DomainAccount()
 	}
 
 	if data, err := ctl.s.List(&cmd); err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(data))
+		ctl.sendRespOfGet(ctx, data)
 	}
 }
 
@@ -157,11 +155,11 @@ func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
 		return
 	}
 
-	data, err := ctl.s.GetTeam(ctx.Param("id"), pl.DomainAccount())
+	data, code, err := ctl.s.GetMyTeam(ctx.Param("id"), pl.DomainAccount())
 	if err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(data))
+		ctl.sendRespOfGet(ctx, data)
 	}
 }
 
@@ -169,26 +167,16 @@ func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
 // @Description get ranking list of competition
 // @Tags  Competition
 // @Param	id	path	string	true	"competition id"
-// @Param	phase	path	string	true	"competition phase, such as preliminary, final"
 // @Accept json
-// @Success 200 {object} app.RankingDTO
+// @Success 200 {object} app.CompetitonRankingDTO
 // @Failure 500 system_error        system error
-// @Router /v1/competition/{id}/ranking/{phase} [get]
+// @Router /v1/competition/{id}/ranking [get]
 func (ctl *CompetitionController) GetRankingList(ctx *gin.Context) {
-	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-			errorBadRequestParam, err,
-		))
-
-		return
-	}
-
-	data, err := ctl.s.GetRankingList(ctx.Param("id"), phase)
+	data, err := ctl.s.GetRankingList(ctx.Param("id"))
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(data))
+		ctl.sendRespOfGet(ctx, data)
 	}
 }
 
@@ -196,37 +184,21 @@ func (ctl *CompetitionController) GetRankingList(ctx *gin.Context) {
 // @Description get submissions
 // @Tags  Competition
 // @Param	id	path	string	true	"competition id"
-// @Param	phase	path	string	true	"competition phase"
 // @Accept json
 // @Success 200 {object} app.CompetitionSubmissionsDTO
 // @Failure 500 system_error        system error
-// @Router /v1/competition/{id}/{phase}/submissions [get]
+// @Router /v1/competition/{id}/submissions [get]
 func (ctl *CompetitionController) GetSubmissions(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
-	if err != nil {
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
-
-			return
-		}
-	}
-
-	index := app.CompetitionIndex{
-		Id:    ctx.Param("id"),
-		Phase: phase,
-	}
-	data, err := ctl.s.GetSubmissions(&index, pl.DomainAccount())
+	data, err := ctl.s.GetSubmissions(ctx.Param("id"), pl.DomainAccount())
 	if err != nil {
 		ctl.sendRespWithInternalError(ctx, newResponseError(err))
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(data))
+		ctl.sendRespOfGet(ctx, data)
 	}
 }
 
@@ -234,27 +206,15 @@ func (ctl *CompetitionController) GetSubmissions(ctx *gin.Context) {
 // @Description submit
 // @Tags  Competition
 // @Param	id	path		string	true	"competition id"
-// @Param	phase	path		string	true	"competition phase"
 // @Param	file	formData	file	true	"result file"
 // @Accept json
 // @Success 201 {object} app.CompetitionSubmissionDTO
 // @Failure 500 system_error        system error
-// @Router /v1/competition/{id}/{phase}/submissions [post]
+// @Router /v1/competition/{id}/submissions [post]
 func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
-	}
-
-	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
-	if err != nil {
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
-
-			return
-		}
 	}
 
 	f, err := ctx.FormFile("file")
@@ -277,17 +237,16 @@ func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 
 	defer p.Close()
 
-	cmd := &app.CompetitionSubmitCMD{}
-	cmd.Index.Id = ctx.Param("id")
-	cmd.Index.Phase = phase
-	cmd.Competitor = pl.DomainAccount()
-	cmd.FileName = f.Filename
-	cmd.Data = p
-
+	cmd := &app.CompetitionSubmitCMD{
+		CompetitionId: ctx.Param("id"),
+		FileName:      f.Filename,
+		Data:          p,
+		User:          pl.DomainAccount(),
+	}
 	if v, code, err := ctl.s.Submit(cmd); err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusOK, newResponseData(v))
+		ctl.sendRespOfPost(ctx, v)
 	}
 }
 
@@ -295,30 +254,18 @@ func (ctl *CompetitionController) Submit(ctx *gin.Context) {
 // @Description add related project
 // @Tags  Competition
 // @Param	id	path	string					true	"competition id"
-// @Param	phase	path	string					true	"competition phase"
-// @Param	body	body	competitionAddRelatedProjectRequest	true	"project info"
+// @Param	body	body	cc.AddRelatedProjectRequest	true	"project info"
 // @Accept json
 // @Success 202
 // @Failure 500 system_error        system error
-// @Router /v1/competition/{id}/{phase}/realted_project [put]
+// @Router /v1/competition/{id}/realted_project [put]
 func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return
 	}
 
-	phase, err := domain.NewCompetitionPhase(ctx.Param("phase"))
-	if err != nil {
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, newResponseCodeError(
-				errorBadRequestParam, err,
-			))
-
-			return
-		}
-	}
-
-	req := competitionAddRelatedProjectRequest{}
+	req := cc.AddRelatedProjectRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeMsg(
 			errorBadRequestBody,
@@ -328,7 +275,7 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 		return
 	}
 
-	owner, name, err := req.toInfo()
+	owner, name, err := req.ToInfo()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, newResponseCodeError(
 			errorBadRequestParam, err,
@@ -347,17 +294,14 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 	}
 
 	cmd := app.CompetitionAddReleatedProjectCMD{
-		Index: app.CompetitionIndex{
-			Id:    ctx.Param("id"),
-			Phase: phase,
-		},
-		Competitor: pl.DomainAccount(),
-		Project:    p,
+		Id:      ctx.Param("id"),
+		User:    pl.DomainAccount(),
+		Project: p,
 	}
 
-	if err = ctl.s.AddRelatedProject(&cmd); err != nil {
-		ctl.sendRespWithInternalError(ctx, newResponseError(err))
+	if code, err := ctl.s.AddRelatedProject(&cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
-		ctx.JSON(http.StatusAccepted, newResponseData("success"))
+		ctl.sendRespOfPut(ctx, "success")
 	}
 }

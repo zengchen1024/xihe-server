@@ -62,7 +62,7 @@ definitions:
     type: object
   app.CompetitionSubmissionDTO:
     properties:
-      project:
+      file_name:
         type: string
       score:
         type: number
@@ -118,6 +118,17 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  app.CompetitonRankingDTO:
+    properties:
+      final:
+        items:
+          $ref: '#/definitions/app.RankingDTO'
+        type: array
+      preliminary:
+        items:
+          $ref: '#/definitions/app.RankingDTO'
+        type: array
     type: object
   app.CompletionQuestionDTO:
     properties:
@@ -574,6 +585,8 @@ definitions:
         type: string
       is_competitor:
         type: boolean
+      is_finalist:
+        type: boolean
       name:
         type: string
       phase:
@@ -617,19 +630,6 @@ definitions:
       expiry:
         type: integer
     type: object
-  app.UserLikedWuKongPictureDTO:
-    properties:
-      created_at:
-        type: string
-      desc:
-        type: string
-      id:
-        type: string
-      link:
-        type: string
-      style:
-        type: string
-    type: object
   app.UserSearchDTO:
     properties:
       top:
@@ -639,29 +639,79 @@ definitions:
       total:
         type: integer
     type: object
-  app.WuKongPictureInfoDTO:
+  app.WuKongLikeDTO:
     properties:
+      created_at:
+        type: string
       desc:
         type: string
+      id:
+        type: string
+      is_public:
+        type: boolean
       link:
+        type: string
+      owner:
+        description: owner of picture
         type: string
       style:
         type: string
     type: object
-  app.WuKongPicturesDTO:
+  app.WuKongPublicDTO:
     properties:
-      pictures:
-        items:
-          $ref: '#/definitions/app.WuKongPictureInfoDTO'
-        type: array
-      total:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      desc:
+        type: string
+      digg_count:
         type: integer
+      id:
+        type: string
+      is_digg:
+        type: boolean
+      is_like:
+        type: boolean
+      link:
+        type: string
+      owner:
+        description: owner of picture
+        type: string
+      style:
+        type: string
+    type: object
+  controller.AddRelatedProjectRequest:
+    properties:
+      owner:
+        type: string
+      project_name:
+        type: string
     type: object
   controller.CodeGeexRequest:
     properties:
       content:
         type: string
       lang:
+        type: string
+    type: object
+  controller.CompetitorApplyRequest:
+    properties:
+      city:
+        type: string
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
         type: string
     type: object
   controller.Compute:
@@ -788,13 +838,6 @@ definitions:
     properties:
       can_apply:
         type: boolean
-    type: object
-  controller.competitionAddRelatedProjectRequest:
-    properties:
-      owner:
-        type: string
-      project_name:
-        type: string
     type: object
   controller.competitorApplyRequest:
     properties:
@@ -1259,15 +1302,27 @@ definitions:
       is_follower:
         type: boolean
     type: object
-  controller.wukongAddLikeRequest:
-    properties:
-      obspath:
-        type: string
-    type: object
   controller.wukongAddLikeResp:
     properties:
       id:
         type: string
+    type: object
+  controller.wukongAddPublicResp:
+    properties:
+      id:
+        type: string
+    type: object
+  controller.wukongCancelDiggPublicRequest:
+    properties:
+      id:
+        type: string
+      user:
+        type: string
+    type: object
+  controller.wukongDiggResp:
+    properties:
+      digg_count:
+        type: integer
     type: object
   controller.wukongPictureLink:
     properties:
@@ -1608,7 +1663,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.UserLikedWuKongPictureDTO'
+            $ref: '#/definitions/app.WuKongLikeDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -1637,17 +1692,49 @@ paths:
             type: system_error
       tags:
       - BigModel
-    put:
+  /v1/bigmodel/wukong/digg:
+    delete:
       consumes:
       - application/json
-      description: add like to wukong picture
+      description: delete digg to wukong picture
       parameters:
       - description: body of wukong
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.wukongAddLikeRequest'
+          $ref: '#/definitions/controller.wukongCancelDiggPublicRequest'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongDiggResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+    post:
+      consumes:
+      - application/json
+      description: add digg to wukong picture
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongDiggResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/like:
+    post:
+      consumes:
+      - application/json
+      description: add like to wukong picture
       responses:
         "202":
           description: Accepted
@@ -1659,7 +1746,7 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/wukong/{id}:
+  /v1/bigmodel/wukong/like/{id}:
     delete:
       consumes:
       - application/json
@@ -1702,25 +1789,67 @@ paths:
             type: system_error
       tags:
       - BigModel
-  /v1/bigmodel/wukong/pictures:
+  /v1/bigmodel/wukong/public:
     get:
       consumes:
       - application/json
-      description: list wukong pictures
-      parameters:
-      - description: count per page
-        in: query
-        name: count_per_page
-        type: integer
-      - description: page num which starts from 1
-        in: query
-        name: page_num
-        type: integer
+      description: list wukong pictures user publiced
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.WuKongPicturesDTO'
+            $ref: '#/definitions/app.WuKongPublicDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+    post:
+      consumes:
+      - application/json
+      description: add public to wukong picture
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/controller.wukongAddPublicResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/public/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: cancel public on wukong picture
+      parameters:
+      - description: picture id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong/publics:
+    get:
+      consumes:
+      - application/json
+      description: list all wukong pictures publiced
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.WuKongPublicDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -1892,7 +2021,52 @@ paths:
       summary: Get
       tags:
       - Competition
-  /v1/competition/{id}/{phase}/realted_project:
+  /v1/competition/{id}/competitor:
+    post:
+      consumes:
+      - application/json
+      description: apply the competition
+      parameters:
+      - description: body of applying
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CompetitorApplyRequest'
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Apply
+      tags:
+      - Competition
+  /v1/competition/{id}/ranking:
+    get:
+      consumes:
+      - application/json
+      description: get ranking list of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CompetitonRankingDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: GetRankingList
+      tags:
+      - Competition
+  /v1/competition/{id}/realted_project:
     put:
       consumes:
       - application/json
@@ -1903,17 +2077,12 @@ paths:
         name: id
         required: true
         type: string
-      - description: competition phase
-        in: path
-        name: phase
-        required: true
-        type: string
       - description: project info
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.competitionAddRelatedProjectRequest'
+          $ref: '#/definitions/controller.AddRelatedProjectRequest'
       responses:
         "202":
           description: ""
@@ -1924,7 +2093,7 @@ paths:
       summary: AddRelatedProject
       tags:
       - Competition
-  /v1/competition/{id}/{phase}/submissions:
+  /v1/competition/{id}/submissions:
     get:
       consumes:
       - application/json
@@ -1933,11 +2102,6 @@ paths:
       - description: competition id
         in: path
         name: id
-        required: true
-        type: string
-      - description: competition phase
-        in: path
-        name: phase
         required: true
         type: string
       responses:
@@ -1962,11 +2126,6 @@ paths:
         name: id
         required: true
         type: string
-      - description: competition phase
-        in: path
-        name: phase
-        required: true
-        type: string
       - description: result file
         in: formData
         name: file
@@ -1982,56 +2141,6 @@ paths:
           schema:
             type: system_error
       summary: Submit
-      tags:
-      - Competition
-  /v1/competition/{id}/competitor:
-    post:
-      consumes:
-      - application/json
-      description: apply the competition
-      parameters:
-      - description: body of applying
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.competitorApplyRequest'
-      responses:
-        "201":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Apply
-      tags:
-      - Competition
-  /v1/competition/{id}/ranking/{phase}:
-    get:
-      consumes:
-      - application/json
-      description: get ranking list of competition
-      parameters:
-      - description: competition id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: competition phase, such as preliminary, final
-        in: path
-        name: phase
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.RankingDTO'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: GetRankingList
       tags:
       - Competition
   /v1/competition/{id}/team:
