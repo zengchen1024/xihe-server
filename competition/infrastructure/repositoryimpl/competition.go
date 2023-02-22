@@ -80,6 +80,11 @@ func (impl competitionRepoImpl) FindCompetitions(opt *repository.CompetitionList
 		if opt.Status != nil {
 			filter["status"] = opt.Status.CompetitionStatus()
 		}
+		if len(opt.CompetitionIds) > 0 {
+			filter[fieldId] = bson.M{
+				"$in": opt.CompetitionIds,
+			}
+		}
 
 		return impl.cli.GetDocs(ctx, filter, nil, &v)
 	}

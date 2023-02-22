@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -16,6 +17,8 @@ const (
 type mongodbClient interface {
 	IsDocNotExists(error) bool
 	IsDocExists(error) bool
+
+	Collection() *mongo.Collection
 
 	ObjectIdFilter(s string) (bson.M, error)
 

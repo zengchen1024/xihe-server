@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func NewCollection(name string) collection {
@@ -12,6 +13,10 @@ func NewCollection(name string) collection {
 
 type collection struct {
 	name string
+}
+
+func (c collection) Collection() *mongo.Collection {
+	return cli.collection(c.name)
 }
 
 func (c collection) IsDocNotExists(err error) bool {

@@ -181,7 +181,47 @@ func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 }
 
 func (impl playerRepoImpl) CompetitorsCount(cid string) (int, error) {
-	return 0, nil
+	var v []struct {
+		Total int `bson:"toal"`
+	}
+
+	f := func(ctx context.Context) error {
+		key := "$" + fieldCompetitors
+
+		fields := bson.M{
+			"num": bson.M{
+				"$cond": bson.M{
+					"if":   bson.M{"$isArray": key},
+					"then": bson.M{"$size": key},
+					"else": 0,
+				},
+			},
+		}
+
+		filter := bson.M{
+			fieldCid:     cid,
+			fieldEnabled: true,
+		}
+
+		pipeline := bson.A{
+			bson.M{"$match": filter},
+			bson.M{"$addFields": fields},
+			bson.M{"$group": bson.M{"_id": nil, "total": bson.M{"$sum": "$num"}}},
+		}
+
+		cursor, err := impl.cli.Collection().Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
+	}
+
+	if err := withContext(f); err != nil || len(v) == 0 {
+		return 0, err
+	}
+
+	return v[0].Total, nil
 }
 
 // AddMember
