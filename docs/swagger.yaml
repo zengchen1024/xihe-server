@@ -585,6 +585,8 @@ definitions:
         type: string
       is_competitor:
         type: boolean
+      is_finalist:
+        type: boolean
       name:
         type: string
       phase:
@@ -679,11 +681,37 @@ definitions:
       style:
         type: string
     type: object
+  controller.AddRelatedProjectRequest:
+    properties:
+      owner:
+        type: string
+      project_name:
+        type: string
+    type: object
   controller.CodeGeexRequest:
     properties:
       content:
         type: string
       lang:
+        type: string
+    type: object
+  controller.CompetitorApplyRequest:
+    properties:
+      city:
+        type: string
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
         type: string
     type: object
   controller.Compute:
@@ -811,11 +839,23 @@ definitions:
       can_apply:
         type: boolean
     type: object
-  controller.competitionAddRelatedProjectRequest:
+  controller.competitorApplyRequest:
     properties:
-      owner:
+      city:
         type: string
-      project_name:
+      detail:
+        additionalProperties:
+          type: string
+        type: object
+      email:
+        type: string
+      identity:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      province:
         type: string
     type: object
   controller.datasetCreateRequest:
@@ -1310,44 +1350,6 @@ definitions:
           type: string
         type: array
       kind:
-        type: string
-    type: object
-  github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest:
-    properties:
-      city:
-        type: string
-      detail:
-        additionalProperties:
-          type: string
-        type: object
-      email:
-        type: string
-      identity:
-        type: string
-      name:
-        type: string
-      phone:
-        type: string
-      province:
-        type: string
-    type: object
-  github.com_opensourceways_xihe-server_controller.competitorApplyRequest:
-    properties:
-      city:
-        type: string
-      detail:
-        additionalProperties:
-          type: string
-        type: object
-      email:
-        type: string
-      identity:
-        type: string
-      name:
-        type: string
-      phone:
-        type: string
-      province:
         type: string
     type: object
 info:
@@ -1942,7 +1944,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github.com_opensourceways_xihe-server_controller.competitorApplyRequest'
+          $ref: '#/definitions/controller.competitorApplyRequest'
       responses:
         "201":
           description: ""
@@ -2030,7 +2032,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest'
+          $ref: '#/definitions/controller.CompetitorApplyRequest'
       responses:
         "201":
           description: ""
@@ -2080,7 +2082,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controller.competitionAddRelatedProjectRequest'
+          $ref: '#/definitions/controller.AddRelatedProjectRequest'
       responses:
         "202":
           description: ""

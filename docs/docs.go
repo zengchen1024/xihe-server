@@ -842,7 +842,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_opensourceways_xihe-server_controller.competitorApplyRequest"
+                            "$ref": "#/definitions/controller.competitorApplyRequest"
                         }
                     }
                 ],
@@ -977,7 +977,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest"
+                            "$ref": "#/definitions/controller.CompetitorApplyRequest"
                         }
                     }
                 ],
@@ -1053,7 +1053,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.competitionAddRelatedProjectRequest"
+                            "$ref": "#/definitions/controller.AddRelatedProjectRequest"
                         }
                     }
                 ],
@@ -5208,6 +5208,9 @@ const docTemplate = `{
                 "is_competitor": {
                     "type": "boolean"
                 },
+                "is_finalist": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -5351,6 +5354,17 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.AddRelatedProjectRequest": {
+            "type": "object",
+            "properties": {
+                "owner": {
+                    "type": "string"
+                },
+                "project_name": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.CodeGeexRequest": {
             "type": "object",
             "properties": {
@@ -5358,6 +5372,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lang": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.CompetitorApplyRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "detail": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "province": {
                     "type": "string"
                 }
             }
@@ -5555,13 +5598,31 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.competitionAddRelatedProjectRequest": {
+        "controller.competitorApplyRequest": {
             "type": "object",
             "properties": {
-                "owner": {
+                "city": {
                     "type": "string"
                 },
-                "project_name": {
+                "detail": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "province": {
                     "type": "string"
                 }
             }
@@ -6326,64 +6387,6 @@ const docTemplate = `{
                     }
                 },
                 "kind": {
-                    "type": "string"
-                }
-            }
-        },
-        "github.com_opensourceways_xihe-server_competition_controller.competitorApplyRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "detail": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "email": {
-                    "type": "string"
-                },
-                "identity": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "province": {
-                    "type": "string"
-                }
-            }
-        },
-        "github.com_opensourceways_xihe-server_controller.competitorApplyRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "detail": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "email": {
-                    "type": "string"
-                },
-                "identity": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "province": {
                     "type": "string"
                 }
             }
