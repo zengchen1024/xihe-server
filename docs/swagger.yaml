@@ -723,6 +723,11 @@ definitions:
       version:
         type: string
     type: object
+  controller.CreateTeamRequest:
+    properties:
+      team_name:
+        type: string
+    type: object
   controller.EvaluateCreateRequest:
     properties:
       batch_size_scope:
@@ -751,6 +756,11 @@ definitions:
       name:
         type: string
       task:
+        type: string
+    type: object
+  controller.JoinTeamRequest:
+    properties:
+      leader_account:
         type: string
     type: object
   controller.KeyValue:
@@ -2027,6 +2037,11 @@ paths:
       - application/json
       description: apply the competition
       parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
       - description: body of applying
         in: body
         name: body
@@ -2163,7 +2178,59 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
-      summary: GetTeam
+      summary: GetMyTeam
+      tags:
+      - Competition
+    post:
+      consumes:
+      - application/json
+      description: create team of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of creating team
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateTeamRequest'
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: CreateTeam
+      tags:
+      - Competition
+    put:
+      consumes:
+      - application/json
+      description: join a team of competition
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of joining team
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.JoinTeamRequest'
+      responses:
+        "202":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: JoinTeam
       tags:
       - Competition
   /v1/dataset:

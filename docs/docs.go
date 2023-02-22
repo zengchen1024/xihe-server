@@ -972,6 +972,13 @@ const docTemplate = `{
                 "summary": "Apply",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "body of applying",
                         "name": "body",
                         "in": "body",
@@ -1154,7 +1161,7 @@ const docTemplate = `{
                 "tags": [
                     "Competition"
                 ],
-                "summary": "GetTeam",
+                "summary": "GetMyTeam",
                 "parameters": [
                     {
                         "type": "string",
@@ -1170,6 +1177,84 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/app.CompetitionTeamDTO"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "join a team of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "JoinTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of joining team",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.JoinTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create team of competition",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "CreateTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of creating team",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -5419,6 +5504,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.CreateTeamRequest": {
+            "type": "object",
+            "properties": {
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.EvaluateCreateRequest": {
             "type": "object",
             "properties": {
@@ -5461,6 +5554,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "task": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.JoinTeamRequest": {
+            "type": "object",
+            "properties": {
+                "leader_account": {
                     "type": "string"
                 }
             }
