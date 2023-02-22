@@ -30,10 +30,11 @@ func (cmd *CompetitorApplyCmd) Validate() error {
 	return nil
 }
 
-func (cmd *CompetitorApplyCmd) toPlayer(cid string) domain.Player {
-	return domain.NewPlayer(
-		domain.NewPlayerIndex(cid, ""), (*domain.Competitor)(cmd),
-	)
+func (cmd *CompetitorApplyCmd) toPlayer(cid string) (p domain.Player) {
+	p.CompetitionId = cid
+	p.Leader = *(*domain.Competitor)(cmd)
+
+	return
 }
 
 type CompetitionSubmitCMD struct {

@@ -30,9 +30,9 @@ type SubmissionMessage struct {
 // Submission
 type Submission struct {
 	Id       string
-	SubmitAt int64
-	OBSPath  string
 	Status   string
+	OBSPath  string
+	SubmitAt int64
 	Score    float32
 }
 

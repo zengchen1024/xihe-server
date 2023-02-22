@@ -19,14 +19,26 @@ type playerRepoImpl struct {
 	cli mongodbClient
 }
 
+func (impl playerRepoImpl) playerFilter(p *domain.Player) (bson.M, error) {
+	filter, err := impl.cli.ObjectIdFilter(p.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	filter[fieldCid] = p.CompetitionId
+	filter[fieldEnabled] = true
+
+	return filter, nil
+}
+
 func (impl playerRepoImpl) docFilter(cid string, a types.Account) bson.M {
 	filter := bson.M{
 		fieldCid:     cid,
 		fieldEnabled: true,
 	}
 	impl.cli.AppendElemMatchToFilter(
-		"competitors", true,
-		bson.M{"account": a.Account()}, filter,
+		fieldCompetitors, true,
+		bson.M{fieldAccount: a.Account()}, filter,
 	)
 
 	return filter
@@ -42,17 +54,18 @@ func (impl playerRepoImpl) SavePlayer(p *domain.Player, version int) error {
 
 func (repo playerRepoImpl) genPlayerDoc(p *domain.Player) (bson.M, error) {
 	var c dCompetitor
-	// TODO player to dCompetitor
+	toCompetitorDoc(&p.Leader, &c)
 
 	obj := dPlayer{
 		CompetitionId: p.CompetitionId,
 		Competitors:   []dCompetitor{c},
+		Leader:        p.Leader.Account.Account(),
 		Enabled:       true,
 	}
 	if p.IsATeam() {
-		obj.Leader = p.Leader.Account.Account()
 		obj.TeamName = p.Team.Name.TeamName()
 	}
+
 	doc, err := genDoc(&obj)
 	if err == nil {
 		doc[fieldVersion] = 0
@@ -85,23 +98,23 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 }
 
 func (impl playerRepoImpl) insertTeam(p *domain.Player, version int) error {
-	if err := impl.updateEnabledOfPlayer(p.Id, false, version); err != nil {
+	if err := impl.updateEnabledOfPlayer(p, false, version); err != nil {
 		return err
 	}
 
 	return impl.insertPlayer(p)
 }
 
-func (impl playerRepoImpl) updateEnabledOfPlayer(pid string, enable bool, version int) error {
-	return impl.update(pid, bson.M{fieldEnabled: enable}, version)
+func (impl playerRepoImpl) updateEnabledOfPlayer(p *domain.Player, enable bool, version int) error {
+	return impl.update(p, bson.M{fieldEnabled: enable}, version)
 }
 
 func (impl playerRepoImpl) SaveTeamName(p *domain.Player, version int) error {
-	return impl.update(p.Id, bson.M{fieldTeamName: p.Team.Name.TeamName()}, version)
+	return impl.update(p, bson.M{fieldTeamName: p.Team.Name.TeamName()}, version)
 }
 
-func (impl playerRepoImpl) update(pid string, doc bson.M, version int) error {
-	filter, err := impl.cli.ObjectIdFilter(pid)
+func (impl playerRepoImpl) update(p *domain.Player, doc bson.M, version int) error {
+	filter, err := impl.playerFilter(p)
 	if err != nil {
 		return err
 	}
@@ -132,13 +145,13 @@ func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorDataNotExists(err)
 		}
+	} else {
+		if err = v.toPlayer(&p); err == nil {
+			p.SetCurrentUser(a)
 
-		return
+			version = v.Version
+		}
 	}
-
-	version = v.Version
-
-	// convert
 
 	return
 }
@@ -159,7 +172,10 @@ func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 		return
 	}
 
-	// convert
+	r = make([]string, len(v))
+	for i := range v {
+		r[i] = v[i].Id.Hex()
+	}
 
 	return
 }
@@ -168,9 +184,46 @@ func (impl playerRepoImpl) CompetitorsCount(cid string) (int, error) {
 	return 0, nil
 }
 
+// AddMember
 func (impl playerRepoImpl) AddMember(
 	team repository.PlayerVersion,
 	member repository.PlayerVersion,
 ) error {
-	return nil
+	err := impl.updateEnabledOfPlayer(member.Player, false, member.Version)
+	if err != nil {
+		return err
+	}
+
+	return impl.addMember(team, member.Player)
+}
+
+func (impl playerRepoImpl) addMember(
+	team repository.PlayerVersion, member *domain.Player,
+) error {
+	filter, err := impl.playerFilter(team.Player)
+	if err != nil {
+		return err
+	}
+
+	var c dCompetitor
+	toCompetitorDoc(&member.Leader, &c)
+	doc, err := genDoc(&c)
+	if err == nil {
+		return err
+	}
+
+	f := func(ctx context.Context) error {
+		return impl.cli.UpdateDoc(
+			ctx, filter,
+			bson.M{fieldCompetitors: doc}, mongoCmdPush, team.Version,
+		)
+	}
+
+	if err = withContext(f); err != nil {
+		if impl.cli.IsDocNotExists(err) {
+			err = repoerr.NewErrorConcurrentUpdating(err)
+		}
+	}
+
+	return err
 }

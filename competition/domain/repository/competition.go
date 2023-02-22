@@ -41,7 +41,7 @@ type Work interface {
 	SaveWork(*domain.Work) error
 	SaveRepo(*domain.Work, int) error
 	AddSubmission(*domain.Work, *domain.PhaseSubmission, int) error
-	SaveSubmission(*domain.Work, *domain.PhaseSubmission, int) error
+	SaveSubmission(*domain.Work, *domain.PhaseSubmission) error
 
 	FindWork(domain.WorkIndex, domain.CompetitionPhase) (domain.Work, int, error)
 	FindWorks(cid string) ([]domain.Work, error)

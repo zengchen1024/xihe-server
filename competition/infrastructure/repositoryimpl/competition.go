@@ -43,7 +43,7 @@ func (impl competitionRepoImpl) FindCompetition(cid string) (
 		return
 	}
 
-	// convert
+	err = v.toCompetition(&c)
 
 	return
 }
@@ -88,7 +88,12 @@ func (impl competitionRepoImpl) FindCompetitions(opt *repository.CompetitionList
 		return nil, err
 	}
 
-	// convert
+	r := make([]domain.CompetitionSummary, len(v))
+	for i := range v {
+		if err := v[i].toCompetitionSummary(&r[i]); err != nil {
+			return nil, err
+		}
+	}
 
-	return nil, nil
+	return r, nil
 }

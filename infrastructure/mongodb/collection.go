@@ -73,3 +73,12 @@ func (c collection) UpdateDoc(
 ) error {
 	return cli.updateDoc(ctx, c.name, filterOfDoc, update, op, version)
 }
+
+func (c collection) ModifyArrayElem(
+	ctx context.Context, array string,
+	filterOfDoc, filterOfArray, updateCmd bson.M, op string,
+) (bool, error) {
+	return cli.modifyArrayElemWithoutVersion(ctx, c.name, array,
+		filterOfDoc, filterOfArray, updateCmd, op,
+	)
+}

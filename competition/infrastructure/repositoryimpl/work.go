@@ -88,15 +88,15 @@ func (impl workRepoImpl) AddSubmission(
 	}
 
 	f := func(ctx context.Context) error {
-		filter := impl.docFilter(&w.WorkIndex)
-		filter[fieldVersion] = version
-
 		field := fieldPreliminary
 		if cs.Phase.IsFinal() {
 			field = fieldFinal
 		}
 
-		return impl.cli.PushArrayElem(ctx, field, filter, doc)
+		return impl.cli.UpdateDoc(
+			ctx, impl.docFilter(&w.WorkIndex),
+			bson.M{field: doc}, mongoCmdPush, version,
+		)
 	}
 
 	if err = withContext(f); err != nil {
@@ -109,7 +109,7 @@ func (impl workRepoImpl) AddSubmission(
 }
 
 func (impl workRepoImpl) SaveSubmission(
-	w *domain.Work, submission *domain.PhaseSubmission, version int,
+	w *domain.Work, submission *domain.PhaseSubmission,
 ) error {
 	doc, err := genDoc(dSubmission{
 		Status: submission.Status,
@@ -125,17 +125,15 @@ func (impl workRepoImpl) SaveSubmission(
 			field = fieldFinal
 		}
 
-		_, err := impl.cli.UpdateArrayElem(
+		_, err := impl.cli.ModifyArrayElem(
 			ctx, field, impl.docFilter(&w.WorkIndex),
-			bson.M{fieldId: submission.Id}, doc, version, 0,
+			bson.M{fieldId: submission.Id}, doc, mongoCmdSet,
 		)
 
 		return err
 	}
 
-	err = withContext(f)
-
-	return err
+	return withContext(f)
 }
 
 func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.CompetitionPhase) (
@@ -160,13 +158,10 @@ func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.Competiti
 		if impl.cli.IsDocNotExists(err) {
 			err = repoerr.NewErrorDataNotExists(err)
 		}
-
-		return
+	} else {
+		version = v.Version
+		v.toWork(&w)
 	}
-
-	version = v.Version
-
-	// convert
 
 	return
 }
@@ -182,7 +177,10 @@ func (impl workRepoImpl) FindWorks(cid string) (ws []domain.Work, err error) {
 		return
 	}
 
-	// convert
+	ws = make([]domain.Work, len(v))
+	for i := range v {
+		v[i].toWork(&ws[i])
+	}
 
 	return
 }

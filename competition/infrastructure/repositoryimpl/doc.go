@@ -13,6 +13,8 @@ const (
 	fieldEnabled     = "enabled"
 	fieldTeamName    = "team_name"
 	fieldUpdatedAt   = "updated_at"
+	fieldAccount     = "account"
+	fieldCompetitors = "competitors"
 )
 
 type dCompetition struct {
@@ -53,8 +55,7 @@ type dSubmission struct {
 }
 
 // dPlayer
-// Leader: only set when the player is a team
-// New a new dPlayer and set TeamName when creating a team
+// Leader stands for the user who is an individual competitor or a team leader
 // Enabled: it will be set to false when the competitor become a team.
 type dPlayer struct {
 	Id            primitive.ObjectID `bson:"_id"            json:"-"`

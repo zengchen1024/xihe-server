@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	mongoCmdSet = "$set"
+	mongoCmdSet  = "$set"
+	mongoCmdPush = "$push"
 )
 
 type mongodbClient interface {
@@ -20,34 +21,15 @@ type mongodbClient interface {
 
 	AppendElemMatchToFilter(array string, exists bool, cond, filter bson.M)
 
-	GetDoc(
-		ctx context.Context, filterOfDoc, project bson.M,
-		result interface{},
-	) error
+	GetDoc(ctx context.Context, filterOfDoc, project bson.M, result interface{}) error
 
-	GetDocs(
-		ctx context.Context, filterOfDoc, project bson.M,
-		result interface{},
-	) error
+	GetDocs(ctx context.Context, filterOfDoc, project bson.M, result interface{}) error
 
-	NewDocIfNotExist(
-		ctx context.Context, filterOfDoc, docInfo bson.M,
-	) (string, error)
+	NewDocIfNotExist(ctx context.Context, filterOfDoc, docInfo bson.M) (string, error)
 
-	PushArrayElem(
-		ctx context.Context, array string,
-		filterOfDoc, value bson.M,
-	) error
+	UpdateDoc(ctx context.Context, filterOfDoc, update bson.M, op string, version int) error
 
-	UpdateArrayElem(
-		ctx context.Context, array string,
-		filterOfDoc, filterOfArray, updateCmd bson.M,
-		version int, t int64,
-	) (bool, error)
-
-	UpdateDoc(
-		ctx context.Context, filterOfDoc, update bson.M, op string, version int,
-	) error
+	ModifyArrayElem(ctx context.Context, array string, filterOfDoc, filterOfArray, updateCmd bson.M, op string) (bool, error)
 }
 
 func withContext(f func(context.Context) error) error {

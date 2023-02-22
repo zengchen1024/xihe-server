@@ -1,15 +1,14 @@
 package domain
 
 type CompetitionSummary struct {
-	Id         string
-	Name       CompetitionName
-	Desc       CompetitionDesc
-	Host       CompetitionHost
-	Bonus      CompetitionBonus
-	Status     CompetitionStatus
-	Duration   CompetitionDuration
-	Poster     URL
-	ScoreOrder CompetitionScoreOrder
+	Id       string
+	Name     CompetitionName
+	Desc     CompetitionDesc
+	Host     CompetitionHost
+	Bonus    CompetitionBonus
+	Status   CompetitionStatus
+	Duration CompetitionDuration
+	Poster   URL
 }
 
 type Competition struct {
@@ -17,9 +16,9 @@ type Competition struct {
 
 	Doc        URL
 	Forum      Forum
+	Winners    Winners
 	DatasetDoc URL
 	DatasetURL URL
-	Winners    Winners
 
 	Type  CompetitionType
 	Phase CompetitionPhase

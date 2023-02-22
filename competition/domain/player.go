@@ -101,12 +101,8 @@ type Player struct {
 	user types.Account
 }
 
-func NewPlayer(index PlayerIndex, c *Competitor) Player {
-	return Player{
-		PlayerIndex: index,
-		Leader:      *c,
-		user:        c.Account,
-	}
+func (p *Player) SetCurrentUser(a types.Account) {
+	p.user = a
 }
 
 func (p *Player) CompetitorsCount() int {
