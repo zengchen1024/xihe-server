@@ -5427,6 +5427,9 @@ const docTemplate = `{
                 "is_like": {
                     "type": "boolean"
                 },
+                "like_id": {
+                    "type": "string"
+                },
                 "link": {
                     "type": "string"
                 },

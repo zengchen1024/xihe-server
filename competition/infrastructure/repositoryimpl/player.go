@@ -8,7 +8,7 @@ import (
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
-	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func NewPlayerRepo(m mongodbClient) repository.Player {
@@ -153,7 +153,7 @@ func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 
 	if err = withContext(f); err != nil {
 		if impl.cli.IsDocNotExists(err) {
-			err = repoerr.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorResourceNotExists(err)
 		}
 	} else {
 		if err = v.toPlayer(&p); err == nil {
