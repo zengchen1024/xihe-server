@@ -8,7 +8,7 @@ import (
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
-	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func NewPlayerRepo(m mongodbClient) repository.Player {
@@ -19,23 +19,30 @@ type playerRepoImpl struct {
 	cli mongodbClient
 }
 
+func (impl playerRepoImpl) docFilter(cid string) bson.M {
+	return bson.M{
+		fieldCid:     cid,
+		fieldEnabled: true,
+	}
+}
+
 func (impl playerRepoImpl) playerFilter(p *domain.Player) (bson.M, error) {
-	filter, err := impl.cli.ObjectIdFilter(p.Id)
+	v, err := impl.cli.ObjectIdFilter(p.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	filter[fieldCid] = p.CompetitionId
-	filter[fieldEnabled] = true
+	filter := impl.docFilter(p.CompetitionId)
+	for k := range v {
+		filter[k] = v[k]
+	}
 
 	return filter, nil
 }
 
-func (impl playerRepoImpl) docFilter(cid string, a types.Account) bson.M {
-	filter := bson.M{
-		fieldCid:     cid,
-		fieldEnabled: true,
-	}
+func (impl playerRepoImpl) docFilterByUser(cid string, a types.Account) bson.M {
+	filter := impl.docFilter(cid)
+
 	impl.cli.AppendElemMatchToFilter(
 		fieldCompetitors, true,
 		bson.M{fieldAccount: a.Account()}, filter,
@@ -44,6 +51,7 @@ func (impl playerRepoImpl) docFilter(cid string, a types.Account) bson.M {
 	return filter
 }
 
+// SavePlayer
 func (impl playerRepoImpl) SavePlayer(p *domain.Player, version int) error {
 	if p.IsATeam() {
 		return impl.insertTeam(p, version)
@@ -81,7 +89,7 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 	}
 
 	f := func(ctx context.Context) error {
-		filter := impl.docFilter(p.CompetitionId, p.Leader.Account)
+		filter := impl.docFilterByUser(p.CompetitionId, p.Leader.Account)
 
 		_, err := impl.cli.NewDocIfNotExist(ctx, filter, doc)
 
@@ -109,10 +117,6 @@ func (impl playerRepoImpl) updateEnabledOfPlayer(p *domain.Player, enable bool, 
 	return impl.update(p, bson.M{fieldEnabled: enable}, version)
 }
 
-func (impl playerRepoImpl) SaveTeamName(p *domain.Player, version int) error {
-	return impl.update(p, bson.M{fieldTeamName: p.Team.Name.TeamName()}, version)
-}
-
 func (impl playerRepoImpl) update(p *domain.Player, doc bson.M, version int) error {
 	filter, err := impl.playerFilter(p)
 	if err != nil {
@@ -132,18 +136,24 @@ func (impl playerRepoImpl) update(p *domain.Player, doc bson.M, version int) err
 	return err
 }
 
+// SaveTeamName
+func (impl playerRepoImpl) SaveTeamName(p *domain.Player, version int) error {
+	return impl.update(p, bson.M{fieldTeamName: p.Team.Name.TeamName()}, version)
+}
+
+// FindPlayer
 func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 	p domain.Player, version int, err error,
 ) {
 	var v dPlayer
 
 	f := func(ctx context.Context) error {
-		return impl.cli.GetDoc(ctx, impl.docFilter(cid, a), nil, &v)
+		return impl.cli.GetDoc(ctx, impl.docFilterByUser(cid, a), nil, &v)
 	}
 
 	if err = withContext(f); err != nil {
 		if impl.cli.IsDocNotExists(err) {
-			err = repoerr.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorResourceNotExists(err)
 		}
 	} else {
 		if err = v.toPlayer(&p); err == nil {
@@ -156,13 +166,14 @@ func (impl playerRepoImpl) FindPlayer(cid string, a types.Account) (
 	return
 }
 
+// FindCompetitionsUserApplied
 func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 	r []string, err error,
 ) {
 	var v []dPlayer
 
 	f := func(ctx context.Context) error {
-		filter := impl.docFilter("", a)
+		filter := impl.docFilterByUser("", a)
 		delete(filter, fieldCid)
 
 		return impl.cli.GetDocs(ctx, filter, bson.M{fieldCid: 1}, &v)
@@ -180,6 +191,7 @@ func (impl playerRepoImpl) FindCompetitionsUserApplied(a types.Account) (
 	return
 }
 
+// CompetitorsCount
 func (impl playerRepoImpl) CompetitorsCount(cid string) (int, error) {
 	var v []struct {
 		Total int `bson:"toal"`
@@ -198,13 +210,8 @@ func (impl playerRepoImpl) CompetitorsCount(cid string) (int, error) {
 			},
 		}
 
-		filter := bson.M{
-			fieldCid:     cid,
-			fieldEnabled: true,
-		}
-
 		pipeline := bson.A{
-			bson.M{"$match": filter},
+			bson.M{"$match": impl.docFilter(cid)},
 			bson.M{"$addFields": fields},
 			bson.M{"$group": bson.M{"_id": nil, "total": bson.M{"$sum": "$num"}}},
 		}

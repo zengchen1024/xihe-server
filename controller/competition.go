@@ -24,11 +24,13 @@ func AddRouterForCompetitionController(
 
 	rg.GET("/v1/competition", ctl.List)
 	rg.GET("/v1/competition/:id", ctl.Get)
-	rg.GET("/v1/competition/:id/team", ctl.GetTeam)
+	rg.GET("/v1/competition/:id/team", ctl.GetMyTeam)
 	rg.GET("/v1/competition/:id/ranking", ctl.GetRankingList)
 	rg.GET("/v1/competition/:id/submissions", ctl.GetSubmissions)
+	rg.POST("/v1/competition/:id/team", ctl.CreateTeam)
 	rg.POST("/v1/competition/:id/submissions", ctl.Submit)
 	rg.POST("/v1/competition/:id/competitor", ctl.Apply)
+	rg.PUT("/v1/competition/:id/team", ctl.JoinTeam)
 	rg.PUT("/v1/competition/:id/realted_project", ctl.AddRelatedProject)
 }
 
@@ -42,6 +44,7 @@ type CompetitionController struct {
 // @Summary Apply
 // @Description apply the competition
 // @Tags  Competition
+// @Param	id	path	string				true	"competition id"
 // @Param	body	body	cc.CompetitorApplyRequest	true	"body of applying"
 // @Accept json
 // @Success 201
@@ -141,7 +144,79 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 	}
 }
 
-// @Summary GetTeam
+// @Summary CreateTeam
+// @Description create team of competition
+// @Tags  Competition
+// @Param	id	path	string			true	"competition id"
+// @Param	body	body	cc.CreateTeamRequest	true	"body of creating team"
+// @Accept json
+// @Success 201
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/team [post]
+func (ctl *CompetitionController) CreateTeam(ctx *gin.Context) {
+	req := cc.CreateTeamRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequestBody(ctx)
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	cmd, err := req.ToCmd(pl.DomainAccount())
+	if err != nil {
+		ctl.sendBadRequestParam(ctx, err)
+
+		return
+	}
+
+	if err := ctl.s.CreateTeam(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPost(ctx, "success")
+	}
+}
+
+// @Summary JoinTeam
+// @Description join a team of competition
+// @Tags  Competition
+// @Param	id	path	string			true	"competition id"
+// @Param	body	body	cc.JoinTeamRequest	true	"body of joining team"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/team [put]
+func (ctl *CompetitionController) JoinTeam(ctx *gin.Context) {
+	req := cc.JoinTeamRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequestBody(ctx)
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	cmd, err := req.ToCmd(pl.DomainAccount())
+	if err != nil {
+		ctl.sendBadRequestParam(ctx, err)
+
+		return
+	}
+
+	if err := ctl.s.JoinTeam(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPut(ctx, "success")
+	}
+}
+
+// @Summary GetMyTeam
 // @Description get team of competition
 // @Tags  Competition
 // @Param	id	path	string	true	"competition id"
@@ -149,7 +224,7 @@ func (ctl *CompetitionController) List(ctx *gin.Context) {
 // @Success 200 {object} app.CompetitionTeamDTO
 // @Failure 500 system_error        system error
 // @Router /v1/competition/{id}/team [get]
-func (ctl *CompetitionController) GetTeam(ctx *gin.Context) {
+func (ctl *CompetitionController) GetMyTeam(ctx *gin.Context) {
 	pl, _, ok := ctl.checkUserApiToken(ctx, false)
 	if !ok {
 		return

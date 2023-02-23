@@ -7,7 +7,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
-	repoerr "github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func NewWorkRepo(m mongodbClient) repository.Work {
@@ -156,7 +156,7 @@ func (impl workRepoImpl) FindWork(index domain.WorkIndex, Phase domain.Competiti
 
 	if err = withContext(f); err != nil {
 		if impl.cli.IsDocNotExists(err) {
-			err = repoerr.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorResourceNotExists(err)
 		}
 	} else {
 		version = v.Version

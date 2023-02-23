@@ -65,3 +65,35 @@ func (req *CompetitorApplyRequest) ToCmd(user types.Account) (cmd app.Competitor
 
 	return
 }
+
+type CreateTeamRequest struct {
+	Name string `json:"team_name"`
+}
+
+func (req *CreateTeamRequest) ToCmd(user types.Account) (
+	cmd app.CompetitionTeamCreateCmd, err error,
+) {
+	if cmd.Name, err = domain.NewTeamName(req.Name); err != nil {
+		return
+	}
+
+	cmd.User = user
+
+	return
+}
+
+type JoinTeamRequest struct {
+	Account string `json:"leader_account"`
+}
+
+func (req *JoinTeamRequest) ToCmd(user types.Account) (
+	cmd app.CompetitionTeamJoinCmd, err error,
+) {
+	if cmd.Leader, err = types.NewAccount(req.Account); err != nil {
+		return
+	}
+
+	cmd.User = user
+
+	return
+}

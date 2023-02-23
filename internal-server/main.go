@@ -16,6 +16,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/app"
+	competitionapp "github.com/opensourceways/xihe-server/competition/app"
+	competitiondomain "github.com/opensourceways/xihe-server/competition/domain"
+	competitionrepo "github.com/opensourceways/xihe-server/competition/infrastructure/repositoryimpl"
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
@@ -116,9 +119,9 @@ func main() {
 	)
 
 	// competition
-	competitionService := app.NewCompetitionInternalService(
-		repositories.NewCompetitionRepository(
-			mongodb.NewCompetitionMapper(collections.Competition),
+	competitionService := competitionapp.NewCompetitionInternalService(
+		competitionrepo.NewWorkRepo(
+			mongodb.NewCollection(collections.CompetitionWork),
 		),
 	)
 
@@ -248,23 +251,21 @@ func (t evaluateServer) SetEvaluateInfo(index *evaluate.EvaluateIndex, v *evalua
 
 // competition
 type competitionServer struct {
-	service app.CompetitionInternalService
+	service competitionapp.CompetitionInternalService
 }
 
 func (t competitionServer) SetSubmissionInfo(
 	index *competition.CompetitionIndex, v *competition.SubmissionInfo,
 ) error {
-	phase, err := domain.NewCompetitionPhase(index.Phase)
+	phase, err := competitiondomain.NewCompetitionPhase(index.Phase)
 	if err != nil {
 		return nil
 	}
 
 	return t.service.UpdateSubmission(
-		&domain.CompetitionIndex{
-			Id:    index.Id,
-			Phase: phase,
-		},
-		&app.CompetitionSubmissionInfo{
+		&competitionapp.CompetitionSubmissionUpdateCmd{
+			Index:  competitiondomain.NewWorkIndex("", ""), //TODO
+			Phase:  phase,
 			Id:     v.Id,
 			Status: v.Status,
 			Score:  v.Score,

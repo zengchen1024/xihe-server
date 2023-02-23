@@ -7,7 +7,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/competition/domain"
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
-	"github.com/opensourceways/xihe-server/infrastructure/repositories"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
 func NewCompetitionRepo(m mongodbClient) repository.Competition {
@@ -37,7 +37,7 @@ func (impl competitionRepoImpl) FindCompetition(cid string) (
 
 	if err = withContext(f); err != nil {
 		if impl.cli.IsDocNotExists(err) {
-			err = repositories.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorResourceNotExists(err)
 		}
 
 		return
@@ -61,7 +61,7 @@ func (impl competitionRepoImpl) FindScoreOrder(cid string) (
 
 	if err := withContext(f); err != nil {
 		if impl.cli.IsDocNotExists(err) {
-			err = repositories.NewErrorDataNotExists(err)
+			err = repoerr.NewErrorResourceNotExists(err)
 		}
 
 		return nil, err
