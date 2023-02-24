@@ -50,14 +50,6 @@ type CompetitionAddReleatedProjectCMD struct {
 	Project types.ResourceSummary
 }
 
-func (cmd *CompetitionAddReleatedProjectCMD) Validate() error {
-	if cmd.User.Account() != cmd.Project.Owner.Account() {
-		return errors.New("can't add project which is not your's")
-	}
-
-	return nil
-}
-
 func (cmd *CompetitionAddReleatedProjectCMD) repo() string {
 	return cmd.User.Account() + "/" + cmd.Project.Name.ResourceName()
 }

@@ -137,6 +137,10 @@ func (p *Player) Members() []Competitor {
 	return p.Team.Members
 }
 
+func (p *Player) Has(u types.Account) bool {
+	return p.Leader.Account.Account() == u.Account() || p.Team.isMember(u)
+}
+
 func (p *Player) RoleOfCurrentCompetitor() string {
 	if p.IsATeam() && p.isUserTheLeader() {
 		return competitionTeamRoleLeader
