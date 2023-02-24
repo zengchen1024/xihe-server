@@ -8,5 +8,5 @@ const (
 	errorSubmitTooMany       = "competition_submit_too_many_times"
 	errorCompetitorExists    = "competition_competitor_exists"
 	errorDuplicateSubmission = "competition_duplicate_submission"
-	//errorDuplicateCreatingTeam = "competition_duplicate_creating_team"
+	errorDoesnotOwnProject   = "competition_doesnot_own_project"
 )

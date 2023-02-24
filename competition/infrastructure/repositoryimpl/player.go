@@ -254,8 +254,9 @@ func (impl playerRepoImpl) addMember(
 
 	var c dCompetitor
 	toCompetitorDoc(&member.Leader, &c)
+
 	doc, err := genDoc(&c)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
