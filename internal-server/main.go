@@ -259,7 +259,7 @@ func (t competitionServer) SetSubmissionInfo(
 ) error {
 	phase, err := competitiondomain.NewCompetitionPhase(v.Phase)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return t.service.UpdateSubmission(
