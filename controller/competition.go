@@ -209,8 +209,8 @@ func (ctl *CompetitionController) JoinTeam(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctl.s.JoinTeam(ctx.Param("id"), &cmd); err != nil {
-		ctl.sendCodeMessage(ctx, "", err)
+	if code, err := ctl.s.JoinTeam(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfPut(ctx, "success")
 	}

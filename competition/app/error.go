@@ -7,6 +7,8 @@ const (
 	errorNoPermission        = "competition_no_permission"
 	errorSubmitTooMany       = "competition_submit_too_many_times"
 	errorCompetitorExists    = "competition_competitor_exists"
-	errorDuplicateSubmission = "competition_duplicate_submission"
+	errorTeamMembersEnough   = "competition_team_members_enough"
 	errorDoesnotOwnProject   = "competition_doesnot_own_project"
+	errorDuplicateSubmission = "competition_duplicate_submission"
+	errorNoCorrespondingTeam = "competition_no_corresponding_team"
 )
