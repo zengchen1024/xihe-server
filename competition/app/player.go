@@ -50,22 +50,30 @@ func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCm
 	return s.playerRepo.SavePlayer(&p, version)
 }
 
-func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) error {
+func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (code string, err error) {
 	me, pv, err := s.playerRepo.FindPlayer(cid, cmd.User)
 	if err != nil {
-		return err
+		return
 	}
 
 	team, version, err := s.playerRepo.FindPlayer(cid, cmd.Leader)
 	if err != nil {
-		return err
+		if repoerr.IsErrorResourceNotExists(err) {
+			code = errorNoCorrespondingTeam
+		}
+
+		return
 	}
 
-	if err := me.JoinTo(&team); err != nil {
-		return err
+	if err = me.JoinTo(&team); err != nil {
+		if domain.IsErrorTeamMembersEnough(err) {
+			code = errorTeamMembersEnough
+		}
+
+		return
 	}
 
-	return s.playerRepo.AddMember(
+	err = s.playerRepo.AddMember(
 		repository.PlayerVersion{
 			Player:  &team,
 			Version: version,
@@ -75,6 +83,8 @@ func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) e
 			Version: pv,
 		},
 	)
+
+	return
 }
 
 func (s *competitionService) GetMyTeam(cid string, user types.Account) (

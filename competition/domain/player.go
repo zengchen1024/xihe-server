@@ -6,6 +6,12 @@ import (
 	types "github.com/opensourceways/xihe-server/domain"
 )
 
+var errorTeamMembersEnough = errors.New("members are enough")
+
+func IsErrorTeamMembersEnough(err error) bool {
+	return errors.Is(err, errorTeamMembersEnough)
+}
+
 type Competitor struct {
 	Account  types.Account
 	Name     CompetitorName
@@ -65,7 +71,7 @@ func (t *Team) remove(a types.Account) error {
 func (t *Team) join(c *Competitor) error {
 	// TODO config
 	if len(t.Members) >= 2 {
-		return errors.New("members are enough")
+		return errorTeamMembersEnough
 	}
 
 	if t.isMember(c.Account) {
