@@ -28,7 +28,7 @@ func (s *competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code st
 	}
 
 	p := cmd.toPlayer(cid)
-	if err = s.playerRepo.SavePlayer(&p, 0); err != nil {
+	if err = s.playerRepo.AddPlayer(&p, 0); err != nil {
 		if repoerr.IsErrorDuplicateCreating(err) {
 			code = errorCompetitorExists
 		}
@@ -47,7 +47,7 @@ func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCm
 		return err
 	}
 
-	return s.playerRepo.SavePlayer(&p, version)
+	return s.playerRepo.AddPlayer(&p, version)
 }
 
 func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (code string, err error) {
@@ -124,4 +124,17 @@ func (s *competitionService) GetMyTeam(cid string, user types.Account) (
 	dto.Members = members
 
 	return
+}
+
+func (s *competitionService) ChangeTeamName(cid string, cmd *CmdToChangeCompetitionTeamName) error {
+	p, version, err := s.playerRepo.FindPlayer(cid, cmd.User)
+	if err != nil {
+		return err
+	}
+
+	if err = p.ChangeTeamName(cmd.Name); err != nil {
+		return err
+	}
+
+	return s.playerRepo.SaveTeamName(&p, version)
 }

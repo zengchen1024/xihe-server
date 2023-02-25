@@ -52,7 +52,7 @@ func (impl playerRepoImpl) docFilterByUser(cid string, a types.Account) bson.M {
 }
 
 // SavePlayer
-func (impl playerRepoImpl) SavePlayer(p *domain.Player, version int) error {
+func (impl playerRepoImpl) AddPlayer(p *domain.Player, version int) error {
 	if p.IsATeam() {
 		return impl.insertTeam(p, version)
 	}

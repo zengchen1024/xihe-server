@@ -176,3 +176,5 @@ func (s competitionService) toCompetitionDTO(
 	dto.DatasetDoc = c.DatasetDoc.URL()
 	dto.DatasetURL = c.DatasetURL.URL()
 }
+
+type CmdToChangeCompetitionTeamName = CompetitionTeamCreateCmd

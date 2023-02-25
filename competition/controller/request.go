@@ -97,3 +97,5 @@ func (req *JoinTeamRequest) ToCmd(user types.Account) (
 
 	return
 }
+
+type ChangeTeamNameRequest = CreateTeamRequest

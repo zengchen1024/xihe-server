@@ -32,6 +32,7 @@ func AddRouterForCompetitionController(
 	rg.POST("/v1/competition/:id/competitor", ctl.Apply)
 	rg.PUT("/v1/competition/:id/team", ctl.JoinTeam)
 	rg.PUT("/v1/competition/:id/realted_project", ctl.AddRelatedProject)
+	rg.PUT("/v1/competition/:id/team/action/change_name", ctl.ChangeName)
 }
 
 type CompetitionController struct {
@@ -376,6 +377,42 @@ func (ctl *CompetitionController) AddRelatedProject(ctx *gin.Context) {
 
 	if code, err := ctl.s.AddRelatedProject(&cmd); err != nil {
 		ctl.sendCodeMessage(ctx, code, err)
+	} else {
+		ctl.sendRespOfPut(ctx, "success")
+	}
+}
+
+// @Summary ChangeName
+// @Description change name of a team
+// @Tags  Competition
+// @Param	id	path	string	true	"competition id"
+// @Param	body	body	cc.ChangeTeamNameRequest	true	"body of team name"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/team/action/change_name [put]
+func (ctl *CompetitionController) ChangeName(ctx *gin.Context) {
+	req := cc.ChangeTeamNameRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequestBody(ctx)
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	cmd, err := req.ToCmd(pl.DomainAccount())
+	if err != nil {
+		ctl.sendBadRequestParam(ctx, err)
+
+		return
+	}
+
+	if err := ctl.s.ChangeTeamName(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPut(ctx, "success")
 	}
