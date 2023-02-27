@@ -15,6 +15,7 @@ const (
 	fieldUpdatedAt   = "updated_at"
 	fieldAccount     = "account"
 	fieldCompetitors = "competitors"
+	fieldLeader      = "leader"
 )
 
 type dCompetition struct {

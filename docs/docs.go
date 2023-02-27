@@ -1305,6 +1305,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/team/action/quit": {
+            "put": {
+                "description": "quit team",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "QuitTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition/{id}/team/action/transfer_leader": {
             "put": {
                 "description": "transfer leader to a member",

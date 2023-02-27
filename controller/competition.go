@@ -34,6 +34,7 @@ func AddRouterForCompetitionController(
 	rg.PUT("/v1/competition/:id/realted_project", ctl.AddRelatedProject)
 	rg.PUT("/v1/competition/:id/team/action/change_name", ctl.ChangeName)
 	rg.PUT("/v1/competition/:id/team/action/transfer_leader", ctl.TransferLeader)
+	rg.PUT("/v1/competition/:id/team/action/quit", ctl.QuitTeam)
 }
 
 type CompetitionController struct {
@@ -449,6 +450,28 @@ func (ctl *CompetitionController) TransferLeader(ctx *gin.Context) {
 	}
 
 	if err := ctl.s.TransferLeader(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPut(ctx, "success")
+	}
+}
+
+// @Summary QuitTeam
+// @Description quit team
+// @Tags  Competition
+// @Param	id	path	string	true	"competition id"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error	system error
+// @Router /v1/competition/{id}/team/action/quit [put]
+func (ctl *CompetitionController) QuitTeam(ctx *gin.Context) {
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	err := ctl.s.QuitTeam(ctx.Param("id"), pl.DomainAccount())
+	if err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPut(ctx, "success")

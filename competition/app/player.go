@@ -159,3 +159,20 @@ func (s *competitionService) TransferLeader(cid string, cmd *CmdToTransferTeamLe
 
 	return s.playerRepo.SavePlayer(&p, version)
 }
+
+func (s *competitionService) QuitTeam(cid string, competitor types.Account) error {
+	p, version, err := s.playerRepo.FindPlayer(cid, competitor)
+	if err != nil {
+		return err
+	}
+
+	if err = p.Quit(); err != nil {
+		return err
+	}
+
+	if err = s.playerRepo.SavePlayer(&p, version); err != nil {
+		return err
+	}
+
+	return s.playerRepo.ResumePlayer(cid, competitor)
+}

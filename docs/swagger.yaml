@@ -2272,6 +2272,27 @@ paths:
       summary: ChangeName
       tags:
       - Competition
+  /v1/competition/{id}/team/action/quit:
+    put:
+      consumes:
+      - application/json
+      description: quit team
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "202":
+          description: Accepted
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: QuitTeam
+      tags:
+      - Competition
   /v1/competition/{id}/team/action/transfer_leader:
     put:
       consumes:
