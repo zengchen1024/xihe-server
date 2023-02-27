@@ -91,8 +91,12 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 
 	f := func(ctx context.Context) error {
 		filter := impl.docFilterByUser(p.CompetitionId, p.Leader.Account)
+
 		if p.IsATeam() {
-			filter[fieldTeamName] = p.Team.Name.TeamName()
+			v := impl.docFilter(p.CompetitionId)
+			v[fieldTeamName] = p.Team.Name.TeamName()
+
+			filter = bson.M{"$or": bson.A{filter, v}}
 		}
 
 		_, err := impl.cli.NewDocIfNotExist(ctx, filter, doc)
