@@ -37,17 +37,25 @@ func (s *competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code st
 	return
 }
 
-func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) error {
+func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) (
+	code string, err error,
+) {
 	p, version, err := s.playerRepo.FindPlayer(cid, cmd.User)
 	if err != nil {
-		return err
+		return
 	}
 
-	if err := p.CreateTeam(cmd.Name); err != nil {
-		return err
+	if err = p.CreateTeam(cmd.Name); err != nil {
+		return
 	}
 
-	return s.playerRepo.AddPlayer(&p, version)
+	if err = s.playerRepo.AddPlayer(&p, version); err != nil {
+		if repoerr.IsErrorDuplicateCreating(err) {
+			code = errorTeamExists
+		}
+	}
+
+	return
 }
 
 func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (code string, err error) {

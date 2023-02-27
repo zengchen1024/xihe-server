@@ -175,8 +175,8 @@ func (ctl *CompetitionController) CreateTeam(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctl.s.CreateTeam(ctx.Param("id"), &cmd); err != nil {
-		ctl.sendCodeMessage(ctx, "", err)
+	if code, err := ctl.s.CreateTeam(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, code, err)
 	} else {
 		ctl.sendRespOfPost(ctx, "success")
 	}

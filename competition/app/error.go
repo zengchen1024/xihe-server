@@ -3,6 +3,7 @@ package app
 const (
 	errorIsOver              = "competition_is_over"
 	errorNotATeam            = "competition_not_a_team"
+	errorTeamExists          = "competition_team_exists"
 	errorNotFinalist         = "competition_not_finalist"
 	errorNoPermission        = "competition_no_permission"
 	errorSubmitTooMany       = "competition_submit_too_many_times"

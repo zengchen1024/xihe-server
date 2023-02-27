@@ -91,6 +91,9 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 
 	f := func(ctx context.Context) error {
 		filter := impl.docFilterByUser(p.CompetitionId, p.Leader.Account)
+		if p.IsATeam() {
+			filter[fieldTeamName] = p.Team.Name.TeamName()
+		}
 
 		_, err := impl.cli.NewDocIfNotExist(ctx, filter, doc)
 
