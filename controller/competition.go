@@ -33,6 +33,7 @@ func AddRouterForCompetitionController(
 	rg.PUT("/v1/competition/:id/team", ctl.JoinTeam)
 	rg.PUT("/v1/competition/:id/realted_project", ctl.AddRelatedProject)
 	rg.PUT("/v1/competition/:id/team/action/change_name", ctl.ChangeName)
+	rg.PUT("/v1/competition/:id/team/action/transfer_leader", ctl.TransferLeader)
 }
 
 type CompetitionController struct {
@@ -412,6 +413,42 @@ func (ctl *CompetitionController) ChangeName(ctx *gin.Context) {
 	}
 
 	if err := ctl.s.ChangeTeamName(ctx.Param("id"), &cmd); err != nil {
+		ctl.sendCodeMessage(ctx, "", err)
+	} else {
+		ctl.sendRespOfPut(ctx, "success")
+	}
+}
+
+// @Summary TransferLeader
+// @Description transfer leader to a member
+// @Tags  Competition
+// @Param	id	path	string	true	"competition id"
+// @Param	body	body	cc.TransferLeaderRequest	true	"body of member"
+// @Accept json
+// @Success 202
+// @Failure 500 system_error        system error
+// @Router /v1/competition/{id}/team/action/transfer_leader [put]
+func (ctl *CompetitionController) TransferLeader(ctx *gin.Context) {
+	req := cc.TransferLeaderRequest{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctl.sendBadRequestBody(ctx)
+
+		return
+	}
+
+	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	if !ok {
+		return
+	}
+
+	cmd, err := req.ToCmd(pl.DomainAccount())
+	if err != nil {
+		ctl.sendBadRequestParam(ctx, err)
+
+		return
+	}
+
+	if err := ctl.s.TransferLeader(ctx.Param("id"), &cmd); err != nil {
 		ctl.sendCodeMessage(ctx, "", err)
 	} else {
 		ctl.sendRespOfPut(ctx, "success")

@@ -51,7 +51,7 @@ func (impl playerRepoImpl) docFilterByUser(cid string, a types.Account) bson.M {
 	return filter
 }
 
-// SavePlayer
+// AddPlayer
 func (impl playerRepoImpl) AddPlayer(p *domain.Player, version int) error {
 	if p.IsATeam() {
 		return impl.insertTeam(p, version)
@@ -61,12 +61,15 @@ func (impl playerRepoImpl) AddPlayer(p *domain.Player, version int) error {
 }
 
 func (repo playerRepoImpl) genPlayerDoc(p *domain.Player) (bson.M, error) {
-	var c dCompetitor
-	toCompetitorDoc(&p.Leader, &c)
+	cs := make([]dCompetitor, p.CompetitorsCount())
+	for i, m := range p.Members() {
+		cs[i+1] = toCompetitorDoc(&m)
+	}
+	cs[0] = toCompetitorDoc(&p.Leader)
 
 	obj := dPlayer{
 		CompetitionId: p.CompetitionId,
-		Competitors:   []dCompetitor{c},
+		Competitors:   cs,
 		Leader:        p.Leader.Account.Account(),
 		Enabled:       true,
 	}
@@ -75,9 +78,6 @@ func (repo playerRepoImpl) genPlayerDoc(p *domain.Player) (bson.M, error) {
 	}
 
 	doc, err := genDoc(&obj)
-	if err == nil {
-		doc[fieldVersion] = 0
-	}
 
 	return doc, err
 }
@@ -87,6 +87,7 @@ func (impl playerRepoImpl) insertPlayer(p *domain.Player) error {
 	if err != nil {
 		return err
 	}
+	doc[fieldVersion] = 0
 
 	f := func(ctx context.Context) error {
 		filter := impl.docFilterByUser(p.CompetitionId, p.Leader.Account)
@@ -252,9 +253,7 @@ func (impl playerRepoImpl) addMember(
 		return err
 	}
 
-	var c dCompetitor
-	toCompetitorDoc(&member.Leader, &c)
-
+	c := toCompetitorDoc(&member.Leader)
 	doc, err := genDoc(&c)
 	if err != nil {
 		return err
@@ -265,6 +264,31 @@ func (impl playerRepoImpl) addMember(
 			ctx, filter,
 			bson.M{fieldCompetitors: doc}, mongoCmdPush, team.Version,
 		)
+	}
+
+	if err = withContext(f); err != nil {
+		if impl.cli.IsDocNotExists(err) {
+			err = repoerr.NewErrorConcurrentUpdating(err)
+		}
+	}
+
+	return err
+}
+
+// SavePlayer
+func (impl playerRepoImpl) SavePlayer(p *domain.Player, version int) error {
+	filter, err := impl.playerFilter(p)
+	if err != nil {
+		return err
+	}
+
+	doc, err := impl.genPlayerDoc(p)
+	if err != nil {
+		return err
+	}
+
+	f := func(ctx context.Context) error {
+		return impl.cli.UpdateDoc(ctx, filter, doc, mongoCmdSet, version)
 	}
 
 	if err = withContext(f); err != nil {

@@ -16,6 +16,7 @@ type CompetitionService interface {
 	JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (string, error)
 	GetMyTeam(cid string, competitor types.Account) (CompetitionTeamDTO, string, error)
 	ChangeTeamName(cid string, cmd *CmdToChangeCompetitionTeamName) error
+	TransferLeader(cid string, cmd *CmdToTransferTeamLeader) error
 
 	// competition
 	Get(cid string, competitor types.Account) (UserCompetitionDTO, error)

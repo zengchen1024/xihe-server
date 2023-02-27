@@ -228,14 +228,14 @@ func (p *Player) TransferLeader(newOne types.Account) error {
 		return errors.New("invalid operation")
 	}
 
-	if p.isUserTheLeader() {
-		return errors.New("only leader can delete a member")
+	if !p.isUserTheLeader() {
+		return errors.New("only leader can transfer leader")
 	}
 
 	t := &p.Team
 	i := t.indexOfMember(newOne)
 	if i < 0 {
-		return errors.New("not a meber")
+		return errors.New("not a member")
 	}
 
 	p.Leader, t.Members[i] = t.Members[i], p.Leader

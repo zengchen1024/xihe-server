@@ -35,6 +35,8 @@ type Player interface {
 	FindPlayer(cid string, a types.Account) (domain.Player, int, error)
 
 	FindCompetitionsUserApplied(types.Account) ([]string, error)
+
+	SavePlayer(p *domain.Player, version int) error
 }
 
 type Work interface {

@@ -724,6 +724,11 @@ definitions:
       owner:
         type: string
     type: object
+  controller.TransferLeaderRequest:
+    properties:
+      competitor_account:
+        type: string
+    type: object
   controller.aiQuestionAnswerSubmitRequest:
     properties:
       answer:
@@ -2265,6 +2270,33 @@ paths:
           schema:
             type: system_error
       summary: ChangeName
+      tags:
+      - Competition
+  /v1/competition/{id}/team/action/transfer_leader:
+    put:
+      consumes:
+      - application/json
+      description: transfer leader to a member
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of member
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TransferLeaderRequest'
+      responses:
+        "202":
+          description: Accepted
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: TransferLeader
       tags:
       - Competition
   /v1/dataset:

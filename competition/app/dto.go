@@ -178,3 +178,5 @@ func (s competitionService) toCompetitionDTO(
 }
 
 type CmdToChangeCompetitionTeamName = CompetitionTeamCreateCmd
+
+type CmdToTransferTeamLeader = CompetitionTeamJoinCmd

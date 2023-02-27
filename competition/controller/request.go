@@ -99,3 +99,20 @@ func (req *JoinTeamRequest) ToCmd(user types.Account) (
 }
 
 type ChangeTeamNameRequest = CreateTeamRequest
+
+type TransferLeaderRequest struct {
+	Account string `json:"competitor_account"`
+}
+
+func (req *TransferLeaderRequest) ToCmd(leader types.Account) (
+	cmd app.CmdToTransferTeamLeader, err error,
+) {
+	if cmd.User, err = types.NewAccount(req.Account); err != nil {
+		return
+	}
+
+	cmd.Leader = leader
+
+	return
+
+}

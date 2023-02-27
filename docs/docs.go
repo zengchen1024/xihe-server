@@ -1305,6 +1305,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/team/action/transfer_leader": {
+            "put": {
+                "description": "transfer leader to a member",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "TransferLeader",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of member",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.TransferLeaderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dataset": {
             "get": {
                 "description": "list global public dataset",
@@ -5543,6 +5584,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.TransferLeaderRequest": {
+            "type": "object",
+            "properties": {
+                "competitor_account": {
                     "type": "string"
                 }
             }
