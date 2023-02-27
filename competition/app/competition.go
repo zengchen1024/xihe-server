@@ -12,7 +12,7 @@ import (
 type CompetitionService interface {
 	// player
 	Apply(string, *CompetitorApplyCmd) (string, error)
-	CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) error
+	CreateTeam(cid string, cmd *CompetitionTeamCreateCmd) (string, error)
 	JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (string, error)
 	GetMyTeam(cid string, competitor types.Account) (CompetitionTeamDTO, string, error)
 	ChangeTeamName(cid string, cmd *CmdToChangeCompetitionTeamName) error

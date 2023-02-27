@@ -109,7 +109,7 @@ func (doc *dSubmission) toSubmission(s *domain.Submission) {
 		Status:   doc.Status,
 		OBSPath:  doc.OBSPath,
 		SubmitAt: doc.SubmitAt,
-		Score:    doc.Score,
+		Score:    float32(doc.Score),
 	}
 }
 
