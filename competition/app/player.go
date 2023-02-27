@@ -176,3 +176,20 @@ func (s *competitionService) QuitTeam(cid string, competitor types.Account) erro
 
 	return s.playerRepo.ResumePlayer(cid, competitor)
 }
+
+func (s *competitionService) DeleteMember(cid string, cmd *CmdToDeleteTeamMember) error {
+	p, version, err := s.playerRepo.FindPlayer(cid, cmd.Leader)
+	if err != nil {
+		return err
+	}
+
+	if err = p.Delete(cmd.User); err != nil {
+		return err
+	}
+
+	if err = s.playerRepo.SavePlayer(&p, version); err != nil {
+		return err
+	}
+
+	return s.playerRepo.ResumePlayer(cid, cmd.User)
+}

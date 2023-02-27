@@ -624,6 +624,11 @@ definitions:
       team_name:
         type: string
     type: object
+  controller.DeleteMemberRequest:
+    properties:
+      competitor_account:
+        type: string
+    type: object
   controller.EvaluateCreateRequest:
     properties:
       batch_size_scope:
@@ -2270,6 +2275,33 @@ paths:
           schema:
             type: system_error
       summary: ChangeName
+      tags:
+      - Competition
+  /v1/competition/{id}/team/action/delete_member:
+    put:
+      consumes:
+      - application/json
+      description: delete member of a team
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body of delete member
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.DeleteMemberRequest'
+      responses:
+        "202":
+          description: Accepted
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: DeleteMember
       tags:
       - Competition
   /v1/competition/{id}/team/action/quit:

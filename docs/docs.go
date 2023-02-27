@@ -1305,6 +1305,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/competition/{id}/team/action/delete_member": {
+            "put": {
+                "description": "delete member of a team",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Competition"
+                ],
+                "summary": "DeleteMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body of delete member",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.DeleteMemberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/competition/{id}/team/action/quit": {
             "put": {
                 "description": "quit team",
@@ -5462,6 +5503,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.DeleteMemberRequest": {
+            "type": "object",
+            "properties": {
+                "competitor_account": {
                     "type": "string"
                 }
             }

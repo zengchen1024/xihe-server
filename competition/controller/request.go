@@ -116,3 +116,5 @@ func (req *TransferLeaderRequest) ToCmd(leader types.Account) (
 	return
 
 }
+
+type DeleteMemberRequest = TransferLeaderRequest
