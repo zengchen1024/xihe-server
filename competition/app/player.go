@@ -7,6 +7,7 @@ import (
 	"github.com/opensourceways/xihe-server/competition/domain/repository"
 	types "github.com/opensourceways/xihe-server/domain"
 	repoerr "github.com/opensourceways/xihe-server/domain/repository"
+	"github.com/opensourceways/xihe-server/utils"
 )
 
 func (s *competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code string, err error) {
@@ -28,7 +29,7 @@ func (s *competitionService) Apply(cid string, cmd *CompetitorApplyCmd) (code st
 	}
 
 	p := cmd.toPlayer(cid)
-	if err = s.playerRepo.AddPlayer(&p, 0); err != nil {
+	if err = s.playerRepo.AddPlayer(&p); err != nil {
 		if repoerr.IsErrorDuplicateCreating(err) {
 			code = errorCompetitorExists
 		}
@@ -49,10 +50,18 @@ func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCm
 		return
 	}
 
-	if err = s.playerRepo.AddPlayer(&p, version); err != nil {
+	if err = s.playerRepo.DeletePlayer(&p, version); err != nil {
+		return
+	}
+
+	if err = s.playerRepo.AddPlayer(&p); err != nil {
 		if repoerr.IsErrorDuplicateCreating(err) {
 			code = errorTeamExists
 		}
+
+		utils.RetryThreeTimes(func() error {
+			return s.playerRepo.ResumePlayer(cid, cmd.User)
+		})
 	}
 
 	return
@@ -81,6 +90,10 @@ func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (
 		return
 	}
 
+	if err = s.playerRepo.DeletePlayer(&me, pv); err != nil {
+		return
+	}
+
 	err = s.playerRepo.AddMember(
 		repository.PlayerVersion{
 			Player:  &team,
@@ -91,6 +104,11 @@ func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (
 			Version: pv,
 		},
 	)
+	if err != nil {
+		utils.RetryThreeTimes(func() error {
+			return s.playerRepo.ResumePlayer(cid, cmd.User)
+		})
+	}
 
 	return
 }
