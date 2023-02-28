@@ -91,11 +91,15 @@ func LCM(a, b int) int {
 }
 
 func RetryThreeTimes(f func() error) {
-	for i := 1; i <= 3; i++ {
+	if err := f(); err == nil {
+		return
+	}
+
+	for i := 1; i < 3; i++ {
+		time.Sleep(time.Second)
+
 		if err := f(); err == nil {
 			return
 		}
-
-		time.Sleep(time.Second)
 	}
 }

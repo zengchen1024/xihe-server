@@ -60,7 +60,7 @@ func (s *competitionService) CreateTeam(cid string, cmd *CompetitionTeamCreateCm
 		}
 
 		utils.RetryThreeTimes(func() error {
-			return s.playerRepo.ResumePlayer(cid, cmd.User)
+			return s.playerRepo.ResumePlayer(cid, p.Leader.Account)
 		})
 	}
 
@@ -106,7 +106,7 @@ func (s *competitionService) JoinTeam(cid string, cmd *CompetitionTeamJoinCmd) (
 	)
 	if err != nil {
 		utils.RetryThreeTimes(func() error {
-			return s.playerRepo.ResumePlayer(cid, cmd.User)
+			return s.playerRepo.ResumePlayer(cid, me.Leader.Account)
 		})
 	}
 
