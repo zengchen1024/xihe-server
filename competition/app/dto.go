@@ -146,25 +146,27 @@ func (s competitionService) toCompetitionSubmissionDTO(
 }
 
 func (s competitionService) toCompetitionSummaryDTO(
-	c *domain.CompetitionSummary, dto *CompetitionSummaryDTO,
+	c *domain.CompetitionSummary, competitorsCount int,
+	dto *CompetitionSummaryDTO,
 ) {
 	*dto = CompetitionSummaryDTO{
-		Bonus:    c.Bonus.CompetitionBonus(),
-		Id:       c.Id,
-		Name:     c.Name.CompetitionName(),
-		Host:     c.Host.CompetitionHost(),
-		Desc:     c.Desc.CompetitionDesc(),
-		Status:   c.Status.CompetitionStatus(),
-		Poster:   c.Poster.URL(),
-		Duration: c.Duration.CompetitionDuration(),
+		Bonus:           c.Bonus.CompetitionBonus(),
+		Id:              c.Id,
+		Name:            c.Name.CompetitionName(),
+		Host:            c.Host.CompetitionHost(),
+		Desc:            c.Desc.CompetitionDesc(),
+		Status:          c.Status.CompetitionStatus(),
+		Poster:          c.Poster.URL(),
+		Duration:        c.Duration.CompetitionDuration(),
+		CompetitorCount: competitorsCount,
 	}
 }
 
 func (s competitionService) toCompetitionDTO(
-	c *domain.Competition, dto *CompetitionDTO,
+	c *domain.Competition, competitorsCount int, dto *CompetitionDTO,
 ) {
 	s.toCompetitionSummaryDTO(
-		&c.CompetitionSummary,
+		&c.CompetitionSummary, competitorsCount,
 		&dto.CompetitionSummaryDTO,
 	)
 

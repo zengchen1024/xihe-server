@@ -65,13 +65,14 @@ func (s *competitionService) Get(cid string, user types.Account) (
 	if err != nil {
 		return
 	}
-	s.toCompetitionDTO(&c, &dto.CompetitionDTO)
 
 	// competitors count
-	dto.CompetitorCount, err = s.playerRepo.CompetitorsCount(cid)
+	n, err := s.playerRepo.CompetitorsCount(cid)
 	if err != nil {
 		return
 	}
+
+	s.toCompetitionDTO(&c, n, &dto.CompetitionDTO)
 
 	// competitor info
 	if user == nil {
@@ -111,24 +112,24 @@ func (s *competitionService) List(cmd *CompetitionListCMD) (
 }
 
 func (s *competitionService) listCompetitions(opt *repository.CompetitionListOption) (
-	dtos []CompetitionSummaryDTO, err error,
+	[]CompetitionSummaryDTO, error,
 ) {
 	v, err := s.repo.FindCompetitions(opt)
 	if err != nil || len(v) == 0 {
-		return
+		return nil, err
 	}
 
-	dtos = make([]CompetitionSummaryDTO, len(v))
+	dtos := make([]CompetitionSummaryDTO, len(v))
 	for i := range v {
-		dtos[i].CompetitorCount, err = s.playerRepo.CompetitorsCount(v[i].Id)
+		n, err := s.playerRepo.CompetitorsCount(v[i].Id)
 		if err != nil {
-			return
+			return nil, err
 		}
 
-		s.toCompetitionSummaryDTO(&v[i], &dtos[i])
+		s.toCompetitionSummaryDTO(&v[i], n, &dtos[i])
 	}
 
-	return
+	return dtos, nil
 }
 
 func (s *competitionService) getCompetitionsUserApplied(cmd *CompetitionListCMD) (
