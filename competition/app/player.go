@@ -137,7 +137,7 @@ func (s *competitionService) GetMyTeam(cid string, user types.Account) (
 		members[i+1] = CompetitionTeamMemberDTO{
 			Name:    item.Name.CompetitorName(),
 			Email:   item.Email.Email(),
-			Account: user.Account(),
+			Account: item.Account.Account(),
 		}
 	}
 
@@ -146,7 +146,7 @@ func (s *competitionService) GetMyTeam(cid string, user types.Account) (
 		Name:    leader.Name.CompetitorName(),
 		Email:   leader.Email.Email(),
 		Role:    domain.TeamLeaderRole(),
-		Account: user.Account(),
+		Account: leader.Account.Account(),
 	}
 
 	dto.Members = members
