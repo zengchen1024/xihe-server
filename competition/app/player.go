@@ -135,16 +135,18 @@ func (s *competitionService) GetMyTeam(cid string, user types.Account) (
 	for i := range m {
 		item := &m[i]
 		members[i+1] = CompetitionTeamMemberDTO{
-			Name:  item.Name.CompetitorName(),
-			Email: item.Email.Email(),
+			Name:    item.Name.CompetitorName(),
+			Email:   item.Email.Email(),
+			Account: user.Account(),
 		}
 	}
 
 	leader := &p.Leader
 	members[0] = CompetitionTeamMemberDTO{
-		Name:  leader.Name.CompetitorName(),
-		Email: leader.Email.Email(),
-		Role:  domain.TeamLeaderRole(),
+		Name:    leader.Name.CompetitorName(),
+		Email:   leader.Email.Email(),
+		Role:    domain.TeamLeaderRole(),
+		Account: user.Account(),
 	}
 
 	dto.Members = members

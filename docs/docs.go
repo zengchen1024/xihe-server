@@ -6583,6 +6583,9 @@ const docTemplate = `{
         "github_com_opensourceways_xihe-server_competition_app.CompetitionTeamMemberDTO": {
             "type": "object",
             "properties": {
+                "account": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },

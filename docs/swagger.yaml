@@ -1320,6 +1320,8 @@ definitions:
     type: object
   github_com_opensourceways_xihe-server_competition_app.CompetitionTeamMemberDTO:
     properties:
+      account:
+        type: string
       email:
         type: string
       name:

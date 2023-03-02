@@ -116,9 +116,10 @@ type CompetitionTeamDTO struct {
 }
 
 type CompetitionTeamMemberDTO struct {
-	Name  string `json:"name"`
-	Role  string `json:"role"`
-	Email string `json:"email"`
+	Name    string `json:"name"`
+	Role    string `json:"role"`
+	Email   string `json:"email"`
+	Account string `json:"account"`
 }
 
 // result
