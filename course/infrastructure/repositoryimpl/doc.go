@@ -23,14 +23,14 @@ type DCourse struct {
 	Cert      string  `bson:"cert"            json:"cert"`
 
 	Assignments []dAssignments `bson:"assignments" json:"-"`
-	Sections    []dSection     `bson:"lessons"    json:"-"`
+	Sections    []dSection     `bson:"lessons"     json:"-"`
 }
 
 type dSection struct {
 	Id   string `bson:"cert"            json:"cert"`
 	Name string `bson:"name"            json:"name"`
 
-	Lessons []dLesson `bson:"lessons"            json:"-"`
+	Lessons []dLesson `bson:"lessons"   json:"-"`
 }
 
 type dLesson struct {
