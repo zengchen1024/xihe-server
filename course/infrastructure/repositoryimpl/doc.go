@@ -42,9 +42,9 @@ type dLesson struct {
 
 type dAssignments struct {
 	Id       string `bson:"id"            json:"id"`
-	Name     string `bson:"name"            json:"name"`
-	Desc     string `bson:"desc"            json:"desc"`
-	DeadLine string `bson:"deadline"            json:"deadline"`
+	Name     string `bson:"name"          json:"name"`
+	Desc     string `bson:"desc"          json:"desc"`
+	DeadLine string `bson:"deadline"      json:"deadline"`
 }
 
 // Course Player
