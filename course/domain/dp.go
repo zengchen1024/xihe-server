@@ -6,7 +6,14 @@ import (
 )
 
 const (
-	courseTypeAI = "AI"
+	courseTypeStart      = "start"
+	courseTypeFoundation = "foundation"
+	courseTypeFramework  = "framework"
+	courseTypeCV         = "cv"
+	courseTypeNLP        = "nlp"
+	courseTypeAI4Science = "ai4science"
+	courseTypeScholar    = "scholar"
+	courseTypeIndustry   = "industry"
 
 	studentIdentityStudent   = "student"
 	studentIdentityTeacher   = "teacher"
@@ -134,8 +141,17 @@ type CourseType interface {
 }
 
 func NewCourseType(v string) (CourseType, error) {
-	if v == "" || v == courseTypeAI {
+	b := v == courseTypeStart ||
+		v == courseTypeFoundation ||
+		v == courseTypeFramework ||
+		v == courseTypeCV ||
+		v == courseTypeNLP ||
+		v == courseTypeIndustry ||
+		v == courseTypeScholar
+
+	if b {
 		return courseType(v), nil
+
 	}
 
 	return nil, errors.New("invalid course type")

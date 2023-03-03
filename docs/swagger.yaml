@@ -2373,6 +2373,34 @@ paths:
       summary: TransferLeader
       tags:
       - Competition
+  /v1/course:
+    get:
+      consumes:
+      - application/json
+      description: list the course
+      parameters:
+      - description: course status, such as over, preparing, in-progress
+        in: query
+        name: status
+        type: string
+      - description: course type, such as ai, mindspore, foundation
+        in: query
+        name: type
+        type: string
+      - description: just list courses of player, if it is set
+        in: query
+        name: mine
+        type: string
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Course
   /v1/course/{id}:
     get:
       consumes:
@@ -2398,25 +2426,19 @@ paths:
     post:
       consumes:
       - application/json
-      description: list the course
+      description: apply the course
       parameters:
       - description: course id
         in: path
         name: id
         required: true
         type: string
-      - description: name of course
-        in: query
-        name: status
-        type: string
-      - description: type of course
-        in: query
-        name: type
-        type: string
-      - description: mine of course
-        in: query
-        name: mine
-        type: string
+      - description: body of applying
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.StudentApplyRequest'
       responses:
         "201":
           description: ""
@@ -2424,7 +2446,7 @@ paths:
           description: Internal Server Error
           schema:
             type: system_error
-      summary: List
+      summary: Apply
       tags:
       - Course
   /v1/dataset:

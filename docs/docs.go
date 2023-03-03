@@ -1420,6 +1420,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/course": {
+            "get": {
+                "description": "list the course",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course"
+                ],
+                "summary": "List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "course status, such as over, preparing, in-progress",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "course type, such as ai, mindspore, foundation",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "just list courses of player, if it is set",
+                        "name": "mine",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/course/{id}": {
             "get": {
                 "description": "get course infomation",
@@ -1454,14 +1497,14 @@ const docTemplate = `{
         },
         "/v1/course/{id}/player": {
             "post": {
-                "description": "list the course",
+                "description": "apply the course",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "Course"
                 ],
-                "summary": "List",
+                "summary": "Apply",
                 "parameters": [
                     {
                         "type": "string",
@@ -1471,22 +1514,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "name of course",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type of course",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "mine of course",
-                        "name": "mine",
-                        "in": "query"
+                        "description": "body of applying",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.StudentApplyRequest"
+                        }
                     }
                 ],
                 "responses": {

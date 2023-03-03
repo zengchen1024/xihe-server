@@ -88,7 +88,7 @@ func (impl *playerRepoImpl) PlayerCount(cid string) (int, error) {
 	f := func(ctx context.Context) error {
 
 		pipeline := bson.A{
-			bson.M{"$match": bson.M{"$eq": cid}},
+			bson.M{"$match": bson.M{"course_id": bson.M{"$eq": cid}}},
 			bson.M{"$count": "total"},
 		}
 
