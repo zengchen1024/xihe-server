@@ -13,4 +13,5 @@ type UserRegInfo struct {
 	Identity Identity
 	Province Province
 	Detail   map[string]string
+	Version  int
 }

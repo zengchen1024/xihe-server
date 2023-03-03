@@ -2,28 +2,27 @@ package domain
 
 // Course
 type CourseSummary struct {
-	Name    CourseName
-	Desc    CourseDesc
-	Host    CourseHost
-	Teacher URL
+	Id    string
+	Name  CourseName
+	Desc  CourseDesc
+	Host  CourseHost
+	Hours CourseHours
 
-	PassScore CoursePassScore
-	Status    CourseStatus
-	Duration  CourseDuration
-	Poster    URL
-	Cert      URL
+	Type     CourseType
+	Status   CourseStatus
+	Duration CourseDuration
+	Poster   URL
 }
 
 type Course struct {
 	CourseSummary
 
-	Id    string
-	Doc   URL
-	Forum URL
-
-	Type CourseType
-
-	Sections []Section
+	Teacher   URL
+	Doc       URL
+	Forum     URL
+	PassScore CoursePassScore
+	Cert      URL
+	Sections  []Section
 }
 
 // Assignment
@@ -47,6 +46,15 @@ type Lesson struct {
 	Id    string
 	Name  LessonName
 	Desc  LessonDesc
+	Video LessonURL
+
+	Points []Point
+}
+
+// Point
+type Point struct {
+	Id    string
+	Name  PointName
 	Video URL
 }
 
@@ -56,4 +64,12 @@ func (c *Course) IsOver() bool {
 
 func (c *Course) IsPreliminary() bool {
 	return c.Status != nil && c.Status.IsPreliminary()
+}
+
+func (c *Course) IsApplyed(p *Player) bool {
+	return p.CourseId == c.Id
+}
+
+func (l *Lesson) HasPoints() bool {
+	return len(l.Points) > 0
 }

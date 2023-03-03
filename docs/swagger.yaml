@@ -60,15 +60,76 @@ definitions:
       result:
         type: string
     type: object
+  app.CompetitionSubmissionDTO:
+    properties:
+      file_name:
+        type: string
+      score:
+        type: number
+      status:
+        type: string
+      submit_at:
+        type: string
+    type: object
+  app.CompetitionSubmissionsDTO:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/app.CompetitionSubmissionDTO'
+        type: array
+      project:
+        type: string
+    type: object
+  app.CompetitionSummaryDTO:
+    properties:
+      bonus:
+        type: integer
+      count:
+        type: integer
+      desc:
+        type: string
+      duration:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      poster:
+        type: string
+      status:
+        type: string
+    type: object
+  app.CompetitionTeamDTO:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/app.CompetitionTeamMemberDTO'
+        type: array
+      name:
+        type: string
+    type: object
+  app.CompetitionTeamMemberDTO:
+    properties:
+      account:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
   app.CompetitonRankingDTO:
     properties:
       final:
         items:
-          $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.RankingDTO'
+          $ref: '#/definitions/app.RankingDTO'
         type: array
       preliminary:
         items:
-          $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.RankingDTO'
+          $ref: '#/definitions/app.RankingDTO'
         type: array
     type: object
   app.CompletionQuestionDTO:
@@ -401,6 +462,15 @@ definitions:
       updated_at:
         type: string
     type: object
+  app.RankingDTO:
+    properties:
+      score:
+        type: number
+      submit_at:
+        type: string
+      team_name:
+        type: string
+    type: object
   app.RepoFileDownloadDTO:
     properties:
       content:
@@ -491,6 +561,49 @@ definitions:
       name:
         type: string
       status:
+        type: string
+    type: object
+  app.UserCompetitionDTO:
+    properties:
+      bonus:
+        type: integer
+      count:
+        type: integer
+      dataset_doc:
+        type: string
+      dataset_url:
+        type: string
+      desc:
+        type: string
+      doc:
+        type: string
+      duration:
+        type: string
+      forum:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      is_competitor:
+        type: boolean
+      is_finalist:
+        type: boolean
+      name:
+        type: string
+      phase:
+        type: string
+      poster:
+        type: string
+      status:
+        type: string
+      team_id:
+        type: string
+      team_role:
+        type: string
+      type:
+        type: string
+      winners:
         type: string
     type: object
   app.UserDTO:
@@ -1287,119 +1400,6 @@ definitions:
       kind:
         type: string
     type: object
-  github_com_opensourceways_xihe-server_competition_app.CompetitionSubmissionDTO:
-    properties:
-      file_name:
-        type: string
-      score:
-        type: number
-      status:
-        type: string
-      submit_at:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.CompetitionSubmissionsDTO:
-    properties:
-      details:
-        items:
-          $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionSubmissionDTO'
-        type: array
-      project:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.CompetitionSummaryDTO:
-    properties:
-      bonus:
-        type: integer
-      count:
-        type: integer
-      desc:
-        type: string
-      duration:
-        type: string
-      host:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      poster:
-        type: string
-      status:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.CompetitionTeamDTO:
-    properties:
-      members:
-        items:
-          $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionTeamMemberDTO'
-        type: array
-      name:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.CompetitionTeamMemberDTO:
-    properties:
-      account:
-        type: string
-      email:
-        type: string
-      name:
-        type: string
-      role:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.RankingDTO:
-    properties:
-      score:
-        type: number
-      submit_at:
-        type: string
-      team_name:
-        type: string
-    type: object
-  github_com_opensourceways_xihe-server_competition_app.UserCompetitionDTO:
-    properties:
-      bonus:
-        type: integer
-      count:
-        type: integer
-      dataset_doc:
-        type: string
-      dataset_url:
-        type: string
-      desc:
-        type: string
-      doc:
-        type: string
-      duration:
-        type: string
-      forum:
-        type: string
-      host:
-        type: string
-      id:
-        type: string
-      is_competitor:
-        type: boolean
-      is_finalist:
-        type: boolean
-      name:
-        type: string
-      phase:
-        type: string
-      poster:
-        type: string
-      status:
-        type: string
-      team_id:
-        type: string
-      team_role:
-        type: string
-      type:
-        type: string
-      winners:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
@@ -1807,7 +1807,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -1881,7 +1881,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -1917,7 +1917,7 @@ paths:
         type: integer
       responses:
         "201":
-          description: Created
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -1995,7 +1995,7 @@ paths:
           $ref: '#/definitions/controller.competitorApplyRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2038,7 +2038,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionSummaryDTO'
+            $ref: '#/definitions/app.CompetitionSummaryDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -2061,7 +2061,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.UserCompetitionDTO'
+            $ref: '#/definitions/app.UserCompetitionDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -2088,7 +2088,7 @@ paths:
           $ref: '#/definitions/controller.CompetitorApplyRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2138,7 +2138,7 @@ paths:
           $ref: '#/definitions/controller.AddRelatedProjectRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2161,7 +2161,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionSubmissionsDTO'
+            $ref: '#/definitions/app.CompetitionSubmissionsDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -2188,7 +2188,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionSubmissionDTO'
+            $ref: '#/definitions/app.CompetitionSubmissionDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -2211,7 +2211,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_opensourceways_xihe-server_competition_app.CompetitionTeamDTO'
+            $ref: '#/definitions/app.CompetitionTeamDTO'
         "500":
           description: Internal Server Error
           schema:
@@ -2237,7 +2237,7 @@ paths:
           $ref: '#/definitions/controller.CreateTeamRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2263,7 +2263,7 @@ paths:
           $ref: '#/definitions/controller.JoinTeamRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2271,33 +2271,6 @@ paths:
       summary: JoinTeam
       tags:
       - Competition
-  /v1/course/{id}/player:
-    post:
-      consumes:
-      - application/json
-      description: apply the course
-      parameters:
-      - description: course id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: body of applying
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/controller.StudentApplyRequest'
-      responses:
-        "201":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            type: system_error
-      summary: Apply
-      tags:
-      - Course
   /v1/competition/{id}/team/action/change_name:
     put:
       consumes:
@@ -2317,7 +2290,7 @@ paths:
           $ref: '#/definitions/controller.ChangeTeamNameRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2344,7 +2317,7 @@ paths:
           $ref: '#/definitions/controller.DeleteMemberRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2365,7 +2338,7 @@ paths:
         type: string
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2392,7 +2365,7 @@ paths:
           $ref: '#/definitions/controller.TransferLeaderRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2400,6 +2373,60 @@ paths:
       summary: TransferLeader
       tags:
       - Competition
+  /v1/course/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get course infomation
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: Get
+      tags:
+      - Course
+  /v1/course/{id}/player:
+    post:
+      consumes:
+      - application/json
+      description: list the course
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: name of course
+        in: query
+        name: status
+        type: string
+      - description: type of course
+        in: query
+        name: type
+        type: string
+      - description: mine of course
+        in: query
+        name: mine
+        type: string
+      responses:
+        "201":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      summary: List
+      tags:
+      - Course
   /v1/dataset:
     get:
       consumes:
@@ -2559,7 +2586,7 @@ paths:
           $ref: '#/definitions/controller.resourceTagsUpdateRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
       summary: SetTags
       tags:
       - Dataset
@@ -2583,7 +2610,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: Delete
       tags:
       - Dataset
@@ -2774,7 +2801,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -2794,7 +2821,7 @@ paths:
         type: string
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -3060,7 +3087,7 @@ paths:
           $ref: '#/definitions/controller.resourceTagsUpdateRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
       summary: SetTags
       tags:
       - Model
@@ -3084,7 +3111,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: Delete
       tags:
       - Model
@@ -3163,7 +3190,7 @@ paths:
           $ref: '#/definitions/controller.relatedResourceRemoveRequest'
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: RemoveRelatedDataset
       tags:
       - Model
@@ -3377,7 +3404,7 @@ paths:
           $ref: '#/definitions/controller.resourceTagsUpdateRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
       summary: SetTags
       tags:
       - Project
@@ -3401,7 +3428,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: Delete
       tags:
       - Project
@@ -3480,7 +3507,7 @@ paths:
           $ref: '#/definitions/controller.relatedResourceRemoveRequest'
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: RemoveRelatedDataset
       tags:
       - Project
@@ -3537,7 +3564,7 @@ paths:
           $ref: '#/definitions/controller.relatedResourceRemoveRequest'
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: RemoveRelatedModel
       tags:
       - Project
@@ -3588,7 +3615,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3618,7 +3645,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3653,7 +3680,7 @@ paths:
           $ref: '#/definitions/controller.RepoFileCreateRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3692,7 +3719,7 @@ paths:
           $ref: '#/definitions/controller.RepoFileUpdateRequest'
       responses:
         "202":
-          description: Accepted
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3726,7 +3753,7 @@ paths:
         type: string
       responses:
         "200":
-          description: OK
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3798,7 +3825,7 @@ paths:
         type: string
       responses:
         "200":
-          description: OK
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -3962,7 +3989,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -4049,7 +4076,7 @@ paths:
         type: string
       responses:
         "202":
-          description: Accepted
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -4245,7 +4272,7 @@ paths:
           $ref: '#/definitions/controller.followingCreateRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -4285,7 +4312,7 @@ paths:
         type: string
       responses:
         "204":
-          description: No Content
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -4335,7 +4362,7 @@ paths:
           $ref: '#/definitions/controller.likeDeleteRequest'
       responses:
         "204":
-          description: No Content
+          description: ""
         "400":
           description: Bad Request
           schema:
@@ -4371,7 +4398,7 @@ paths:
           $ref: '#/definitions/controller.likeCreateRequest'
       responses:
         "201":
-          description: Created
+          description: ""
         "400":
           description: Bad Request
           schema:

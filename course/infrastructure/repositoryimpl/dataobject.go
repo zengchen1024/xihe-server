@@ -1,6 +1,8 @@
 package repositoryimpl
 
-import "github.com/opensourceways/xihe-server/course/domain"
+import (
+	"github.com/opensourceways/xihe-server/course/domain"
+)
 
 // Course
 func (doc *DCourse) toCourse(c *domain.Course) (err error) {
@@ -12,6 +14,10 @@ func (doc *DCourse) toCourse(c *domain.Course) (err error) {
 	// course
 	c.Id = doc.Id
 
+	if c.Teacher, err = domain.NewURL(doc.Teacher); err != nil {
+		return
+	}
+
 	if c.Doc, err = domain.NewURL(doc.Doc); err != nil {
 		return
 	}
@@ -20,14 +26,18 @@ func (doc *DCourse) toCourse(c *domain.Course) (err error) {
 		return
 	}
 
-	if c.Type, err = domain.NewCourseType(doc.Type); err != nil {
+	if c.PassScore, err = domain.NewCoursePassScore(doc.PassScore); err != nil {
+		return
+	}
+
+	if c.Cert, err = domain.NewURL(doc.Cert); err != nil {
 		return
 	}
 
 	// section
-	sections := make([]domain.Section, len(doc.Sections))
+	c.Sections = make([]domain.Section, len(doc.Sections))
 	for i := range doc.Sections {
-		if err = doc.Sections[i].toSection(&sections[i]); err != nil {
+		if err = doc.Sections[i].toSection(&c.Sections[i]); err != nil {
 			return
 		}
 	}
@@ -36,6 +46,8 @@ func (doc *DCourse) toCourse(c *domain.Course) (err error) {
 }
 
 func (doc *DCourse) toCourseSummary(c *domain.CourseSummary) (err error) {
+	c.Id = doc.Id
+
 	if c.Name, err = domain.NewCourseName(doc.Name); err != nil {
 		return
 	}
@@ -48,11 +60,11 @@ func (doc *DCourse) toCourseSummary(c *domain.CourseSummary) (err error) {
 		return
 	}
 
-	if c.Teacher, err = domain.NewURL(doc.Teacher); err != nil {
+	if c.Hours, err = domain.NewCourseHours(doc.Hours); err != nil {
 		return
 	}
 
-	if c.PassScore, err = domain.NewCoursePassScore(doc.PassScore); err != nil {
+	if c.Type, err = domain.NewCourseType(doc.Type); err != nil {
 		return
 	}
 
@@ -68,10 +80,6 @@ func (doc *DCourse) toCourseSummary(c *domain.CourseSummary) (err error) {
 		return
 	}
 
-	if c.Cert, err = domain.NewURL(doc.Cert); err != nil {
-		return
-	}
-
 	return
 }
 
@@ -83,9 +91,9 @@ func (doc *dSection) toSection(s *domain.Section) (err error) {
 	}
 
 	// lesson
-	lessons := make([]domain.Lesson, len(doc.Lessons))
+	s.Lessons = make([]domain.Lesson, len(doc.Lessons))
 	for i := range doc.Lessons {
-		if err = doc.Lessons[i].toLesson(&lessons[i]); err != nil {
+		if err = doc.Lessons[i].toLesson(&s.Lessons[i]); err != nil {
 			return
 		}
 	}
@@ -104,7 +112,42 @@ func (doc *dLesson) toLesson(l *domain.Lesson) (err error) {
 		return
 	}
 
-	if l.Video, err = domain.NewURL(doc.Video); err != nil {
+	if l.Video, err = domain.NewLessonURL(doc.Video); err != nil {
+		return
+	}
+
+	// point
+	l.Points = make([]domain.Point, len(doc.Points))
+	for i := range doc.Points {
+		if err = doc.Points[i].toPoint(&l.Points[i]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func (doc *dPoint) toPoint(p *domain.Point) (err error) {
+	p.Id = doc.Id
+
+	if p.Name, err = domain.NewPointName(doc.Name); err != nil {
+		return
+	}
+
+	if p.Video, err = domain.NewURL(doc.Video); err != nil {
+		return
+	}
+
+	return
+}
+
+// player
+func (doc *DCoursePlayer) toPlayerNoStudent(p *domain.Player) (err error) {
+	p.Id = doc.Id
+
+	p.CourseId = doc.CourseId
+
+	if p.CreatedAt, err = domain.NewCourseTime(doc.CreatedAt); err != nil {
 		return
 	}
 

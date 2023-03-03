@@ -5,6 +5,8 @@ import (
 
 	"github.com/opensourceways/xihe-server/course/domain"
 	"github.com/opensourceways/xihe-server/course/domain/repository"
+	types "github.com/opensourceways/xihe-server/domain"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -16,6 +18,30 @@ type playerRepoImpl struct {
 	cli mongodbClient
 }
 
+func (impl *playerRepoImpl) FindPlayer(cid string, user types.Account) (p domain.Player, err error) {
+	var v DCoursePlayer
+
+	f := func(ctx context.Context) error {
+		filter := impl.docFilterFindPlayer(cid, user.Account())
+
+		return impl.cli.GetDoc(ctx, filter, nil, &v)
+	}
+
+	if err = withContext(f); err != nil {
+		if impl.cli.IsDocNotExists(err) {
+			err = repoerr.NewErrorResourceNotExists(err)
+		}
+
+		return
+	}
+
+	if err = v.toPlayerNoStudent(&p); err != nil {
+		return
+	}
+
+	return
+}
+
 func (impl *playerRepoImpl) SavePlayer(p *domain.Player) (err error) {
 	doc, err := impl.genPlayerDoc(p)
 	if err != nil {
@@ -24,13 +50,18 @@ func (impl *playerRepoImpl) SavePlayer(p *domain.Player) (err error) {
 	f := func(ctx context.Context) error {
 		_, err := impl.cli.NewDocIfNotExist(
 			ctx, bson.M{
-				fieldAccount: p.Account.Account(),
+				fieldAccount:  p.Account.Account(),
+				fieldCourseId: p.CourseId,
 			}, doc,
 		)
 		return err
 	}
 
 	if err = withContext(f); err != nil {
+		if impl.cli.IsDocExists(err) {
+			err = repoerr.NewErrorDuplicateCreating(err)
+		}
+
 		return
 	}
 
@@ -46,4 +77,39 @@ func (impl *playerRepoImpl) genPlayerDoc(p *domain.Player) (bson.M, error) {
 	}
 
 	return genDoc(obj)
+}
+
+// Player Count
+func (impl *playerRepoImpl) PlayerCount(cid string) (int, error) {
+	var v []struct {
+		Total int `bson:"total"`
+	}
+
+	f := func(ctx context.Context) error {
+
+		pipeline := bson.A{
+			bson.M{"$match": bson.M{"$eq": cid}},
+			bson.M{"$count": "total"},
+		}
+
+		cursor, err := impl.cli.Collection().Aggregate(ctx, pipeline)
+		if err != nil {
+			return err
+		}
+
+		return cursor.All(ctx, &v)
+	}
+
+	if err := withContext(f); err != nil || len(v) == 0 {
+		return 0, err
+	}
+
+	return v[0].Total, nil
+}
+
+func (impl *playerRepoImpl) docFilterFindPlayer(cid, account string) bson.M {
+	return bson.M{
+		fieldCourseId: cid,
+		fieldAccount:  account,
+	}
 }

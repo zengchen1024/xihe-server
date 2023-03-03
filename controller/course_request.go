@@ -50,3 +50,10 @@ func (req *StudentApplyRequest) toCmd(cid string, user types.Account) (cmd app.P
 
 	return
 }
+
+func toGetCmd(cid string, user types.Account) (cmd app.CourseGetCmd) {
+	cmd.User = user
+	cmd.Cid = cid
+
+	return
+}

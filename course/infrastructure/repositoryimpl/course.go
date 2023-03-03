@@ -50,3 +50,34 @@ func (impl *courseRepoImpl) docFilter(cid string) bson.M {
 		fieldId: cid,
 	}
 }
+
+// List
+func (impl *courseRepoImpl) FindCourses(opt *repository.CourseListOption) (
+	[]domain.CourseSummary, error) {
+	var v []DCourse
+
+	f := func(ctx context.Context) error {
+		filter := bson.M{}
+		if opt.Status != nil {
+			filter[fieldStatus] = opt.Status.CourseStatus()
+		}
+		if opt.Type != nil {
+			filter[fieldType] = opt.Type.CourseType()
+		}
+
+		return impl.cli.GetDocs(ctx, filter, nil, &v)
+	}
+
+	if err := withContext(f); err != nil || len(v) == 0 {
+		return nil, err
+	}
+
+	r := make([]domain.CourseSummary, len(v))
+	for i := range v {
+		if err := v[i].toCourseSummary(&r[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
+}

@@ -6,16 +6,17 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type mongodbClient interface {
 	IsDocNotExists(error) bool
 	IsDocExists(error) bool
-
+	Collection() *mongo.Collection
 	ObjectIdFilter(s string) (bson.M, error)
 	NewDocIfNotExist(ctx context.Context, filterOfDoc, docInfo bson.M) (string, error)
 	GetDoc(ctx context.Context, filterOfDoc, project bson.M, result interface{}) error
-
+	GetDocs(ctx context.Context, filterOfDoc, project bson.M, result interface{}) error
 }
 
 func withContext(f func(context.Context) error) error {
