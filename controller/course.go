@@ -66,14 +66,13 @@ func (ctl *CourseController) Apply(ctx *gin.Context) {
 // @Summary List
 // @Description list the course
 // @Tags  Course
-// @Param	id	path	string	true	"course id"
-// @Param	status		query	string	false	"name of course"
-// @Param	type		query	string	false	"type of course"
-// @Param	mine		query	string	false	"mine of course"
+// @Param	status	query	string	false	"course status, such as over, preparing, in-progress"
+// @Param	type	query	string	false	"course type, such as ai, mindspore, foundation"
+// @Param	mine	query	string	false	"just list courses of player, if it is set"
 // @Accept json
-// @Success 201
+// @Success 200
 // @Failure 500 system_error        system error
-// @Router /v1/course/{id}/player [post]
+// @Router /v1/course [get]
 func (ctl *CourseController) List(ctx *gin.Context) {
 	var cmd app.CourseListCmd
 	var err error
