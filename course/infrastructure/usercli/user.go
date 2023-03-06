@@ -3,6 +3,7 @@ package usercli
 import (
 	"github.com/opensourceways/xihe-server/course/domain"
 	"github.com/opensourceways/xihe-server/course/domain/user"
+	types "github.com/opensourceways/xihe-server/domain"
 	userApp "github.com/opensourceways/xihe-server/user/app"
 	userDomain "github.com/opensourceways/xihe-server/user/domain"
 )
@@ -21,7 +22,20 @@ func (impl *userImpl) AddUserRegInfo(s *domain.Student) (err error) {
 		return
 	}
 
-	return impl.srv.AddUserRegInfo(cmd)
+	return impl.srv.UpsertUserRegInfo(cmd)
+}
+
+func (impl *userImpl) GetUserRegInfo(user types.Account) (s domain.Student, err error) {
+	dto, err := impl.srv.GetUserRegInfo(user)
+	if err != nil {
+		return
+	}
+
+	if toStudent(&dto, &s) != nil {
+		return
+	}
+
+	return
 }
 
 func toUserRegisterInfoCmd(s *domain.Student, cmd *userApp.UserRegisterInfoCmd) (err error) {
@@ -52,6 +66,40 @@ func toUserRegisterInfoCmd(s *domain.Student, cmd *userApp.UserRegisterInfoCmd) 
 	}
 
 	cmd.Detail = s.Detail
+
+	return
+}
+
+func toStudent(dto *userApp.UserRegisterInfoDTO, s *domain.Student) (err error) {
+	if s.Account, err = types.NewAccount(dto.Account.Account()); err != nil {
+		return
+	}
+
+	if s.Name, err = domain.NewStudentName(dto.Name.Name()); err != nil {
+		return
+	}
+
+	if s.City, err = domain.NewCity(dto.City.City()); err != nil {
+		return
+	}
+
+	if s.Email, err = types.NewEmail(dto.Email.Email()); err != nil {
+		return
+	}
+
+	if s.Phone, err = domain.NewPhone(dto.Phone.Phone()); err != nil {
+		return
+	}
+
+	if s.Identity, err = domain.NewStudentIdentity(dto.Identity.Identity()); err != nil {
+		return
+	}
+
+	if s.Province, err = domain.NewProvince(dto.Province.Province()); err != nil {
+		return
+	}
+
+	s.Detail = dto.Detail
 
 	return
 }

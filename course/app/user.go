@@ -2,9 +2,10 @@ package app
 
 import (
 	"errors"
+	repoerr "github.com/opensourceways/xihe-server/domain/repository"
 )
 
-func (s *courseService) Apply(cmd *PlayerApplyCmd) (err error) {
+func (s *courseService) Apply(cmd *PlayerApplyCmd) (code string, err error) {
 	course, err := s.courseRepo.FindCourse(cmd.CourseId)
 	if err != nil {
 		return
@@ -27,6 +28,10 @@ func (s *courseService) Apply(cmd *PlayerApplyCmd) (err error) {
 	p.NewId()
 
 	if err = s.playerRepo.SavePlayer(&p); err != nil {
+		if repoerr.IsErrorDuplicateCreating(err) {
+			code = errorDuplicateApply
+		}
+
 		return
 	}
 

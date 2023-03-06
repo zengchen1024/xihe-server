@@ -204,6 +204,25 @@ func (r courseHost) CourseHost() string {
 	return string(r)
 }
 
+// CourseHours
+type CourseHours interface {
+	CourseHours() int
+}
+
+func NewCourseHours(v int) (CourseHours, error) {
+	if v == 0 {
+		return nil, errors.New("empty value")
+	}
+
+	return courseHours(v), nil
+}
+
+type courseHours int
+
+func (r courseHours) CourseHours() int {
+	return int(r)
+}
+
 // CoursePassScore
 type CoursePassScore interface {
 	CoursePassScore() int
@@ -382,16 +401,46 @@ type LessonDesc interface {
 }
 
 func NewLessonDesc(v string) (LessonDesc, error) {
-	if v == "" {
-		return nil, errors.New("empty value")
-	}
-
 	return lessonDesc(v), nil
 }
 
 type lessonDesc string
 
 func (r lessonDesc) LessonDesc() string {
+	return string(r)
+}
+
+// LessonURL
+type LessonURL interface {
+	LessonURL() string
+}
+
+func NewLessonURL(v string) (LessonURL, error) {
+	return lessonURL(v), nil
+}
+
+type lessonURL string
+
+func (r lessonURL) LessonURL() string {
+	return string(r)
+}
+
+// PointName
+type PointName interface {
+	PointName() string
+}
+
+func NewPointName(v string) (PointName, error) {
+	if v == "" {
+		return nil, errors.New("empty value")
+	}
+
+	return pointName(v), nil
+}
+
+type pointName string
+
+func (r pointName) PointName() string {
 	return string(r)
 }
 
