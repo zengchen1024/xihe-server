@@ -125,7 +125,7 @@ func (ctl *CourseController) List(ctx *gin.Context) {
 // @Failure 500 system_error        system error
 // @Router /v1/course/{id} [get]
 func (ctl *CourseController) Get(ctx *gin.Context) {
-	pl, _, ok := ctl.checkUserApiToken(ctx, false)
+	pl, _, ok := ctl.checkUserApiToken(ctx, true)
 	if !ok {
 		return
 	}
