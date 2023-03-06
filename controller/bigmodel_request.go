@@ -7,6 +7,10 @@ import (
 	"github.com/opensourceways/xihe-server/domain"
 )
 
+const (
+	temp_account = "wukong_icbc"
+)
+
 type describePictureResp struct {
 	Desc string `json:"desc"`
 }
@@ -98,6 +102,27 @@ type wukongRequest struct {
 }
 
 func (req *wukongRequest) toCmd() (cmd app.WuKongCmd, err error) {
+	cmd.Style = req.Style
+
+	if cmd.Desc, err = domain.NewWuKongPictureDesc(req.Desc); err != nil {
+		return
+	}
+
+	err = cmd.Validate()
+
+	return
+}
+
+type wukongICBCRequest struct {
+	Desc  string `json:"desc"`
+	Style string `json:"style"`
+}
+
+func (req *wukongICBCRequest) toCmd() (cmd app.WuKongICBCCmd, err error) {
+	if cmd.User, err = domain.NewAccount(temp_account); err != nil {
+		return
+	}
+
 	cmd.Style = req.Style
 
 	if cmd.Desc, err = domain.NewWuKongPictureDesc(req.Desc); err != nil {

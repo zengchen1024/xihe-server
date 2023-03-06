@@ -738,6 +738,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bigmodel/wukong_icbc": {
+            "post": {
+                "description": "generates pictures by WuKong-icbc",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BigModel"
+                ],
+                "parameters": [
+                    {
+                        "description": "body of wukong",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongICBCRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.wukongPicturesGenerateResp"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "bigmodel_sensitive_info"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "system_error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/challenge": {
             "get": {
                 "description": "get detail of challenge",
@@ -6775,6 +6817,17 @@ const docTemplate = `{
             "properties": {
                 "digg_count": {
                     "type": "integer"
+                }
+            }
+        },
+        "controller.wukongICBCRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
                 }
             }
         },

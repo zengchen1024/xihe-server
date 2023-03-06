@@ -1372,6 +1372,13 @@ definitions:
       digg_count:
         type: integer
     type: object
+  controller.wukongICBCRequest:
+    properties:
+      desc:
+        type: string
+      style:
+        type: string
+    type: object
   controller.wukongPictureLink:
     properties:
       link:
@@ -1918,6 +1925,33 @@ paths:
       responses:
         "201":
           description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: system_error
+      tags:
+      - BigModel
+  /v1/bigmodel/wukong_icbc:
+    post:
+      consumes:
+      - application/json
+      description: generates pictures by WuKong-icbc
+      parameters:
+      - description: body of wukong
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.wukongICBCRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.wukongPicturesGenerateResp'
+        "404":
+          description: Not Found
+          schema:
+            type: bigmodel_sensitive_info
         "500":
           description: Internal Server Error
           schema:
