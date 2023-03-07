@@ -72,15 +72,22 @@ func (s *courseService) Get(cmd *CourseGetCmd) (dto CourseDTO, err error) {
 		return
 	}
 
-	player, _ := s.playerRepo.FindPlayer(cmd.Cid, cmd.User)
-
-	if c.IsApplyed(&player) {
-		dto.toCourseDTO(&c, true)
-
+	count, err := s.playerRepo.PlayerCount(c.Id)
+	if err != nil {
 		return
 	}
 
-	dto.toCourseNoVideoDTO(&c, false)
+	if cmd.User != nil {
+		player, _ := s.playerRepo.FindPlayer(cmd.Cid, cmd.User)
+		if c.IsApplyed(&player) {
+			dto.toCourseDTO(&c, true, count)
+
+			return
+		}
+
+	}
+
+	dto.toCourseNoVideoDTO(&c, false, count)
 
 	return
 }

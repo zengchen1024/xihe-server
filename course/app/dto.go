@@ -50,8 +50,8 @@ type CourseDTO struct {
 	Sections []SectionDTO `json:"sections"`
 }
 
-func (dto *CourseDTO) toCourseDTO(c *domain.Course, apply bool) {
-	toCourseSummaryDTO(&c.CourseSummary, 0, &dto.CourseSummaryDTO)
+func (dto *CourseDTO) toCourseDTO(c *domain.Course, apply bool, count int) {
+	toCourseSummaryDTO(&c.CourseSummary, count, &dto.CourseSummaryDTO)
 
 	dto.IsApply = apply
 
@@ -67,8 +67,8 @@ func (dto *CourseDTO) toCourseDTO(c *domain.Course, apply bool) {
 	}
 }
 
-func (dto *CourseDTO) toCourseNoVideoDTO(c *domain.Course, apply bool) {
-	toCourseSummaryDTO(&c.CourseSummary, 0, &dto.CourseSummaryDTO)
+func (dto *CourseDTO) toCourseNoVideoDTO(c *domain.Course, apply bool, count int) {
+	toCourseSummaryDTO(&c.CourseSummary, count, &dto.CourseSummaryDTO)
 
 	dto.IsApply = apply
 
