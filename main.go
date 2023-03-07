@@ -10,7 +10,7 @@ import (
 
 	"github.com/opensourceways/xihe-server/config"
 	"github.com/opensourceways/xihe-server/controller"
-	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/authingimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/gitlab"
@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// authing
-	authing.Init(cfg.Authing.APPId, cfg.Authing.Secret)
+	authingimpl.Init(&cfg.Authing)
 
 	// controller
 	api := &cfg.API

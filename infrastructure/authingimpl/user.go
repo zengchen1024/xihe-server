@@ -1,4 +1,4 @@
-package authing
+package authingimpl
 
 import (
 	"errors"
@@ -7,28 +7,39 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Authing/authing-go-sdk/lib/authentication"
 	"github.com/opensourceways/community-robot-lib/utils"
 
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/domain/authing"
 )
 
-var (
-	cli *authentication.Client
-)
+var userInstance *user
 
-func Init(appId, secret string) {
-	cli = authentication.NewClient(appId, secret)
+type Config struct {
+	APPId    string `json:"app_id"    required:"true"`
+	Secret   string `json:"secret"    required:"true"`
+	Endpoint string `json:"endpoint"  required:"true"`
 }
 
-func NewAuthingUser() authing.User {
-	return user{}
+func Init(v *Config) {
+	userInstance = &user{
+		cfg:         *v,
+		tokenURL:    v.Endpoint + "/token",
+		userInfoURL: v.Endpoint + "/user",
+	}
 }
 
-type user struct{}
+func NewAuthingUser() *user {
+	return userInstance
+}
 
-func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo, err error) {
+type user struct {
+	cfg         Config
+	tokenURL    string
+	userInfoURL string
+}
+
+func (impl *user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo, err error) {
 	if accessToken == "" {
 		err = errors.New("no access token")
 
@@ -41,7 +52,7 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 		Email   string `json:"email,omitempty"`
 	}
 
-	if err = getUserInfoByAccessToken(accessToken, &v); err != nil {
+	if err = impl.getUserInfoByAccessToken(accessToken, &v); err != nil {
 		return
 	}
 
@@ -63,13 +74,13 @@ func (impl user) GetByAccessToken(accessToken string) (userInfo authing.UserInfo
 	return
 }
 
-func (impl user) GetByCode(code, redirectURI string) (login authing.Login, err error) {
+func (impl *user) GetByCode(code, redirectURI string) (login authing.Login, err error) {
 	var v struct {
 		AccessToken string `json:"access_token"`
 		IdToken     string `json:"id_token"`
 	}
 
-	if err = getAccessTokenByCode(code, redirectURI, &v); err != nil {
+	if err = impl.getAccessTokenByCode(code, redirectURI, &v); err != nil {
 		return
 	}
 
@@ -88,10 +99,10 @@ func (impl user) GetByCode(code, redirectURI string) (login authing.Login, err e
 	return
 }
 
-func getAccessTokenByCode(code, redirectURI string, result interface{}) error {
+func (impl *user) getAccessTokenByCode(code, redirectURI string, result interface{}) error {
 	body := map[string]string{
-		"client_id":     cli.AppId,
-		"client_secret": cli.Secret,
+		"client_id":     impl.cfg.APPId,
+		"client_secret": impl.cfg.Secret,
 		"grant_type":    "authorization_code",
 		"code":          code,
 		"redirect_uri":  redirectURI,
@@ -103,7 +114,7 @@ func getAccessTokenByCode(code, redirectURI string, result interface{}) error {
 	}
 
 	req, err := http.NewRequest(
-		http.MethodPost, cli.Host+"/oidc/token",
+		http.MethodPost, impl.tokenURL,
 		strings.NewReader(strings.TrimSpace(value.Encode())),
 	)
 	if err != nil {
@@ -115,13 +126,13 @@ func getAccessTokenByCode(code, redirectURI string, result interface{}) error {
 	return sendHttpRequest(req, result)
 }
 
-func getUserInfoByAccessToken(accessToken string, result interface{}) error {
-	url := cli.Host + "/oidc/me?access_token=" + accessToken
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func (impl *user) getUserInfoByAccessToken(accessToken string, result interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, impl.userInfoURL, nil)
 	if err != nil {
 		return err
 	}
+
+	req.Header.Add("Authorization", accessToken)
 
 	return sendHttpRequest(req, result)
 }
