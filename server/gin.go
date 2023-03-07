@@ -20,7 +20,7 @@ import (
 	usercli "github.com/opensourceways/xihe-server/course/infrastructure/usercli"
 	"github.com/opensourceways/xihe-server/docs"
 	"github.com/opensourceways/xihe-server/domain/platform"
-	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/authingimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
@@ -150,7 +150,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 	bigmodel := bigmodels.NewBigModelService()
 	gitlabUser := gitlab.NewUserSerivce()
 	gitlabRepo := gitlab.NewRepoFile()
-	authingUser := authing.NewAuthingUser()
+	authingUser := authingimpl.NewAuthingUser()
 	sender := messages.NewMessageSender()
 	trainingAdapter := trainingimpl.NewTraining(&cfg.Training)
 	finetuneImpl := finetuneimpl.NewFinetune(&cfg.Finetune)

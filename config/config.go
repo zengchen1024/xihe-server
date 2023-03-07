@@ -11,7 +11,7 @@ import (
 	"github.com/opensourceways/xihe-server/app"
 	"github.com/opensourceways/xihe-server/controller"
 	"github.com/opensourceways/xihe-server/domain"
-	"github.com/opensourceways/xihe-server/infrastructure/authing"
+	"github.com/opensourceways/xihe-server/infrastructure/authingimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/bigmodels"
 	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/competitionimpl"
@@ -58,7 +58,7 @@ type Config struct {
 	Training    trainingimpl.Config    `json:"training"     required:"true"`
 	Finetune    finetuneimpl.Config    `json:"finetune"     required:"true"`
 	BigModel    bigmodels.Config       `json:"bigmodel"     required:"true"`
-	Authing     authing.Config         `json:"authing"      required:"true"`
+	Authing     authingimpl.Config     `json:"authing"      required:"true"`
 	Mongodb     Mongodb                `json:"mongodb"      required:"true"`
 	Gitlab      gitlab.Config          `json:"gitlab"       required:"true"`
 	Domain      domain.Config          `json:"domain"       required:"true"`

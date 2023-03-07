@@ -1,4 +1,4 @@
-package authing
+package authingimpl
 
 import (
 	"errors"
@@ -29,7 +29,7 @@ func Init(v *Config) {
 	}
 }
 
-func NewAuthingUser() authing.User {
+func NewAuthingUser() *user {
 	return userInstance
 }
 
