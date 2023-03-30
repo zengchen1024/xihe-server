@@ -34,7 +34,7 @@ type CloudController struct {
 // @Description list cloud config
 // @Tags  Cloud
 // @Accept json
-// @Success 200 {object} app.UserCompetitionDTO
+// @Success 200 {object} []app.CloudDTO
 // @Failure 500 system_error        system error
 // @Router /v1/cloud [get]
 func (ctl *CloudController) List(ctx *gin.Context) {
