@@ -145,6 +145,7 @@ func (ctl *InferenceController) Create(ctx *gin.Context) {
 		ProjectId:    v.Id,
 		ProjectName:  v.Name.(domain.ResourceName),
 		ProjectOwner: owner,
+		ProjectTags:  v.Tags,
 		InferenceDir: ctl.inferenceDir,
 		BootFile:     ctl.inferenceBootFile,
 	}
