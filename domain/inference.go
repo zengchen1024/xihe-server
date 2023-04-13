@@ -11,6 +11,7 @@ type InferenceInfo struct {
 	InferenceIndex
 
 	ProjectName ResourceName
+	ProjectTags []string
 }
 
 type InferenceDetail struct {

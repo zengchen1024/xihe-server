@@ -378,24 +378,26 @@ func registerHandlerForInference(handler interface{}) (mq.Subscriber, error) {
 		v.Project.Id = body.ProjectId
 		v.LastCommit = body.LastCommit
 
+		info := domain.InferenceInfo{
+			InferenceIndex: v,
+		}
+
+		info.ProjectName, err = domain.NewResourceName(body.ProjectName)
+		if err != nil {
+			return
+		}
+
+		info.ProjectTags = body.ProjectTags
+
 		switch body.Action {
 		case actionCreate:
-			info := domain.InferenceInfo{
-				InferenceIndex: v,
-			}
-
-			info.ProjectName, err = domain.NewResourceName(body.ProjectName)
-			if err != nil {
-				return
-			}
-
 			return h.HandleEventCreateInference(&info)
 
 		case actionExtend:
 			return h.HandleEventExtendInferenceSurvivalTime(
 				&message.InferenceExtendInfo{
-					InferenceIndex: v,
-					Expiry:         body.Expiry,
+					InferenceInfo: info,
+					Expiry:        body.Expiry,
 				},
 			)
 		}
