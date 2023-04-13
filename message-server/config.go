@@ -17,7 +17,7 @@ type configuration struct {
 	TrainingEndpoint string `json:"training_endpoint"  required:"true"`
 	FinetuneEndpoint string `json:"finetune_endpoint"  required:"true"`
 
-	Inference  inferenceConfig         `json:"inference"    required:"true"`
+	Inference  inferenceimpl.Config    `json:"inference"    required:"true"`
 	Evaluate   evaluateConfig          `json:"evaluate"     required:"true"`
 	Cloud      cloudConfig             `json:"cloud"        required:"true"`
 	Mongodb    config.Mongodb          `json:"mongodb"      required:"true"`
@@ -82,36 +82,6 @@ func (cfg *configuration) getFinetuneConfig() finetuneimpl.Config {
 	return finetuneimpl.Config{
 		Endpoint: cfg.FinetuneEndpoint,
 	}
-}
-
-type inferenceConfig struct {
-	SurvivalTime int `json:"survival_time"`
-
-	inferenceimpl.Config
-}
-
-func (cfg *inferenceConfig) SetDefault() {
-	if cfg.SurvivalTime <= 0 {
-		cfg.SurvivalTime = 5 * 3600
-	}
-
-	var i interface{}
-	i = &cfg.Config
-
-	if f, ok := i.(config.ConfigSetDefault); ok {
-		f.SetDefault()
-	}
-}
-
-func (cfg *inferenceConfig) Validate() error {
-	var i interface{}
-	i = &cfg.Config
-
-	if f, ok := i.(config.ConfigValidate); ok {
-		return f.Validate()
-	}
-
-	return nil
 }
 
 // evaluate

@@ -146,8 +146,7 @@ func newHandler(cfg *configuration, log *logrus.Entry) *handler {
 				mongodb.NewInferenceMapper(collections.Inference),
 			),
 			userRepo,
-			inferenceimpl.NewInference(&cfg.Inference.Config),
-			cfg.Inference.SurvivalTime,
+			inferenceimpl.NewInference(&cfg.Inference),
 		),
 
 		evaluate: app.NewEvaluateMessageService(

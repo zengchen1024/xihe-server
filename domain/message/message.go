@@ -11,7 +11,7 @@ type EvaluateInfo struct {
 }
 
 type InferenceExtendInfo struct {
-	domain.InferenceIndex
+	domain.InferenceInfo
 	Expiry int64
 }
 
