@@ -39,6 +39,8 @@ import (
 	"github.com/opensourceways/xihe-server/infrastructure/mongodb"
 	"github.com/opensourceways/xihe-server/infrastructure/repositories"
 	"github.com/opensourceways/xihe-server/infrastructure/trainingimpl"
+	pointsapp "github.com/opensourceways/xihe-server/points/app"
+	pointsrepo "github.com/opensourceways/xihe-server/points/infrastructure/repositoryadapter"
 	userapp "github.com/opensourceways/xihe-server/user/app"
 	userrepoimpl "github.com/opensourceways/xihe-server/user/infrastructure/repositoryimpl"
 )
@@ -202,6 +204,14 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 	datasetService := app.NewDatasetService(user, dataset, proj, model, activity, nil, sender)
 
+	pointsAppService := pointsapp.NewUserPointsAppService(
+		pointsrepo.UserPointsAdapter(),
+	)
+
+	userAppService := userapp.NewUserService(
+		user, gitlabUser, sender, pointsAppService, controller.EncryptHelperToken(),
+	)
+
 	v1 := engine.Group(docs.SwaggerInfo.BasePath)
 	{
 		controller.AddRouterForProjectController(
@@ -220,12 +230,12 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForUserController(
-			v1, user, gitlabUser,
-			authingUser, loginService, sender, userRegService,
+			v1, userAppService, user,
+			authingUser, loginService, userRegService,
 		)
 
 		controller.AddRouterForLoginController(
-			v1, user, gitlabUser, authingUser, login, sender,
+			v1, userAppService, authingUser, login,
 		)
 
 		controller.AddRouterForLikeController(
@@ -253,7 +263,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		)
 
 		controller.AddRouterForRepoFileController(
-			v1, gitlabRepo, model, proj, dataset, sender, user, gitlabUser,
+			v1, gitlabRepo, model, proj, dataset, sender, userAppService,
 		)
 
 		controller.AddRouterForInferenceController(
@@ -283,6 +293,8 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 		controller.AddRouterForCloudController(
 			v1, cloudAppService,
 		)
+
+		controller.AddRouterForUserPointsController(v1, pointsAppService)
 
 	}
 
