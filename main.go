@@ -6,6 +6,7 @@ import (
 
 	"github.com/opensourceways/community-robot-lib/logrusutil"
 	liboptions "github.com/opensourceways/community-robot-lib/options"
+	redislib "github.com/opensourceways/redis-lib"
 	"github.com/sirupsen/logrus"
 
 	"github.com/opensourceways/xihe-server/bigmodel/infrastructure/bigmodels"
@@ -100,11 +101,21 @@ func main() {
 	}
 
 	// mq
-	if err := messages.Init(cfg.GetMQConfig(), log, cfg.MQ.Topics); err != nil {
+	redisCfg := cfg.GetRedisConfig()
+	if err = redislib.Init(&redisCfg); err != nil {
+		log.Fatalf("initialize redis of mq failed, err:%v", err)
+	}
+
+	defer redislib.Close()
+
+	if err = messages.InitKfkLib(
+		cfg.GetKfkConfig(),
+		log, cfg.MQ.Topics,
+	); err != nil {
 		log.Fatalf("initialize mq failed, err:%v", err)
 	}
 
-	defer messages.Exit(log)
+	defer messages.KfkLibExit()
 
 	// mongo
 	m := &cfg.Mongodb

@@ -8,6 +8,8 @@ import (
 	"github.com/opensourceways/community-robot-lib/mq"
 	"github.com/opensourceways/community-robot-lib/utils"
 
+	kfklib "github.com/opensourceways/kafka-lib/agent"
+	redislib "github.com/opensourceways/redis-lib"
 	"github.com/opensourceways/xihe-server/app"
 	asyncrepoimpl "github.com/opensourceways/xihe-server/async-server/infrastructure/repositoryimpl"
 	"github.com/opensourceways/xihe-server/bigmodel/infrastructure/bigmodels"
@@ -26,6 +28,10 @@ import (
 )
 
 var reIpPort = regexp.MustCompile(`^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}:[1-9][0-9]*$`)
+
+const (
+	kafkaDeaultVersion = "2.1.0"
+)
 
 func LoadConfig(path string, cfg interface{}) error {
 	if err := utils.LoadFromYaml(path, cfg); err != nil {
@@ -76,6 +82,22 @@ type Config struct {
 func (cfg *Config) GetMQConfig() mq.MQConfig {
 	return mq.MQConfig{
 		Addresses: cfg.MQ.ParseAddress(),
+	}
+}
+
+func (cfg *Config) GetKfkConfig() kfklib.Config {
+	return kfklib.Config{
+		Address: cfg.MQ.Address,
+		Version: cfg.MQ.Version,
+	}
+}
+
+func (cfg *Config) GetRedisConfig() redislib.Config {
+	return redislib.Config{
+		Address:  cfg.Redis.DB.Address,
+		Password: cfg.Redis.DB.Password,
+		DB:       cfg.Redis.DB.DB,
+		Timeout:  cfg.Redis.DB.Timeout,
 	}
 }
 
@@ -184,6 +206,7 @@ type MongodbCollections struct {
 
 type MQ struct {
 	Address string          `json:"address" required:"true"`
+	Version string          `json:"version"`
 	Topics  messages.Topics `json:"topics"  required:"true"`
 }
 
@@ -193,6 +216,12 @@ func (cfg *MQ) Validate() error {
 	}
 
 	return nil
+}
+
+func (cfg *MQ) SetDefault() {
+	if cfg.Version == "" {
+		cfg.Version = kafkaDeaultVersion
+	}
 }
 
 func (cfg *MQ) ParseAddress() []string {
