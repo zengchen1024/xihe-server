@@ -170,7 +170,9 @@ func setRouter(engine *gin.Engine, cfg *config.Config) error {
 		),
 	)
 
-	loginService := app.NewLoginService(login, sender)
+	loginService := app.NewLoginService(
+		login, messages.NewSignInMessageAdapter(&cfg.SignIn, publisher),
+	)
 
 	asyncAppService := asyncapp.NewTaskService(asyncrepoimpl.NewAsyncTaskRepo(&cfg.Postgresql.Async))
 
