@@ -10,3 +10,9 @@ type TrainingCreatedEvent struct {
 type UserSignedInEvent struct {
 	Account Account
 }
+
+type RepoDownloadedEvent struct {
+	Account Account
+	Type    ResourceType
+	Name    string
+}
