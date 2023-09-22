@@ -2,7 +2,6 @@ package config
 
 import (
 	redislib "github.com/opensourceways/redis-lib"
-	"github.com/opensourceways/xihe-server/course"
 
 	"github.com/opensourceways/xihe-server/app"
 	asyncrepoimpl "github.com/opensourceways/xihe-server/async-server/infrastructure/repositoryimpl"
@@ -15,6 +14,7 @@ import (
 	"github.com/opensourceways/xihe-server/common/infrastructure/redis"
 	"github.com/opensourceways/xihe-server/competition"
 	"github.com/opensourceways/xihe-server/controller"
+	"github.com/opensourceways/xihe-server/course"
 	"github.com/opensourceways/xihe-server/domain"
 	"github.com/opensourceways/xihe-server/infrastructure/authingimpl"
 	"github.com/opensourceways/xihe-server/infrastructure/challengeimpl"
@@ -58,8 +58,9 @@ type Config struct {
 	Points      pointsConfig                    `json:"points"`
 	Cloud       cloudmsg.Config                 `json:"cloud"        required:"true"`
 	Course      course.Config                   `json:"course"       required:"true"`
-	Resource    messages.ResourceConfig         `json:"resource"       required:"true"`
+	Resource    messages.ResourceConfig         `json:"resource"     required:"true"`
 	Download    messages.DownloadProducerConfig `json:"download"     required:"true"`
+	User        userConfig                      `json:"user"`
 }
 
 func (cfg *Config) GetRedisConfig() redislib.Config {
@@ -96,6 +97,7 @@ func (cfg *Config) ConfigItems() []interface{} {
 		&cfg.Download,
 		&cfg.Course,
 		&cfg.Resource,
+		&cfg.User,
 	}
 }
 
