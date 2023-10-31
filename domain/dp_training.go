@@ -128,7 +128,7 @@ func NewFilePath(v string) (FilePath, error) {
 		return nil, errors.New("empty file path")
 	}
 
-	v = utils.XSSFilter(v)
+	v = utils.XSSFilter(filepath.Clean(v))
 
 	if max := 50; utils.StrLen(v) > max {
 		return nil, fmt.Errorf("the length of file path should be less than %d", max)
